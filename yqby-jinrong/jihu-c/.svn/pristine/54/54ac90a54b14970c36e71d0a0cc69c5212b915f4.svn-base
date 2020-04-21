@@ -1,0 +1,33 @@
+package com.yqbing.servicebing.service;
+
+public interface HomePageService {
+    
+	/**
+	 * 
+	
+	 * @Title: homePage
+	
+	 * @Description: 首页
+	
+	 * @param token
+	 * @return
+	
+	 * @return: String
+	 */
+	String homePage(String token);
+    
+	/**
+	 * 
+	
+	 * @Title: moreApp
+	
+	 * @Description: 更多应用
+	
+	 * @param token
+	 * @return
+	
+	 * @return: String
+	 */
+	String moreApp(String token);
+
+}

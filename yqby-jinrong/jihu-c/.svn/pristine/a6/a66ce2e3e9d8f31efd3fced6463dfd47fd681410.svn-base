@@ -1,0 +1,20 @@
+package com.yqbing.servicebing.service;
+
+public interface ChargBoxService {
+    
+	
+	/**
+	 * 
+	
+	 * @Title: myTaskApps
+	
+	 * @Description: 我的任务下载列表
+	
+	 * @param token
+	 * @return
+	
+	 * @return: String
+	 */
+	String myTaskApps(String token);
+
+}

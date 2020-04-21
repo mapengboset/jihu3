@@ -1,0 +1,32 @@
+package com.yqbing.servicebing.repository.database.dao;
+
+import com.yqbing.servicebing.repository.database.abstracts.UserExample;
+import com.yqbing.servicebing.repository.database.bean.User;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+@Repository
+public interface UserMapper {
+    int countByExample(UserExample example);
+
+    int deleteByPrimaryKey(Long id);
+
+    int insert(User record);
+
+    int insertSelective(User record);
+
+    List<User> selectByExample(UserExample example);
+
+    User selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(User record);
+
+    int updateByPrimaryKey(User record);
+
+	User queryUserByLoginUser(@Param("loginUser")String loginUser);
+
+	User queryUserByMobile(@Param("name")String mobile);
+
+}

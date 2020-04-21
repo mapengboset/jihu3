@@ -1,0 +1,75 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 客户运动数据对象接口
+ * @author zhouwf
+ *
+ */
+public interface RCustomerSportObject {
+
+	/**
+	 * 设置客户对象
+	 * 
+	 * @param customerId 客户标识
+	 * @param customer 客户对象
+	 */
+	public void set(Long customerId, RCustomerSport rCustomerSport);
+
+	/**
+	 * 获取客户对象
+	 * 
+	 * @param customerId 客户标识
+	 * @return 客户对象
+	 */
+	public RCustomerSport get(Long customerId);
+
+	/**
+	 * 删除客户对象
+	 * 
+	 * @param customerId 客户标识
+	 */
+	public void remove(Long customerId);
+
+	/**
+	 * 存在客户对象
+	 * 
+	 * @param customerId 客户标识
+	 * @return 是否存在
+	 */
+	public boolean exist(Long customerId);
+
+	/**
+	 * 设置参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 * @param value 参数值
+	 */
+	public void set(Long customerId, String name, String value);
+
+	/**
+	 * 获取参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 * @return 参数值
+	 */
+	public String get(Long customerId, String name);
+
+	/**
+	 * 删除参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 */
+	public void remove(Long customerId, String name);
+
+	/**
+	 * 存在参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 * @return 持久化异常
+	 */
+	public boolean exist(Long customerId, String name);
+}

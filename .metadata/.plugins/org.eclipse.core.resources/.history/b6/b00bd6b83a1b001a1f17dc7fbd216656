@@ -1,0 +1,60 @@
+package com.hiko.gym.common.service.sms;
+
+import com.hiko.gym.common.exception.*;
+
+/**
+ * 短信服务接口
+ * 
+ * @author cychen
+ *
+ */
+public interface SmsService {
+
+	/**
+	 * 发送短信
+	 * 
+	 * @param phone 电话号码
+	 * @param type 短信类型
+	 * @param subid 短信通道
+	 * @param content 短信内容
+	 * @throws GymException 健身馆异常
+	 */
+	public void sendMessage(String phone, Short type, String subid, String content) throws GymException;
+	/**
+	  * 发送短信
+	 * @param host 服务器路径
+	 * @param username 用户名
+	 * @param password 密码
+	 * @param subid 短信通道
+	 * @param phone 手机号码
+	 * @param content 短信内容
+	 * @throws GymException
+	 * @return 成功返回true，失败返回false
+	 */
+	Boolean sendMessage(String host, String username, String password, String subid, String phone, String content);
+	
+	public Boolean sendSaleMessage(String phone, String content);
+	/**
+	 * 发送短信（宜信通）
+	 * @param mobiles 手机号码
+	 * @param content 短信内容
+	 * @param lcode 子通道
+ 	 * @param sign 短信签名
+	 * @param ssid 短信唯一标识
+	 * @return 返回状态：成功为0.
+	 * @throws GymException 
+	 */
+	public Boolean sendMsg(String content,String lcode,String sign,String ssid,String...mobiles) throws GymException;
+	/**
+	 * 发送营销短信（宜信通）
+	 * @param mobile 手机号码
+	 * @param content 短信内容
+	 * @param lcode 子通道
+	 * @param format 短信类型:15普通短信,32长短信
+	 * @param sign 短信签名
+	 * @param ssid 短信唯一标识
+	 * @return 返回状态：成功为0.
+	 * @throws GymException 
+	 */
+	public Boolean sendSaleMsg(String content,String lcode,String sign,String ssid,String...mobile) throws GymException;
+}

@@ -1,0 +1,310 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.request.AlipayFundTransToaccountTransferRequest;
+import com.alipay.api.response.AlipayFundTransToaccountTransferResponse;
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.StoreInfo;
+import com.yqbing.servicebing.repository.database.bean.StoreUser;
+import com.yqbing.servicebing.repository.database.bean.UserExt;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.WealthLog;
+import com.yqbing.servicebing.repository.database.dao.StoreInfoMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreUserMapper;
+import com.yqbing.servicebing.repository.database.dao.UserExtMapper;
+import com.yqbing.servicebing.repository.database.dao.WealthLogMapper;
+import com.yqbing.servicebing.repository.redis.RAccountCodeLog;
+import com.yqbing.servicebing.repository.redis.RCashOutLog;
+import com.yqbing.servicebing.service.AccountService;
+import com.yqbing.servicebing.service.CommonService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.webapp.response.MyStoreInfo;
+
+
+
+@Service("accountService")
+@SuppressWarnings("all")
+public class AccountServiceImpl extends CommonService implements AccountService {
+    
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
+	 @Value("${charg_service}")
+	 private   String  chargHttps;
+	 @Value("${ali_https}")
+	 private   String  aliHttps;
+	 @Value("${ali_appid}")
+	 private   String  aliAppid;
+	 @Value("${private_key}")
+	 private   String  privateKey;
+	 @Value("${alipay_public_key}")
+	 private   String  alipayBublicKey;
+	 @Value("${ali_gateway}")
+	 private   String  aliGateway;
+	 @Resource
+	 private StoreUserMapper  storeUserMapper;
+	 @Resource
+	 private StoreInfoMapper  storeInfoMapper;
+	 @Resource
+	 private UserExtMapper  userExtMapper;
+	 @Resource
+	 private WealthLogMapper  wealthLogMapper;
+	 @Resource
+	 private RAccountCodeLog rAccountCodeLog = null;
+	
+	@Override
+	public String cashout(String token, String money, String device,
+			Integer plat) {
+		
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		
+		//是否设置提现账号和密码
+		UserExt ue = userExtMapper.selectByUserId(infoBean.getId());
+		if(ue == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOTALIPAY, "请设置提现账户信息");
+		}
+		if(ue !=null){
+			
+		    if(StringUtils.isBlank(ue.getAliAccount()) ||StringUtils.isBlank(ue.getPaypwd())){
+		    	return NotifyUtil.error(ErrorCodeEnum.NOTALIPAY, "请设置提现账户密码");
+			}
+		}
+		
+		AlipayClient alipayClient = new DefaultAlipayClient(aliGateway, aliAppid, privateKey, "json", "UTF-8", alipayBublicKey, "RSA2");
+		AlipayFundTransToaccountTransferRequest request = new AlipayFundTransToaccountTransferRequest();
+		 Map<String,Object> map = new HashMap<String, Object>();
+		 String outTradeNo = getOutOrder();
+		 map.put("out_biz_no",outTradeNo);
+		 map.put("payee_type", "ALIPAY_LOGONID");
+	     map.put("payee_account", ue.getAliAccount());//支付宝账号
+		 Double money1 = Double.valueOf(money);
+		 
+		 Integer amount = (int) (money1*100);
+		 
+		 map.put("amount",amount);
+		 if(infoBean.getWealth() > amount){//提现金额不能大于账户实际金额
+			 return NotifyUtil.error(ErrorCodeEnum.NOTMONEY);
+		 }
+		 //判断同一个订单号,是否提现成功
+		WealthLog weal = wealthLogMapper.selectByOrder(outTradeNo);
+		if(weal != null ){//财富已经发送过
+			return NotifyUtil.error(ErrorCodeEnum.MONEYSEND, "已经申请了提现请稍等");
+		}
+		
+		request.setBizContent(new Gson().toJson(map));
+		AlipayFundTransToaccountTransferResponse response = null;
+		try {
+			response = alipayClient.execute(request);
+			if(response.isSuccess()){
+				
+				if(response.getSubCode().equals("10000")){//提现成功,存到提现日志
+					if(weal == null){
+						weal = new WealthLog();
+					}
+					short s = 1;
+					weal.setUserId(infoBean.getId());
+					weal.setUserName(infoBean.getName());
+					weal.setLoginPlat(s);
+					weal.setWealthBefore(infoBean.getWealth());
+					weal.setWealthAfter(infoBean.getWealth()-amount);
+					weal.setWealthCount(amount);
+				
+					weal.setLogType(s);
+					weal.setWealthState(s);
+					weal.setExchangeType(s);
+					weal.setAlipay(ue.getAliAccount());
+					weal.setExchangeTime(new Date().getDate());
+					weal.setCreateTime(new Date().getDate());
+					weal.setCommitTime(new Date().getDate());
+					weal.setRecTime(new Date());
+					wealthLogMapper.insertSelective(weal);
+					
+					
+				}
+			}else{
+				//提现失败原因
+				if(weal == null){
+					weal = new WealthLog();
+				}
+				short s = 1;
+				weal.setUserId(infoBean.getId());
+				weal.setUserName(infoBean.getName());
+				weal.setLoginPlat(s);
+				weal.setWealthBefore(infoBean.getWealth());
+				weal.setWealthAfter(infoBean.getWealth());
+				weal.setWealthCount(amount);
+			
+				weal.setLogType(s);
+				short s1 = 2;
+				weal.setWealthState(s1);
+				weal.setExchangeType(s);
+				weal.setAlipay(ue.getAliAccount());
+				weal.setTypeDesc(response.getSubMsg());
+				wealthLogMapper.insertSelective(weal);
+				return NotifyUtil.error(ErrorCodeEnum.MONEYSEND,response.getSubMsg());
+			}
+			
+			
+		} catch (AlipayApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+		}
+		
+		return NotifyUtil.success();
+	}
+
+
+
+	@Override
+	public String myStoreInfo(String token) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+		StoreUser su = storeUserMapper.selectByUserId(infoBean.getId());
+		if(su == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOTSRORE, "店铺不存在");
+		}
+		StoreInfo storeInfo = storeInfoMapper.selectByPrimaryKey(su.getStoreId());
+		if(storeInfo == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOTSRORE, "店铺不存在");
+		}
+		
+		MyStoreInfo myStoreInfo = new MyStoreInfo();
+		
+		myStoreInfo.setImg(storeInfo.getStorePic());
+		myStoreInfo.setLevel(su.getStatus() ==2?"店员":"店长");
+		myStoreInfo.setStoreCode(storeInfo.getStoreCode());
+		myStoreInfo.setStoreId(storeInfo.getStoreId());
+		myStoreInfo.setStoreName(storeInfo.getStoreName());
+		myStoreInfo.setWealth(infoBean.getWealth());
+		
+		
+		return NotifyUtil.success(myStoreInfo);
+	}
+
+
+
+	@Override
+	public String cashoutRegister(String token, String aliaccount, String name,
+			String card, String password) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+		UserExt ue = userExtMapper.selectByUserId(infoBean.getId());
+		if(ue == null){//从来没有绑定过
+			UserExt userExt = new UserExt();
+			userExt.setAliAccount(aliaccount);
+			userExt.setAliName(name);
+			userExt.setIdcard(card);
+			userExt.setPaypwd(password);
+			userExt.setUserId(infoBean.getId());
+			userExt.setCreateTime(new Date());
+			userExtMapper.insert(userExt);
+			return NotifyUtil.success();
+		}
+		ue.setAliAccount(aliaccount);
+		ue.setAliName(name);
+		ue.setIdcard(card);
+		ue.setUserId(infoBean.getId());
+		userExtMapper.updateByPrimaryKey(ue);
+		return  NotifyUtil.success();
+	}
+
+
+
+	@Override
+	public String resPassword(String token, String password) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+		UserExt ue = userExtMapper.selectByUserId(infoBean.getId());
+		
+		
+		if(ue == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOTALIPAY, "没有设置过密码");
+		}
+		ue.setPaypwd(password);
+		userExtMapper.updateByPrimaryKey(ue);
+		return NotifyUtil.success();
+	}
+
+
+
+	@Override
+	public String resPasswordPage(String token) {
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("phone", infoBean.getPhone());
+		return NotifyUtil.success(map);
+	}
+
+
+
+	@Override
+	public String PasswordCODE(String code,String phone) {
+		
+		Integer code1 = rAccountCodeLog.getCode(phone);
+		if(code1 == null || code1 == 0){
+			
+			return NotifyUtil.error(ErrorCodeEnum.EXISTPHONE, "请重新获取验证码");
+			
+		}else if(!code1.equals(Integer.valueOf(code))){//验证码错误
+			
+			return NotifyUtil.error(ErrorCodeEnum.ERRORCODE, "验证码写错了");
+		}
+		return null;
+	}
+
+
+
+	@Override
+	public String ifcashout(String token) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+        UserExt ue = userExtMapper.selectByUserId(infoBean.getId());
+		
+		
+		
+		return NotifyUtil.success(ue);
+	}
+   
+	
+}

@@ -1,0 +1,47 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 内脏脂肪率评级类
+ * 
+ * @author cychen
+ *
+ */
+public class NeizangzhifangGrade {
+
+	/** 皮下型 */
+	public static final short SUBCUTANEOUS = -1;
+	/** 均衡型 */
+	public static final short BALANCED = 0;
+	/** 警戒 */
+	public static final short WARNING = 1;
+	/** 肥胖 */
+	public static final short FAT = 2;
+	/** 非常肥胖 */
+	public static final short VERY_FAT = 3;
+
+	/**
+	 * 获取内脏脂肪率评级描述
+	 * 
+	 * @param neizangzhifangGrade 内脏脂肪率评级值
+	 * @return 内脏脂肪率评级描述
+	 */
+	public static String getDescription(short neizangzhifangGrade) {
+		if (neizangzhifangGrade == SUBCUTANEOUS) {
+			return "皮下型";
+		}
+		if (neizangzhifangGrade == BALANCED) {
+			return "均衡";
+		}
+		if (neizangzhifangGrade == WARNING) {
+			return "警戒";
+		}
+		if (neizangzhifangGrade == FAT) {
+			return "肥胖";
+		}
+		if (neizangzhifangGrade == VERY_FAT) {
+			return "过胖";
+		}
+		return "";
+	}
+
+}

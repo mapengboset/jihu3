@@ -1,0 +1,413 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
+import java.util.Base64;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import sun.misc.BASE64Decoder;
+
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.request.AlipaySystemOauthTokenRequest;
+import com.alipay.api.response.AlipaySystemOauthTokenResponse;
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.dao.StoreInfoMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreUserMapper;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.jihuc.bean.UserInfoKX;
+import com.yqbing.servicebing.repository.jihuc.bean.UserTaskLog;
+import com.yqbing.servicebing.repository.jihuc.dao.UserInfoKXMapper;
+import com.yqbing.servicebing.repository.jihuc.dao.UserTaskLogMapper;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.service.CommonService;
+import com.yqbing.servicebing.service.UserLogIngService;
+import com.yqbing.servicebing.utils.CloudUtil;
+import com.yqbing.servicebing.utils.DateUtil;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.utils.SendUtils;
+import com.yqbing.servicebing.webapp.controller.UserLogIngController;
+import com.yqbing.servicebing.webapp.response.UserService;
+
+@Service("userLogIngService")
+@SuppressWarnings("all")
+public class UserLogIngServiceImpl  extends CommonService implements UserLogIngService{
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserLogIngServiceImpl.class);
+	private static final byte t = 0;
+	private static final byte s = 1;
+	@Resource
+	private RUserLogBean rUserLogBean = null;
+	
+	@Resource
+	private UserInfoBeanMapper userInfoBeanMapper = null;
+	@Resource
+	private UserInfoKXMapper userInfoKXMapper = null;
+	
+	@Resource
+	private UserTaskLogMapper userTaskLogMapper = null;
+	
+	
+	private static String private_key = "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCWJA/pKxZzf2S1LJ9NW4bZ0dDP2xdkOXh16HDWMPLOsexquUsTw6TiqfP6fJnI9Wb3gl8uv3nRqUuu/8Fxz4jYJ/yu7EfdUe6jhhUXQRkrTxdf8XmLnysSkaeR/TqA7+BGmpvRPrb8RQsjEVoTBYJjpUPU1GCsy5voclHy2EB0PJlFK5Wdam2Tum5Fb1bbkwibyC2rN43wz+H3UAXT+4ZzBGIDjl8IFokqLE66qqK9+27JmyAkx0Cg+cRrF01sasD76o/YVEPiyh1p+6pk2BMnhCiY7tVV742lJKOck4XEFJIShSFd+jHCBVqI3Qng9kqyup6oXFg8tDefzgh9FNQlAgMBAAECggEACor5uwvVhcK6VaaOgSYeMAl1ukLOP7FxbgYmdkP1qOIBkfT0+qxQVcJNaZd6TQw+cL7s5CF58mkK8XzwHofOOi+EpNveqAHq2fy+WmWt2MazA3+3Y0CIC8PCmpPHmeo+O3b73hOjUc+fWpULWC6Y21ptivJm33tktUvhyUW6MO88rwtp2V8Mc6jkmd+wL5BRQ34SbYBZtDrlhmrReJZolqDQnu2i5poC7OsCUtClxFay9qmblBlE23NrRo2eVyb63p1Ww0jyzgmmo4Uo4CpfZ303fNusNz109E8SZU1xmzLm6z0XldXy28ZwVNwzdViTRdlQZ8YR3yzNMF60oQ1XwQKBgQDdcT2n+FRr17Lz7wZGerw4I7uxnqFxf4i1YbXQ+AqvTpZWU7YsGD2A/Ud32zfZl5gLyxWK4IAwJyb2iYYoBnvDC+D5Bksv+QI/A69WiDvNof/h3jjHf3bGZTJ6t0ekVWneAcpH5WYUFgD/l2tCUy/FMiarZFpou5fV+sS8zVkTaQKBgQCtkkhw4h2U/3ydrJ4hODPjug9+L8+stY5HxN33s4/CgJU/4VbRWihiPbJ7ip4ILV8WJuA+R+bi0iU0WXOAlc+6UQqDiditK0j/0o+6CEO8WcIxB786gwxK/WnU/ORAL8dmn5T6BHQJGt33S/opX325xNtATjd4Ky8NW9XzeVSvXQKBgQCT8B5XxCBqN503OB2CImbyPnUbUbXbhG9JdfConb1NpvvqylwvEzaroQoI+axTMuKCJnfK4vbgtJdkJzY4MTSndp0i4OCEOSAWBxkxfyws0aiINhTKus4X9u2FbEJxeBqVFa8U3x2WF6ktF/SxR6/nVvzcjduUkpb6fmDHHYz/2QKBgQCl3UtSbBG+x6Kq/kCiGBYmATA68q9vKJQNa0h+I142jS+SuuB+8Lv0nWbI/f7ka48ZGQ9jFMzDZfPdoblpYEAAmN8GMh0X5mw841crfChWfiO/PNr1rDN8Gcwfl4b6+21+WPNBNC46YS1J25X0IWeAtWibe+Mv93xgNKkwoHpXlQKBgCSonmypEa/CzBn4ECLuNzlEB46/Qu7wEmcvtO22UvWRIgqEABswDB7g3LLJWBYZH8QXUZEgvh+Tt4uvGzuRkC543s4REJRhhIlYS2JTaP/9k6vKcuxszu8PXmpweeDAhTTPvnoE9ebQ/uOEtQxYs9Fr4E5Sl921yVPfdVQRDexa";
+    private	static String alipay_public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAliQP6SsWc39ktSyfTVuG2dHQz9sXZDl4dehw1jDyzrHsarlLE8Ok4qnz+nyZyPVm94JfLr950alLrv/Bcc+I2Cf8ruxH3VHuo4YVF0EZK08XX/F5i58rEpGnkf06gO/gRpqb0T62/EULIxFaEwWCY6VD1NRgrMub6HJR8thAdDyZRSuVnWptk7puRW9W25MIm8gtqzeN8M/h91AF0/uGcwRiA45fCBaJKixOuqqivftuyZsgJMdAoPnEaxdNbGrA++qP2FRD4sodafuqZNgTJ4QomO7VVe+NpSSjnJOFxBSSEoUhXfoxwgVaiN0J4PZKsrqeqFxYPLQ3n84IfRTUJQIDAQAB";
+
+	
+	@Value("${user_service}")
+	private String userHttps = null;
+	@Value("${wx_secret}")
+	private String secret = null;
+	@Value("${wx_appid}")
+	private String appid = null;
+	@Value("${wx_https}")
+	private String https = null;
+	
+	
+	@Override
+	public String login(String password, String phone, String code,
+				String device, String version, Integer plat) {
+			
+	            if(phone.equals("youke123123")){
+				
+				Map<String,Object> map = new HashMap<String,Object>();
+				map.put("token","yokejixudengluzhong");
+				map.put("first","wu");
+				map.put("username","游客");
+				map.put("img","");
+				map.put("phone","youke123123");
+			    map.put("password",0);
+			//	map.put("replace",""}user.getPhone()==null?"":user.getPhone());
+			//	map.put("UploadToken",uploadToken);
+				return NotifyUtil.success(map);
+		       }
+		
+		
+		        short y = 1;
+		        UserInfoBean user =null;
+		        String token = null;
+		        //判断验证码是否存在/是否超时
+				String code2 = getCode(code,phone);
+				if(code2 != null){
+					return code2;
+				}
+				//成功,返回token//缓存到key(phone)redis
+				user = rUserLogBean.getPhone(phone);
+				if(user == null){
+					user = userInfoBeanMapper.queryAndPhone(phone);
+				}
+				if(user == null){
+					user = new UserInfoBean();
+					user.setPhone(phone);
+				
+					user.setDevice(device);
+				    user.setPassword(password);
+					user.setType(1+"");
+					user.setStatus(t);
+				//	user.setVersion(version);
+				//	user.setPlat(plat);
+					UserService userService = getUserId(device, version, phone, plat,y);
+					if(userService == null){
+						return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "小萌萌.不好意思再来一次吧");
+					}
+					user.setId(Long.valueOf(userService.getUserId()+""));
+					
+					token = userService.getToken();
+					user.setToken(token);
+					user.setCreateTime(new Date());
+					user.setName("梦想-"+phone);
+					int i = userInfoBeanMapper.insertSelective(user);
+					if(i == 0){
+						return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "小萌萌.不好意思再来一次吧");
+					}
+					rUserLogBean.sePhone(phone, user);
+					rUserLogBean.set(token, user);
+				
+	         }else{
+	        	 LOGGER.info("---------------------------用户登录信息"+user.getStatus()); 
+	        	 if(user.getStatus() == 1){//已经冻结禁止登陆
+	        		 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "已经冻结,请联系客服");
+	        	 }
+	        	 y = 2;
+	        	 UserService userService = getUserId(device, version, phone, plat,y);
+				 if(userService == null){
+						return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "老弟,不好意思再来一次吧");
+					}
+			//	 user.setId(Long.valueOf(userService.getUserId()+""));
+				 token = userService.getToken();
+	        	 user.setToken(token);
+	        	 user.setUpdateTime(new Date());
+	        	 if(token != null){
+	        		 
+	        		 userInfoBeanMapper.updateByPrimaryKeySelective(user);
+	        		 rUserLogBean.remove(token);
+	        	 }
+	         }
+			//	String uploadToken = CloudUtil.getUploadToken();
+				Map<String,Object> map = new HashMap<String,Object>();
+				map.put("token",token);
+				map.put("userId",user.getId());
+				/*map.put("username",user.getName()==null?"":user.getName());
+				map.put("img",user.getImage()==null?"":user.getImage());
+				map.put("phone",user.getPhone()==null?"":user.getPhone());*/
+				map.put("storeInfo",queryStore(token));
+					
+				map.put("password",user.getPassword());
+			//	map.put("replace",""}user.getPhone()==null?"":user.getPhone());
+			//	map.put("UploadToken",uploadToken);
+				return NotifyUtil.success(map);
+	}
+	
+	public  String getCode(String code,String phone){
+		Integer code1 = rUserLogBean.getCode(phone);
+		if(code1 == null || code1 == 0){
+			
+			return NotifyUtil.error(ErrorCodeEnum.EXISTPHONE, "老弟,请重新获取验证码");
+			
+		}else if(!code1.equals(Integer.valueOf(code))){//验证码错误
+			
+			return NotifyUtil.error(ErrorCodeEnum.ERRORCODE, "老弟,验证码写错了");
+		}
+		return null;
+	}
+	
+	public UserService getUserId(String device,String version,String mobile,Integer plat, short y){
+		Map<String,String> map = new HashMap<String, String>();
+		Map<String,String> map1 = new HashMap<String, String>();
+	//	Map<String, String> sign = ParamSignUtil.sign(map);
+	//	map.put("sign", sign)
+		String appChannel = "31";
+		if(plat == 2){//android
+			appChannel = "32";
+		}
+		map.put("appChannel", appChannel);
+		map.put("device", device);
+		map.put("version", version);
+		map.put("loginUser", mobile);
+		UserService userService = new UserService();
+		map1.put("data", new Gson().toJson(map));
+		String user= null;
+		if(y == 1){
+			
+			 user= SendUtils.doPost(userHttps+"/app/user/api/reg", map1);
+		}else{
+			 user= SendUtils.doPost(userHttps+"/app/user/api/login", map1);
+		}
+		JSONObject JSONObject = new JSONObject(user);
+		int code = JSONObject.getInt("code");
+		if(code != 0){
+			 
+			 return userService;
+		 }
+		 
+		 JSONObject object = JSONObject.getJSONObject("body");
+		 Integer userId = (Integer) object.get("userId");
+		 Integer appId = (Integer) object.get("appId");
+		 String token = object.getString("token");
+		 userService.setAppId(appId);
+		 userService.setUserId(userId);
+		 userService.setToken(token);
+		
+		return userService;
+	}
+
+	@Override
+	public String auth(String code, Integer type) {
+		
+		
+		// https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code
+		//成功,返回token//缓存到key(phone)redis
+		 Map<String,String> map = null;
+		 Map<String,Object> map1 = null;
+		 String openId = null;
+		try {
+			
+			
+			map = new HashMap<String, String>();
+			
+			if(type == 1){
+				map.put("appid", appid);
+				map.put("secret", secret);
+				map.put("js_code", code);
+				map.put("grant_type", "authorization_code");
+				
+				String result = SendUtils.doGet(https, map);
+				if(result != null){
+					JSONObject json = new JSONObject(result);
+					openId = (String) json.get("openid");
+					
+				}
+			}else{
+				AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do", "2018120462475299", private_key, "json", "UTF-8", alipay_public_key, "RSA2");
+				AlipaySystemOauthTokenRequest request = new AlipaySystemOauthTokenRequest();
+				request.setGrantType("authorization_code");
+				request.setCode(code);
+				AlipaySystemOauthTokenResponse response = alipayClient.execute(request);
+				if(response.isSuccess()){
+					openId = response.getAlipayUserId();
+				}else{
+					return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,"支付宝授权失败");
+				}
+				
+			}
+			
+		    UserInfoKX infokx = userInfoKXMapper.queryAndOpenId(openId);
+			   
+		    if(infokx == null){
+		    	 infokx = new UserInfoKX();
+		    	 if(type == 1){
+		    		 infokx.setType(4+"");
+		    	 }else{
+		    		 infokx.setType(7+"");
+		    	 }
+		    	 infokx.setStatus(t);
+		    	 infokx.setOpenId(openId); 
+		    	 infokx.setToken(openId);
+		    	 infokx.setCreateTime(new Date()); 
+		    	 infokx.setId(rUserLogBean.increment(new Date().getTime()));
+		    	 userInfoKXMapper.insert(infokx);
+		    
+		     }
+			     map1 = new HashMap<String,Object>();
+			     map1.put("openId",openId);
+			     map1.put("token",infokx.getToken());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,"获取授权失败");
+		}
+        return NotifyUtil.success(map1);		
+	}
+
+	
+	
+	@Override
+	public String wxLogIn(String token, String openId, Integer type) {
+		
+		UserInfoKX user = userInfoKXMapper.queryAndOpenId(openId);
+		try {
+			if(user != null){
+				
+				Map<String,Object> map1 = new HashMap<String,Object>();
+			     
+				map1.put("openId",user.getOpenId());
+				map1.put("token",user.getToken());
+			     
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return NotifyUtil.error(ErrorCodeEnum.PARAMERROE);
+	}
+	
+
+	@Override
+	public String getPhone(String phone, String openId, Integer type,String code) {
+		
+		// https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code
+		//成功,返回token//缓存到key(phone)redis
+		UserInfoKX user = null;
+		Map<String,Object> map1 = new HashMap<String,Object>();
+		
+		user = userInfoKXMapper.queryAndOpenId(openId);
+	    if(StringUtils.isBlank(phone)){
+	    	  if(user == null){
+	    		  
+	    		  return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "请先授权");
+	    		  
+	    	  }
+	    	  map1.put("phone",user.getPhone());
+			     
+			  map1.put("openId",openId);
+			  map1.put("token",user.getToken());
+			  return NotifyUtil.success(map1);	
+	    }
+		short y = 1;
+		String token = null;
+		//验证码是否正确
+		String code2 = getCode(code,phone);
+		if(code2 != null){
+			return code2;
+		}
+		UserInfoKX user1 = userInfoKXMapper.queryAndPhone(phone);
+		try {
+			if(user1 == null){//新用户
+			    
+				if(user == null){
+		    		  
+		    		  return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "请先授权");
+		    		  
+		    	}
+				
+				userInfoKXMapper.deleteByPrimaryKey(user.getId());
+				UserInfoKX userinfo = new UserInfoKX();
+				userinfo.setPhone(phone);
+				userinfo.setOpenId(openId);
+				userinfo.setType(4+"");
+				userinfo.setStatus(t);
+				UserService userService = getUserId("wxa9663f105a4c7c30", "1.0", phone, 1,y);
+				if(userService == null){
+					return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "不好意思再来一次吧");
+				}
+				userinfo.setId(Long.valueOf(userService.getUserId()+""));
+				token = userService.getToken();
+				userinfo.setToken(token);
+				userinfo.setCreateTime(new Date());
+				int i = userInfoKXMapper.insertSelective(userinfo);
+				if(i == 0){
+					return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "不好意思再来一次吧");
+				}
+				
+				UserTaskLog taskLog = new UserTaskLog();
+				taskLog.setTaskNum(1);
+				taskLog.setTaskType(s);
+				taskLog.setStatus(t);
+				taskLog.setRemark("首次注册");
+				taskLog.setUserId(Long.valueOf(userService.getUserId()+""));
+				taskLog.setCreateDay(DateUtil.parse(DateUtil.format(new Date())));
+				taskLog.setCreateTime(new Date());
+				userTaskLogMapper.insertSelective(taskLog);
+				
+				
+			}else{//老用户
+				
+			     y = 2;
+	        	 UserService userService = getUserId("wxa9663f105a4c7c30", "1.0", phone, 1,y);
+				 if(userService == null){
+						return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "不好意思再来一次吧");
+					}
+				 token = userService.getToken();
+				 user1.setToken(token);
+				 user1.setPhone(phone);
+				 user1.setUpdateTime(new Date());
+				 user1.setOpenId(openId);
+	        	 if(token != null){
+	        		 
+	        		 userInfoKXMapper.updateByPrimaryKeySelective(user1);
+	        	 }
+			}
+			
+			 map1.put("phone",phone);
+		     
+			 map1.put("openId",openId);
+			 map1.put("token",token);
+		} catch (Exception e) {
+			 e.printStackTrace();
+			 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+		}
+		
+        return NotifyUtil.success(map1);		
+	}
+}

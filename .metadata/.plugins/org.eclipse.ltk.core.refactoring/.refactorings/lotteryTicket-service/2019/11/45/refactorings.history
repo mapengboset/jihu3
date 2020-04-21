@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;AddressReq.java&apos; to &apos;jihustore-service/src/main/java/com.yqbing.servicebing.webapp.request&apos;&#x0D;&#x0A;- Original project: &apos;lotteryTicket-service&apos;&#x0D;&#x0A;- Destination element: &apos;jihustore-service/src/main/java/com.yqbing.servicebing.webapp.request&apos;&#x0D;&#x0A;- Original element: &apos;com.yqbing.servicebing.webapp.request.AddressReq.java&apos;" description="Copy compilation unit" destination="=jihustore-service/src\/main\/java&lt;com.yqbing.servicebing.webapp.request" element1="/src\/main\/java&lt;com.yqbing.servicebing.webapp.request{AddressReq.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1573113285046" units="1" version="1.0"/>
+</session>

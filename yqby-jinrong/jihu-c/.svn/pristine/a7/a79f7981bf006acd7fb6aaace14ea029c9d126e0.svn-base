@@ -1,0 +1,289 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.docx4j.model.datastorage.XPathEnhancerParser.main_return;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.service.StoreInfoService;
+import com.yqbing.servicebing.service.UserLogingService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.utils.SendSms;
+
+
+@RestController
+@CrossOrigin
+@Api(tags = "用户登录接口")
+@SuppressWarnings("all")
+public class UserLogingController extends BaseController{
+
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserLogingController.class);
+	
+	@Resource
+	private RUserLogBean rUserLogBean = null;
+	@Resource
+	private UserLogingService userLogingService = null;
+	@Resource
+	private StoreInfoService storeInfoService = null;
+	
+/*	//未注册/已注册过,直接登录
+    @RequestMapping(value = "/user/register",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+    
+	public String registerUser(@ApiParam(value = "data") @RequestParam(value = "data", required = true) String data
+			){
+    	
+    	  LOGGER.info("--------------------------------------------user/register:"+data);
+    	  String phone = StringUtils.EMPTY;
+    	  String code = StringUtils.EMPTY;//验证码
+    	  String invite = StringUtils.EMPTY;//邀请码
+    	  String password = StringUtils.EMPTY;//密码
+ 	      String result = StringUtils.EMPTY;
+	      try {
+	    	  
+	            JSONObject obj = JSONObject.fromObject(data);
+	            phone = obj.getString("phone");
+	            code = obj.getString("code");
+	           invite = obj.getString("invite");
+	            password = obj.getString("password");
+	        } catch (Exception e) {
+	        	
+	        	LOGGER.error("转换对象失败" + e.getMessage(), e.getCause());
+	           
+	        }
+	        if(!StringUtils.isNotBlank(phone)){
+	        	
+	        	   result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"手机号必须填写");
+	    			
+	    			return result;
+	        }
+	        if(!StringUtils.isNotBlank(code)){
+	        	
+	        	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"验证码必须填写");
+	        	
+	        	return result;
+	        }
+	        if(!StringUtils.isNotBlank(password)){
+	        	
+	        	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"密码必须填写");
+	        	
+	        	return result;
+	        }
+ 	  
+ 		//
+ 		LOGGER.info("/user/register--------------------------------------参数集合手机号:"+phone+"验证码:"+code);
+ 	    //---验证码+手机号
+ 		try {
+			
+ 			result =  userLogingService.registerUser(phone,code,password);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+ 		
+    //	UserInfoBean infoBean = new UserInfoBean();
+    //	infoBean.setPhone("sdfasf");
+    	
+    //	rUserLogBean.set("123456", infoBean);
+    	return result;
+    }
+	 */
+    
+    //密码登录
+    @RequestMapping(value = "/user/loginUser",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String loginUser(@ApiParam(value = "phone") @RequestParam(value = "phone", required = true) String phone,
+			@ApiParam(value = "password") @RequestParam(value = "password", required = true) String password,
+			  @ApiParam(name="device",value = "设备mac") @RequestParam(value = "device", required = true) String device,
+	            @ApiParam(name="version",value = "快下版本") @RequestParam(value = "version", required = true) String version,
+	            @ApiParam(name = "plat",value="1.android 2.ios") @RequestParam(value = "plat", required = true) Integer plat
+			){
+    	
+    	      String result = StringUtils.EMPTY;
+    	      LOGGER.info("--------------------------------------------user/loginUser:"+phone);
+	
+	    
+	        if(!StringUtils.isNotBlank(phone)){
+	        	
+	        	    result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"手机号必须填写");
+	    			
+	    			return result;
+	        }
+	        //判断手机是否注册过
+	        UserInfoBean user = rUserLogBean.getPhone(phone);
+	        if(user == null){
+	        	user =	userLogingService.queryAndPhone(phone);
+	            if(user == null){
+		        	
+	        	    result = NotifyUtil.error(ErrorCodeEnum.EXISTUSER,"请先注册");
+	    			
+	    			return result;
+	       }
+	        }
+	        if(StringUtils.isNotBlank(password)){//走密码
+	        	
+	                result = userLogingService.loginUserPass(phone,password,device,version,plat);
+	        }else{
+	        	    result = NotifyUtil.error(ErrorCodeEnum.ERRORCODE,"请输入验证码或者密码");
+	        }
+	    
+    	//    UserInfoBean userInfo = rUserLogBean.getRaw("123456");
+           
+    	    //
+    	
+    	return result;
+    }
+    
+    //密码重置
+    @RequestMapping(value = "/user/loginRePassWord",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String loginRePassWord(@ApiParam(value = "phone") @RequestParam(value = "phone", required = true) String phone,
+			                      @ApiParam(value = "code") @RequestParam(value = "code", required = true) String code,
+			                      @ApiParam(value = "password") @RequestParam(value = "password", required = true) String password){
+    	
+    	      String result = StringUtils.EMPTY;
+    	      LOGGER.info("--------------------------------------------user/loginUser:"+phone);
+	       
+	        //判断手机是否注册过
+	        UserInfoBean user = rUserLogBean.getPhone(phone);
+	        if(user == null){
+	        	user =	userLogingService.queryAndPhone(phone);
+	            if(user == null){
+		        	
+	        	    result = NotifyUtil.error(ErrorCodeEnum.EXISTUSER,"请先注册");
+	    			
+	    			return result;
+	            }
+	        }
+	        result = userLogingService.loginRePassWord(phone,code,password);
+    	
+    	return result;
+    }
+   
+    
+	//发送验证码398884
+    @ApiOperation(value = "发送验证码")
+    @RequestMapping(value = "/user/smsCode",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String smsCode(@ApiParam(name="phone",value = "手机号") @RequestParam(value = "phone", required = true) String phone
+	){
+    	
+    	  String result = StringUtils.EMPTY;
+    	  LOGGER.info("--------------------------------------------user/smsCode:"+phone);
+    	  if(!StringUtils.isNotBlank(phone)){
+          	
+       	   result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"手机号不能为空");
+   			
+   			return result;
+       }
+          try { 
+        	 String  xuphone = userLogingService.getXUPhone();
+        	  String[] xp = xuphone.split(",");
+         	  for (String s : xp) {
+         		if(phone.substring(0, 3).equals(s)){
+         			result = NotifyUtil.error(ErrorCodeEnum.XUPHONE);
+         			return result;
+         		} 
+     		} 
+        	  
+        	  
+        	  int sendSms = 0;
+        	  if(!phone.equals("18600816543")){
+        		  
+        		  
+        		  
+        		  sendSms = SendSms.sendSms(phone);
+        	  }else{
+        		  sendSms=123456;
+        	  }
+              LOGGER.info("--------------------------------------------发送验证码手机号:"+phone+",验证码:"+sendSms);
+              //存到redis
+              rUserLogBean.setCode(phone, sendSms);
+              Map<String,Object> map = new HashMap<String, Object>();
+      		  map.put("code", 0);
+              result = NotifyUtil.success(map);
+          } catch (Exception e) {
+        	
+        	  LOGGER.error("系统异常" + e.getLocalizedMessage());
+        	result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+           
+        }
+       
+
+    	return result;
+    }
+   //修改密码
+    public static void main(String[] args) {
+    	 
+    	
+    	
+    	// System.out.println();
+	}
+    
+    
+     //验证码直接登录和注册
+    //未注册/已注册过,直接登录
+    @ApiOperation(value = "手机登录接口")
+    @RequestMapping(value = "/user/login",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String login(@ApiParam(value = "phone") @RequestParam(value = "phone", required = true) String phone,
+			            @ApiParam(value = "password") @RequestParam(value = "password", required = false) String password,
+			            @ApiParam(value = "code") @RequestParam(value = "code", required = true) String code,
+			            @ApiParam(name="device",value = "设备mac") @RequestParam(value = "device", required = true) String device,
+			            @ApiParam(name="version",value = "快下版本") @RequestParam(value = "version", required = true) String version,
+			            @ApiParam(name = "plat",value="1.android 2.ios") @RequestParam(value = "plat", required = true) Integer plat){
+    	
+    	  LOGGER.info("--------------------------------------------user/login:"+phone+",code="+code);
+ 	      String result = StringUtils.EMPTY;
+	
+	        if(!StringUtils.isNotBlank(phone)){
+	        	
+	        	    result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"手机号必须填写");
+	    			
+	    			return result;
+	        }
+	        if(!StringUtils.isNotBlank(code)){
+	        	
+	        	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"验证码必须填写");
+	        	
+	        	return result;
+	        }
+ 	  
+ 		//
+ 		LOGGER.info("/user/register--------------------------------------参数集合手机号:"+phone+"验证码:"+code);
+ 	    //---验证码+手机号
+ 		try {
+			
+ 			result =  userLogingService.login(password,phone,code,device,version,plat);
+ 			LOGGER.info("/user/register--------------------------------------返回参数集合:"+result);
+		} catch (Exception e) {
+			e.printStackTrace();
+			result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+		}
+ 		
+    	return result;
+    }
+    
+    
+    
+}

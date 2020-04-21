@@ -1,0 +1,72 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 客户日志类型类
+ * 
+ * @author cychen
+ *
+ */
+public class CustomerLogType {
+
+	/** 注册 */
+	public static final short REGISTER = 1;
+	/** 登入 */
+	public static final short LOGIN = 2;
+	/** 登出 */
+	public static final short LOGOUT = 3;
+	/** 启动 */
+	public static final short LAUNCH = 4;
+	/** 强踢 */
+	public static final short KICKOUT = 5;
+	/** 冻结 */
+	public static final short FREEZE = 6;
+	/** 解冻 */
+	public static final short UNFREEZE = 7;
+	/** 修改 */
+	public static final short MODIFY = 8;
+	/** 绑定 */
+	public static final short BIND = 9;
+	/** 更换 */
+	public static final short CHANGE = 10;
+
+	/**
+	 * 获取客户日志类型描述
+	 * 
+	 * @param customerLogType 客户日志类型值
+	 * @return 客户日志类型描述
+	 */
+	public static String getDescription(short customerLogType) {
+		if (customerLogType == REGISTER) {
+			return "注册";
+		}
+		if (customerLogType == LOGIN) {
+			return "登入";
+		}
+		if (customerLogType == LOGOUT) {
+			return "登出";
+		}
+		if (customerLogType == LAUNCH) {
+			return "启动";
+		}
+		if (customerLogType == KICKOUT) {
+			return "强踢";
+		}
+		if (customerLogType == FREEZE) {
+			return "冻结";
+		}
+		if (customerLogType == UNFREEZE) {
+			return "解冻";
+		}
+		if (customerLogType == MODIFY) {
+			return "修改";
+		}
+		if (customerLogType == BIND) {
+			return "绑定";
+		}
+		if (customerLogType == CHANGE) {
+			return "更换";
+		}
+		return "";
+	}
+
+}

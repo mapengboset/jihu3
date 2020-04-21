@@ -1,0 +1,201 @@
+package com.yqbing.servicebing.webapp.controller.wx;
+
+import io.swagger.annotations.Api;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+//package com.yqbing.servicebing.webapp.wxpay;
+//
+//import java.util.HashMap;
+//import java.util.Map;
+//
+//import javax.annotation.Resource;
+//
+//import org.jsoup.helper.StringUtil;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+//import org.springframework.stereotype.Controller;
+//import org.springframework.web.bind.annotation.RequestMapping;
+//import org.springframework.web.bind.annotation.ResponseBody;
+//
+//import com.yqbing.servicebing.service.IPublicPayService;
+//import com.yqbing.servicebing.webapp.wxpay.util.Configure;
+//import com.yqbing.servicebing.webapp.wxpay.util.HttpUtil;
+//import com.yqbing.servicebing.webapp.wxpay.util.MapUtils;
+//import com.yqbing.servicebing.webapp.wxpay.util.Signature;
+//import com.yqbing.servicebing.webapp.wxpay.util.TenpayUtil;
+//import com.yqbing.servicebing.webapp.wxpay.util.XmlUtil;
+//import com.yqbing.servicebing.webapp.wxpay.vo.TWxApayOrderBean;
+//
+//
+///**
+// * 微信支付  订单查询
+//// * @author m
+// *
+// */
+//
+//@Controller
+//@Api(tags = "微信支付 订单查询")
+//@CrossOrigi
+//public class OrderqueryContrpoller {
+//
+//	@Resource
+//	IPublicPayService publicPayService;
+//	
+//	private static String ORDERQUERY_URL = "https://api.mch.weixin.qq.com/pay/orderquery";
+//
+//
+//	private static Logger logger = LoggerFactory.getLogger(OrderqueryContrpoller.class);
+//
+//	/**
+//	 * 查询订单是否完成<br>
+//	 * out_trade_no,transaction_id二选一必填
+//	 * @param out_trade_no  微信支付传参的订单号(等同于后台生成的流水号)
+//	 * @param transaction_id  微信支付生成的微信交易流水号
+//	 * @return 成功/失败 状态码以及描述 eg：{code:"0",msg:"OK"}
+//	 * @throws Exception
+//	 */
+//	@RequestMapping(value = "/weixin/pay/queryOrder")
+//	@ResponseBody
+//	public Map<String, String> queryOrderStatus( String out_trade_no, String transaction_id)
+//			throws Exception {
+//		Map<String, String> resultMap = new HashMap<>();
+//		String code = "0";
+//		String msg = "OK";
+//		Map<String, Object> params = new HashMap<>();
+//		// 购卡订单类型 1 开卡 2续卡
+//		params.put("cardOrderType", 1);
+//		// 主动查询订单是否成功
+//		boolean flag = orderquery(out_trade_no, transaction_id);
+//		if (!flag) {
+//			code = "9999";
+//			msg = "微信支付失败,订单支付未完成";
+//			resultMap.put("code", code);
+//			resultMap.put("msg", msg);
+//			return resultMap;
+//		}
+//		Long sn = Long.valueOf(out_trade_no);
+//		// 1.根据流水号查询此订单是否已完成
+//		// true：不需要处理 false 需要处理
+//		boolean isComplete = publicPayService.orderIsAlreadyComplete(sn);
+//		// 订单已完成
+//		if (isComplete) {
+//			resultMap.put("code", code);
+//			resultMap.put("msg", msg);
+//			return resultMap;
+//		}
+//		// 2.修改客户订单第三方支付表状态值
+//		/* 1:预支付；2：充值中；3：支付成功；4：支付失败；5：放弃支付 */
+//		publicPayService.changeTGymCustomerPayState(sn, "3");
+//		// 3.获取第三方支付表数据
+//		TGymCustomerPayBean customerPay = publicPayService.getGymCustomerPay(sn);
+//		// 第三方支付表数据不存在
+//		if (customerPay == null) {
+//			code = "999";
+//			msg = "微信支付成功,但此订单系统无法识别，请联系管理员";
+//			resultMap.put("code", code);
+//			resultMap.put("msg", msg);
+//			return resultMap;
+//		}
+//		Long orderId = customerPay.getOrderId();
+//		// 订单号不存在
+//		if (orderId == null) {
+//			code = "99";
+//			msg = "微信支付成功,但此订单系统无法识别，请联系管理员";
+//			publicPayService.changeTGymCustomerPayState(sn, "4");
+//			resultMap.put("code", code);
+//			resultMap.put("msg", msg);
+//			return resultMap;
+//		}
+//		// 会员订单表数据
+//		TGymCustomerOrderBean customerOrder = tGymCustomerOrderMapper.selectByPrimaryKey(orderId);
+//		
+//		
+//		resultMap.put("code", code);
+//		resultMap.put("msg", msg);
+//		return resultMap;
+//
+//	}
+//
+//	/**
+//	 * 查询订单
+//	 * 
+//	 * @param gymId
+//	 *            场馆标识
+//	 * @param out_trade_no
+//	 *            微信支付传参的订单号(等同于后台生成的流水号)
+//	 * @param transaction_id
+//	 *            微信支付生成的微信交易流水号
+//	 * @return true：微信支付已完成 false：微信支付未完成
+//	 * @throws Exception
+//	 */
+//	public boolean orderquery(String out_trade_no, String transaction_id) throws Exception {
+//		logger.info("-------------------------订单查询---------------------------------------");
+//		logger.info("-->out_trade_no:" + out_trade_no);
+//		logger.info("-->transaction_id:" + transaction_id);
+//		String appid;// 公众帐号
+//		String secret;// 公众密钥
+//		String mchId;// 商户号
+//		String partnerkey;// 商户key
+//		TWxApayOrderBean apayOrder = publicPayService.getPrepPayParam(Long.valueOf(out_trade_no));
+//		if (apayOrder == null) {
+//			return false;
+//		}
+//		
+//				// 默认支付渠道为钛酷科技支付
+//				appid = "";// 公众帐号
+//				secret = "";// 公众密钥
+//				mchId = "";// 商户号
+//				partnerkey = "";// 商户key
+//		
+//		String nonce_str = TenpayUtil.getNonceStr();
+//		Map<String, Object> packageParams = new HashMap<>();
+//		packageParams.put("appid", appid);
+//		packageParams.put("mch_id", mchId);
+//		if (!StringUtil.isBlank(out_trade_no)) {
+//			packageParams.put("out_trade_no", out_trade_no);
+//		} else {
+//			packageParams.put("transaction_id", transaction_id);
+//		}
+//		packageParams.put("nonce_str", nonce_str);
+//		// 进行签名
+//		Configure.setKey(partnerkey);
+//		String sign = Signature.getSign(packageParams);
+//
+//		String xml;
+//		if (!StringUtil.isBlank(out_trade_no)) {
+//			xml = "<xml>" + "<appid>" + appid + "</appid>" + "<mch_id>" + mchId + "</mch_id>" + "<nonce_str>"
+//					+ nonce_str + "</nonce_str>" + "<out_trade_no>" + out_trade_no + "</out_trade_no>" + "<sign>" + sign
+//					+ "</sign>" + "</xml>";
+//		} else {
+//			xml = "<xml>" + "<appid>" + appid + "</appid>" + "<mch_id>" + mchId + "</mch_id>" + "<nonce_str>"
+//					+ nonce_str + "</nonce_str>" + "<transaction_id>" + transaction_id + "</transaction_id>" + "<sign>"
+//					+ sign + "</sign>" + "</xml>";
+//		}
+//		logger.info(xml);
+//		logger.info("------------------查询订单传参------------------");
+//		logger.info("[appid]:" + appid);
+//		logger.info("[mchId]:" + mchId);
+//		logger.info("[nonce_str]:" + nonce_str);
+//		logger.info("[out_trade_no]:" + out_trade_no);
+//		logger.info("[transaction_id]:" + transaction_id);
+//		logger.info("[sign]:" + sign);
+//		String result = HttpUtil.sendPost(ORDERQUERY_URL, xml);
+//		logger.info("------------------查询订单返回值------------------");
+//		logger.info(result);
+//		logger.info("-------------------------------------------------");
+//		Map map = XmlUtil.doXMLParse(result);
+//		MapUtils mapUtils = new MapUtils(map);
+//		String trade_state = mapUtils.getString("trade_state");
+//		/*
+//		 * SUCCESS—支付成功 REFUND—转入退款 NOTPAY—未支付 CLOSED—已关闭 REVOKED—已撤销（刷卡支付）
+//		 * USERPAYING--用户支付中 PAYERROR--支付失败(其他原因，如银行返回失败)
+//		 */
+//		logger.debug("trade_state:" + trade_state);
+//		if ("SUCCESS".equals(trade_state.toUpperCase())) {
+//			return true;
+//		} else {
+//			return false;
+//		}
+//	}
+//
+//}

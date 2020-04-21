@@ -1,0 +1,49 @@
+package com.yqbing.servicebing.repository.database.dao;
+
+import com.yqbing.servicebing.repository.database.bean.WealthLog;
+import com.yqbing.servicebing.webapp.response.WorkRes;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+public interface WealthLogMapper {
+    int countByExample(WealthLogExample example);
+
+    int deleteByPrimaryKey(Integer logId);
+
+    int insert(WealthLog record);
+
+    int insertSelective(WealthLog record);
+
+    List<WealthLog> selectByExample(WealthLogExample example);
+
+    WealthLog selectByPrimaryKey(Integer logId);
+
+    int updateByPrimaryKeySelective(WealthLog record);
+
+    int updateByPrimaryKey(WealthLog record);
+
+	WealthLog selectByOrder(@Param("orderId")String orderId);
+
+	Integer queryByWealth(@Param("type")int type, @Param("userId")Long userId);
+
+	Integer queryByWealthDate(@Param("type")int type, @Param("userId")Long userId);
+	Integer queryByWealthDateMoth(@Param("type")int type, @Param("userId")Long userId);
+	Integer queryByWealthDateWeek(@Param("type")int type, @Param("userId")Long userId);
+
+	List<WealthLog> queryDate(@Param("userId")Long userId,  @Param("page")Integer page, @Param("size")Integer size, @Param("type")Integer type);
+
+	List<WealthLog> queryDateWeks(@Param("userId")Long userId, @Param("page")Integer page, @Param("size")Integer size, @Param("type")Integer type);
+
+	List<WealthLog> queryDateWeksStime(@Param("userId")Long userId,  @Param("stime")String stime,
+			@Param("etime")String etime, @Param("page")Integer page, @Param("size")Integer size, @Param("type")Integer type);
+
+	List<WealthLog> queryDateStime(@Param("userId")Long userId,  @Param("stime")String stime,
+			@Param("etime")String etime, @Param("page")Integer page, @Param("size")Integer size, @Param("type")Integer type);
+
+	Integer queryUserSum(@Param("userId")Long userId ,@Param("stime")String stime,
+			@Param("etime")String etime);
+
+	Integer queryStoreSum(@Param("storeId")Long storeId);
+}

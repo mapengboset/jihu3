@@ -1,0 +1,37 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 客户日记类型类
+ * 
+ * @author zhouwf
+ *
+ */
+public class CustomerDiaryType {
+
+	/** 运动 */
+	public static final short SPORT = 1;
+	/** 饮食 */
+	public static final short DIET = 2;
+	/** 感受 */
+	public static final short FEEL = 3;
+
+	/**
+	 * 获取客户日记类型描述
+	 * 
+	 * @param customerDiaryType 客户日记类型值
+	 * @return 客户日记类型描述
+	 */
+	public static String getDescription(short customerDiaryType) {
+		if (customerDiaryType == SPORT) {
+			return "运动";
+		}
+		if (customerDiaryType == DIET) {
+			return "饮食";
+		}
+		if (customerDiaryType == FEEL) {
+			return "感受";
+		}
+		return "";
+	}
+
+}

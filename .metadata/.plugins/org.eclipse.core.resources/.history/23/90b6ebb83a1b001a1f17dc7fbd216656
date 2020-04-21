@@ -1,0 +1,27 @@
+package com.hiko.gym.common.service.push;
+
+import java.util.*;
+
+import com.hiko.gym.common.exception.*;
+
+/**
+ * 推送服务接口
+ * 
+ * @author cychen
+ *
+ */
+public interface PushService {
+
+	/**
+	 * 推送消息
+	 * 
+	 * @param customerId 客户标识
+	 * @param type 消息类型
+	 * @param title 消息标题
+	 * @param parameterMap 参数映射
+	 * @throws GymException 健身馆异常
+	 */
+	public void pushMessage(Long customerId, Integer type, String title, Map<String, Object> parameterMap)
+			throws GymException;
+
+}

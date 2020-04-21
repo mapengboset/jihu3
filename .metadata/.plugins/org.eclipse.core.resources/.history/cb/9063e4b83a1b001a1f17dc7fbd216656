@@ -1,0 +1,15 @@
+package com.hiko.gym.common.service.push.umeng.android;
+
+import com.hiko.gym.common.service.push.umeng.*;
+
+public class AndroidGroupcast extends AndroidNotification {
+	public AndroidGroupcast() {
+		try {
+			this.setPredefinedKeyValue("type", "groupcast");
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+			System.exit(1);
+		}
+	}
+}

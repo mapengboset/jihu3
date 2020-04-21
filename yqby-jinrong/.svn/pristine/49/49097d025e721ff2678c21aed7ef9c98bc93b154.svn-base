@@ -1,0 +1,38 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
+
+
+
+@Controller
+@Api(tags = "登录管理")
+public class LoginController extends BaseController{
+
+	private static final Logger LOGGER = LoggerFactory
+            .getLogger(LoginController.class);
+	
+	
+	
+	@RequestMapping(value ={"/system/login"},method = { RequestMethod.GET,
+			RequestMethod.POST })
+	@ApiOperation(value = "用户管理")
+	public String login(String username,String password){
+		
+//		String parameter = request.getParameter("username");
+//		String password = request.getParameter("password");
+	//	System.out.println(username+"ddddd"+password);
+		
+		return "/wzBac/index";
+	}
+	
+}

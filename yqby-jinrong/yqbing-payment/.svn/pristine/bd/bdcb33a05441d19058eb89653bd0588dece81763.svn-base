@@ -1,0 +1,101 @@
+package com.yqbing.servicebing.webapp.controller.wx;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+import java.net.URLEncoder;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.yqbing.servicebing.service.IPublicPayService;
+import com.yqbing.servicebing.service.IUserService;
+import com.yqbing.servicebing.utils.enums.ErrorCode;
+import com.yqbing.servicebing.utils.web.CommonResult;
+import com.yqbing.servicebing.webapp.wxpay.pay.WxPayData;
+import com.yqbing.servicebing.webapp.wxpay.util.HttpUtil;
+import com.yqbing.servicebing.webapp.wxpay.util.SerialNumber;
+import com.yqbing.servicebing.webapp.wxpay.util.WeixinUtil;
+
+
+/**
+ * 静默授权控制器
+ * 
+ * @author mapb
+ */
+@Controller
+@Api(tags = "静默授权控制器")
+@CrossOrigin
+public class OauthController {
+
+	@Resource
+	IUserService userService;
+	@Resource
+	IPublicPayService publicPayService;
+	/** 静默授权地址 **/
+	private static String OAUTH_API = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&redirect_uri=REDIRECT_URI&response_type=code&scope=snsapi_base&state=123#wechat_redirect";
+
+	private static Logger logger = LoggerFactory.getLogger(OauthController.class);
+
+	/**
+	 * 下单后选择微信支付获取静默授权地址
+	 */
+	@RequestMapping("/weixin/pay/oauth")
+	@ResponseBody
+	@ApiOperation(value = "下单支付")
+	public ModelAndView getOauthUrl(HttpServletRequest request,String token,Integer appChanl,String url,String PID) throws Exception {
+		logger.info("--------------------已经下订单选择微信支付跳转到静默授权--------------------");
+		Long 	userID = 0L;
+		if(!StringUtils.isBlank(token)){//彩票m
+//		User user = userService.getUser(appChanl,token);
+//		if(user == null){
+//			 return new CommonResult(ErrorCode.CODE_FAIL_ERROR,"用户有误");
+//		}
+//		Long 	userID = user.getId();
+        }
+		WxPayData wxdata = publicPayService.getWXPayConfig();
+		if(wxdata == null){
+			throw new NullPointerException("参数不能为空");
+		}
+		String spbillCreateIp = HttpUtil.getIp(request);
+
+		String appid = wxdata.getWxappid();
+		if(appChanl == 12){//二码合一
+			url = publicPayService.getConfigData(12);
+		}
+		// 重定向地址
+		String redirectUrl="";
+			StringBuffer redirectUrlBuffer = new StringBuffer();
+			redirectUrlBuffer.append(wxdata.getUrl()+"/weixin/pay/getOpenId".trim());
+			redirectUrlBuffer.append("?userID=" + userID);
+			redirectUrlBuffer.append("&ip=" + spbillCreateIp);
+			redirectUrlBuffer.append("&appChanl=" + appChanl);
+			redirectUrlBuffer.append("&url=" + url);
+			logger.error("[静默授权重定向地址]:" + redirectUrlBuffer.toString());
+			redirectUrl = URLEncoder.encode(redirectUrlBuffer.toString(), "UTF-8");
+		// 静默授权地址
+		String oauthUrl = OAUTH_API.replace("APPID", appid).replace("REDIRECT_URI", redirectUrl);
+		logger.error("[静默授权地址]:" + oauthUrl);
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("url", oauthUrl);
+        ModelAndView result = new ModelAndView();
+        result.setViewName("redirect:"+oauthUrl);
+		return result;
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(Long.valueOf(SerialNumber.newInstance(new Date()).toString()));
+	}
+}

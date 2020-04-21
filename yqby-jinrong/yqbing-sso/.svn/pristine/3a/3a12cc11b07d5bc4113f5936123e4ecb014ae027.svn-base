@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+        http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd"
+	default-autowire="no" default-lazy-init="false">
+
+   	<!-- 数据数据源相关 -->
+	<bean id="dataDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${base.jdbc.driverClassName}" />
+		<property name="url" value="${base.jdbc.url}" />
+		<property name="username" value="${base.jdbc.username}" />
+		<property name="password" value="${base.jdbc.password}" />
+		<property name="initialSize" value="${base.dbcp.initialSize}" />
+		<property name="maxActive" value="${base.dbcp.maxActive}" />
+		<property name="maxIdle" value="${base.dbcp.maxIdle}" />
+		<property name="maxWait" value="${base.dbcp.maxWait}" />
+		<property name="poolPreparedStatements" value="${base.dbcp.poolPreparedStatements}" />
+		<property name="defaultAutoCommit" value="${base.dbcp.defaultAutoCommit}" />
+		<property name="timeBetweenEvictionRunsMillis" value="${base.dbcp.timeBetweenEvictionRunsMillis}" />
+		<property name="minEvictableIdleTimeMillis" value="${base.dbcp.minEvictableIdleTimeMillis}" />
+	</bean>
+	<!-- 创建SqlSessionFactory -->  
+	<bean id="dataSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:mybatis/mybatis-config-data.xml" />
+		<property name="dataSource" ref="dataDataSource" />
+	</bean>
+	<bean id="dataSqlSession" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+		<constructor-arg index="0" ref="dataSqlSessionFactory" />
+	</bean>
+	<!-- 事务管理器 -->
+	<bean id="dataTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataDataSource" />
+	</bean>
+	<!-- 开启事务注解驱动 -->  
+	<tx:annotation-driven proxy-target-class="true" transaction-manager="dataTransactionManager" />
+	<!-- 自动扫描映射器 -->  
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.yqbing.servicebing.repository.database.dao" />
+		<property name="sqlSessionTemplateBeanName" value="dataSqlSession" />
+	</bean>
+
+
+      <!--store数据源相关 -->
+	<bean id="storeDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${store.jdbc.driverClassName}" />
+		<property name="url" value="${store.jdbc.url}" />
+		<property name="username" value="${store.jdbc.username}" />
+		<property name="password" value="${store.jdbc.password}" />
+		<property name="initialSize" value="${store.dbcp.initialSize}" />
+		<property name="maxActive" value="${store.dbcp.maxActive}" />
+		<property name="maxIdle" value="${store.dbcp.maxIdle}" />
+		<property name="maxWait" value="${store.dbcp.maxWait}" />
+		<property name="poolPreparedStatements" value="${store.dbcp.poolPreparedStatements}" />
+		<property name="defaultAutoCommit" value="${store.dbcp.defaultAutoCommit}" />
+		<property name="timeBetweenEvictionRunsMillis" value="${store.dbcp.timeBetweenEvictionRunsMillis}" />
+		<property name="minEvictableIdleTimeMillis" value="${store.dbcp.minEvictableIdleTimeMillis}" />
+	</bean>
+	<!-- 创建SqlSessionFactory -->  
+	<bean id="storeSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:mybatis/mybatis-config-business.xml" />
+		<property name="dataSource" ref="storeDataSource" />
+	</bean>
+	<bean id="storeSqlSession" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+		<constructor-arg index="0" ref="storeSqlSessionFactory" />
+	</bean>
+	<!-- 事务管理器 -->  
+	<bean id="storeTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="storeDataSource" />
+	</bean>
+	<!-- 开启事务注解驱动 -->
+	<tx:annotation-driven proxy-target-class="true" transaction-manager="storeTransactionManager" />
+	<!-- 自动扫描映射器 -->  
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.yqbing.servicebing.repository.store" />
+		<property name="sqlSessionTemplateBeanName" value="storeSqlSession" />
+	</bean>
+   
+   
+</beans>

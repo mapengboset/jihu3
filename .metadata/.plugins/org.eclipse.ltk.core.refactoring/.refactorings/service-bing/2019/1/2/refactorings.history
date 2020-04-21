@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete 3 elements from project &apos;service-bing&apos;&#x0D;&#x0A;- Original project: &apos;service-bing&apos;&#x0D;&#x0A;- Original elements:&#x0D;&#x0A;     WeBankServiceImpl.java.merge-left.r11531&#x0D;&#x0A;     WeBankServiceImpl.java.merge-right.r11530&#x0D;&#x0A;     WeBankServiceImpl.java.working" description="Delete elements" element1="src/main/java/com/yqbing/servicebing/service/impl/WeBankServiceImpl.java.merge-left.r11531" element2="src/main/java/com/yqbing/servicebing/service/impl/WeBankServiceImpl.java.working" element3="src/main/java/com/yqbing/servicebing/service/impl/WeBankServiceImpl.java.merge-right.r11530" elements="0" flags="589830" id="org.eclipse.jdt.ui.delete" resources="3" stamp="1547192922721" subPackages="false" version="1.0"/>
+</session>

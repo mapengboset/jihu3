@@ -1,0 +1,11 @@
+package com.yqbing.servicebing.service;
+
+import com.yqbing.servicebing.utils.web.CommonResult;
+
+public interface IAliPayService {
+    
+	CommonResult createPay(String pID,String amount);
+
+	CommonResult queryPay(String trade_no);
+
+}

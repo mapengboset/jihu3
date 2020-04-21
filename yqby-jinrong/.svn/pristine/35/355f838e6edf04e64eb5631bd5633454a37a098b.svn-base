@@ -1,0 +1,959 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.docx4j.model.datastorage.XPathEnhancerParser.main_return;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.internal.util.AlipaySignature;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCode;
+import com.yqbing.servicebing.common.ResultModel;
+import com.yqbing.servicebing.repository.database.abstracts.OfferOpenBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.StoreOrderBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.StoreUserBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.TWealthDayLogBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.TWealthMonthLogBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.ZanclickLogBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.ZanclickLogBeanExample.Criteria;
+import com.yqbing.servicebing.repository.database.abstracts.ZanclickOffBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.ZanclickRefundBeanExample;
+import com.yqbing.servicebing.repository.database.bean.OfferOpenBean;
+import com.yqbing.servicebing.repository.database.bean.StoreInfoBean;
+import com.yqbing.servicebing.repository.database.bean.StoreOrderBean;
+import com.yqbing.servicebing.repository.database.bean.StoreUserBean;
+import com.yqbing.servicebing.repository.database.bean.TUserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.TUserMessageBean;
+import com.yqbing.servicebing.repository.database.bean.TWealthDayLogBean;
+import com.yqbing.servicebing.repository.database.bean.TWealthLogBean;
+import com.yqbing.servicebing.repository.database.bean.TWealthMonthLogBean;
+import com.yqbing.servicebing.repository.database.bean.WeBankBean;
+import com.yqbing.servicebing.repository.database.bean.ZanclickFqBean;
+import com.yqbing.servicebing.repository.database.bean.ZanclickLogBean;
+import com.yqbing.servicebing.repository.database.bean.ZanclickOffBean;
+import com.yqbing.servicebing.repository.database.bean.ZanclickRefundBean;
+import com.yqbing.servicebing.repository.database.bean.ZanclickRefundBeanWithBLOBs;
+import com.yqbing.servicebing.repository.database.bean.ZanclickWealthBean;
+import com.yqbing.servicebing.repository.database.dao.StoreInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreOrderBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreUserBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TUserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TUserLogBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TUserMessageBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TWealthDayLogBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TWealthLogBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TWealthMonthLogBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.WeBankBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.WebankTaskRuleBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.ZanclickLogBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.ZanclickOffBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.ZanclickRefundBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.ZanclickWealthBeanMapper;
+import com.yqbing.servicebing.repository.redis.RAntCredit;
+import com.yqbing.servicebing.repository.redis.RAntCreditRefundData;
+import com.yqbing.servicebing.repository.redis.RZanclickFq;
+import com.yqbing.servicebing.service.AntCreditService;
+import com.yqbing.servicebing.utils.DateUtil;
+import com.yqbing.servicebing.utils.PropertiesUtil;
+import com.yqbing.servicebing.utils.PushContentUtil;
+import com.yqbing.servicebing.utils.StrUtils;
+import com.yqbing.servicebing.utils.ZanClickHttps;
+import com.yqbing.servicebing.webapp.response.AntResponse;
+import com.yqbing.servicebing.webapp.response.TradeFundBill;
+import com.yqbing.servicebing.webapp.response.ZanclickLogRes;
+
+import org.springframework.beans.factory.annotation.Value;
+
+
+@Service("antCreditService")
+@SuppressWarnings("all")
+public  class AntCreditServiceImpl extends commonService implements AntCreditService{
+
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(AntCreditServiceImpl.class);
+	
+	private static final String privatekey ="MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCDOb1dG+6bsHkGRrun6FcIbZ3DhYEg/M370uIkUx+VYAbFnALxnVADcfatwWvTUXwNUvJVegwz19QRJM+qPbEkFedSMGeiuiQGCNj2hGoBH75dhyTRf8DsUr3eLhRPpiDxUcZn9XwCLGTSPEb1Vq7KHdbWgVBUDuJ+jCYbhWf88u7dZlDa54XMd4Ayq5goXKs9ap8yrr7NCi6r+5pXZoiN0J1agSJsfyx5G/C6HztlK1AOX/pOxz4RMWqHp4bvSaSH71Ef2LoF7rOmQshdokvbWclV3+jdF7xZijeokK0wdwp8WrOTBkE89N7DnKpu2lLw7CvaHOjcwv2BT81D/MD1AgMBAAECggEARUYk7lNBilUF/sc2Z3RjBaMAZuhCe8yZXPg9w5lSEgQobwdmEnDOfZMa+y0ho+PfThVcsr0EVhX48LfzHNcGfZtGi3/cJe6H99uR1cmfQEqmry8Zw7LigJ9JdlHzDP0RZPObfuP7/BW9f7KsbvW8vhw0fvazFjzpWo7Xyy2I8OH4lFlzDjcti/0vTQNTtuX89lt0/Vw9qcrk3Mm91pdYfmfxiEat1p3TJdj9NMAVcA6Ak3EuOdx+LG+rriymwoZObq/29xY8mhOz0Cn14Va87DdyQ2k2HgfKKKcPCgPqETEZUvVZ+HcQ/omZfseCVbLRIpUb3Sl4BZua3mCg7aHi4QKBgQC9LJfx9TyuBbnDYvmLeJXfMWkbG0Bf0DPv1ASxSo+63TXW7NtAadcp0cA9Dmr1WEbP3qIF9Tzl+X6Ebg/PHgllSXk0HbVFzlLjDgvOd6bmroDLZb9lQi8darzFBVIedr4/Gj4hn5YmFu1GI+eC6rXfihDpc/SfiiO3iS8zkkFOTQKBgQCxlLt2RkumdwVmQCuh7NjBsyoi95yUpgHYhp/4GwtzP28B8rnlyhFI2ubqVShc3ozP6LGmz2x2+J1fc+LYcqQB2bqv2cuFUpAOz3nM86EmLwcaG+BsWMPuys1rpQVFJOq+nH72K8FP33ELx3y7gR1oX6PivnArynPCxOO+pxuhSQKBgDf5ufweVJYpm430+2IJjE8+j5s1tRakxLlyQvEy3tSsIAI4k6e7qa72IavvWDbAqDNZ7RdWOW7TJFyLNKJUgPM3imWhZMIDCwOkZFnzja80c2e786ZCry5FJxYlPOdGu4Rwf3Hzhro+jnbyqM5UJPzAHcD2TqvmdCsarJzV6f0BAoGAf4MwFN6nJbIjQ2firNQYVQZkxFUOr0KA4szQg2RQFYJAIKL9T36IaMsesrdRU1ZOwF/zaLdayBb/UfIxuoCfOeDxB6KZXHOLk8bxS/TJC1ULgXjw7nvSvV4MoTYOkbbPhO100SlcFxF36CBndXBiAHdkg8WBYEBwXTPp4RW3ZlkCgYEAqtpAu75US47Hqv2R+gIDiI0nW5azJhx5UJ+63CagMyi5CinzGwTh0uyuXpoyb8WwO1GdahYQCLSmuDB6ySnSDnfZjaZprRaaCOO+gy11ThFxIYimEh1pVX31VeOy9Wx/lIF3o8+GUAhwWz6P6fLLWhmV++xMa2uzEQ9+zfxVvjE=";
+	private static final String zanfei ="zanclickfei";
+	private static final String REFUND ="zanclickrefund";
+	@Autowired
+	private RAntCredit rAntCredit = null;
+	@Autowired
+	private RAntCreditRefundData rAntCreditRefundData = null;
+	
+	@Autowired
+	private ZanclickLogBeanMapper zanclickLogBeanMapper = null;
+	@Autowired
+	private ZanclickWealthBeanMapper zanclickWealthBeanMapper = null;
+	@Autowired
+	private TUserInfoBeanMapper userInfoBeanMapper = null;
+	@Autowired
+	private TUserLogBeanMapper userLogBeanMapper = null;
+	@Autowired
+	private TUserMessageBeanMapper userMessageBeanMapper = null;
+	@Autowired
+	private TWealthDayLogBeanMapper wealthDayLogBeanMapper = null;
+	@Autowired
+	private TWealthLogBeanMapper wealthLogBeanMapper = null;
+	@Autowired
+	private TWealthMonthLogBeanMapper wealthMonthLogBeanMapper = null;
+	@Autowired
+	private WebankTaskRuleBeanMapper webankTaskRuleBeanMapper = null;
+	@Autowired
+	private StoreUserBeanMapper storeUserBeanMapper = null;
+	@Autowired
+	private StoreOrderBeanMapper storeOrderBeanMapper = null;
+	@Autowired
+	private ZanclickOffBeanMapper zanclickOffBeanMapper = null;
+	
+	@Autowired
+	private StoreInfoBeanMapper storeInfoBeanMapper = null;
+	@Autowired
+	private ZanclickRefundBeanMapper zanclickRefundBeanMapper = null;
+	
+	@Value("${ant_ceshi}")
+	private  String ant_ceshi;
+	
+	
+	
+	
+	
+          
+	
+	
+	@Autowired
+	private RZanclickFq rZanclickFq = null;
+	
+	@SuppressWarnings("rawtypes")
+	@Override
+	public ResultModel refund(Integer StoreId,String out_trade_no, String trade_no,
+			String ali_trade_no) throws Exception{
+		
+		PropertiesUtil.loadFile("antcredit.properties");
+	
+		ResultModel resultModel = ResultModel.success();
+		// TODO Auto-generated method stub
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("out_trade_no", out_trade_no);
+		map.put("trade_no", trade_no);
+		map.put("ali_trade_no", ali_trade_no);
+		//---------------------------------------------------------------------------------------------------------
+		Map<String,String> params = new HashMap<String, String>();
+		params.put("format","JSON");
+		params.put("version","1.0");
+		params.put("charset","utf-8");
+		params.put("app_id",PropertiesUtil.getValue("ant_appId", null));
+		params.put("method","alipay.trade.refund");
+		String dateTimePattern = DateUtil.formatDateTime(new Date());
+		params.put("timestamp",dateTimePattern);
+		
+		params.put("biz_content",new Gson().toJson(map));
+	//	map.put("notify_url","");
+		String str =null;
+		    String content = AlipaySignature.getSignCheckContentV1(params);
+		    try {
+		    	params.put("sign", AlipaySignature.rsa256Sign(content,PropertiesUtil.getValue("ant_privatekey", privatekey),params.get("charset")));
+		    	params.put("sign_type","RSA2");
+		    	str = ZanClickHttps.sendPost(ant_ceshi, map, params);
+			} catch (AlipayApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return resultModel.error(ErrorCode.OTHERS, "获取退款失败");
+			}
+		
+		if(str == null){
+			return resultModel.error(ErrorCode.OTHERS, "获取退款失败");
+		} 
+		try {
+			  JSONObject JSONObject = new JSONObject(str);
+				
+				JSONObject jsonObject3 = JSONObject.getJSONObject("Response");
+				if(jsonObject3.getString("code").equals("10000")) {
+				     //AntResponse antResponse = new AntResponse(); 
+					//退款成功之后,从新更新交易订单  (ZanclickLogBean)
+					
+					ZanclickLogBeanExample logBeanExample = new ZanclickLogBeanExample();
+					Criteria criteria = logBeanExample.createCriteria();
+					criteria.andOutTradeNoEqualTo(out_trade_no);
+					List<ZanclickLogBean> list = zanclickLogBeanMapper.selectByExample(logBeanExample);
+					if(list == null || list.size() <= 0){
+						return resultModel.error(ErrorCode.OTHERS, str);
+					}
+					if(jsonObject3.getString("fund_change").equals("Y")){
+						ZanclickLogBean zanclickLogBean = list.get(0);
+						zanclickLogBean.setTradeStatus("REFUND_SUCCESS");
+						int updateByPrimaryKeySelective = zanclickLogBeanMapper.updateByPrimaryKeySelective(zanclickLogBean);
+						if(updateByPrimaryKeySelective == 0){
+							return resultModel.error(ErrorCode.OTHERS, str);
+						}
+						rAntCreditRefundData.setlist(out_trade_no, str);//存到通过订单号存取
+						rAntCreditRefundData.setlist(REFUND, str);//集体redis
+						//存入退款列表中
+						ZanclickRefundBean refundBean = new ZanclickRefundBean();
+						ZanclickRefundBeanWithBLOBs refundWith = new ZanclickRefundBeanWithBLOBs();
+						refundBean.setOutTradeNo(jsonObject3.getString("out_trade_no"));
+						refundBean.setTradeNo(jsonObject3.getString("trade_no"));
+						refundBean.setAliTradeNo(jsonObject3.getString("ali_trade_no"));
+						refundBean.setBuyerLogonId(jsonObject3.getString("buyer_logon_id"));
+						refundBean.setFundChange(jsonObject3.getString("fund_change"));
+						refundBean.setRefundFee(jsonObject3.getString("refund_fee"));
+						refundBean.setGmtRefundPay(jsonObject3.getString("gmt_refund_pay"));
+						refundWith.setRawData(str);
+						
+						
+						//不是必选项
+						refundBean.setStoreName(jsonObject3.getString("store_name"));
+					    refundWith.setRefundDetailItemList(jsonObject3.getString("refund_detail_item_list"));
+					//	refundBean.setRefundCurrency(jsonObject3.getString("refund_currency"));
+					//	refundBean.setBuyerUserId(jsonObject3.getString("buyer_user_id"));
+						
+//						refundBean.setPresentRefundBuyerAmount(jsonObject3.getString("present_refund_buyer_amount"));
+//						refundBean.setPresentRefundDiscountAmount(jsonObject3.getString("present_refund_discount_amount"));
+//						refundBean.setPresentRefundMdiscountAmount(jsonObject3.getString("present_refund_mdiscount_amount"));
+						refundBean.setCreateTime(new Date());
+						zanclickRefundBeanMapper.insertSelective(refundWith);
+					}
+					
+					  
+					
+				}else{
+					
+					return resultModel.error(ErrorCode.OTHERS, jsonObject3.getString("subMsg"));
+				}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return resultModel.error(ErrorCode.OTHERS, "获取退款失败");
+		}
+		  
+		return resultModel;
+	}
+
+	@Override
+	public ResultModel refundList(Integer storeId) {
+		// TODO Auto-generated method stub
+		  ResultModel resultModel = ResultModel.success();
+//		  public String out_trade_no;//	String	是	64	外部订单号	6823789339978248
+//		  public String trade_no;//	String	是	64	点赞交易号	153663098602677101801
+//		  public String ali_trade_no;//	String	是	64	支付宝交易号	2018091122001484291004183978
+//		  public String buyer_logon_id;//	String	是	100	用户的登录id	1771971
+//		  public String fund_change	;//String	是	1	本次退款是否发生了资金变化	Y
+//		  public String refund_fee	;//Price	是	11	退款总金额	88.88
+//		  public String refund_currency;//	String	是	8	退款币种信息	USD
+//		  public String gmt_refund_pay;//	Date	是	32	退款支付时间	2019-09-11 11:45:57
+//		  public String refund_detail_item_list;//	TradeFundBill	否		退款使用的资金渠道	
+//		  public TradeFundBill  tfb;
+//		  public String store_name;//	String	否	512	交易在支付时候的门店名称	望湘园联洋店
+//		  public String buyer_user_id	;//String	是	28	买家在支付宝的用户id	2088101117955611
+//		  public String present_refund_buyer_amount;//buyer_amount	String	否	11	本次退款金额中买家退款金额	88.88
+//		  public String present_refund_discount_amount;//discount_amount	String	否	11	本次退款金额中平台优惠退款金额	88.88
+//		  public String present_refund_mdiscount_amount;/
+		 List<Object> getlist = rAntCredit.getlist(storeId);
+		 
+		 List<AntResponse> as = new ArrayList<AntResponse>();
+		 try {
+			 for (Object json : getlist) {
+				 AntResponse antResponse = new AntResponse();
+					
+				 JSONObject jsonObject = new JSONObject(json);
+				 
+				 String out_trade_no = jsonObject.getString("out_trade_no");
+				 
+				 String trade_no = jsonObject.getString("trade_no");
+				 String ali_trade_no = jsonObject.getString("ali_trade_no");
+				 String buyer_logon_id = jsonObject.getString("buyer_logon_id");
+				 String fund_change = jsonObject.getString("fund_change");
+				 antResponse.setOut_trade_no(out_trade_no);
+				 // antResponse.setOut_trade_no(out_trade_no);
+				 antResponse.setTrade_no(ali_trade_no);
+				 antResponse.setAli_trade_no(ali_trade_no);
+				 antResponse.setBuyer_logon_id(buyer_logon_id);
+				 antResponse.setFund_change(fund_change);
+				 Object refund_fee = jsonObject.get("refund_fee");
+				 antResponse.setRefund_fee(refund_fee);
+				 
+				 String refund_currency = jsonObject.getString("refund_currency");
+				 antResponse.setRefund_currency(refund_currency);
+				 
+				 Object gmt_refund_pay = jsonObject.get("gmt_refund_pay");
+				 antResponse.setGmt_refund_pay(gmt_refund_pay);
+			//	 String refund_detail_item_list = jsonObject.getString("refund_detail_item_list");
+				 String store_name = jsonObject.getString("store_name");
+				 String present_refund_buyer_amount = jsonObject.getString("present_refund_buyer_amount");
+				 String present_refund_discount_amount = jsonObject.getString("present_refund_discount_amount");
+				 String present_refund_mdiscount_amount = jsonObject.getString("present_refund_mdiscount_amount");
+				 
+				 antResponse.setStore_name(store_name);
+				 antResponse.setPresent_refund_buyer_amount(present_refund_buyer_amount);
+				 antResponse.setPresent_refund_discount_amount(present_refund_discount_amount);
+				 antResponse.setPresent_refund_mdiscount_amount(present_refund_mdiscount_amount);
+				 
+				 
+			//	 String refund_currency = jsonObject.getString("tfb");
+				 JSONObject item = jsonObject.getJSONObject("refund_detail_item_list");
+				 TradeFundBill tradeFundBill = new TradeFundBill();
+				 String fund_channel = item.getString("fund_channel");
+				 String  fund_type = item.getString(" fund_type");
+				 Object amount = item.get("amount");
+				 Object real_amount = item.get("real_amount");
+				 tradeFundBill.setFund_channel(fund_channel);
+				 tradeFundBill.setFund_type(fund_type);
+				 tradeFundBill.setAmount(amount);
+				 tradeFundBill.setReal_amount(real_amount);
+				 antResponse.setTfb(tradeFundBill);
+				 as.add(antResponse);
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			resultModel.error(ErrorCode.OTHERS, "参数转换失败");
+			
+		}
+		 resultModel.setResult(as);
+		
+		return resultModel;
+	}
+
+	@Override//订单详情列表
+	public ResultModel zanClickLogDatail(Integer storeId, String out_trade_no,
+			String trade_no) {
+		ResultModel resultModel = ResultModel.success();
+		PropertiesUtil.loadFile("antcredit.properties");
+		Map<String,Object> map = new HashMap<String, Object>();
+		out_trade_no="jihu38";
+		trade_no="154811993342583872839";
+		map.put("out_trade_no", out_trade_no);
+		map.put("trade_no", trade_no);
+		//---------------------------------------------------------------------------------------------------------
+		Map<String,String> params = new HashMap<String, String>();
+		params.put("format","JSON");
+		params.put("version","1.0");
+		params.put("charset","utf-8");
+		params.put("app_id",PropertiesUtil.getValue("ant_appId", null));
+		params.put("method","alipay.trade.query");
+		String dateTimePattern = DateUtil.formatDateTime(new Date());
+		params.put("timestamp",dateTimePattern);
+		
+		params.put("biz_content",new Gson().toJson(map));
+	//	map.put("notify_url","");
+		String str =null;
+		    String content = AlipaySignature.getSignCheckContentV1(params);
+		    try {
+		    	params.put("sign", AlipaySignature.rsa256Sign(content,PropertiesUtil.getValue("ant_privatekey", privatekey),params.get("charset")));
+		    	params.put("sign_type","RSA2");
+		    	str = ZanClickHttps.sendPost(ant_ceshi, map, params);
+			} catch (AlipayApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return resultModel.error(ErrorCode.OTHERS, "获取详情失败");
+			}
+		
+		if(str == null){
+			return resultModel.error(ErrorCode.OTHERS, "获取详情失败");
+		}
+		    JSONObject JSONObject = new JSONObject(str);
+		
+			JSONObject jsonObject3 = JSONObject.getJSONObject("Response");
+			if(jsonObject3.getString("code").equals("10000")) {
+				
+			}
+		// TODO Auto-generated method stub
+		return resultModel;
+	} 
+    
+	@Override  //订单列表
+	public PageInfo<ZanclickLogRes> zanClickLog(String storeName,String stime,String etime,Integer page,Integer limit) throws Exception{
+		// TODO Auto-generated method stub
+		//返回七天之后的交易成功数据
+		PageInfo<ZanclickLogRes> zaninfo = null;
+		PageInfo<ZanclickLogBean> info = null;
+		try {
+			
+			ZanclickLogBeanExample logBeanExample = new ZanclickLogBeanExample();
+			Criteria criteria = logBeanExample.createCriteria();
+			criteria.andTradeStatusNotEqualTo("TRADE_CLOSED");
+			
+			if(!StrUtils.isNullOrBlank(storeName)){
+				
+				   //createCriteria.andBeInvitedLike(name);
+				criteria.andStoreNameLike(storeName+"%");
+				
+				}
+	            if(!StrUtils.isNullOrBlank(stime) && !StrUtils.isNullOrBlank(etime)){
+	            	criteria.andNotifyTimeBetween(DateUtil.parse(stime),DateUtil.parse(etime));
+	            	
+				}
+			
+	            
+		//	criteria.andNotifyTimeLessThanOrEqualTo(DateUtil.getLast7());
+			 PageHelper.startPage(page,limit);
+			logBeanExample.setOrderByClause("notify_time desc");
+			List<ZanclickLogBean> list = zanclickLogBeanMapper.selectByExample(logBeanExample);
+			info = new PageInfo<ZanclickLogBean>(list);
+			List<ZanclickLogRes> list3 =  new ArrayList<ZanclickLogRes>();
+			for (ZanclickLogBean z : list) { 
+				ZanclickLogRes logBean = new ZanclickLogRes();
+				
+				
+				    	 
+				    	 logBean.setStoreName(z.getStoreName());
+			
+				logBean.setTradeStatus(z.getTradeStatus());
+				logBean.setId(z.getId());
+				double totalAmount =  (double )z.getTotalAmount();
+				if(totalAmount/100 < 1){
+					continue;
+				}
+				logBean.setTotalAmount(String.valueOf(totalAmount/100));
+				logBean.setUserId(z.getUserId());
+				logBean.setStoreId(z.getStoreId());
+			
+				logBean.setFqNum(z.getFqNum()== null ?0:z.getFqNum());
+				logBean.setNotifyTime(z.getNotifyTime());
+				logBean.setOutTradeNo(z.getOutTradeNo());
+				logBean.setTradeNo(z.getTradeNo());
+				list3.add(logBean);
+			}
+	          
+	            LOGGER.info("-----------------------------------------花呗交易记录"+new Gson().toJson(list));
+	            zaninfo = new PageInfo<ZanclickLogRes>(list3);
+	            zaninfo.setTotal(info.getTotal());
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		
+		//返回所有的交易成功数据
+		
+		//
+		
+		
+		return zaninfo;
+	}
+
+	@Override
+	@Transactional
+	public ResultModel sendWealth(Integer storeId, String trade_no)
+			throws Exception {
+		ResultModel resultModel = ResultModel.success();
+		// TODO Auto-generated method stub
+		//发送财富 给店长门店      代理
+	/*	6期 0.5%     0.5%
+		12期 2%      1.5%
+		24期 4%      2.0%*/
+		 //店员申请的要把财富给店长
+		short p = 1;
+		short  t = 2;
+		short  ty = 302;
+		 TUserInfoBean  infoBean = null;
+		 Integer userId = 0;
+		 Integer wealth = 0;
+		 Integer moneys = 0;
+		 String fq0 = null;
+		 String fq6 = null;
+		 String fq12 = null;
+		 String fq24 = null;
+		 ZanclickLogBean zanclickLogBean =null;
+	     TWealthDayLogBean tWealthDayLogBean = null;
+	     TWealthMonthLogBean monthLogBean = null;
+	     Integer userId2 = 0 ;
+	     String j = null;
+		 StoreUserBean su =  storeUserBeanMapper.selectByUSER3(storeId,3); 
+			try {
+				 j = rZanclickFq.get(zanfei);
+				if(j != null){
+					JSONObject ob = new JSONObject(j);
+					fq0 = ob.get("fq").toString();
+					fq6 =  ob.get("fq6").toString();
+					fq12 = ob.get("fq12").toString();
+					fq24 = ob.get("fq24").toString();
+				
+				}
+				if(su == null){
+					 resultModel.error(ErrorCode.BUSINESS_ERROR,ErrorCode.getErrInfo(ErrorCode.BUSINESS_ERROR));
+			    	 return resultModel;
+				 }	
+		  userId2 = su.getUserId();
+		 //通过门店ID 得到店长id
+		 infoBean = userInfoBeanMapper.selectByPrimaryKey(userId2);
+		 if(infoBean == null){
+			 resultModel.error(ErrorCode.BUSINESS_ERROR,ErrorCode.getErrInfo(ErrorCode.BUSINESS_ERROR));
+	    	 return resultModel;
+		 }
+		 userId = infoBean.getUserId();
+		
+	     ZanclickLogBeanExample logBeanExample = new ZanclickLogBeanExample();
+			Criteria criteria = logBeanExample.createCriteria();
+			criteria.andTradeNoEqualTo(trade_no);
+			List<ZanclickLogBean> list = zanclickLogBeanMapper.selectByExample(logBeanExample);
+	
+				 if(null == list || list.size() <= 0){
+			    	 resultModel.error(ErrorCode.E1020401,ErrorCode.getErrInfo(ErrorCode.PARAM_NULL));
+			    	 return resultModel;
+			     }
+				  zanclickLogBean = list.get(0);
+				  if(zanclickLogBean.getTradeStatus().equals("SEND_WEALTH_SUCCESS")){
+					  resultModel.error(ErrorCode.E1020601,ErrorCode.getErrInfo(ErrorCode.E1020601));
+				    	 return resultModel;
+				  }
+			     Double  parseDouble = null;
+			     if(zanclickLogBean.getFqNum() != null){
+			    	 if(zanclickLogBean.getFqNum() == 6){
+						 if(StringUtils.isNotBlank(fq6)){
+								  parseDouble = Double.parseDouble(fq6);
+							//	Double s = parseDouble*100;
+							
+								  wealth =  (int) (zanclickLogBean.getTotalAmount()* parseDouble);
+							}
+					 }
+					 else if(zanclickLogBean.getFqNum() == 12){
+						 if(StringUtils.isNotBlank(fq12)){
+							  parseDouble = Double.parseDouble(fq12);
+						//	Double s = parseDouble*100;
+							 // Integer totalAmount = zanclickLogBean.getTotalAmount();
+							  
+							  wealth =  (int) (zanclickLogBean.getTotalAmount()* parseDouble);
+						}
+					 }
+					 else if(zanclickLogBean.getFqNum() == 24){
+						 if(StringUtils.isNotBlank(fq24)){
+							  parseDouble = Double.parseDouble(fq24);
+						//	Double s = parseDouble*100;
+						
+							  wealth =  (int) (zanclickLogBean.getTotalAmount()* parseDouble);
+						}
+					 }
+			     }
+			else {
+					 if(StringUtils.isNotBlank(fq0)){
+						  parseDouble = Double.parseDouble(fq0);
+					     //Double s = parseDouble*100;
+					
+						  wealth =  (int) (zanclickLogBean.getTotalAmount()* parseDouble);
+					}
+				 }
+				 moneys = zanclickLogBean.getTotalAmount()/100;
+				/* if(wealth < 1){
+					 resultModel.error(ErrorCode.E1020702,ErrorCode.getErrInfo(ErrorCode.E1020702));
+			    	 return resultModel;
+				 }*/
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+				 resultModel.error(ErrorCode.BUSINESS_ERROR,ErrorCode.getErrInfo(ErrorCode.BUSINESS_ERROR));
+		    	 return resultModel;
+			}
+			 Integer wealth2 = infoBean.getUserWealth();
+			if(wealth < 1){
+				 
+			 }else{
+				//--------给用户info 表添加财富
+				 infoBean.setUserWealth(wealth+wealth2);
+			
+				 userInfoBeanMapper.updateByPrimaryKeySelective(infoBean);
+				 
+				 //---------给财富log添加一条记录
+				 TWealthLogBean wealthLogBean = new TWealthLogBean();
+				 wealthLogBean.setUserId(userId.intValue());
+				 wealthLogBean.setUserName(infoBean.getUserName());
+				 wealthLogBean.setLoginPlat(p);
+				 wealthLogBean.setAdminId(0);
+				 wealthLogBean.setWealthBefore(wealth2);
+				 wealthLogBean.setWealthAfter(infoBean.getUserWealth());
+				 wealthLogBean.setWealthCount(wealth);
+				 wealthLogBean.setLogType(t);
+				 wealthLogBean.setTypeId(ty);
+				 wealthLogBean.setTypeDesc("花呗交易");
+				 wealthLogBean.setDetailId(0);
+				 wealthLogBean.setWealthType(p);
+				 wealthLogBean.setWealthState(p);
+				 wealthLogBean.setBack3(3);
+				// DateUtil.
+				 wealthLogBean.setCreateTime(new Date().getDay());
+				 wealthLogBean.setRecTime(new Date());
+				 wealthLogBean.setVersion("");
+				 wealthLogBeanMapper.insertSelective(wealthLogBean);
+				 
+				 //存入代理商的表
+				 if(zanclickLogBean.getFqNum() != 0){
+					 StoreInfoBean storeInfoBean = storeInfoBeanMapper.selectByPrimaryKey(storeId);
+					 dealthAgentBusinessLog(ty, zanclickLogBean.getTotalAmount(), zanclickLogBean.getFqNum(), storeId.longValue(), userId.longValue(), infoBean,storeInfoBean);
+				 }
+				 
+				 //-------------------存取财富当天的
+				 //返回当前天
+				
+				 TWealthDayLogBeanExample tWealthDayLogBeanExample = new TWealthDayLogBeanExample();
+				 tWealthDayLogBeanExample.createCriteria().andDayStringEqualTo(DateUtil.format(new Date())).andUserIdEqualTo(userId.intValue());
+				 List<TWealthDayLogBean> wdays = wealthDayLogBeanMapper.selectByExample(tWealthDayLogBeanExample);
+				 
+				 
+				 if(wdays != null && wdays.size() > 0){//存在
+					 tWealthDayLogBean = wdays.get(0);
+					 tWealthDayLogBean.setWealthEarn(moneys);
+					 tWealthDayLogBean.setWealthTotal(wealth+wealth2);//
+					 tWealthDayLogBean.setRecTime(new Date());
+					 tWealthDayLogBean.setUpdateTime(new Date().getDate());
+					 wealthDayLogBeanMapper.updateByPrimaryKeySelective(tWealthDayLogBean);
+					
+				 }else{
+					 
+					 tWealthDayLogBean = new TWealthDayLogBean();
+					 tWealthDayLogBean.setDayString(DateUtil.format(new Date()));
+					 tWealthDayLogBean.setDayInt(new Date().getDay());
+					 tWealthDayLogBean.setUserId(userId.intValue()); 	 	
+					 tWealthDayLogBean.setUserName(infoBean.getUserName());
+					 
+					 
+					 TWealthDayLogBeanExample tWealthDayLogBeanExample1 = new TWealthDayLogBeanExample();
+					 tWealthDayLogBeanExample1.createCriteria().andDayStringEqualTo(DateUtil.getyester()).andUserIdEqualTo(userId.intValue());
+					 List<TWealthDayLogBean> selectByExample = wealthDayLogBeanMapper.selectByExample(tWealthDayLogBeanExample1);
+					 
+				     tWealthDayLogBean.setWealthYes(selectByExample.size() > 0?selectByExample.get(0).getWealthYes():0);
+					
+				     tWealthDayLogBean.setWealthEarn(moneys);
+					 tWealthDayLogBean.setWealthTotal(wealth+wealth2);//
+					 tWealthDayLogBean.setRecTime(new Date());
+					 //判断不存在赋值0 
+				     tWealthDayLogBean.setWealthExchange(0);
+				     tWealthDayLogBean.setWealthQueque(0);
+				     wealthDayLogBeanMapper.insertSelective(tWealthDayLogBean);
+					 
+				 }
+				 //--------------------存取财富当月的
+				 TWealthMonthLogBeanExample monthLogBeanExample = new TWealthMonthLogBeanExample();
+				 monthLogBeanExample.createCriteria().andUserIdEqualTo(userId.intValue()).andMonthStringEqualTo(DateUtil.format(new Date(),"yyyy-MM"));
+				 List<TWealthMonthLogBean> monthexample = wealthMonthLogBeanMapper.selectByExample(monthLogBeanExample);
+				 if(monthexample != null && monthexample.size() > 0){
+					 monthLogBean = monthexample.get(0);
+					 monthLogBean.setWealthEarn(monthLogBean.getWealthEarn()+wealth);
+					 monthLogBean.setRecTime(new Date());
+					 monthLogBean.setWealthTotal(monthLogBean.getWealthTotal()+wealth);
+					 monthLogBean.setUpdateTime(new Date().getDate());
+					 monthLogBean.setRecTime(new Date());
+					 
+					 wealthMonthLogBeanMapper.updateByPrimaryKeySelective(monthLogBean);
+				 }else{
+					 monthLogBean = new TWealthMonthLogBean();
+					 monthLogBean.setMonthString(DateUtil.format(new Date(),"yyyy-MM"));
+					 monthLogBean.setMonthInt(new Date().getMonth());
+					 monthLogBean.setUserId(userId.intValue());
+					 monthLogBean.setUserName(infoBean.getUserName());
+					 TWealthMonthLogBeanExample monthLogBeanExample1 = new TWealthMonthLogBeanExample();
+					 monthLogBeanExample1.createCriteria().andUserIdEqualTo(userId.intValue()).andMonthStringEqualTo(DateUtil.format(new Date(),"yyyy-MM"));
+					 List<TWealthMonthLogBean> monthexample1 = wealthMonthLogBeanMapper.selectByExample(monthLogBeanExample1);
+					
+						 
+					 monthLogBean.setWealthYes(wealth2 - wealth);
+					 monthLogBean.setWealthEarn(wealth);
+					 monthLogBean.setWealthExchange(0);
+					 monthLogBean.setWealthTotal(wealth+wealth2);
+					 monthLogBean.setWealthQueque(0);
+					 monthLogBean.setCreateTime(new Date().getDate());
+					 monthLogBean.setRecTime(new Date());
+					 wealthMonthLogBeanMapper.insertSelective(monthLogBean);
+				 }
+				 //--------------------记录用户发送消息类型
+					String jGPushContent ="尊敬的掌柜，"+ wealthLogBean.getTypeDesc()+wealth  + "财富已经到账啦！";
+					boolean content = false;
+					
+						 content = PushContentUtil.pushContent(2, infoBean.getPushKey(), jGPushContent, wealthLogBean.getTypeDesc());
+				/*	}else{
+						
+						 content = PushContentUtil.pushContent(1, infoBean.getPushKey(), jGPushContent, wealthLogBean.getTypeDesc());
+					}*/
+				    short m = -1;
+				    
+				    	TUserMessageBean tUserMessageBean = new TUserMessageBean();
+				    	tUserMessageBean.setUserId(userId.intValue());
+				    	tUserMessageBean.setMessageTitle("财富到账");
+				    	tUserMessageBean.setMessageState(content?1:m);
+				    	tUserMessageBean.setMessageType(p);
+				    	tUserMessageBean.setMessageLink(t);
+				    	tUserMessageBean.setMessageText(jGPushContent);
+				    	tUserMessageBean.setPushKey(infoBean.getPushKey());
+				    	tUserMessageBean.setCreateTime(new Date().getDate());
+				    	tUserMessageBean.setRecTime(new Date());
+				    	
+				    	userMessageBeanMapper.insertSelective(tUserMessageBean);
+				    	 
+			 }
+				    	ZanclickWealthBean zanclickWealthBean = new ZanclickWealthBean();	
+				    	zanclickWealthBean.setStoreId(storeId);
+				    	zanclickWealthBean.setStoreName(infoBean.getStoreName());
+				    	zanclickWealthBean.setUserId(userId2);
+				    	zanclickWealthBean.setUserName(infoBean.getUserName());
+				    	zanclickWealthBean.setWealth(wealth2);
+				    	zanclickWealthBean.setMoney(moneys);
+				    	zanclickWealthBean.setFqNum(zanclickLogBean.getFqNum());
+				    	zanclickWealthBean.setCreateTime(new Date());
+				    	zanclickWealthBeanMapper.insertSelective(zanclickWealthBean);
+				        //最后修改记录状态
+				    	zanclickLogBean.setTradeStatus("SEND_WEALTH_SUCCESS");
+				    	zanclickLogBeanMapper.updateByPrimaryKeySelective(zanclickLogBean);  	
+				    	resultModel.success();
+		                return resultModel;
+	}
+
+	
+
+	@Override
+	public ResultModel apendzanClickfq(String fq0, String fq6, String fq12,
+			String fq24) {
+		ResultModel resultModel = ResultModel.success();
+		
+		try {
+			
+			// TODO Auto-generated method stub
+		    HashMap<String,String> map = new HashMap<String, String>();
+		    map.put("fq", fq0);
+		    map.put("fq6", fq6);
+		    map.put("fq12", fq12);
+		    map.put("fq24", fq24);
+			rZanclickFq.set(zanfei, new Gson().toJson(map));
+			resultModel.success();
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return resultModel;
+	}
+
+	@Override
+	public List<ZanclickFqBean> zanClickfq() {
+		// TODO Auto-generated method stub
+		List<ZanclickFqBean> list = new ArrayList<ZanclickFqBean>();
+		ZanclickFqBean fqBean = new ZanclickFqBean();
+		try {
+			
+			String j = rZanclickFq.get(zanfei);
+			
+			//jsonObject.
+			if(j != null){
+				JSONObject ob = new JSONObject(j);
+				fqBean.setFq(ob.get("fq").toString());
+				fqBean.setFq6(ob.get("fq6").toString());
+				fqBean.setFq12(ob.get("fq12").toString());
+				fqBean.setFq24(ob.get("fq24").toString());
+				list.add(fqBean);
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	@Override
+	public ZanclickOffBean queryZanopen() {
+		// TODO Auto-generated method stub
+		ZanclickOffBean zanclickOffBean = null;
+		ZanclickOffBeanExample example = new ZanclickOffBeanExample();
+		com.yqbing.servicebing.repository.database.abstracts.ZanclickOffBeanExample.Criteria createCriteria = example.createCriteria();
+		List<ZanclickOffBean> list = zanclickOffBeanMapper.selectByExample(example);
+		try {
+			
+			 zanclickOffBean = list.get(0);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+			// TODO: handle exception
+		
+		return zanclickOffBean;
+	}
+
+	@Override
+	public int zanopen(String off) {
+		Integer s = 1;
+		Integer t = 2;//关闭
+		ZanclickOffBeanExample offerOpenBeanExample = new ZanclickOffBeanExample();
+		offerOpenBeanExample.createCriteria();
+		List<ZanclickOffBean> list = zanclickOffBeanMapper.selectByExample(offerOpenBeanExample);
+		ZanclickOffBean offerOpenBean = list.get(0);
+		
+		offerOpenBean.setStatus(off.equals("true")?s:t);
+		int i = zanclickOffBeanMapper.updateByPrimaryKeySelective(offerOpenBean);
+		
+		return i;
+	}
+  
+	/*public static void main(String[] args) {
+	   double totalAmount =  (double )10;
+	   System.out.println(String.valueOf(totalAmount/100));
+	}*/
+	
+	@Override
+	public void setStoreName() {
+		// TODO Auto-generated method stub
+		ZanclickLogBeanExample logBeanExample = new ZanclickLogBeanExample();
+		Criteria criteria = logBeanExample.createCriteria();
+		List<ZanclickLogBean> list = zanclickLogBeanMapper.selectByExample(logBeanExample);
+		for (ZanclickLogBean zl : list) {
+			if(StringUtils.isBlank(zl.getStoreName())){
+				Integer storeId = zl.getStoreId();
+				StoreInfoBean bean = storeInfoBeanMapper.selectByPrimaryKey(storeId);
+				if(bean != null){
+					zl.setStoreName(bean.getStoreName());
+					zanclickLogBeanMapper.updateByPrimaryKeySelective(zl);
+				}
+				
+			}
+		}
+	}
+
+	
+	
+	@Override
+	public PageInfo<ZanclickLogRes> refundPageList(String storeName, String stime,
+			String etime, int page, int limit) {
+		       
+				PageInfo<ZanclickLogRes> zaninfo = null;
+				PageInfo<ZanclickLogBean> info = null;
+				try {
+					
+					ZanclickLogBeanExample logBeanExample = new ZanclickLogBeanExample();
+					Criteria criteria = logBeanExample.createCriteria();
+					criteria.andTradeStatusEqualTo("TRADE_SUCCESS");
+					
+					if(!StrUtils.isNullOrBlank(storeName)){
+						
+						   //createCriteria.andBeInvitedLike(name);
+						criteria.andStoreNameLike(storeName+"%");
+						
+						}
+			            if(!StrUtils.isNullOrBlank(stime) && !StrUtils.isNullOrBlank(etime)){
+			            	criteria.andNotifyTimeBetween(DateUtil.parse(stime),DateUtil.parse(etime));
+			            	
+						}
+					
+			            
+				//	criteria.andNotifyTimeLessThanOrEqualTo(DateUtil.getLast7());
+					 PageHelper.startPage(page,limit);
+					logBeanExample.setOrderByClause("notify_time desc");
+					List<ZanclickLogBean> list = zanclickLogBeanMapper.selectByExample(logBeanExample);
+					info = new PageInfo<ZanclickLogBean>(list);
+					List<ZanclickLogRes> list3 =  new ArrayList<ZanclickLogRes>();
+					for (ZanclickLogBean z : list) { 
+						ZanclickLogRes logBean = new ZanclickLogRes();
+						logBean.setStoreName(z.getStoreName());
+					
+						logBean.setTradeStatus(z.getTradeStatus());
+						logBean.setId(z.getId());
+						double totalAmount =  (double )z.getTotalAmount();
+						if(totalAmount/100 < 1){
+							continue;
+						}
+						logBean.setTotalAmount(String.valueOf(totalAmount/100));
+						logBean.setUserId(z.getUserId());
+						logBean.setStoreId(z.getStoreId());
+					
+						logBean.setFqNum(z.getFqNum()== null ?0:z.getFqNum());
+						logBean.setNotifyTime(z.getNotifyTime());
+						logBean.setOutTradeNo(z.getOutTradeNo());
+						logBean.setTradeNo(z.getTradeNo());
+						logBean.setAliTradeNo(z.getAliTradeNo());
+						list3.add(logBean);
+					}
+			          
+			            LOGGER.info("-----------------------------------------花呗交易记录"+new Gson().toJson(list));
+			            zaninfo = new PageInfo<ZanclickLogRes>(list3);
+			            zaninfo.setTotal(info.getTotal());
+				} catch (Exception e) {
+					// TODO: handle exception
+					e.printStackTrace();
+				}
+				
+				//返回所有的交易成功数据
+				
+				//
+				
+				
+				return zaninfo;
+	}
+
+	
+	
+	@Override
+	public PageInfo<ZanclickRefundBean> alreadyRefundList(String name,
+			int page, int limit) {
+		
+		PageInfo<ZanclickRefundBean> zaninfo = null;
+		// TODO Auto-generated method stub
+		ZanclickRefundBeanExample logBeanExample = new ZanclickRefundBeanExample();
+		logBeanExample.createCriteria();
+	
+	
+		
+            
+	//	criteria.andNotifyTimeLessThanOrEqualTo(DateUtil.getLast7());
+		PageHelper.startPage(page,limit);
+		logBeanExample.setOrderByClause("create_time desc");
+		
+		List<ZanclickRefundBean> list = zanclickRefundBeanMapper.selectByExample(logBeanExample);
+		
+		zaninfo = new PageInfo<ZanclickRefundBean>(list);
+		
+		return zaninfo;
+	}
+	
+	
+	/*public boolean updateWealthMonthLog(int type, int userId, String name, int count, int after, int createTime) {
+        String monthString = DataUtils.getMonth();
+        int monthInt = DataUtils.getMonthInt(monthString);
+        //查询本月财富值交易数据
+        //查询当天财富值交易数据
+        List<TbWealthMonthlog> monthlogList = wealthMonthlogService.queryTbWealthMonthlogByUserId(userId, monthString);
+        if (monthlogList == null || monthlogList.size() <= 0) {
+            TbWealthMonthlog wealthMonthlog = new TbWealthMonthlog();
+            switch (type) {
+                case 1:// 获取
+                    wealthMonthlog.setUserId(userId);
+                    wealthMonthlog.setUserName(name);
+                    wealthMonthlog.setWealthYes(after - count);
+                    wealthMonthlog.setWealthEarn(count);
+                    wealthMonthlog.setWealthExchange(0);
+                    wealthMonthlog.setWealthQueque(0);
+                    wealthMonthlog.setWealthTotal(after);
+                    wealthMonthlog.setMonthInt(monthInt);
+                    wealthMonthlog.setMonthString(monthString);
+                    wealthMonthlog.setCreateTime(createTime);
+                    wealthMonthlog.setUpdateTime(createTime);
+                    wealthMonthlog.setRecTime(DataUtils.datetimeFormat());
+
+                    break;
+                default:
+                    break;
+            }
+            wealthMonthlogService.addWealthMonthLog(wealthMonthlog);
+        } else {
+            TbWealthMonthlog wealthMonthlog = monthlogList.get(0);
+            switch (type) {
+                case 1:
+                    wealthMonthlog.setWealthEarn(wealthMonthlog.getWealthEarn() + count);
+                    wealthMonthlog.setWealthTotal(wealthMonthlog.getWealthTotal() + count);
+                    wealthMonthlog.setUpdateTime(createTime);
+                    break;
+                default:
+                    break;
+
+            }
+            wealthMonthlogService.updateWealthMonthLog(wealthMonthlog);
+        }
+        return true;*/
+	
+	
+}

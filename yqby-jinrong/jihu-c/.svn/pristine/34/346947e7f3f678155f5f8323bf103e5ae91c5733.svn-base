@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.LocalTourMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.LocalTour" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="ticket_price" property="ticketPrice" jdbcType="VARCHAR" />
+    <result column="duration" property="duration" jdbcType="VARCHAR" />
+    <result column="moreInfo" property="moreinfo" jdbcType="VARCHAR" />
+    <result column="business_hours" property="businessHours" jdbcType="VARCHAR" />
+    <result column="ticket_notice" property="ticketNotice" jdbcType="VARCHAR" />
+    <result column="belong_code" property="belongCode" jdbcType="VARCHAR" />
+    <result column="belong_city" property="belongCity" jdbcType="VARCHAR" />
+    <result column="website" property="website" jdbcType="VARCHAR" />
+    <result column="longitude" property="longitude" jdbcType="DECIMAL" />
+    <result column="latitude" property="latitude" jdbcType="DECIMAL" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="headimg" property="headimg" jdbcType="VARCHAR" />
+    <result column="city_code" property="cityCode" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.yqbing.servicebing.repository.database.bean.LocalTourWithBLOBs" extends="BaseResultMap" >
+    <result column="tour_introduction" property="tourIntroduction" jdbcType="LONGVARCHAR" />
+    <result column="tour_tips" property="tourTips" jdbcType="LONGVARCHAR" />
+    <result column="pictures" property="pictures" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, name, ticket_price, duration, moreInfo, business_hours, ticket_notice, belong_code, 
+    belong_city, website, longitude, latitude, phone, create_time, status, headimg, city_code
+  </sql>
+  <sql id="Blob_Column_List" >
+    tour_introduction, tour_tips, pictures
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.yqbing.servicebing.repository.database.dao.LocalTourExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from local_tour
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.dao.LocalTourExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from local_tour
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="queryLocalNearCity" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    
+    from local_tour
+    
+    where belong_code = #{belongCode,jdbcType=VARCHAR} and id != #{id}
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from local_tour
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from local_tour
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.LocalTourWithBLOBs" >
+    insert into local_tour (id, name, ticket_price, 
+      duration, moreInfo, business_hours, 
+      ticket_notice, belong_code, belong_city, 
+      website, longitude, latitude, 
+      phone, create_time, status, 
+      headimg, city_code, tour_introduction, 
+      tour_tips, pictures)
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{ticketPrice,jdbcType=VARCHAR}, 
+      #{duration,jdbcType=VARCHAR}, #{moreinfo,jdbcType=VARCHAR}, #{businessHours,jdbcType=VARCHAR}, 
+      #{ticketNotice,jdbcType=VARCHAR}, #{belongCode,jdbcType=VARCHAR}, #{belongCity,jdbcType=VARCHAR}, 
+      #{website,jdbcType=VARCHAR}, #{longitude,jdbcType=DECIMAL}, #{latitude,jdbcType=DECIMAL}, 
+      #{phone,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{status,jdbcType=INTEGER}, 
+      #{headimg,jdbcType=VARCHAR}, #{cityCode,jdbcType=VARCHAR}, #{tourIntroduction,jdbcType=LONGVARCHAR}, 
+      #{tourTips,jdbcType=LONGVARCHAR}, #{pictures,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.LocalTourWithBLOBs" >
+    insert into local_tour
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="ticketPrice != null" >
+        ticket_price,
+      </if>
+      <if test="duration != null" >
+        duration,
+      </if>
+      <if test="moreinfo != null" >
+        moreInfo,
+      </if>
+      <if test="businessHours != null" >
+        business_hours,
+      </if>
+      <if test="ticketNotice != null" >
+        ticket_notice,
+      </if>
+      <if test="belongCode != null" >
+        belong_code,
+      </if>
+      <if test="belongCity != null" >
+        belong_city,
+      </if>
+      <if test="website != null" >
+        website,
+      </if>
+      <if test="longitude != null" >
+        longitude,
+      </if>
+      <if test="latitude != null" >
+        latitude,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="headimg != null" >
+        headimg,
+      </if>
+      <if test="cityCode != null" >
+        city_code,
+      </if>
+      <if test="tourIntroduction != null" >
+        tour_introduction,
+      </if>
+      <if test="tourTips != null" >
+        tour_tips,
+      </if>
+      <if test="pictures != null" >
+        pictures,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="ticketPrice != null" >
+        #{ticketPrice,jdbcType=VARCHAR},
+      </if>
+      <if test="duration != null" >
+        #{duration,jdbcType=VARCHAR},
+      </if>
+      <if test="moreinfo != null" >
+        #{moreinfo,jdbcType=VARCHAR},
+      </if>
+      <if test="businessHours != null" >
+        #{businessHours,jdbcType=VARCHAR},
+      </if>
+      <if test="ticketNotice != null" >
+        #{ticketNotice,jdbcType=VARCHAR},
+      </if>
+      <if test="belongCode != null" >
+        #{belongCode,jdbcType=VARCHAR},
+      </if>
+      <if test="belongCity != null" >
+        #{belongCity,jdbcType=VARCHAR},
+      </if>
+      <if test="website != null" >
+        #{website,jdbcType=VARCHAR},
+      </if>
+      <if test="longitude != null" >
+        #{longitude,jdbcType=DECIMAL},
+      </if>
+      <if test="latitude != null" >
+        #{latitude,jdbcType=DECIMAL},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="headimg != null" >
+        #{headimg,jdbcType=VARCHAR},
+      </if>
+      <if test="cityCode != null" >
+        #{cityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="tourIntroduction != null" >
+        #{tourIntroduction,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="tourTips != null" >
+        #{tourTips,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="pictures != null" >
+        #{pictures,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.dao.LocalTourExample" resultType="java.lang.Integer" >
+    select count(*) from local_tour
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.LocalTourWithBLOBs" >
+    update local_tour
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="ticketPrice != null" >
+        ticket_price = #{ticketPrice,jdbcType=VARCHAR},
+      </if>
+      <if test="duration != null" >
+        duration = #{duration,jdbcType=VARCHAR},
+      </if>
+      <if test="moreinfo != null" >
+        moreInfo = #{moreinfo,jdbcType=VARCHAR},
+      </if>
+      <if test="businessHours != null" >
+        business_hours = #{businessHours,jdbcType=VARCHAR},
+      </if>
+      <if test="ticketNotice != null" >
+        ticket_notice = #{ticketNotice,jdbcType=VARCHAR},
+      </if>
+      <if test="belongCode != null" >
+        belong_code = #{belongCode,jdbcType=VARCHAR},
+      </if>
+      <if test="belongCity != null" >
+        belong_city = #{belongCity,jdbcType=VARCHAR},
+      </if>
+      <if test="website != null" >
+        website = #{website,jdbcType=VARCHAR},
+      </if>
+      <if test="longitude != null" >
+        longitude = #{longitude,jdbcType=DECIMAL},
+      </if>
+      <if test="latitude != null" >
+        latitude = #{latitude,jdbcType=DECIMAL},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="headimg != null" >
+        headimg = #{headimg,jdbcType=VARCHAR},
+      </if>
+      <if test="cityCode != null" >
+        city_code = #{cityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="tourIntroduction != null" >
+        tour_introduction = #{tourIntroduction,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="tourTips != null" >
+        tour_tips = #{tourTips,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="pictures != null" >
+        pictures = #{pictures,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.yqbing.servicebing.repository.database.bean.LocalTourWithBLOBs" >
+    update local_tour
+    set name = #{name,jdbcType=VARCHAR},
+      ticket_price = #{ticketPrice,jdbcType=VARCHAR},
+      duration = #{duration,jdbcType=VARCHAR},
+      moreInfo = #{moreinfo,jdbcType=VARCHAR},
+      business_hours = #{businessHours,jdbcType=VARCHAR},
+      ticket_notice = #{ticketNotice,jdbcType=VARCHAR},
+      belong_code = #{belongCode,jdbcType=VARCHAR},
+      belong_city = #{belongCity,jdbcType=VARCHAR},
+      website = #{website,jdbcType=VARCHAR},
+      longitude = #{longitude,jdbcType=DECIMAL},
+      latitude = #{latitude,jdbcType=DECIMAL},
+      phone = #{phone,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=INTEGER},
+      headimg = #{headimg,jdbcType=VARCHAR},
+      city_code = #{cityCode,jdbcType=VARCHAR},
+      tour_introduction = #{tourIntroduction,jdbcType=LONGVARCHAR},
+      tour_tips = #{tourTips,jdbcType=LONGVARCHAR},
+      pictures = #{pictures,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.LocalTour" >
+    update local_tour
+    set name = #{name,jdbcType=VARCHAR},
+      ticket_price = #{ticketPrice,jdbcType=VARCHAR},
+      duration = #{duration,jdbcType=VARCHAR},
+      moreInfo = #{moreinfo,jdbcType=VARCHAR},
+      business_hours = #{businessHours,jdbcType=VARCHAR},
+      ticket_notice = #{ticketNotice,jdbcType=VARCHAR},
+      belong_code = #{belongCode,jdbcType=VARCHAR},
+      belong_city = #{belongCity,jdbcType=VARCHAR},
+      website = #{website,jdbcType=VARCHAR},
+      longitude = #{longitude,jdbcType=DECIMAL},
+      latitude = #{latitude,jdbcType=DECIMAL},
+      phone = #{phone,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=INTEGER},
+      headimg = #{headimg,jdbcType=VARCHAR},
+      city_code = #{cityCode,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

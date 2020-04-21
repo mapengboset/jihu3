@@ -1,0 +1,39 @@
+package com.yqbing.servicebing.mina.server;
+/**
+ * 
+ * @Title:     
+ * @Description:    消息常量类 
+ * @author: mapb   
+ * @date:   2018年11月7日 下午4:37:14   
+ * @version V1.0
+ */
+public class MessageConstant {
+
+	/** 客户端：第一次连接*/
+	public static final Integer MSG_TYPE_101 = 101;
+	/** 实时竞技 客户端：发送数据*/
+	public static final Integer MSG_TYPE_105 = 105;
+    /** 服务端：第一次连接*/
+	public static final Integer MSG_TYPE_1101 = 1101;
+	/** 实时竞技 服务端：游戏信息*/
+	public static final Integer MSG_TYPE_1102 = 1102;
+	/** 实时竞技 服务端：游戏开始*/
+	public static final Integer MSG_TYPE_1103 = 1103;
+	/** 实时竞技 服务端：离开房间*/
+	public static final Integer MSG_TYPE_1104 = 1104;
+	/** 实时竞技 服务端：发送数据*/
+	public static final Integer MSG_TYPE_1105 = 1105;
+	/** 实时竞技 服务端：游戏结束*/
+	public static final Integer MSG_TYPE_1106 = 1106;
+	/** 实时竞技 服务端：心跳检测*/
+	public static final Integer MSG_TYPE_1100 = 1100;
+	/** 实时竞技 服务端：游戏结束倒计时*/
+    public static final Integer MSG_TYPE_1107 = 1107;
+    /** 离线竞技 服务端：游戏信息*/
+    public static final Integer MSG_TYPE_1202 = 1202;
+    /** 离线竞技 服务端：游戏开始*/
+    public static final Integer MSG_TYPE_1203 = 1203;
+    /** 离线竞技 服务端：发送数据*/
+    public static final Integer MSG_TYPE_1205 = 1205;
+	
+}

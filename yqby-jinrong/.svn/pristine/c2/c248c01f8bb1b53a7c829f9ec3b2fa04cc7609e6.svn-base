@@ -1,0 +1,120 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.alibaba.excel.read.event.AnalysisEventListener;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCode;
+import com.yqbing.servicebing.common.ResultModel;
+import com.yqbing.servicebing.repository.database.bean.TUserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.WeBankBean;
+import com.yqbing.servicebing.service.TUserInfoBeanService;
+import com.yqbing.servicebing.service.WeBankControService;
+
+/**
+ * 
+
+ * @ClassName: WeBankController
+
+ * @Description: 后台微众银行的管理
+
+ * @author: mpb
+
+ * @date: 2018年11月20日 下午5:38:26
+ */
+@RestController
+public class WeBankController extends BaseController{
+
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(WeBankController.class);
+	
+	@Resource(name="weBankControService")
+	private WeBankControService weBankControService = null;;
+	
+	
+	// 查询微众用户提交记录
+	@RequestMapping(value ={"/manageWB/query"},method=RequestMethod.GET)
+	public  ResultModel  query(String name ,String stime,String etime,int page,int size){
+		LOGGER.info("-----------------------------------------微众提取记录上传参数--name:"+name+",stime:"+stime+",etime:"+etime+",page:"+page+",size:"+size);
+		ResultModel resultModel = ResultModel.success();
+		try {
+			PageHelper.startPage(page,size);//
+			PageInfo<WeBankBean> wes = weBankControService.query(name,stime, etime);
+			
+			resultModel.setResult(wes);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			
+		}
+		
+		return resultModel;
+	} 
+	//查询财富发放记录
+	@RequestMapping(value ={"/manageWB/queryWelth"},method=RequestMethod.GET)
+	public  ResultModel  queryWelth(String company,String store ,String stime,String etime,int page,int size){
+		
+		LOGGER.info("-----------------------------------------微众提取记录上传参数--name:"+company+",stime:"+store+",etime:"+etime+",page:"+page+",size:"+size);
+		ResultModel resultModel = ResultModel.success();
+		try {
+			PageHelper.startPage(page,size);//
+			PageInfo<WeBankBean> wes = weBankControService.queryWelth(company,store,stime, etime);
+			resultModel.setResult(wes);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			
+		}
+		
+		return resultModel;
+	}
+	//导入excel
+	@RequestMapping(value ={"/manageWB/importWB"},method=RequestMethod.POST)
+	public ResultModel importWB(@RequestParam(value="filename") MultipartFile file, HttpServletRequest requeste){
+       ResultModel resultModel = ResultModel.success();
+		try {
+			
+			weBankControService.importWB(file);
+			resultModel.setResult("导入成功");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			resultModel = ResultModel.error(ErrorCode.OTHERS,
+					ErrorCode.getErrInfo(ErrorCode.OTHERS));
+			return resultModel;
+		}
+		return resultModel;
+	}
+	//导出excel
+	@RequestMapping(value ={"/manageWB/exportWB"},method=RequestMethod.GET)
+    public void exportWB(@RequestParam(value = "time", required = true)String time,HttpServletResponse response){
+		try {
+			weBankControService.exportWB(time,response);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		
+		
+	}
+	
+    //上传(5日)
+}

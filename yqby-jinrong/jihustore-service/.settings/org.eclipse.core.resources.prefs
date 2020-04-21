@@ -1,0 +1,8 @@
+eclipse.preferences.version=1
+encoding//src/main/resources/db/jihustore-service-ceshi.properties=UTF-8
+encoding//src/main/resources/db/jihustore-service-online.properties=UTF-8
+encoding//src/main/resources/db/jihustore-service-test.properties=UTF-8
+encoding//src/main/resources/db/lotteryTicket-service-ceshi.properties=UTF-8
+encoding//src/main/resources/db/lotteryTicket-service-online.properties=UTF-8
+encoding//src/main/resources/db/lotteryTicket-service-test.properties=UTF-8
+encoding//src/test/java=UTF-8

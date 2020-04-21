@@ -1,0 +1,46 @@
+package com.yqbing.servicebing.webapp.response;
+
+import io.swagger.annotations.ApiModel;
+
+import java.io.Serializable;
+import java.util.List;
+
+public class StoreTypeRes implements Serializable{
+	
+   /**
+	 * 
+	 */
+	private static final long serialVersionUID = 628614004322620804L;
+   private String name;//类型名称
+   private String value;//类型值
+   private Integer seq;//排序方式
+   private String img;//
+   
+  
+   public String getImg() {
+	return img;
+	}
+	public void setImg(String img) {
+		this.img = img;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getValue() {
+		return value;
+	}
+	public void setValue(String value) {
+		this.value = value;
+	}
+	public Integer getSeq() {
+		return seq;
+	}
+	public void setSeq(Integer seq) {
+		this.seq = seq;
+	}
+	
+   
+}

@@ -1,0 +1,336 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.AppBanner;
+import com.yqbing.servicebing.repository.database.bean.AppModule;
+import com.yqbing.servicebing.repository.database.bean.LocalArticle;
+import com.yqbing.servicebing.repository.database.bean.LocalFineFood;
+import com.yqbing.servicebing.repository.database.bean.LocalTour;
+import com.yqbing.servicebing.repository.database.bean.LocalTourWithBLOBs;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.dao.AppBannerExample;
+import com.yqbing.servicebing.repository.database.dao.AppBannerMapper;
+import com.yqbing.servicebing.repository.database.dao.AppModuleExample;
+import com.yqbing.servicebing.repository.database.dao.AppModuleMapper;
+import com.yqbing.servicebing.repository.database.dao.AppBannerExample.Criteria;
+import com.yqbing.servicebing.repository.database.dao.LocalArticleExample;
+import com.yqbing.servicebing.repository.database.dao.LocalArticleMapper;
+import com.yqbing.servicebing.repository.database.dao.LocalFineFoodExample;
+import com.yqbing.servicebing.repository.database.dao.LocalFineFoodMapper;
+import com.yqbing.servicebing.repository.database.dao.LocalTourExample;
+import com.yqbing.servicebing.repository.database.dao.LocalTourMapper;
+import com.yqbing.servicebing.service.CommonService;
+import com.yqbing.servicebing.service.HomePageService;
+import com.yqbing.servicebing.service.LocalService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.webapp.response.HomeModel;
+import com.yqbing.servicebing.webapp.response.local.LocalListRes;
+import com.yqbing.servicebing.webapp.response.local.LocalModel;
+import com.yqbing.servicebing.webapp.response.local.LocalPageRes;
+import com.yqbing.servicebing.webapp.response.local.LocalSearchRes;
+
+@Service("localService")
+@SuppressWarnings("all")
+public class LocalServiceImpl extends CommonService implements LocalService {
+
+	
+	 private static final Logger LOGGER = LoggerFactory.getLogger(LocalServiceImpl.class);
+	 @Resource
+	 private AppBannerMapper appBannerMapper= null;
+	 @Resource
+     private AppModuleMapper appModuleMapper = null;
+	 @Resource
+	 private LocalArticleMapper localArticleMapper = null;
+	 @Resource
+	 private LocalFineFoodMapper localFineFoodMapper = null;
+	 @Resource
+	 private LocalTourMapper localTourMapper = null;
+	 
+	 
+	 @Override
+	 public String localPage(String token, String device) {
+		 
+		 UserInfoBean infoBean = queryTokenByUser(token);
+			if(infoBean == null){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+			}
+		
+		//首页大图list
+		Byte s = 0;
+		AppBannerExample picex = new AppBannerExample();
+  		Criteria criteria = picex.createCriteria();
+  		criteria.andAppCategoryIdEqualTo("local_life_banner").andStatusEqualTo(s);
+  		picex.setOrderByClause(" sort");
+  		List<AppBanner> pic = appBannerMapper.selectByExample(picex);
+  		LocalPageRes res = new LocalPageRes();
+  		res.setPic(pic);
+		//分类组合list
+		 AppModuleExample example = new AppModuleExample();
+		 AppModule am =  appModuleMapper.selectByCode("localLifeRoot");
+    	 example.createCriteria().andParentIdEqualTo(am.getId()).andStatusEqualTo(0);
+    	 example.setOrderByClause(" sort");
+    	 List<AppModule> list = appModuleMapper.selectByExample(example);
+    	 List<LocalModel> models = new ArrayList<LocalModel>();
+    	 for (AppModule ad : list) {
+    		 
+    		 LocalModel model = new LocalModel();
+    		 
+    		 model.setName(ad.getName());
+    		 model.setPid(ad.getId());
+    		 model.setStyle(ad.getStyle());
+    		 model.setIsMore(ad.getIsMore());
+    		 model.setIsMark(ad.getIsMark());
+    		 model.setModuleType(ad.getModuleType());
+    		 List<LocalListRes> locas = new ArrayList<LocalListRes>();
+    		 if(ad.getModuleType().equals("article")){//文章
+    			// new 
+    			 LocalArticleExample articleExample = new LocalArticleExample();
+    			 articleExample.createCriteria().andStatusEqualTo(0);
+    			 List<LocalArticle> list2 = localArticleMapper.selectByExample(articleExample);
+    			 list2.stream().forEach(localArticle ->{
+    				 LocalListRes localListRes = new LocalListRes();
+    				 localListRes.setImg(localArticle.getHeadimg());
+    				 localListRes.setTitle(localArticle.getTitle()); 
+    				 localListRes.setId(localArticle.getId());
+    				 locas.add(localListRes);
+    		        });
+    			 model.setList(locas);
+    		 }
+    		 
+    		 if(ad.getModuleType().equals("tour")){//tour 景区
+    			 LocalTourExample tourExample = new LocalTourExample();
+    			 tourExample.createCriteria().andStatusEqualTo(0);
+    			 List<LocalTour> list2 = localTourMapper.selectByExample(tourExample);
+    			 list2.stream().forEach(localTour ->{
+    				 LocalListRes localListRes = new LocalListRes();
+    				 localListRes.setImg(localTour.getHeadimg()); 
+    				 localListRes.setTitle(localTour.getName());
+    				 localListRes.setId(localTour.getId());
+    				 locas.add(localListRes);
+    		        });
+    			 model.setList(locas);
+    		 }
+    		 
+    		 if(ad.getModuleType().equals("food")){//article 文章
+    			 LocalFineFoodExample foodExample = new LocalFineFoodExample();
+    			 foodExample.createCriteria().andStatusEqualTo(0);
+    			 List<LocalFineFood> list2 = localFineFoodMapper.selectByExample(foodExample);
+    			 list2.stream().forEach(localFineFood ->{
+    				 LocalListRes localListRes = new LocalListRes();
+    				 localListRes.setImg(localFineFood.getHeadimg()); 
+    				 localListRes.setId(localFineFood.getId());
+    				 localListRes.setTitle(localFineFood.getSpecialDishes()); 
+    				 locas.add(localListRes);
+    		        });
+    			 model.setList(locas);
+    		 }
+    		 models.add(model);
+    	 }
+    	 res.setModels(models);
+    	 
+		 return NotifyUtil.success(res);
+	}
+	 
+	 
+	 
+	 @Override
+		public String localSearch(String keywords) {
+		 
+		 List<LocalSearchRes> list3 = new ArrayList<LocalSearchRes>();
+		 
+		 LocalFineFoodExample foodExample = new LocalFineFoodExample();
+		 foodExample.createCriteria().andStatusEqualTo(0).andNameLike(keywords);
+		 List<LocalFineFood> list2 = localFineFoodMapper.selectByExample(foodExample);
+		 for (LocalFineFood localFineFood : list2) {
+			 
+			LocalSearchRes localSearchRes = new LocalSearchRes();
+			localSearchRes.setAddress(address);
+			localSearchRes.setName(name);
+			localSearchRes.setTital(tital);
+		}
+		 
+		 LocalTourExample tourExample = new LocalTourExample();
+		 tourExample.createCriteria().andStatusEqualTo(0).andNameLike(keywords);
+		 List<LocalTour> list = localTourMapper.selectByExample(tourExample);
+		 for (LocalTour localTour : list) {
+			 
+			 LocalSearchRes localSearchRes = new LocalSearchRes();
+			 localSearchRes.setAddress(address);
+			 localSearchRes.setName(name);
+			 localSearchRes.setTital(tital);
+		}
+		
+		 
+		 
+		 return null;
+		 
+		}         
+	 
+	@Override
+	public String localNear(String type,String longitude1, String latitude1,String cityCode) {
+		
+		try {
+			Double longitude = Double.valueOf(longitude1);
+			Double latitude = Double.valueOf(latitude1);
+			 //先计算查询点的经纬度范围  
+	        double r = 6371;//地球半径千米  
+	        double dis = 0.5;//0.5千米距离  
+	        double dlng =  2*Math.asin(Math.sin(dis/(2*r))/Math.cos(latitude*Math.PI/180));  
+	        dlng = dlng*180/Math.PI;//角度转为弧度  
+	        double dlat = dis/r;
+	        dlat = dlat*180/Math.PI;     
+	        double minlat =latitude-dlat; 
+	        double maxlat = latitude+dlat;
+	        double minlng = longitude-dlng;
+	        double maxlng = longitude+dlng;
+	        if(type.equals("food")){
+	        	
+	            List<LocalFineFood> fineFood = 	localFineFoodMapper.queryLocalNear(minlng,maxlng,minlat,maxlat);
+	            return NotifyUtil.success(fineFood);
+	        }  
+	        if(type.equals("tour")){
+	        	
+	        	List<LocalTour>  localTour =	localTourMapper.queryLocalNearCity(cityCode);
+	        	return NotifyUtil.success(localTour);
+	        } 
+	       /* if(type.equals("article")){
+	        	
+	        	List<LocalArticle>  article =	localArticleMapper.queryLocalNear(minlng,maxlng,minlat,maxlat);
+	        	return NotifyUtil.success(article);
+	        }  */
+		
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+		
+		return NotifyUtil.success();
+	}
+
+
+	@Override
+	public String localDatail(String moduleType,Long id, String token) {
+		
+		 String success = StringUtils.EMPTY;
+		 AppModuleExample example = new AppModuleExample();
+		 AppModule am =  appModuleMapper.selectByCode("localLifeRoot");
+    	 example.createCriteria().andParentIdEqualTo(am.getId()).andStatusEqualTo(0);
+    	 example.setOrderByClause(" sort");
+    	 List<AppModule> list = appModuleMapper.selectByExample(example);
+    	 Map<String, Object> map = new HashMap<String, Object>();
+		 if(moduleType.equals("article")){// article 文章
+ 			 //new 
+ 			 LocalArticleExample articleExample = new LocalArticleExample();
+ 			 articleExample.createCriteria().andIdEqualTo(id).andStatusEqualTo(0);
+ 			 List<LocalArticle> list2 = localArticleMapper.selectByExampleWithBLOBs(articleExample);
+ 		     if(null != list2 && list2.size() >0){
+ 		    	 
+ 		    	   success = NotifyUtil.success(list2.get(0));
+ 		    	   
+ 		    	   map.put("data", list2.get(0));
+ 		    	  
+ 		     }
+ 		 }
+ 		 
+ 		 if(moduleType.equals("tour")){//tour 景区
+ 			 
+ 			 LocalTourExample tourExample = new LocalTourExample();
+ 			 tourExample.createCriteria().andIdEqualTo(id).andStatusEqualTo(0);
+ 			 List<LocalTourWithBLOBs> list2 = localTourMapper.selectByExampleWithBLOBs(tourExample);
+ 			 if(null != list2 && list2.size() >0){
+ 				 
+ 				  success =  NotifyUtil.success(list2.get(0));
+ 				 
+ 				  map.put("data", list2.get(0));
+		     }
+ 		 }
+ 		 
+ 		 if(moduleType.equals("food")){//food 美食
+ 			 
+ 			 LocalFineFoodExample foodExample = new LocalFineFoodExample();
+ 			 foodExample.createCriteria().andIdEqualTo(id).andStatusEqualTo(0);
+ 			 List<LocalFineFood> list2 = localFineFoodMapper.selectByExampleWithBLOBs(foodExample);
+ 			 if(null != list2 && list2.size() >0){
+ 				 
+ 				  success =  NotifyUtil.success(list2.get(0));
+ 				  
+ 				  map.put("data", list2.get(0));
+		     }
+ 		 }
+		
+ 		map.put("near", list);
+ 		
+ 		map.put("recommend", recommend(moduleType));
+ 		
+		return NotifyUtil.success(map);
+	}
+	
+	
+    public List<LocalListRes> recommend(String moduleType) {
+		
+    	
+       List<LocalListRes> locas = new ArrayList<LocalListRes>();
+       
+   	   if(moduleType.equals("food")){//美食
+			 // new 
+			 LocalArticleExample articleExample = new LocalArticleExample();
+			 articleExample.createCriteria().andStatusEqualTo(0);
+			 List<LocalArticle> list2 = localArticleMapper.selectByExample(articleExample);
+			 list2.stream().forEach(localArticle ->{
+				 LocalListRes localListRes = new LocalListRes();
+				 localListRes.setImg(localArticle.getHeadimg()); 
+				 localListRes.setTitle(localArticle.getTitle()); 
+				 locas.add(localListRes);
+				
+		        });
+		 }
+		 if(moduleType.equals("tour")){//tour 景区
+			 LocalTourExample tourExample = new LocalTourExample();
+			 tourExample.createCriteria().andStatusEqualTo(0);
+			 List<LocalTour> list2 = localTourMapper.selectByExample(tourExample);
+			 list2.stream().forEach(localTour ->{
+				 LocalListRes localListRes = new LocalListRes();
+				 localListRes.setImg(localTour.getHeadimg()); 
+				 localListRes.setTitle(localTour.getName()); 
+				 locas.add(localListRes);
+		        });
+		 }
+		 
+		 if(moduleType.equals("article")){//article 文章
+			 
+			 LocalFineFoodExample foodExample = new LocalFineFoodExample();
+			 foodExample.createCriteria().andStatusEqualTo(0);
+			 List<LocalFineFood> list2 = localFineFoodMapper.selectByExample(foodExample);
+			 list2.stream().forEach(localFineFood ->{
+				 LocalListRes localListRes = new LocalListRes();
+				 localListRes.setImg(localFineFood.getHeadimg()); 
+				 localListRes.setTitle(localFineFood.getSpecialDishes()); 
+				 locas.add(localListRes);
+		        });
+		 }
+		
+		return locas;
+	}
+
+
+	
+    
+    
+    
+	
+	
+	
+}

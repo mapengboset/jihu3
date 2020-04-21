@@ -1,0 +1,15 @@
+package com.yqbing.servicebing.webapp.response;
+
+public class homePageRes {
+  
+	/*private String pic;//首页大图
+	private String pic;//
+	private String pic;
+	private String pic;
+	private String pic;
+	private String pic;
+	private String pic;
+	private String pic;*/
+	
+	
+}

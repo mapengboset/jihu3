@@ -1,0 +1,32 @@
+package com.yqbing.servicebing.repository.database.dao;
+
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface UserInfoBeanMapper {
+    int countByExample(UserInfoBeanExample example);
+
+    int deleteByPrimaryKey(Long id);
+
+    int insert(UserInfoBean record);
+
+    int insertSelective(UserInfoBean record);
+
+    List<UserInfoBean> selectByExample(UserInfoBeanExample example);
+
+    UserInfoBean selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(UserInfoBean record);
+
+    int updateByPrimaryKey(UserInfoBean record);
+
+	UserInfoBean queryAndPhone(String phone);
+	
+	UserInfoBean queryPhoneAndpassword(String phone,String password);
+
+	UserInfoBean queryToken(String token);
+}

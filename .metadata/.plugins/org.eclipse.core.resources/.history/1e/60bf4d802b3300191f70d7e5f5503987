@@ -1,0 +1,1079 @@
+package com.yqbing.servicebing.service.impl;
+
+
+import io.swagger.models.auth.In;
+
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpUtils;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.docx4j.model.datastorage.XPathEnhancerParser.main_return;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.internal.util.AlipaySignature;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.yqbing.servicebing.common.ErrorCode;
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.common.ResultModel;
+import com.yqbing.servicebing.exception.BingException;
+import com.yqbing.servicebing.repository.database.abstracts.StoreInfoBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.StoreInfoBeanExample.Criteria;
+import com.yqbing.servicebing.repository.database.abstracts.StoreOrderBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.StoreUserBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.ZanclickLogBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.ZanclickOffBeanExample;
+import com.yqbing.servicebing.repository.database.bean.StoreInfoBean;
+import com.yqbing.servicebing.repository.database.bean.StoreOrderBean;
+import com.yqbing.servicebing.repository.database.bean.StoreUserBean;
+import com.yqbing.servicebing.repository.database.bean.TUserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.TUserMessageBean;
+import com.yqbing.servicebing.repository.database.bean.ZanclickLogBean;
+import com.yqbing.servicebing.repository.database.bean.ZanclickOffBean;
+import com.yqbing.servicebing.repository.database.dao.StoreInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreOrderBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreUserBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TUserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TUserMessageBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.ZanclickLogBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.ZanclickOffBeanMapper;
+import com.yqbing.servicebing.repository.redis.RAntClickDatailLog;
+import com.yqbing.servicebing.repository.redis.RStoreOrderLog;
+import com.yqbing.servicebing.service.AntCreditService;
+import com.yqbing.servicebing.utils.DateUtil;
+import com.yqbing.servicebing.utils.HttpRequest;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.utils.PropertiesUtil;
+import com.yqbing.servicebing.utils.PushContentUtil;
+import com.yqbing.servicebing.utils.StrUtils;
+import com.yqbing.servicebing.utils.ZanClickHttps;
+import com.yqbing.servicebing.webapp.request.AntCreditRequest;
+import com.yqbing.servicebing.webapp.request.ZanclickLogRequest;
+
+
+@Service("antCreditService")
+@SuppressWarnings("all")
+public class AntCreditServiceImpl implements AntCreditService{
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(AntCreditServiceImpl.class);
+	
+	@Autowired
+	private StoreInfoBeanMapper storeInfoBeanMapper = null;
+	
+	@Autowired
+	private StoreUserBeanMapper storeUserBeanMapper = null;
+
+	@Autowired
+	private StoreOrderBeanMapper storeOrderBeanMapper = null;
+	 
+	@Autowired
+	private ZanclickLogBeanMapper zanclickLogBeanMapper = null;
+	
+	@Autowired
+	private ZanclickOffBeanMapper zanclickOffBeanMapper = null;
+	
+	@Autowired
+	private TUserMessageBeanMapper userMessageBeanMapper = null;
+	@Autowired
+	private RStoreOrderLog rStoreOrderLog = null;
+	@Autowired
+	private RAntClickDatailLog rAntClickDatailLog = null;
+	@Autowired
+	private TUserInfoBeanMapper tUserInfoBeanMapper = null;
+	
+	@Value("${ant_ceshi}")
+	private  String ant_ceshi;
+	@Value("${ant_html5}")
+	private  String ant_html5;
+	
+	@Value("${ant_https}")
+	private  String ant_https;
+	
+	private static final String privatekey ="MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCURSOdWUR2orsGayaUyOTeGESHZveCGIvWrR7V/iqm3UXwmHupMGOHtSM9v0IfASph9uaHG7kwWio6j4HQ925P6zQ1VkkCVjiAmyVaeYabjAWjsBNqt4+kEzzA7pNyArYU/uVx7IU4xY1XbSG7xAgK16yIN3KDnPvIUx5jMHDqcAtO6u578l7x5qAIlE/DC7Hn8J1QJP7REJAQWagwtXcjI9HGgtj3BauhhTD3SfwWFO8JJIe2nL1vxioIrh38OSuFWoyIku8t6gqfKQyzJq5wmHwRD870AF8T3ihPV6I9sDl6wYwBbnsLqFgVFg4A541cMBt342x9UXFm9l30kDVzAgMBAAECggEAJSTU8TxFvHqz473AIpHZVBI8SLdw1fSUQ6mHChDsWnUgak+o2w+2P28Pbw6U3/OIzJXv1nUJhaVw4s7EtLbnubmwkJQXIjC7Yux7BRlgsWL4nrMjih6GK5JuK98YrP0k5Eme7VVVYo2LBRXf14waf6zcGhvZ4kLXiK3Z9PtTrkcTzFh8OVp5zXXFbVqQbp4SPEoyNE6GOUzvb4nXpz9hzuIjEMRGaGY2r2oXZiaeJhATatJmNJXHmmdNfgo5xcJnVW3uKxMyGEup6UwAxSqehH2vQ63sKYo5gfgz5prQCqDDZ2SQgejr1qV/hhc7Q8Ika0rE93OuZiPYbVH3jzygQQKBgQDuqR7In7xPH6pef+ncvlYhLidoND5nH//0zf5gn2LrMCWl7REVy0vtCLrJml+5eyr6576uheFdNcv/VxHoUkMhwcOvQxQ5v99WoPKeoGmS/Z8QL48tfk4CFL/Mut6auY+bqkRZZBp6hDgV7wyQ7fYT/lFzn0KqGMQKxU7g6KQCQwKBgQCfCtVWsuk0B0HLCx0u7CiYNF5b5UixdBReUNZ5WoOFtT8xgtJrH82Xtu9IhFVAkUYtN3rZ7Ge76InOzQ7Bj7NI2r2CWcZ6n1F9j0mzkSRl1wN3hdyRQHUZWkcWdfZiVh3XKWYXSfKVSiN6Qd+t3RB4MMHeGurzkyOsh9ud1bBFEQKBgGcYGzoi9l9fmGLV8pnuhpoyq8cxujsl8ZU4XsgyUbKyy7CPZa/6b8Pm33ky/GLNN9XGwfH111JCaOrWG+A1mNY+M1/EJDqGDd4IDIZFWRWsBUgio0DNrLjtaaTwnDROMCDYPko3GdEOyIOBDfaVNJWSaHD/vPZpWFYmwVoaZK6tAoGBAI3tyAbv8Ib6tu8wwuFd5Lg3e8F8cwvRcF/euhdf/CE1ZuiTO55Xqkxq90z6s23EdyDg8uRJQSWC1oBTpIh96dvpQNdzsFk7lih716TEsPulDrX6IqUJJbbzRp83tCF7gnPBwRalajNqDxEKekeZERqBQHEqCmRF+b79GrLWwNBRAoGBAKzVx/0C6+hk9se2Z6XhqsRgv3b6nW8hJJABQCqOSAb+CMPfHx4EkYYOoc+1VxgtWYK55WyhgzQCj3w05o4P0SQwuuqKCnfgTiYZiOPfazfssLcGXzLZ+LXd/NBnQzj0o9Tyxra3xZwuDREwGD7Qj6DOUps35U9Uk9EkL9XRUmch";
+	@SuppressWarnings("unchecked")
+	@Override
+	public String createGroup(long userId, String storeName,
+			String storeAddress, String phone, String seller_no, String result,String platformId,String storeLicense, String storePic)throws BingException {
+		
+		PropertiesUtil.loadFile("antcredit.properties");
+		
+//		StoreInfoBeanExample example = new StoreInfoBeanExample();
+//		Criteria createCriteria = example.createCriteria();
+//		createCriteria.andStoreNameEqualTo(storeName).andOwnerIdEqualTo(Integer.parseInt(userId+""));
+		
+		
+		short p = 1;
+		StoreUserBeanExample example2 = new StoreUserBeanExample();
+		com.yqbing.servicebing.repository.database.abstracts.StoreUserBeanExample.Criteria criteria2 = example2.createCriteria();
+		
+		criteria2.andUserIdEqualTo(Integer.valueOf(userId+"")).andUserStateEqualTo(p);
+		List<StoreUserBean> list = storeUserBeanMapper.selectByExample(example2);
+		
+		//ResultModel success = ResultModel.success();
+		String success = StringUtils.EMPTY;
+	//	List<StoreInfoBean> list = storeInfoBeanMapper.selectByExample(example);
+		if(null == list || list.size()<= 0){
+			success = NotifyUtil.error(ErrorCodeEnum.DISACCORD,"店铺不存在");
+			return success;
+		}
+		StoreUserBean suBean = list.get(0);
+		
+		StoreInfoBean infoBean = storeInfoBeanMapper.selectByPrimaryKey(suBean.getStoreId());
+		/*if(!infoBean.getStoreName().equals(storeName)){
+			success = NotifyUtil.error(ErrorCodeEnum.NOTSRORENAME,"请输入自己的门店名称");
+			return success;
+		}*/
+		if(infoBean == null){
+			success = NotifyUtil.error(ErrorCodeEnum.NOTSRORE,"店铺不存在");
+			return success;
+		}
+		if(StringUtils.isBlank(result)){
+			success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,"支付宝授权不成功,没有获取相关信息");
+			return success;
+		}
+		//手机商户信息
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("merchant_name", storeName);
+		map.put("store_no", infoBean.getStoreCode());
+		map.put("store_type", 1);
+		map.put("province", infoBean.getProvinceId());
+		map.put("city", infoBean.getCityId());
+		map.put("district", infoBean.getAreaId());
+		map.put("address", storeAddress);
+		map.put("category", "201711132");
+		
+	    map.put("business_image", StringUtils.isNotBlank(storeLicense)?storeLicense:infoBean.getStoreLicense());
+		map.put("out_door_image", StringUtils.isNotBlank(storePic)?storePic:infoBean.getStorePic());
+		//map.put("landline_phone", "");
+		map.put("mobile_phone",phone);
+		map.put("contact_name", infoBean.getOwnerName());
+		map.put("seller_no", seller_no);
+/*		try {
+			if(platformId.equals("1")){//android
+				JSONObject JSONObject = new JSONObject(result);
+				String uid = (String) JSONObject.get("user_id");
+				
+			}else{*/
+		
+		        //ant_UID=2088102177156389
+		  /*      String ant_UID = PropertiesUtil.getValue("ant_UID", null);
+		        if(StringUtils.isNotBlank(ant_UID)){
+		        	
+		        	map.put("uid", ant_UID);
+		        }else{*/
+		        	map.put("uid", result);
+		   //     }
+		/*		
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.getStackTrace();
+		}*/
+	    
+		
+		map.put("notify_url", PropertiesUtil.getValue("ant_https", null)+"/antcredit/notifyCreateOrderNo");
+		//https://docs.open.alipay.com/218/105326/
+		//---------------------------------------------------------------------------------------------------------
+		Map<String,String> params = new HashMap<String, String>();
+		params.put("format","JSON");
+		params.put("version","1.0");
+		params.put("charset","utf-8");
+		params.put("app_id",PropertiesUtil.getValue("ant_appId", null));
+		params.put("method","zanclick.merchant.register");
+		String dateTimePattern = DateUtil.formatDateTime(new Date());
+		params.put("timestamp",dateTimePattern);
+		
+		params.put("biz_content",new Gson().toJson(map));
+	//	map.put("notify_url","");
+		String str =null;
+		    String content = AlipaySignature.getSignCheckContentV1(params);
+		    try {
+		    	params.put("sign", AlipaySignature.rsa256Sign(content,PropertiesUtil.getValue("ant_privatekey", privatekey),params.get("charset")));
+		    	params.put("sign_type","RSA2");
+		    	str = ZanClickHttps.sendPost(ant_ceshi, map, params);
+			} catch (AlipayApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+		if(str == null){
+			success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+			return success;
+		}
+		    JSONObject JSONObject = new JSONObject(str);
+		
+			JSONObject jsonObject3 = JSONObject.getJSONObject("Response");
+			if(jsonObject3.getString("code").equals("10000")) {
+				String orderno = jsonObject3.getString("orderNo");
+				StoreOrderBeanExample beanExample = new StoreOrderBeanExample();
+				com.yqbing.servicebing.repository.database.abstracts.StoreOrderBeanExample.Criteria criteria = beanExample.createCriteria();
+				criteria.andStoreIdEqualTo(infoBean.getStoreId());
+				List<StoreOrderBean> list2 = storeOrderBeanMapper.selectByExample(beanExample);
+				if(null != list2 && list2.size() > 0){//存在就更新
+					StoreOrderBean orderBean = list2.get(0);
+					orderBean.setOrderNo(orderno);
+					orderBean.setPhone(phone);
+					orderBean.setStoreLicense(storeLicense);
+					orderBean.setStorepic(storePic);
+					orderBean.setStoreId(infoBean.getStoreId());
+					orderBean.setStoreName(storeName);
+					orderBean.setStroeAddress(storeAddress);
+					orderBean.setSellerNo(seller_no);
+					orderBean.setStatus(0);
+					orderBean.setOutTradeNo(result);
+					orderBean.setReason("");
+				
+					orderBean.setUpdateTime(new Date());
+                      try {
+						
+						storeOrderBeanMapper.updateByPrimaryKeySelective(orderBean);
+					} catch (Exception e) {
+						// TODO: handle exception
+						e.getStackTrace();
+						success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+						return success;
+					}
+				}else{//直接保存
+					StoreOrderBean orderBean = new StoreOrderBean();
+					orderBean.setOrderNo(orderno);
+					orderBean.setPhone(phone);
+					orderBean.setStoreLicense(storeLicense);
+					orderBean.setStorepic(storePic);
+					orderBean.setStatus(0);
+					orderBean.setStoreId(infoBean.getStoreId());
+					orderBean.setStoreName(storeName);
+					orderBean.setStroeAddress(storeAddress);
+					orderBean.setSellerNo(seller_no);
+					orderBean.setOutTradeNo(result);//支付宝UID
+					orderBean.setCreateTime(new Date());
+					try {
+						
+						storeOrderBeanMapper.insertSelective(orderBean);
+					} catch (Exception e) {
+						// TODO: handle exception
+						e.getStackTrace();
+						success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+						return success;
+					}
+				}
+			    
+				Map<String,String> map1 = new HashMap<String, String>();
+				map1.put("orderNo", orderno);
+				success =NotifyUtil.success(map1);
+			
+			}else{
+				String MSG = jsonObject3.getString("msg");
+				success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,MSG);
+			}
+		return success;
+	}
+
+
+
+	@Override
+	public String queryOrderNo(long userId, Integer store_Id)throws BingException {
+		// TODO Auto-generated method stub
+		StoreOrderBeanExample example = new StoreOrderBeanExample();
+		com.yqbing.servicebing.repository.database.abstracts.StoreOrderBeanExample.Criteria criteria = example.createCriteria();
+		criteria.andStoreIdEqualTo(store_Id);
+	//	ResultModel success = ResultModel.success();
+		String success = StringUtils.EMPTY;
+		List<StoreOrderBean> list = storeOrderBeanMapper.selectByExample(example);
+		if(null == list || list.size()<= 0){
+			success = NotifyUtil.error(ErrorCodeEnum.DISACCORD,"店铺不存在");
+			return success;
+		}
+		StoreOrderBean storeOrderBean = list.get(0);
+		 
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("order_no", storeOrderBean.getOrderNo());
+		
+		Map<String,String> params = new HashMap<String, String>();
+		params.put("format","JSON");
+		params.put("version","1.0");
+		params.put("charset","utf-8");
+		params.put("app_id",PropertiesUtil.getValue("ant_appId", null));
+		params.put("method","zanclick.merchant.register.query");
+		String dateTimePattern = DateUtil.formatDateTime(new Date());
+		params.put("timestamp",dateTimePattern);
+		
+		params.put("biz_content",new Gson().toJson(map));
+		
+		String str =null;
+	    String content = AlipaySignature.getSignCheckContentV1(params);
+	    try {
+	    	params.put("sign", AlipaySignature.rsa256Sign(content,PropertiesUtil.getValue("ant_privatekey", privatekey),params.get("charset")));
+	    	params.put("sign_type","RSA2");
+	    	str = ZanClickHttps.sendPost(ant_ceshi, map, params);
+		} catch (AlipayApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    
+	    
+	    JSONObject JSONObject = new JSONObject(str);
+		
+		JSONObject jsonObject3 = JSONObject.getJSONObject("Response");
+		if(jsonObject3.getString("code").equals("10000")) {
+			String status = jsonObject3.getString("status");
+			String merchant_id = jsonObject3.getString("merchant_id");
+			String reason = jsonObject3.getString("reason");
+			storeOrderBean.setMerchantId(merchant_id);
+			storeOrderBean.setReason(reason);
+			storeOrderBean.setStatus(Integer.valueOf(status));
+			storeOrderBean.setUpdateTime(new Date());
+			storeOrderBeanMapper.updateByPrimaryKeySelective(storeOrderBean);
+			success = NotifyUtil.success(storeOrderBean);
+		}else{
+			String MSG = jsonObject3.getString("msg");
+			success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,MSG);
+		}
+		
+		return success;
+	}
+
+	
+	@Override
+	public String editOrderNo(String seller_no, long userId,String result) throws BingException{
+		// TODO Auto-generated method stub
+		
+		//ResultModel success = ResultModel.success();
+		//ResultModel success = ResultModel.success();
+		String success = StringUtils.EMPTY;
+		PropertiesUtil.loadFile("antcredit.properties");
+		short p = 1;
+		StoreUserBeanExample example2 = new StoreUserBeanExample();
+		com.yqbing.servicebing.repository.database.abstracts.StoreUserBeanExample.Criteria criteria2 = example2.createCriteria();
+		
+		criteria2.andUserIdEqualTo(Integer.valueOf(userId+"")).andUserStateEqualTo(p);
+		List<StoreUserBean> list1 = storeUserBeanMapper.selectByExample(example2);
+		
+		
+	//	List<StoreInfoBean> selectByExample = storeInfoBeanMapper.selectByExample(storeInfoBeanExample);
+		
+		if(null == list1 || list1.size()<= 0){
+			success = NotifyUtil.error(ErrorCodeEnum.DISACCORD,"店铺不存在");
+			return success;
+		}
+			
+		StoreUserBean bean = list1.get(0);
+		StoreOrderBeanExample example = new StoreOrderBeanExample();
+		com.yqbing.servicebing.repository.database.abstracts.StoreOrderBeanExample.Criteria criteria = example.createCriteria();
+		criteria.andStoreIdEqualTo(bean.getStoreId());
+		List<StoreOrderBean> list = storeOrderBeanMapper.selectByExample(example);
+		if(null == list || list.size()<= 0){
+			success = NotifyUtil.error(ErrorCodeEnum.NULLOBJECT,"店铺名称不存在");
+			return success;
+		}
+		StoreOrderBean storeOrderBean = list.get(0);
+		if(storeOrderBean.getStatus() == 0){
+			success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,"您的店铺还没有审核通过");
+			return success;
+		}
+		if(StringUtils.isBlank(result)){
+			success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,"支付宝授权不成功,没有获取相关信息");
+			return success;
+		}
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("merchant_id", storeOrderBean.getMerchantId());
+		map.put("seller_no", seller_no);
+		 String ant_UID = PropertiesUtil.getValue("ant_UID", null);
+	        if(StringUtils.isNotBlank(ant_UID)){
+	        	
+	        	map.put("uid", ant_UID);
+	        }else{
+	        	map.put("uid", result);
+	        }
+	
+		Map<String,String> params = new HashMap<String, String>();
+		params.put("format","JSON");
+		params.put("version","1.0");
+		params.put("charset","utf-8");
+		params.put("app_id",PropertiesUtil.getValue("ant_appId", null));
+		params.put("method","zanclick.merchant.update");
+		String dateTimePattern = DateUtil.formatDateTime(new Date());
+		params.put("timestamp",dateTimePattern);
+		
+		params.put("biz_content",new Gson().toJson(map));
+		
+		String str =null;
+	    String content = AlipaySignature.getSignCheckContentV1(params);
+	    try {
+	    	params.put("sign", AlipaySignature.rsa256Sign(content,PropertiesUtil.getValue("ant_privatekey", privatekey),params.get("charset")));
+	    	params.put("sign_type","RSA2");
+	    	str = ZanClickHttps.sendPost(ant_ceshi, map, params);
+		} catch (AlipayApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+			return success;
+		}
+	    if(str == null){
+			success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+			return success;
+		}
+		try {
+       JSONObject JSONObject = new JSONObject(str);
+		
+		JSONObject jsonObject3 = JSONObject.getJSONObject("Response");
+		if(jsonObject3.getString("code").equals("10000")) { 	 	
+			Integer status = (Integer) jsonObject3.get("status");
+			storeOrderBean.setStatus(status);
+			storeOrderBean.setSellerNo(seller_no);
+			storeOrderBean.setOutTradeNo(result);
+			if(status.equals("-1")){
+				storeOrderBean.setReason(jsonObject3.getString("reason"));
+				
+			}
+	   		storeOrderBean.setUpdateTime(new Date());
+	   		storeOrderBeanMapper.updateByPrimaryKeySelective(storeOrderBean);
+	   		success = NotifyUtil.success(storeOrderBean);
+		}else{
+			String MSG = jsonObject3.getString("msg");
+			success = NotifyUtil.error(ErrorCodeEnum.NULLOBJECT,MSG);
+		}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.getStackTrace();
+			success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+			return success;
+		}
+		return success;
+	}
+
+	
+	@Override
+	public ResultModel notifyOrderNo(ZanclickLogRequest data) throws BingException{
+		// TODO Auto-generated method stub
+		ResultModel success = ResultModel.success();
+		ZanclickLogBean logBean = null;
+		ZanclickLogBeanExample zanclickLogBeanExample = new ZanclickLogBeanExample();
+		com.yqbing.servicebing.repository.database.abstracts.ZanclickLogBeanExample.Criteria createCriteria = zanclickLogBeanExample.createCriteria();
+		createCriteria.andOutTradeNoEqualTo(data.getOut_trade_no());
+		List<ZanclickLogBean> list = zanclickLogBeanMapper.selectByExample(zanclickLogBeanExample);
+		boolean ui = false;
+		if(null == list || list.size() <= 0){
+			logBean = new ZanclickLogBean();
+		}else{
+			logBean = list.get(0);
+			ui  = true;
+		}
+		try {
+		//	JSONObject para = new JSONObject(data);
+			String notify_time = data.getNotify_time();
+		//	String notify_time = (String) para.get("notify_time");
+			if(StringUtils.isNotBlank(notify_time)){
+				
+				logBean.setNotifyTime(DateUtil.parseDateTime(notify_time));
+			}
+			String notify_type = data.getNotify_type();
+		//	String notify_type = (String) para.get("notify_type");
+			logBean.setNotifyType(notify_type);
+			
+			
+			
+			logBean.setNotifyId(data.getNotify_id());
+			
+		//	String sign_type = (String) para.get("sign_type");
+			
+			
+			logBean.setSignType(data.getSign_type());
+			
+	//		String sign = (String) para.get("sign");
+			logBean.setSign(data.getSign());
+			
+		//	String trade_no = (String) para.get("trade_no");
+			logBean.setTradeNo(data.getTrade_no());
+			
+		//	String ali_trade_no = (String) para.get("ali_trade_no");
+			logBean.setAliTradeNo(data.getAli_trade_no());
+			
+		//	String app_id = (String) para.get("app_id");
+			logBean.setAppId(data.getApp_id());
+			
+		//	String out_trade_no = (String) para.get("out_trade_no");//
+			if(!ui){
+				
+				logBean.setOutTradeNo(data.getOut_trade_no());
+			}
+			
+		//	String out_biz_no = (String) para.get("out_biz_no");//
+			logBean.setOutBizNo(data.getOut_biz_no());
+			
+		//	String buyer_id = (String) para.get("buyer_id");//
+			logBean.setBuyerId(data.getBuyer_id());
+			
+		//	String buyer_logon_id = (String) para.get("buyer_logon_id");//
+			logBean.setBuyerLogonId(data.getBuyer_logon_id());
+			
+			
+		//	String seller_id = (String) para.get("seller_id");//
+			logBean.setSellerId(data.getSeller_id());
+			
+			
+		//	String trade_status = (String) para.get("trade_status");//
+			logBean.setTradeStatus(data.getTrade_status());
+			
+			
+		//	String total_amount = (String) para.get("total_amount");//
+			String total_amount = data.getTotal_amount();
+			if(StringUtils.isNotBlank(total_amount)){
+				Double  parseDouble = Double.parseDouble(total_amount);
+				Double s = parseDouble*100;
+			    logBean.setTotalAmount(s.intValue());
+			}
+			String receipt_amount = data.getReceipt_amount();
+		//	String receipt_amount = (String) para.get("receipt_amount");//
+			if(StringUtils.isNotBlank(receipt_amount)){
+				Double  parseDouble = Double.parseDouble(receipt_amount);
+				Double s = parseDouble*100;
+				logBean.setReceiptAmount(s.intValue());
+			}
+			
+			String invoice_amount = data.getInvoice_amount();
+			
+		//	String invoice_amount = (String) para.get("invoice_amount");//
+			if(StringUtils.isNotBlank(invoice_amount)){
+				Double  parseDouble = Double.parseDouble(receipt_amount);
+				Double s = parseDouble*100;
+				logBean.setInvoiceAmount(s.intValue());
+			}
+			
+			String buyer_pay_amount = data.getBuyer_pay_amount();
+		//	String buyer_pay_amount = (String) para.get("buyer_pay_amount");//
+			if(StringUtils.isNotBlank(buyer_pay_amount)){
+				Double  parseDouble = Double.parseDouble(buyer_pay_amount);
+				Double s = parseDouble*100;
+				logBean.setBuyerPayAmount(s.intValue());
+			}
+			
+			String point_amount = data.getPoint_amount();
+			
+		//	String point_amount = (String) para.get("point_amount");//
+			if(StringUtils.isNotBlank(point_amount)){
+				Double  parseDouble = Double.parseDouble(point_amount);
+				Double s = parseDouble*100;
+				logBean.setPointAmount(s.intValue());
+			}
+			
+			String refund_fee = data.getRefund_fee();
+		//	String refund_fee = (String) para.get("refund_fee");//
+			if(StringUtils.isNotBlank(refund_fee)){
+				Double  parseDouble = Double.parseDouble(refund_fee);
+				Double s = parseDouble*100;
+				logBean.setRefundFee(s.intValue());
+			}
+			
+		//	String send_back_fee = (String) para.get("send_back_fee");//
+			String send_back_fee = data.getSend_back_fee();
+			if(StringUtils.isNotBlank(send_back_fee)){ 	
+				Double  parseDouble = Double.parseDouble(send_back_fee);//
+				Double s = parseDouble*100;
+				logBean.setSendBackFee(s.intValue());
+			}
+			
+			String subject = data.getSubject();
+		//	String subject = (String) para.get("subject");//
+			logBean.setSubject(subject);
+			
+		//	String body = (String) para.get("body");
+			logBean.setBody(data.getBody());
+			
+			String gmt_create = data.getGmt_create();
+	//		String gmt_create = (String) para.get("gmt_create");//
+			if(StringUtils.isNotBlank(gmt_create)){
+				
+				logBean.setGmtCreate(DateUtil.parseDateTime(gmt_create));
+			}
+			
+			String gmt_payment = data.getGmt_payment();
+			
+	//		String gmt_payment = (String) para.get("gmt_payment");
+			if(StringUtils.isNotBlank(gmt_create)){
+			logBean.setGmtPayment(DateUtil.parseDateTime(gmt_payment));
+			}
+			
+			
+			String gmt_refund = data.getGmt_refund();
+			
+	//		String gmt_refund = (String) para.get("gmt_refund");
+			if(StringUtils.isNotBlank(gmt_create)){
+			logBean.setGmtRefund(DateUtil.parseDateTime(gmt_refund));
+			}
+			
+			String gmt_close = data.getGmt_close();
+			
+	//		String gmt_close = (String) para.get("gmt_close");
+			if(StringUtils.isNotBlank(gmt_create)){
+			logBean.setGmtClose(DateUtil.parseDateTime(gmt_close));
+			}
+			
+			String fq_num = data.getFq_num();
+			
+			//		String gmt_close = (String) para.get("gmt_close");
+			if(StringUtils.isNotBlank(fq_num)){
+			logBean.setFqNum(Integer.valueOf(fq_num));
+			}
+					
+					
+		//	String fund_bill_list = (String) para.get("fund_bill_list");
+			logBean.setFundBillList(data.getFund_bill_list());
+			int insertSelective = 0;
+			if(ui){
+				
+				 insertSelective = zanclickLogBeanMapper.updateByPrimaryKeySelective(logBean);
+//				if(){//发送财富值
+//					
+//				}
+			}else{
+				
+				 insertSelective = zanclickLogBeanMapper.insertSelective(logBean);
+			}
+			 LOGGER.info("商户收款回调地址---ZanclickLogBean:是否成功,1成功 0:失败"+insertSelective);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			success.error(ErrorCode.OTHERS, null);		}
+		
+		return success;
+	}
+
+	@Override
+	public String queryOrderNoDatil(String out_trade_no, String trade_no)throws BingException {
+		// TODO Auto-generated method stub
+		PropertiesUtil.loadFile("antcredit.properties");
+//		ZanclickLogBeanExample example = new ZanclickLogBeanExample();
+//		com.yqbing.servicebing.repository.database.abstracts.ZanclickLogBeanExample.Criteria criteria = example.createCriteria();
+		//criteria.s
+		String success = StringUtils.EMPTY;
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("out_trade_no", out_trade_no);
+		map.put("trade_no", trade_no);
+		
+	
+		Map<String,String> params = new HashMap<String, String>();
+		params.put("format","JSON");
+		params.put("version","1.0");
+		params.put("charset","utf-8");
+		params.put("app_id",PropertiesUtil.getValue("ant_appId", null));
+		params.put("method","alipay.trade.query");
+		String dateTimePattern = DateUtil.formatDateTime(new Date());
+		params.put("timestamp",dateTimePattern);
+		
+		params.put("biz_content",new Gson().toJson(map));
+		
+		String str =null;
+	    String content = AlipaySignature.getSignCheckContentV1(params);
+	    try {
+	    	params.put("sign", AlipaySignature.rsa256Sign(content,PropertiesUtil.getValue("ant_privatekey", privatekey),params.get("charset")));
+	    	params.put("sign_type","RSA2");
+	    	str = ZanClickHttps.sendPost(ant_ceshi, map, params);
+		} catch (AlipayApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+			return success;
+		}
+	    if(str == null){
+			success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+			return success;
+		}
+		
+    //   JSONObject JSONObject = new JSONObject(str);
+	//    Map<String,String> map = new HashMap<String, String>();
+	//    map.put("", );
+	      rAntClickDatailLog.set(trade_no, str);
+	     success = NotifyUtil.success(str);
+		
+		return success;
+	}
+
+	@Override
+	public void notifyCreateOrderNo(String data) {
+		// TODO Auto-generated method stub
+		
+			
+			JSONObject para =  new JSONObject(data);
+			Integer status = (Integer) para.get("status");
+			String s = null;
+			
+			
+			Object reason =  para.get("reason");
+            if(reason == null){
+            	reason = "";
+            }else{
+            	 s = (String) reason;
+            }
+				
+			
+			String merchant_id = (String) para.get("merchant_id");
+			String order_no = (String) para.get("order_no");
+	
+   		String jGPushContent = null;
+   		LOGGER.info("商户创建回调保存地址---data:" + data.toString());
+   		short p = 1;
+		short  t = 2;
+   		StoreOrderBeanExample example = new StoreOrderBeanExample();
+		com.yqbing.servicebing.repository.database.abstracts.StoreOrderBeanExample.Criteria criteria = example.createCriteria();
+		criteria.andOrderNoEqualTo(order_no);
+		List<StoreOrderBean> list = storeOrderBeanMapper.selectByExample(example);
+		if(null == list || list.size()<= 0){
+		}
+		StoreOrderBean orderBean = list.get(0);
+		orderBean.setMerchantId(merchant_id);
+			orderBean.setReason(s);
+			orderBean.setStatus(Integer.valueOf(status));
+			orderBean.setUpdateTime(new Date());
+		StoreInfoBean info = null;
+		TUserInfoBean infoBean = null;
+	
+		info = storeInfoBeanMapper.selectByPrimaryKey(orderBean.getStoreId());
+        if(info == null){
+        	
+        }	
+        infoBean = tUserInfoBeanMapper.selectByPrimaryKey(info.getOwnerId());
+        if(infoBean == null){
+        	
+        }	
+   		if(status == 1){//成功
+   			 jGPushContent ="尊敬的掌柜您已经申请扫码收款成功了";
+   			
+   		}else{//失败
+   			jGPushContent = "尊敬的掌柜您已经申请扫码收款被拒绝了,原因是:"+reason;
+   			
+   		}
+   		try {
+   			LOGGER.info("商户创建回调保存地址---orderBean:" + orderBean.toString());
+   			storeOrderBeanMapper.updateByPrimaryKeySelective(orderBean);
+   			boolean content = PushContentUtil.pushContent(2, infoBean.getPushKey(), jGPushContent, null);
+   			short m = -1;
+   			
+   			TUserMessageBean tUserMessageBean = new TUserMessageBean();
+   			tUserMessageBean.setUserId(info.getOwnerId().intValue());
+   			tUserMessageBean.setMessageTitle("花呗申请");
+   			tUserMessageBean.setMessageState(content?1:m);
+   			tUserMessageBean.setMessageType(p);
+   			tUserMessageBean.setMessageLink(t);
+   			tUserMessageBean.setMessageText(jGPushContent);
+   			tUserMessageBean.setPushKey(infoBean.getPushKey());
+   			tUserMessageBean.setCreateTime(new Date().getDate());
+   			tUserMessageBean.setRecTime(new Date());
+   			
+   			userMessageBeanMapper.insertSelective(tUserMessageBean);
+		} catch (Exception e) {
+			// TODO: handle exception
+			LOGGER.error("--------------商铺开户回调方法"+e.getLocalizedMessage());
+		}
+		
+	}
+
+	@Override
+	public String payHtml(long userId, String totalAmount) throws BingException{
+		// TODO Auto-generated method stub
+		PropertiesUtil.loadFile("antcredit.properties");
+	//	ResultModel success = ResultModel.success();
+//		totalAmount
+//		body
+//		payType
+//		merchantId	
+//		notifyUrl
+//		signType
+//		sign
+//		outTradeNo
+		String body= "机呼商户收款";
+		String payType= "1";
+		String merchantId = null;
+		
+		String success = StringUtils.EMPTY;
+		
+		short p = 1;
+		StoreUserBeanExample example2 = new StoreUserBeanExample();
+		com.yqbing.servicebing.repository.database.abstracts.StoreUserBeanExample.Criteria criteria2 = example2.createCriteria();
+		
+		criteria2.andUserIdEqualTo(Integer.valueOf(userId+"")).andUserStateEqualTo(p);
+		List<StoreUserBean> selectByExample = storeUserBeanMapper.selectByExample(example2);
+		
+		
+	//	List<StoreInfoBean> selectByExample = storeInfoBeanMapper.selectByExample(storeInfoBeanExample);
+		
+		if(null != selectByExample || selectByExample.size()> 0){
+			StoreUserBean bean = selectByExample.get(0);
+		
+		StoreOrderBeanExample example = new StoreOrderBeanExample();
+		com.yqbing.servicebing.repository.database.abstracts.StoreOrderBeanExample.Criteria criteria = example.createCriteria();
+		criteria.andStoreIdEqualTo(bean.getStoreId());
+		List<StoreOrderBean> list = storeOrderBeanMapper.selectByExample(example);
+		if(null == list || list.size()<= 0){
+			success = NotifyUtil.error(ErrorCodeEnum.NULLOBJECT,"");
+			return success;
+		}
+		StoreOrderBean storeOrderBean = list.get(0);
+		merchantId = storeOrderBean.getMerchantId();
+		
+		String notifyUrl = PropertiesUtil.getValue("ant_https", null)+"/antcredit/notifyOrderNo";
+		
+		String signType = PropertiesUtil.getValue("ant_RSA2", null);
+	
+		String outTradeNo = "jihu"+rStoreOrderLog.increment();
+		//------------------------------
+		
+		 Map<String,String> params = new HashMap<>();
+		 Map<String,Object> map = new HashMap<String,Object>();
+	        params.put("totalAmount",totalAmount);
+	        params.put("body",body);
+	        params.put("payType",payType);
+	        params.put("merchantId",merchantId);
+	        params.put("notifyUrl",notifyUrl);
+	        params.put("outTradeNo",outTradeNo);
+	        String content = AlipaySignature.getSignCheckContentV1(params);
+	        String sign = null;
+			try {
+				sign = AlipaySignature.rsa256Sign(content,PropertiesUtil.getValue("ant_privatekey", privatekey),"UTF-8");
+			} catch (AlipayApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        params.put("signType","RSA2");
+	        StringBuffer sb = new StringBuffer();
+	        sb.append(ant_html5);
+	        for (String key:params.keySet()){
+	            if (sb.indexOf("?")==-1){
+	                sb.append("?").append(key).append("=").append(params.get(key));
+	            }else {
+	                sb.append("&").append(key).append("=").append(params.get(key));
+	            }
+	        }
+	        sb.append("&").append("sign=").append(sign);
+	        map.put("url", sb);
+		success = NotifyUtil.success(map);
+		try {
+			if(StringUtils.isBlank(outTradeNo)){
+				return success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,"外部订单号不能为空");
+			}
+			ZanclickLogBean zanclickLogBean = new ZanclickLogBean();
+			zanclickLogBean.setUserId(Integer.valueOf(userId+""));
+			zanclickLogBean.setStoreId(bean.getStoreId());
+			zanclickLogBean.setStoreName(storeOrderBean.getStoreName());
+			zanclickLogBean.setOutTradeNo(outTradeNo);
+			zanclickLogBeanMapper.insertSelective(zanclickLogBean);
+		//	storeOrderBean.setOutTradeNo(outTradeNo);
+		//	storeOrderBeanMapper.updateByPrimaryKeySelective(storeOrderBean);
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,"保存失败");
+		}
+		}
+		return success;
+	}
+
+	@Override
+	public String ifCreate(long userId,Integer platformId) throws BingException{
+		PropertiesUtil.loadFile("antcredit.properties");
+	//	ResultModel success = ResultModel.success();
+		String success = StringUtils.EMPTY;
+		short p = 1;
+		StoreUserBeanExample example2 = new StoreUserBeanExample();
+		com.yqbing.servicebing.repository.database.abstracts.StoreUserBeanExample.Criteria criteria2 = example2.createCriteria();
+		
+		criteria2.andUserIdEqualTo(Integer.valueOf(userId+"")).andUserStateEqualTo(p);
+		List<StoreUserBean> selectByExample = storeUserBeanMapper.selectByExample(example2);
+		
+	//	List<StoreInfoBean> selectByExample = storeInfoBeanMapper.selectByExample(storeInfoBeanExample);
+		
+		if(null != selectByExample || selectByExample.size()>= 0){
+			StoreUserBean bean = selectByExample.get(0);
+			
+			StoreOrderBeanExample example = new StoreOrderBeanExample();
+			com.yqbing.servicebing.repository.database.abstracts.StoreOrderBeanExample.Criteria criteria = example.createCriteria();
+			criteria.andStoreIdEqualTo(bean.getStoreId());
+			List<StoreOrderBean> list = storeOrderBeanMapper.selectByExample(example);
+		
+		    Map<String,Object>  map = new HashMap<String, Object>();
+		    String pid = PropertiesUtil.getValue("ant_pid", "201812251159481205954");
+		    String app_id = null;
+		    String RSA_PRIVATE = null;
+		    if(platformId == 1){//代表android
+		    	app_id = PropertiesUtil.getValue("ant_appId_android", "2018120462440300");
+		    	 RSA_PRIVATE = PropertiesUtil.getValue("ant_RSA_PRIVATE_android", "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq1bwwrtKHflrtQz2SLXtHKAW5Zlc6nXdlbYSF+8M5HyTiFiKSXjwEXVAhK3XRuMP24a/1YAST7b6ZKTY6JwpBz5jePm6I+h81oBFP8LBsrI1qFEkF4azGLHAnZeYz93KwBhSPqYMzNa/Id9GdovsQSucnSRDv9ez1y1uYIWxJR/uzXTHGJCdnEaIXFCfS63LakH7bBpTOaJ+TU+TBGgZ+b2VyEcW0CxXwodsWk1TYP55l6ab+AUF7nxfv5IhjDR//X0j6SF+8GbyAqDkox1uyfVWtXBsU74StyIDo7IJIJUrrrw6fh+338rRCdDrcP7R7GK+uGmx5ip2XyBaI+aWIQIDAQAB");
+		    }else{//代表ios
+		    	app_id = PropertiesUtil.getValue("ant_appId_ios", "2018120462475299");
+		    	RSA_PRIVATE = PropertiesUtil.getValue("ant_RSA_PRIVATE_ios", "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq1bwwrtKHflrtQz2SLXtHKAW5Zlc6nXdlbYSF+8M5HyTiFiKSXjwEXVAhK3XRuMP24a/1YAST7b6ZKTY6JwpBz5jePm6I+h81oBFP8LBsrI1qFEkF4azGLHAnZeYz93KwBhSPqYMzNa/Id9GdovsQSucnSRDv9ez1y1uYIWxJR/uzXTHGJCdnEaIXFCfS63LakH7bBpTOaJ+TU+TBGgZ+b2VyEcW0CxXwodsWk1TYP55l6ab+AUF7nxfv5IhjDR//X0j6SF+8GbyAqDkox1uyfVWtXBsU74StyIDo7IJIJUrrrw6fh+338rRCdDrcP7R7GK+uGmx5ip2XyBaI+aWIQIDAQAB");
+		    }
+			String target_id = userId+"";
+			map.put("app_id", app_id);
+			map.put("pid", pid);
+			map.put("RSA_PRIVATE", RSA_PRIVATE);
+			map.put("target_id", target_id); 
+		if(null == list || list.size()<= 0){//没有开过户
+			map.put("type", 2);
+			   
+    			map.put("status", "2");
+    		
+    			map.put("storeLicense","");
+			    map.put("storePic", "");
+    			map.put("stroeAddress", "");
+    			map.put("storeName", "");
+    			map.put("sellerNo", "");
+    			map.put("phone", "");
+    		//	map.put("notify_url", PropertiesUtil.getValue("ant_https",null)+"/antcredit/getUid?"); //回调方法
+    			success = NotifyUtil.success(map);
+    			
+		
+		}else{
+			Integer status = 0;
+			//已经开过户
+			map.put("type", 1);
+			StoreOrderBean storeOrderBean = list.get(0);
+			if(StringUtils.isNotBlank(storeOrderBean.getOrderNo())){
+				status = storeOrderBean.getStatus();
+			    map.put("status", status);
+			    map.put("reason", storeOrderBean.getReason());
+			    map.put("storeLicense", storeOrderBean.getStoreLicense());
+			    map.put("storePic", storeOrderBean.getStorepic());
+				map.put("stroeAddress", storeOrderBean.getStroeAddress());
+				map.put("storeName", storeOrderBean.getStoreName());
+				map.put("sellerNo", storeOrderBean.getSellerNo());
+				map.put("phone", storeOrderBean.getPhone());
+				//-----------------------------------------------------------------------------
+				if(storeOrderBean.getStatus() == 0 || storeOrderBean.getStatus() == -1){//主动查询审核结果
+					
+					Map<String,String> map1 = new HashMap<String, String>();
+					map1.put("order_no",storeOrderBean.getOrderNo());
+					Map<String,String> params = new HashMap<String, String>();
+					params.put("format","JSON");
+					params.put("version","1.0");
+					params.put("charset","utf-8");
+					params.put("app_id",PropertiesUtil.getValue("ant_appId", null));
+					params.put("method","zanclick.merchant.register.query");
+					String dateTimePattern = DateUtil.formatDateTime(new Date());
+					params.put("timestamp",dateTimePattern);
+					
+					params.put("biz_content",new Gson().toJson(map1));
+				//	map.put("notify_url","");
+					String str1 =null;
+					    String content = AlipaySignature.getSignCheckContentV1(params);
+					    try {
+					    	params.put("sign", AlipaySignature.rsa256Sign(content,PropertiesUtil.getValue("ant_privatekey", privatekey),params.get("charset")));
+					    	params.put("sign_type","RSA2");
+					    	str1 = ZanClickHttps.sendPost(ant_ceshi, map, params);
+						} catch (AlipayApiException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							return success = NotifyUtil.success(map);
+						}
+					
+					if(str1 == null){
+						return success = NotifyUtil.success(map);
+					}
+					   try {
+					        JSONObject JSONObject = new JSONObject(str1);
+						
+						    JSONObject jsonObject4 = JSONObject.getJSONObject("Response");
+							Integer status1 = (Integer) jsonObject4.get("status");
+							if(status1 == 1) {
+							String merchant_id = jsonObject4.getString("merchant_id");
+						
+							storeOrderBean.setMerchantId(merchant_id);
+							
+							}else if(status1 == -1){
+								String reason =  jsonObject4.getString("reason");
+								storeOrderBean.setReason(reason);
+							}else{
+								return success = NotifyUtil.success(map);
+							}
+			                   
+				            storeOrderBean.setStatus(status1);
+				            storeOrderBean.setUpdateTime(new Date());
+							storeOrderBeanMapper.updateByPrimaryKeySelective(storeOrderBean);
+								
+							map.put("status", status1);   
+									
+								} catch (Exception e) {
+									// TODO: handle exception
+									e.printStackTrace();
+									success =NotifyUtil.success(map);
+									return success;
+								}
+			   }
+			//------------------------------------------------------------------	
+			}else{
+				map.put("status", "0");
+				
+			}
+			success = NotifyUtil.success(map);
+		}
+		// TODO Auto-generated method stub
+		}
+		return success;
+	}
+	
+	
+
+	@Override
+	public ResultModel getUid(String store_id, Integer platformId, String data) {
+		// TODO Auto-generated method stub
+		
+		if(platformId == 1){
+			rStoreOrderLog.set(store_id, data);
+		}
+		return null;
+	}
+
+
+
+	@Override
+	public String antcreditOff(long userId) {
+		// TODO Auto-generated method stub
+	//	ResultModel success = ResultModel.success();
+		String success = StringUtils.EMPTY;
+		ZanclickOffBeanExample zanclickOffBeanExample = new ZanclickOffBeanExample();
+		com.yqbing.servicebing.repository.database.abstracts.ZanclickOffBeanExample.Criteria createCriteria = zanclickOffBeanExample.createCriteria();
+		ZanclickOffBean zanclickOffBean =null;
+		List<ZanclickOffBean> list = zanclickOffBeanMapper.selectByExample(zanclickOffBeanExample);
+		if(list != null){
+			 zanclickOffBean = list.get(0);
+			
+		}
+		success = NotifyUtil.success(zanclickOffBean);
+		return success;
+	}
+
+
+
+	@Override
+	public void delClosed() {
+		// TODO Auto-generated method stub
+		zanclickLogBeanMapper.delClosed();
+	}
+
+
+
+	
+	
+	
+}

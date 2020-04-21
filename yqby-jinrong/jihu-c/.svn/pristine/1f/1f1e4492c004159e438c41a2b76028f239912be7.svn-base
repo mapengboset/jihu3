@@ -1,0 +1,590 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.domain.AlipayTradeAppPayModel;
+import com.alipay.api.internal.util.AlipaySignature;
+import com.alipay.api.request.AlipayTradeAppPayRequest;
+import com.alipay.api.response.AlipayTradeAppPayResponse;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.AppAppraise;
+import com.yqbing.servicebing.repository.database.bean.AppRecommend;
+import com.yqbing.servicebing.repository.database.bean.ChargOrder;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+import com.yqbing.servicebing.repository.database.bean.UserAppTask;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.UserTaskLog;
+import com.yqbing.servicebing.repository.database.dao.AppRecommendMapper;
+import com.yqbing.servicebing.repository.database.dao.ChargOrderExample;
+import com.yqbing.servicebing.repository.database.dao.ChargOrderMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseMapper;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskMapper;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.UserLocalAppMapper;
+import com.yqbing.servicebing.repository.database.dao.UserTaskLogExample;
+import com.yqbing.servicebing.repository.database.dao.UserTaskLogExample.Criteria;
+import com.yqbing.servicebing.repository.database.dao.UserTaskLogMapper;
+import com.yqbing.servicebing.repository.redis.RStoreHouseData;
+import com.yqbing.servicebing.repository.redis.RUserAppTaskData;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.service.ChargBoxService;
+import com.yqbing.servicebing.service.CommonService;
+import com.yqbing.servicebing.utils.DateUtil;
+import com.yqbing.servicebing.utils.HttpServiceUtil;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.utils.SendUtils;
+import com.yqbing.servicebing.webapp.alipay.AlipayConfig;
+import com.yqbing.servicebing.webapp.alipay.AlipayCore;
+import com.yqbing.servicebing.webapp.response.BoxOrder;
+import com.yqbing.servicebing.webapp.response.BoxStoreAppRes;
+import com.yqbing.servicebing.webapp.response.ChargCode;
+import com.yqbing.servicebing.webapp.response.ChargHomeRes;
+import com.yqbing.servicebing.webapp.response.ChargPass;
+import com.yqbing.servicebing.webapp.response.EntryVo;
+import com.yqbing.servicebing.webapp.response.StoreAppRes;
+
+
+@Service("chargBoxService")
+@SuppressWarnings("all")
+public class ChargBoxServiceImpl extends CommonService implements ChargBoxService{
+	
+	
+	 private static final Logger LOGGER = LoggerFactory.getLogger(ChargBoxServiceImpl.class);
+	 private static final byte s = 0;
+	 private static final byte t = 1;
+	 
+	 @Value("${charg_service}")
+	 private String chargHttps;
+	 @Resource
+	 private AppRecommendMapper appRecommendMapper= null;
+	 @Resource
+	 private UserInfoBeanMapper userInfoBeanMapper = null;
+	 @Resource
+	 private StoreHouseMapper storeHouseMapper = null;
+	 
+	 @Resource
+	 private RUserLogBean rUserLogBean = null;
+	 @Resource
+	 private RUserAppTaskData rUserAppTaskData = null;
+	 @Resource
+	 private RStoreHouseData rStoreHouseData = null;
+	 @Resource
+	 private UserLocalAppMapper userLocalAppMapper = null;
+	 @Resource
+	 private UserAppTaskMapper userAppTaskMapper = null;
+	 @Resource
+	 private UserTaskLogMapper userTaskLogMapper = null;
+	 @Resource
+	 private ChargOrderMapper chargOrderMapper = null;
+	 
+	 @Override
+		public String chargHomePage(String token, String deviceId) {
+		          ChargHomeRes homeRes = null;
+		 try {
+		
+			 
+			 
+			 UserInfoBean infoBean = rUserLogBean.getRaw(token);
+				
+				if(infoBean == null){
+					
+					infoBean = userInfoBeanMapper.queryToken(token);
+				}
+				if(infoBean == null){
+					return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+					
+				}
+				 
+				homeRes = new ChargHomeRes();
+				//或者充电套餐列表
+				 HashMap<String,String> map = new HashMap<String, String>();
+				 map.put("deviceId", deviceId);
+				 String taocan = SendUtils.doPost(chargHttps+"/kxzs/idea/list", map);
+				 JSONObject JSONObject = new JSONObject(taocan);
+				 int code = JSONObject.getInt("code");
+				 if(code != 0){
+					 
+					 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,JSONObject.getString("msg"));
+				 }
+				Object object = JSONObject.get("body");
+				
+				List<EntryVo> list= new Gson().fromJson(object.toString(), new TypeToken<List<EntryVo>>() {}.getType());
+				homeRes.setEntrys(list);
+				
+				 //返回免费次数
+				 List<UserTaskLog> free = isFree(infoBean, 1);
+				 if(null == free ||  free.size() <= 0){
+					 homeRes.setFree(0);
+				 }
+				 homeRes.setFree(free.size());
+				
+				 //返回任务列表
+				 
+				 List<BoxStoreAppRes> boxs = new ArrayList<BoxStoreAppRes>();
+				 List<BoxStoreAppRes> apps = getCpdApps(infoBean);
+				
+				 //组合
+				 List<StoreAppRes> sapp = getTypeByApps("free_charge_tag", infoBean);
+				 if(null != sapp && sapp.size() > 0){//
+				 for (StoreAppRes s : sapp) {
+					 BoxStoreAppRes box = new BoxStoreAppRes();
+					 box.setId(s.getId());
+					 box.setAppName(s.getAppName());
+					 box.setAppPake(s.getAppPake());
+					 box.setAppType(s.getAppType());
+					 box.setImg(s.getImg());
+					 box.setLocalstatus(s.getLocalstatus());
+					 box.setModel(s.getModel());
+					 box.setPid(0);
+					 box.setSource(0);
+					 box.setType(s.getType());
+					 box.setUrl(s.getUrl());
+					 boxs.add(box);
+				}
+				 boxs.addAll(apps);
+				}
+				//homeRes.setApps(boxs);
+				homeRes.setApps(apps);
+				return NotifyUtil.success(homeRes);
+				
+		} catch (Exception e) {
+			e.printStackTrace();
+
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, e.getLocalizedMessage());
+			
+		}
+		}
+	 
+	 
+	 
+	 
+	@Override
+	public String myTaskApps(String token) {
+		try {
+			 UserInfoBean infoBean = rUserLogBean.getRaw(token);
+				
+				if(infoBean == null){
+					
+					infoBean = userInfoBeanMapper.queryToken(token);
+				}
+				if(infoBean == null){
+					return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+					
+				}
+				//或者充电套餐列表
+				
+				
+				//或者免费充电次数
+				
+				List<StoreAppRes> apps = getTypeByApps("free_charge_tag", infoBean);
+				return NotifyUtil.success(apps);
+				
+		} catch (Exception e) {
+			e.printStackTrace();
+
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, e.getLocalizedMessage());
+			
+		}
+	}
+	//是否还有免费任务
+    //有---查看今天是否使用过 --否 使用 修改状态标记以使用(只可以当前使用)
+	//返回当前免费机会
+	public List<UserTaskLog> isFree(UserInfoBean infoBean,Integer type ) {//type 1.只看今天 2.所有
+		try {
+			type = 2;//今天 //status = 0
+			List<UserTaskLog> list = null;
+			UserTaskLogExample logExample = new UserTaskLogExample();
+			Criteria criteria = logExample.createCriteria();
+			criteria.andStatusEqualTo(s).andUserIdEqualTo(infoBean.getId());
+			if(type == 1){
+				criteria.andCreateDayEqualTo(DateUtil.parse(DateUtil.format(new Date())));
+				
+			}
+				list = userTaskLogMapper.selectByExample(logExample);
+				return list;
+				/*if(null != list && list.size() > 0){
+					
+					UserTaskLog userTaskLog = list.get(0);
+					userTaskLog.setStatus(t);
+					userTaskLog.setRemark("已经使用");
+					userTaskLog.setUpdateTime(new Date());
+					
+					return true;
+					
+					
+				}*/
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.error("-----------------------------------------"+e.getLocalizedMessage());
+			return null;
+			
+		}
+	 //     return list;
+	}
+
+	
+
+	@Override
+	public String boxOrder(String token) {
+		try {
+			 UserInfoBean infoBean = queryTokenByUser(token);
+				if(infoBean == null){
+					return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+					
+				}
+				 Map<String,String> map = new HashMap<String, String>();
+				 map.put("userId", infoBean.getId()+"");
+				 String orders = SendUtils.doPost(chargHttps+"/kxzs/orders", map);
+				 
+				 JSONObject JSONObject = new JSONObject(orders);
+				 int code = JSONObject.getInt("code");
+				 if(code != 0){
+					 
+					 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,JSONObject.getString("msg"));
+				 }
+				Object object = JSONObject.get("body");
+				
+				List<BoxOrder> list= new Gson().fromJson(object.toString(), new TypeToken<List<BoxOrder>>() {}.getType());
+			
+				return NotifyUtil.success(list);
+				
+		} catch (Exception e) {
+			e.printStackTrace();
+
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, e.getLocalizedMessage());
+			
+		}
+	}
+
+    
+	
+	
+	@Override
+	public String boxPassword(String token, String orderNo, String deviceId) {
+		
+		
+		try {
+			
+			UserInfoBean infoBean = queryTokenByUser(token);
+			if(infoBean == null){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+			}
+			
+			
+			 Map<String,String> map = new HashMap<String, String>();
+			 map.put("deviceId", deviceId);
+			 map.put("orderNo", orderNo);
+			 String pass = SendUtils.doPost(chargHttps+"/kxzs/device/code", map);
+			 
+			 JSONObject JSONObject = new JSONObject(pass);
+			 int code = JSONObject.getInt("code");
+			 if(code != 0){
+				 
+				 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,JSONObject.getString("msg"));
+			 }
+			 
+			JSONObject object = JSONObject.getJSONObject("body");
+			
+			Object object2 = object.get("activeCode");
+			
+			List<ChargCode> list= new Gson().fromJson(object2.toString(), new TypeToken<List<ChargCode>>() {}.getType());
+			ChargPass chargPass = new ChargPass();
+			chargPass.setEndTime(object.getString("endTime"));
+			//chargPass.setEndTime("2019");
+			chargPass.setActiveCode(list);
+			//
+			 short  s = 0;
+			 
+			 List<UserTaskLog> free = isFree(infoBean, 1);
+			 if(free != null && free.size() > 0){
+				 //今天使用过一次,禁止使用
+				/* for (UserTaskLog userTaskLog : free) {
+					 Date updateTime = userTaskLog.getUpdateTime();
+					 if(updateTime != null){
+						 return NotifyUtil.error(ErrorCodeEnum.USEDFREE,"一天只能免费用一次哦");
+					 }
+				}*/
+				 
+				 UserTaskLog userTaskLog = free.get(0);
+				 userTaskLog.setStatus(t);
+				 userTaskLog.setUpdateTime(new Date());
+				 userTaskLogMapper.updateByPrimaryKey(userTaskLog);
+			 }
+			 ChargOrderExample example = new ChargOrderExample();
+			 example.createCriteria().andOutTradeNoEqualTo(orderNo);
+			 List<ChargOrder> selectByExample = chargOrderMapper.selectByExample(example);
+			 List<ChargOrder> list1 = chargOrderMapper.selectByExample(example);
+			 if(null != null && list1.size() > 0){
+				  ChargOrder chargOrder = list1.get(0);
+				  if(chargOrder.getStatus() == 2){
+					  return NotifyUtil.error(ErrorCodeEnum.ISPAYFALL,"支付审核中");
+				  }
+				  if(chargOrder.getStatus() == 1){
+					  return NotifyUtil.error(ErrorCodeEnum.ISPAYFALL,"支付失败");
+				  }
+				
+			 }
+			 
+			 
+			return NotifyUtil.success(chargPass);
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.error("-----------------------------------------"+e.getLocalizedMessage());
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+			
+		}
+	}
+
+
+	@Override
+	public String getOrder(String token, String ideaId, String deviceId,
+			Integer type,String totalAmount) {
+            try {
+			
+			UserInfoBean infoBean = queryTokenByUser(token);
+			if(infoBean == null){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+			}
+            if(type == 3){//免费
+				 
+				 List<UserTaskLog> free = isFree(infoBean, 1);
+				 if(null == free || free.size() <= 0){
+					 return NotifyUtil.error(ErrorCodeEnum.NOTFREE,"没有免费");
+				 }
+                }
+             Map<String,String> map1 = new HashMap<String, String>();
+			 Map<String,String> map = new HashMap<String, String>();
+			 map.put("deviceId", deviceId);
+			 map.put("ideaId", ideaId);
+			 String order = SendUtils.doPost(chargHttps+"/kxzs/payment/params", map);
+			 JSONObject JSONObject = new JSONObject(order);
+			 int code = JSONObject.getInt("code");
+			 if(code != 0){
+				 
+				 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,JSONObject.getString("msg"));
+			 }
+			 JSONObject body = JSONObject.getJSONObject("body");
+			 String orderNo = body.getString("orderNo");
+			 String s =  orderNo+new Date().getSeconds();
+			// String orderNo=orderNo+new Date().getSeconds();
+			 map1.put("orderNo", orderNo+new Date().getSeconds());
+			 if(type == 2){
+				 
+				/* //-----------------------
+				 String gateway = "https://openapi.alipay.com/gateway.do";
+			
+				 String alipay_public_key = "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCURSOdWUR2orsGayaUyOTeGESHZveCGIvWrR7V/iqm3UXwmHupMGOHtSM9v0IfASph9uaHG7kwWio6j4HQ925P6zQ1VkkCVjiAmyVaeYabjAWjsBNqt4+kEzzA7pNyArYU/uVx7IU4xY1XbSG7xAgK16yIN3KDnPvIUx5jMHDqcAtO6u578l7x5qAIlE/DC7Hn8J1QJP7REJAQWagwtXcjI9HGgtj3BauhhTD3SfwWFO8JJIe2nL1vxioIrh38OSuFWoyIku8t6gqfKQyzJq5wmHwRD870AF8T3ihPV6I9sDl6wYwBbnsLqFgVFg4A541cMBt342x9UXFm9l30kDVzAgMBAAECggEAJSTU8TxFvHqz473AIpHZVBI8SLdw1fSUQ6mHChDsWnUgak+o2w+2P28Pbw6U3/OIzJXv1nUJhaVw4s7EtLbnubmwkJQXIjC7Yux7BRlgsWL4nrMjih6GK5JuK98YrP0k5Eme7VVVYo2LBRXf14waf6zcGhvZ4kLXiK3Z9PtTrkcTzFh8OVp5zXXFbVqQbp4SPEoyNE6GOUzvb4nXpz9hzuIjEMRGaGY2r2oXZiaeJhATatJmNJXHmmdNfgo5xcJnVW3uKxMyGEup6UwAxSqehH2vQ63sKYo5gfgz5prQCqDDZ2SQgejr1qV/hhc7Q8Ika0rE93OuZiPYbVH3jzygQQKBgQDuqR7In7xPH6pef+ncvlYhLidoND5nH//0zf5gn2LrMCWl7REVy0vtCLrJml+5eyr6576uheFdNcv/VxHoUkMhwcOvQxQ5v99WoPKeoGmS/Z8QL48tfk4CFL/Mut6auY+bqkRZZBp6hDgV7wyQ7fYT/lFzn0KqGMQKxU7g6KQCQwKBgQCfCtVWsuk0B0HLCx0u7CiYNF5b5UixdBReUNZ5WoOFtT8xgtJrH82Xtu9IhFVAkUYtN3rZ7Ge76InOzQ7Bj7NI2r2CWcZ6n1F9j0mzkSRl1wN3hdyRQHUZWkcWdfZiVh3XKWYXSfKVSiN6Qd+t3RB4MMHeGurzkyOsh9ud1bBFEQKBgGcYGzoi9l9fmGLV8pnuhpoyq8cxujsl8ZU4XsgyUbKyy7CPZa/6b8Pm33ky/GLNN9XGwfH111JCaOrWG+A1mNY+M1/EJDqGDd4IDIZFWRWsBUgio0DNrLjtaaTwnDROMCDYPko3GdEOyIOBDfaVNJWSaHD/vPZpWFYmwVoaZK6tAoGBAI3tyAbv8Ib6tu8wwuFd5Lg3e8F8cwvRcF/euhdf/CE1ZuiTO55Xqkxq90z6s23EdyDg8uRJQSWC1oBTpIh96dvpQNdzsFk7lih716TEsPulDrX6IqUJJbbzRp83tCF7gnPBwRalajNqDxEKekeZERqBQHEqCmRF+b79GrLWwNBRAoGBAKzVx/0C6+hk9se2Z6XhqsRgv3b6nW8hJJABQCqOSAb+CMPfHx4EkYYOoc+1VxgtWYK55WyhgzQCj3w05o4P0SQwuuqKCnfgTiYZiOPfazfssLcGXzLZ+LXd/NBnQzj0o9Tyxra3xZwuDREwGD7Qj6DOUps35U9Uk9EkL9XRUmch";
+
+				 Map<String, String> cmap = new HashMap<String, String>();
+				 cmap.put("app_id", "2018120462475299");
+				 cmap.put("method", "alipay.trade.app.pay");
+				 cmap.put("charset", "utf-8");
+				 cmap.put("sign_type", "RSA2");
+				 cmap.put("timestamp", DateUtil.formatDateTime(new Date()));
+				 cmap.put("version", "1.0");
+				 cmap.put("notify_url", "https://jinrongt.jihustore.com/jihu-c/ChargBox/alipay_notify_url");
+			//	 AlipayClient alipayClient = new DefaultAlipayClient(gateway,"2018120462475299",private_key,"json","utf-8",alipay_public_key,"RSA2");
+			//	  String rsaSign = AlipaySignature.rsaSign(map, AlipayConfig.private_key, "utf-8");
+				 //支付宝
+				  Map<String, String> bizm = new HashMap<String, String>();
+				  bizm.put("subject", "充电宝");
+				  if(StringUtils.isBlank(totalAmount)){
+					  totalAmount = "1.0";
+				  }
+				  bizm.put("out_trade_no", orderNo);
+				  bizm.put("total_amount", totalAmount);
+				  bizm.put("product_code", "QUICK_MSECURITY_PAY");
+				  cmap.put("biz_content", new Gson().toJson(bizm));
+				  
+				//  AlipaySignature.
+				 // String cont = "app_id=2018120462475299";
+				//  String rsaSign =   AlipaySignature.rsaSign(new Gson().toJson(cmap), AlipayConfig.private_key, "utf-8", "RSA2");
+				//     String rsaSign = AlipaySignature.rsaSign(cmap,AlipayConfig.private_key, "utf-8");
+				     
+				   String s ="app_id=2018120462475299&biz_content={'timeout_express':'30m','product_code':'QUICK_MSECURITY_PAY','total_amount':'0.01','subject':'1','body':'我是测试数据','out_trade_no':'554545454'}&charset=utf-8&format=json&method=alipay.trade.app.pay&notify_url=https://jinrongt.jihustore.com/jihu-c/ChargBox/alipay_notify_url&sign_type=RSA2&timestamp=2016-08-25 20:26:31&version=1.0";
+				     AlipayClient alipayClient = new DefaultAlipayClient(gateway,"2018120462475299",AlipayConfig.private_key,"json","utf-8",alipay_public_key,"RSA2");
+				   String rsaSign =   AlipaySignature.rsaSign(s, AlipayConfig.private_key, "utf-8", "RSA2");
+			         Map<String, String> map4 = new HashMap<String, String>();
+			         String encode = URLEncoder.encode(rsaSign, "UTF-8");
+			         map4.put("app_id","2018120462475299");
+			         map4.put("method","alipay.trade.app.pay");
+			         map4.put("format","json");
+			         map4.put("charset","utf-8");
+			         map4.put("sign_type","RSA2"); 	
+			         map4.put("timestamp", URLEncoder.encode(DateUtil.formatDateTime(new Date()),"UTF-8"));
+			         map4.put("version", "1.0");
+			         map4.put("notify_url",  URLEncoder.encode("https://jinrongt.jihustore.com/jihu-c/ChargBox/alipay_notify_url","UTF-8"));
+			         map4.put("biz_content", URLEncoder.encode(new Gson().toJson(bizm), "UTF-8"));
+			         AlipayCore.paraFilter(map4); //除去数组中的空值和签名参数
+			         String data = AlipayCore.createLinkString(map4);//拼接后的字符串
+			  //       alipayClient.sdkExecute(request)
+			         data=data + "&sign=" + URLEncoder.encode(rsaSign, "UTF-8");
+			    //     String data1=AESCipher.encryptAES(jsonObject.toString(), GlobeConstants.APP_KEY);
+				     return  NotifyUtil.success(data);*/
+				     /*AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
+				     request.setBizContent(bizContent);*/
+				 
+				
+				//实例化客户端
+				 AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do", "2018120462475299", AlipayConfig.private_key, "json", "UTF-8", AlipayConfig.alipay_public_key, "RSA2");
+				 //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
+				 AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
+				 //SDK已经封装掉了公共参数，这里只需要传入业务参数。以下方法为sdk的model入参方式(model和biz_content同时存在的情况下取biz_content)。
+				 AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
+				 model.setBody("快下充电宝");
+				 model.setSubject("充电宝");
+				 model.setOutTradeNo(s);
+				 model.setTimeoutExpress("30m");
+				 model.setTotalAmount("0.01");
+				 model.setProductCode("QUICK_MSECURITY_PAY");
+				 request.setBizModel(model);
+				 request.setNotifyUrl("https://jinrongt.jihustore.com/jihu-c/ChargBox/alipay_notify_url");
+				 try {
+				         //这里和普通的接口调用不同，使用的是sdkExecute
+				         AlipayTradeAppPayResponse response = alipayClient.sdkExecute(request);
+				     //    System.out.println(response.getBody());//就是orderString 可以直接给客户端请求，无需再做处理。
+				         
+				         setChargOrder("", "", totalAmount, s, type, deviceId, infoBean,2);
+				         return  NotifyUtil.success(response.getBody());
+				     } catch (AlipayApiException e) {
+				         e.printStackTrace();
+				 }
+				 
+				 
+				 
+			 }
+			 if(type == 1){//微信
+				 String package1 = body.getString("package");
+				 String sign = body.getString("sign");
+				 String prepayid = body.getString("prepayid");
+				 String noncestr = body.getString("noncestr");
+				 String timestamp = body.getString("timestamp");
+				 map1.put("package", package1);
+				 map1.put("sign", sign);
+				 map1.put("prepayid", prepayid);
+				 map1.put("noncestr", noncestr);
+				 map1.put("timestamp", timestamp);
+			//	 AlipayClient alipayClient = new DefaultAlipayClient(gateway,app_id,private_key,"json",charset,alipay_public_key,sign_type);
+			 }
+			 if(type == 3){//免费
+				
+				setChargOrder("", "", totalAmount, s, type, deviceId, infoBean,2);
+				
+				 NotifyUtil.success(map1);
+				}
+			 
+			 
+			     return NotifyUtil.success(map1);
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.error("-----------------------------------------"+e.getLocalizedMessage());
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+			
+		}
+	}
+	//修改充电宝订单状态
+	public void setChargOrder(String tradeNo,String sellerId,String totalAmount,String orderNo,Integer type,String deviceId,UserInfoBean infoBean, Integer status){
+		 
+		 ChargOrder chargOrder = null;
+		 short y= 2;
+		 short es=1;
+		 try {
+			 ChargOrderExample example = new ChargOrderExample();
+			 example.createCriteria().andOutTradeNoEqualTo(orderNo);
+			 List<ChargOrder> selectByExample = chargOrderMapper.selectByExample(example);
+			 List<ChargOrder> list = chargOrderMapper.selectByExample(example);
+			 if(null != null && list.size() > 0){
+				  chargOrder = list.get(0);
+			 }else{
+				 
+				  chargOrder = new ChargOrder();
+			 }
+			 if(type == 1){
+				  es=1;
+				  chargOrder.setOutTradeNo(orderNo);
+				  chargOrder.setTradeNo(tradeNo);
+				  chargOrder.setTotalAmount(totalAmount);
+				  chargOrder.setSellerId(sellerId);
+			 }else if(type == 2){
+				  es=2;
+				  chargOrder.setOutTradeNo(orderNo);
+				  chargOrder.setTradeNo(tradeNo);
+				  chargOrder.setTotalAmount(totalAmount);
+				  chargOrder.setSellerId(sellerId);
+			 }else{
+				  es=3;
+			 }
+			 chargOrder.setDeviceid(deviceId);
+			 chargOrder.setOutTradeNo(orderNo);
+			 chargOrder.setStatus(status.shortValue());
+			 chargOrder.setType(es);
+			 if(infoBean !=  null){
+				 chargOrder.setUserId(infoBean.getId());
+			 }
+			 if(StringUtils.isNotBlank(tradeNo)){//修改
+				 
+				 chargOrder.setCreateTime(new Date());
+				 chargOrderMapper.insertSelective(chargOrder);
+			 }else{
+				 chargOrder.setUpdateTime(new Date());
+				 chargOrderMapper.updateByPrimaryKey(chargOrder);
+			 }
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		
+	}
+
+
+	@Override
+	public void alipayUrl(Map<String, String> map) {
+		// TODO Auto-generated method stub
+		Integer status = 2;
+		try {
+			String tradeNo = map.get("trade_no");
+			String sellerId = map.get("seller_id");
+			String totalAmount = map.get("total_amount");
+			String orderNo = map.get("out_trade_no");
+			String tradeStatus = map.get("trade_status");
+			if(tradeStatus.equals("TRADE_SUCCESS") ){//代表
+				status =0;
+				//支付成功
+			}else{
+				//失败
+				status =1;
+			}
+			setChargOrder(tradeNo, sellerId, totalAmount, orderNo, 2, "", null,status);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	
+	
+}

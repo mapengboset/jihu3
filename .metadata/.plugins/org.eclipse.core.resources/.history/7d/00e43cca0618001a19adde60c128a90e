@@ -1,0 +1,103 @@
+package com.yqbing.servicebing.service;
+
+import java.util.Date;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.StoreInfo;
+import com.yqbing.servicebing.repository.database.bean.StoreUser;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.dao.StoreInfoMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreUserMapper;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.redis.RCashOutLog;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.utils.HttpUtil;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.utils.PropertiesUtil;
+import com.yqbing.servicebing.webapp.request.StoreInfoReq;
+
+public class CommonService {
+	@Resource
+	private RUserLogBean rUserLogBean = null;
+	
+	@Resource
+	private UserInfoBeanMapper userInfoBeanMapper = null;
+	@Autowired
+	private RCashOutLog rCashOutLog = null;
+	@Resource
+	private StoreUserMapper  storeUserMapper;
+	@Resource
+	private StoreInfoMapper  storeInfoMapper;
+	public String getOutOrder(){
+		String out = rCashOutLog.increment(new Date().getTime())+"";
+		String outTradeNo = "";
+		if(StringUtils.isNotBlank(out)){
+			
+			if(out.indexOf("-") != -1){
+				
+				outTradeNo = out.substring(5);
+			}else{
+				outTradeNo = out;
+			}
+		}
+		return outTradeNo;
+	}
+	
+	public UserInfoBean queryTokenByUser(String token){
+		UserInfoBean infoBean = rUserLogBean.getRaw(token);
+		if(infoBean == null){
+			
+			infoBean = userInfoBeanMapper.queryToken(token);
+		}
+	    return infoBean;
+	}
+public StoreInfoReq queryStore(String token) {
+	
+	
+	StoreInfoReq sq  = new StoreInfoReq();
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return sq;
+			
+		} 
+		
+		StoreUser su = storeUserMapper.selectByUserId(infoBean.getId());
+		if(su == null){
+			return sq;
+		}
+		
+		StoreInfo storeInfo = storeInfoMapper.selectByPrimaryKey(su.getStoreId());
+		
+		
+        
+		if(storeInfo != null){
+			
+			sq.setToken(infoBean.getToken());
+			
+			sq.setStoreId(storeInfo.getStoreId());
+			sq.setAddress(storeInfo.getStoreAddress());
+			sq.setCardBack(storeInfo.getIdcardbackurl());
+			sq.setCardFace(storeInfo.getIdcardfaceurl());
+			sq.setCertName(storeInfo.getStoreName());
+			sq.setPhone(storeInfo.getPhone());
+			sq.setRefuseReason(storeInfo.getRefuseReason());
+			sq.setStoreState(storeInfo.getStoreState());
+			sq.setStoreLicense(storeInfo.getStoreLicense());
+			sq.setStoreName(storeInfo.getStoreName());
+			sq.setLevel(su.getStatus()+"");
+			sq.setCategoryId(storeInfo.getCategoryid());
+			sq.setCitys(storeInfo.getProvinceName()+"-"+storeInfo.getCityName()+"-"+storeInfo.getAreaName());
+		
+		}
+		
+		return sq;
+	}
+
+
+
+}

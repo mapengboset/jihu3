@@ -1,0 +1,44 @@
+package com.hiko.gym.common.util;
+
+/**
+ * 字符串工具类
+ * @author zhouwenfeng
+ *
+ */
+public class StringUtils {
+
+    /**
+     * 判断字符串是否为空(空格算不为空)
+     * @param str 要判断的字符串
+     * @return
+     */
+    public static boolean isNullOrEmpty(String str) {
+        return null == str || str.isEmpty();
+    }
+    
+    /**
+     * 判断字符串是否为空(空格回车算空)
+     * @param str
+     * @return
+     */
+    public static boolean isNullOrBlank(String str) {
+        return null == str || str.isEmpty() || str.matches("^\\s+$");
+    }
+
+    public static String toLowerCase(String str) {
+        if (isNullOrEmpty(str)) {
+            return str;
+        } else {
+            return str.toLowerCase();
+        }
+    }
+    
+    public static String toUpperCase(String str) {
+        if (isNullOrEmpty(str)) {
+            return str;
+        } else {
+            return str.toUpperCase();
+        }
+    }
+
+}

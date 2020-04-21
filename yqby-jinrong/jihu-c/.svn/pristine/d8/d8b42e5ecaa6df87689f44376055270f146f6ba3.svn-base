@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="charset" content="utf-8">
+    <meta content="telephone=no,email=no,address=no" name="format-detection"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="frontend-mobile" content="yes"/>
+    <link rel="stylesheet" href="../../css/comment.css">
+    <!--<script type="text/javascript" src="http://cdn.webfont.youziku.com/wwwroot/js/wf/youziku.api.min.js"></script>-->
+    <title>下载快下</title>
+    <style>
+        .bg{
+            position: relative;
+            background: url("http://p2a60yqmm.bkt.clouddn.com/downKuaixiaBg1.png") no-repeat top center;
+            background-size:100% ;
+
+        }
+        
+        .whoCon span{
+            color: #ffc445;
+        }
+        .showEr img{
+            width:80px;
+            height:80px;
+        }
+        .yaoImg img{
+            width:72%;
+            position: relative;
+            top:50px;
+        }
+        .yaoImg p{
+            position: relative;
+        }
+        .downBtn{
+            margin:0 auto;
+            width:70%;
+            height:46px;
+            line-height: 46px;
+            border-radius: 8px;
+            background: #AB2BF5;
+            color: #fff;
+            text-align: center;
+            font-size: 18px;
+            box-shadow: 1px 2px 2px #e0e0e0;
+        }
+        .downJihu{
+            position: absolute;
+            bottom:15%;
+            text-align: center;
+            width:100%;
+        }
+        .bgOverShare1{
+            display: none;
+            width: 101%;
+            min-height: 101%;
+            height: auto;
+            position: fixed;
+            top: -1px;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 116;
+            background: rgba(62, 62, 62, 0.54) none repeat scroll 0 0 !important;
+            filter: blur(1px);
+            -webkit-filter: blur(1px);
+        }
+        .openInter1{
+            display: none;
+            position: absolute;
+            top:5px;
+            right:2%;
+            z-index: 999;
+        }
+        .openInter1 img{
+            width:100%;
+        }
+    </style>
+</head>
+
+<body class="bg">
+<div class="downJihu">
+    <div class="downBtn">
+        <a>立即下载</a>
+    </div>
+</div>
+<div class="bgOverShare1"></div>
+<div class="openInter1">
+    <img src="../../images/tipImgWei.png" alt="">
+</div>
+</body>
+<script src="../../js/jquery-3.2.1.min.js"></script>
+<script src="../../js/common.js?version=20190506"></script>
+<script src="../../js/downApp.js?version=20190506"></script>
+</html>

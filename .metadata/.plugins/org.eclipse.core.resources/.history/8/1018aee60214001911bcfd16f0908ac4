@@ -1,0 +1,10 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import org.springframework.web.bind.annotation.RestController;
+
+
+@SuppressWarnings("all")
+@RestController
+public class AntCreditController extends BaseController{
+
+}

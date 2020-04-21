@@ -1,0 +1,5 @@
+package com.yqbing.servicebing.webapp.controller;
+
+public class UserApiController {
+
+}

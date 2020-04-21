@@ -1,0 +1,42 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 客户状态类
+ * 
+ * @author cychen
+ *
+ */
+public class CustomerStatus {
+
+	/** 正常 */
+	public static final short NORMAL = 1;
+	/** 冻结 */
+	public static final short FROZEN = 2;
+	/** 删除 */
+	public static final short DELETED = 3;
+	/** 未绑定 */
+	public static final short NOTBOUND = 4;
+
+	/**
+	 * 获取客户状态描述
+	 * 
+	 * @param customerStatus 客户状态值
+	 * @return 客户状态描述
+	 */
+	public static String getDescription(short customerStatus) {
+		if (customerStatus == NORMAL) {
+			return "正常";
+		}
+		if (customerStatus == FROZEN) {
+			return "冻结";
+		}
+		if (customerStatus == DELETED) {
+			return "删除";
+		}
+		if (customerStatus == NOTBOUND) {
+			return "未绑定";
+		}
+		return "";
+	}
+
+}

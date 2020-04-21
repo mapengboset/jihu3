@@ -1,0 +1,19 @@
+package com.yqbing.servicebing.repository.database.abstracts;
+
+import java.util.List;
+
+import com.yqbing.servicebing.repository.database.bean.AppAppraise;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+
+public class StoreHouseAbs extends StoreHouse{
+    private List<AppAppraise>  as ;
+
+	public List<AppAppraise> getAs() {
+		return as;
+	}
+
+	public void setAs(List<AppAppraise> as) {
+		this.as = as;
+	}
+    
+}

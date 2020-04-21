@@ -1,0 +1,55 @@
+package com.hiko.gym.common.repository.redis;
+
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+/**
+ * 跑步机Redis接口
+ * 
+ * @author zhouwf
+ *
+ */
+public interface RPaoBuJiRawObject {
+	
+	/**
+	 * 将元数据添加到Redis中
+	 * 
+	 * @param deviceNo 		设备标识
+	 * @param paobujiRaw 	跑步机元数据对象
+	 */
+	public void set(String deviceNo, JSONObject rawJSON);
+	
+	
+	/**
+	 * 根据设备编号判断其数据是否存在
+	 * @param customerId
+	 * @return 
+	 */
+	public boolean exist(String deviceNo);
+	
+	/**
+	 * 根据设备编号查找相应的元数据记录
+	 * 
+	 * @param deviceNo 		设备标识
+	 * @return 跑步机元数据对象 
+	 */
+	public JSONObject getRaw(String deviceNo);
+	
+	/**
+	 * 根据健身馆编号查询相应的元数据记录集合
+	 * @param gymnasiumNum
+	 * @return
+	 */
+	public JSONArray getRawList(Long gymnasiumNum);
+	
+	
+	/**
+	 * 根据设备标号删除相应的元数据记录
+	 * 
+	 * @param deviceNo 		设备标识
+	 * 
+	 */
+	public void delRaw(String deviceNo);
+
+}

@@ -1,0 +1,5 @@
+package com.yqbing.servicebing.repository.redis;
+
+public interface RWeBankBean {
+
+}

@@ -1,0 +1,64 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import javax.annotation.Resource;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.service.RedisService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+
+public class RedisServiceController {
+	
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(RedisServiceController.class);
+	
+	@Resource
+	private RedisService redisService = null;
+	
+	
+	//更新评论
+	//推荐列表
+	//任务列表
+	//用户下载列表
+	//app增加列表
+	//通过用户Id 返回用户信息
+	@ApiOperation(value = "返回用户信息")
+    @RequestMapping(value = "/JIhu_CService/getUserById",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String getUserById(@ApiParam(name = "userId",value = "userId") @RequestParam(value = "userId", required = true) String userId,
+			@ApiParam(name = "phone",value = "用户手机号") @RequestParam(value = "phone", required = false) String phone){
+		  LOGGER.info("--------------------------------------------redisService/getUserById:"+userId+"手机号:"+phone);
+	      String result = StringUtils.EMPTY;
+		 if(!StringUtils.isNotBlank(userId)){
+	         	
+	         	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"用户token必须填写");
+	         	
+	         	return result;
+	         }
+		try {
+			
+			result = redisService.getUserById(userId,phone);
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		return result;
+	}
+	
+	//热门应用 
+	//交个朋友
+	//游戏榜单
+	//应用推荐
+}

@@ -1,0 +1,32 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 客户日记状态类
+ * 
+ * @author zhouwf
+ *
+ */
+public class CustomerDiaryStatus {
+
+	/** 删除 */
+	public static final short DELETED = 0;
+	/** 正常 */
+	public static final short NORMAL = 1;
+
+	/**
+	 * 获取客户日记状态描述
+	 * 
+	 * @param customerDiaryStatus 客户日记状态值
+	 * @return 客户日记状态描述
+	 */
+	public static String getDescription(short customerDiaryStatus) {
+		if (customerDiaryStatus == DELETED) {
+			return "删除";
+		}
+		if (customerDiaryStatus == NORMAL) {
+			return "正常";
+		}
+		return "";
+	}
+
+}

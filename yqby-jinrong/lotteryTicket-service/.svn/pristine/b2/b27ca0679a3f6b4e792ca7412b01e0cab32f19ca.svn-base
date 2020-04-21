@@ -1,0 +1,67 @@
+package com.yqbing.servicebing.webapp.request;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+
+@ApiModel(value = "代理商提交订单订单")
+@Setter
+@Getter
+public class AgentGoodsOrderReq {
+
+
+		@ApiModelProperty(value = "支付方式 0 余额 1支付宝  2微信", name = "payType")
+		private String payType;//支付方式 0 余额 1支付宝  2微信
+
+		private String address;
+
+		private String addressName;
+
+		private String addressPhone;
+
+		private String provinceId;
+
+		private String provinceName;
+
+		private String cityId;
+
+		private String cityName;
+
+		private String areaId;
+
+		private String areaName;
+
+		@ApiModelProperty(value = "商品ID ", name = "goodsId")
+		private String goodsId;//商品ID
+
+	    @ApiModelProperty(value = "数量 ", name = "googsNum")
+	    private String googsNum;//数量
+
+	    @ApiModelProperty(value = "商品单价", name = "price")
+	    private String price;//单价
+
+	    @ApiModelProperty(value = "快递费用", name = "express")
+	    private String express;//快递费用
+
+	    @ApiModelProperty(value = "商品费用", name = "amount")
+	    private String amount;//商品费用
+
+	    @ApiModelProperty(value = "规格", name = "standard")
+	    private String standardId;
+
+		@ApiModelProperty(value = "订单渠道 ticket 梦想 agent 代理商", name = "channel")
+	    private String channel;
+
+		@ApiModelProperty(value = "代理商用户agentUserId", name = "agentUserId")
+		private String agentUserId;
+
+		//订单总金额
+		private String totalamount;
+
+		//验签
+		private String sign;
+	
+}

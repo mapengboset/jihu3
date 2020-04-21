@@ -1,0 +1,193 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import io.swagger.annotations.SwaggerDefinition;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.alibaba.excel.read.event.AnalysisEventListener;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCode;
+import com.yqbing.servicebing.common.Layui;
+import com.yqbing.servicebing.common.ResultModel;
+import com.yqbing.servicebing.repository.database.bean.TUserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.WeBankBean;
+import com.yqbing.servicebing.service.TUserInfoBeanService;
+import com.yqbing.servicebing.service.WeBankService;
+
+/**
+ * 
+
+ * @ClassName: WeBankController
+
+ * @Description: 后台微众银行的管理
+
+ * @author: mpb
+
+ * @date: 2018年11月20日 下午5:38:26
+ */
+@SuppressWarnings("all")
+@RestController
+
+public class WeBankController extends BaseController{
+
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(WeBankController.class);
+	
+	@Resource(name="weBankControService")
+	private WeBankService weBankControService = null;;
+	
+	@RequestMapping(value ={"/manageWB/queryPage"},method=RequestMethod.GET)
+	public  ModelAndView  queryPage(){
+		
+		return new ModelAndView("wzBac/html/webank/wzList");
+	}
+	
+	// 查询微众用户提交记录
+	@RequestMapping(value ={"/manageWB/query"},method=RequestMethod.GET)
+	public  Layui   query(String name ,String stime,String etime,int page,int limit){
+		LOGGER.info("-----------------------------------------微众提取记录上传参数--name:"+name+",stime:"+stime+",etime:"+etime+",page:"+page+",limit:"+limit);
+		Layui data = null;
+		try {
+			//
+			PageInfo<WeBankBean> wes = weBankControService.query(name,stime, etime,page,limit);
+			if(null != wes){
+				
+				data = Layui.data(wes.getSize(),wes.getList());
+			}
+		} catch (Exception e) {
+			return data;
+			
+		}
+		
+		return data;
+	} 
+	
+	@RequestMapping(value ={"/manageWB/queryWelthPage"},method=RequestMethod.GET)
+	public  ModelAndView  queryWelthPage(){
+		
+		return new ModelAndView("wzBac/html/webank/welthpage");
+	}
+	//查询财富发放记录
+	@RequestMapping(value ={"/manageWB/queryWelth"},method=RequestMethod.GET)
+	public  Layui  queryWelth(String company,String store ,String stime,String etime,int page,int limit){
+		
+		LOGGER.info("-----------------------------------------微众提取记录上传参数--name:"+company+",stime:"+store+",etime:"+etime+",page:"+page+",size:"+limit);
+	//	ResultModel resultModel = ResultModel.success();
+		Layui data = null;
+		try {
+			
+			PageInfo<WeBankBean> wes = weBankControService.queryWelth(company,store,stime, etime,page,limit);
+             if(null != wes){
+				
+				data = Layui.data(wes.getSize(),wes.getList());
+			}
+		//	resultModel.setResult(wes);
+		} catch (Exception e) {
+//			e.printStackTrace();
+//			resultModel = ResultModel.error(ErrorCode.OTHERS,
+//					ErrorCode.getErrInfo(ErrorCode.OTHERS));
+			return data;
+			
+		}
+		
+		return data;
+	}
+	
+	
+	@RequestMapping(value ={"/manageWB/importWBPage"},method=RequestMethod.GET)
+	public  ModelAndView  importWBPage(){
+		
+		return new ModelAndView("wzBac/html/webank/import");
+	}
+	@RequestMapping(value ={"/manageWB/fiveimportWBPage"},method=RequestMethod.GET)
+	public  ModelAndView  fiveimportWBPage(){
+		
+		return new ModelAndView("wzBac/html/webank/fiveimport");
+	}
+	//导入excel   //上传(5日) f 存在证明是要发放财富记录
+	@RequestMapping(value ={"/manageWB/importWB"},method=RequestMethod.POST)
+	public ResultModel importWB(@RequestParam(value="file") MultipartFile file,String f, HttpServletRequest requeste){
+		LOGGER.info("------------------------------------------/manageWB/importWB [f:]"+f);
+       ResultModel resultModel = ResultModel.success();
+		try {
+			
+			int importWB = weBankControService.importWB(file,f);
+			if(importWB != 0){
+				resultModel = ResultModel.error(ErrorCode.OTHERS,
+						ErrorCode.getErrInfo(ErrorCode.OTHERS));
+				return resultModel;
+			}
+			resultModel.setResult("导入成功");
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			resultModel = ResultModel.error(ErrorCode.PARAM_ERROR,
+					ErrorCode.getErrInfo(ErrorCode.PARAM_ERROR));
+			return resultModel;
+		}
+		return resultModel;
+	}
+	@RequestMapping(value ={"/manageWB/exportWBPage"},method=RequestMethod.GET)
+	public  ModelAndView  exportWBPage(){
+		
+		return new ModelAndView("wzBac/html/webank/export");
+	}
+	//导出excel
+	@RequestMapping(value ={"/manageWB/exportWB"},method=RequestMethod.GET)
+    public ResultModel exportWB(@RequestParam(value = "time", required = true)String time,HttpServletResponse response){
+		LOGGER.info("------------------------------------------/manageWB/exportWB [time:]"+time);
+		ResultModel resultModel = ResultModel.success();
+		try {
+			int exportWB = weBankControService.exportWB(time,response);
+			if(exportWB == 1){
+				resultModel.setErrorCode(0);
+				resultModel.setErrorMessage("这个月没有哦");
+			}else{
+				resultModel.setErrorCode(1);
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();e.printStackTrace();
+			resultModel = ResultModel.error(ErrorCode.OTHERS,
+					ErrorCode.getErrInfo(ErrorCode.OTHERS));
+			return resultModel;
+		}
+		
+		return resultModel;
+	}
+	
+	//微众银行的开关
+	@RequestMapping(value ={"/manageWB/querytaskWeBank"},method=RequestMethod.GET)
+    public ResultModel querytaskWeBank(){
+		ResultModel resultModel = ResultModel.success();
+		try {
+			
+		} catch (Exception e) {
+			
+		}
+		
+		return resultModel;
+	}
+	
+	
+}

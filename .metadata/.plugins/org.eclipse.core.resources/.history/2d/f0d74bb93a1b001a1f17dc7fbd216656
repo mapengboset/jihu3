@@ -1,0 +1,37 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 睡眠数据类型类
+ * 
+ * @author cychen
+ *
+ */
+public class SleepDataType {
+
+	/** 结束 */
+	public static final short END = 0;
+	/** 开始 */
+	public static final short BEGIN = 1;
+	/** 继续 */
+	public static final short CONTINUE = 2;
+
+	/**
+	 * 获取睡眠数据类型描述
+	 * 
+	 * @param sleepDataType 睡眠数据类型值
+	 * @return 睡眠数据类型描述
+	 */
+	public static String getDescription(short sleepDataType) {
+		if (sleepDataType == END) {
+			return "结束";
+		}
+		if (sleepDataType == BEGIN) {
+			return "开始";
+		}
+		if (sleepDataType == CONTINUE) {
+			return "继续";
+		}
+		return "";
+	}
+
+}

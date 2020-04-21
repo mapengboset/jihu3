@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.TWealthDayLogBeanMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.TWealthDayLogBean" >
+    <id column="wlog_id" property="wlogId" jdbcType="INTEGER" />
+    <result column="day_string" property="dayString" jdbcType="VARCHAR" />
+    <result column="day_int" property="dayInt" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="wealth_yes" property="wealthYes" jdbcType="INTEGER" />
+    <result column="wealth_earn" property="wealthEarn" jdbcType="INTEGER" />
+    <result column="wealth_exchange" property="wealthExchange" jdbcType="INTEGER" />
+    <result column="wealth_total" property="wealthTotal" jdbcType="INTEGER" />
+    <result column="wealth_queque" property="wealthQueque" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="INTEGER" />
+    <result column="update_time" property="updateTime" jdbcType="INTEGER" />
+    <result column="rec_time" property="recTime" jdbcType="TIMESTAMP" />
+    <result column="back1" property="back1" jdbcType="SMALLINT" />
+    <result column="back2" property="back2" jdbcType="SMALLINT" />
+    <result column="back3" property="back3" jdbcType="INTEGER" />
+    <result column="back4" property="back4" jdbcType="INTEGER" />
+    <result column="back5" property="back5" jdbcType="VARCHAR" />
+    <result column="back6" property="back6" jdbcType="VARCHAR" />
+    <result column="back7" property="back7" jdbcType="VARCHAR" />
+    <result column="back8" property="back8" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    wlog_id, day_string, day_int, user_id, user_name, wealth_yes, wealth_earn, wealth_exchange, 
+    wealth_total, wealth_queque, create_time, update_time, rec_time, back1, back2, back3, 
+    back4, back5, back6, back7, back8
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.abstracts.TWealthDayLogBeanExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from tb_wealth_daylog
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_wealth_daylog
+    where wlog_id = #{wlogId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tb_wealth_daylog
+    where wlog_id = #{wlogId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.TWealthDayLogBean" >
+    insert into tb_wealth_daylog (wlog_id, day_string, day_int, 
+      user_id, user_name, wealth_yes, 
+      wealth_earn, wealth_exchange, wealth_total, 
+      wealth_queque, create_time, update_time, 
+      rec_time, back1, back2, 
+      back3, back4, back5, 
+      back6, back7, back8
+      )
+    values (#{wlogId,jdbcType=INTEGER}, #{dayString,jdbcType=VARCHAR}, #{dayInt,jdbcType=INTEGER}, 
+      #{userId,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, #{wealthYes,jdbcType=INTEGER}, 
+      #{wealthEarn,jdbcType=INTEGER}, #{wealthExchange,jdbcType=INTEGER}, #{wealthTotal,jdbcType=INTEGER}, 
+      #{wealthQueque,jdbcType=INTEGER}, #{createTime,jdbcType=INTEGER}, #{updateTime,jdbcType=INTEGER}, 
+      #{recTime,jdbcType=TIMESTAMP}, #{back1,jdbcType=SMALLINT}, #{back2,jdbcType=SMALLINT}, 
+      #{back3,jdbcType=INTEGER}, #{back4,jdbcType=INTEGER}, #{back5,jdbcType=VARCHAR}, 
+      #{back6,jdbcType=VARCHAR}, #{back7,jdbcType=VARCHAR}, #{back8,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.TWealthDayLogBean" >
+    insert into tb_wealth_daylog
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="wlogId != null" >
+        wlog_id,
+      </if>
+      <if test="dayString != null" >
+        day_string,
+      </if>
+      <if test="dayInt != null" >
+        day_int,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="userName != null" >
+        user_name,
+      </if>
+      <if test="wealthYes != null" >
+        wealth_yes,
+      </if>
+      <if test="wealthEarn != null" >
+        wealth_earn,
+      </if>
+      <if test="wealthExchange != null" >
+        wealth_exchange,
+      </if>
+      <if test="wealthTotal != null" >
+        wealth_total,
+      </if>
+      <if test="wealthQueque != null" >
+        wealth_queque,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="recTime != null" >
+        rec_time,
+      </if>
+      <if test="back1 != null" >
+        back1,
+      </if>
+      <if test="back2 != null" >
+        back2,
+      </if>
+      <if test="back3 != null" >
+        back3,
+      </if>
+      <if test="back4 != null" >
+        back4,
+      </if>
+      <if test="back5 != null" >
+        back5,
+      </if>
+      <if test="back6 != null" >
+        back6,
+      </if>
+      <if test="back7 != null" >
+        back7,
+      </if>
+      <if test="back8 != null" >
+        back8,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="wlogId != null" >
+        #{wlogId,jdbcType=INTEGER},
+      </if>
+      <if test="dayString != null" >
+        #{dayString,jdbcType=VARCHAR},
+      </if>
+      <if test="dayInt != null" >
+        #{dayInt,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="wealthYes != null" >
+        #{wealthYes,jdbcType=INTEGER},
+      </if>
+      <if test="wealthEarn != null" >
+        #{wealthEarn,jdbcType=INTEGER},
+      </if>
+      <if test="wealthExchange != null" >
+        #{wealthExchange,jdbcType=INTEGER},
+      </if>
+      <if test="wealthTotal != null" >
+        #{wealthTotal,jdbcType=INTEGER},
+      </if>
+      <if test="wealthQueque != null" >
+        #{wealthQueque,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=INTEGER},
+      </if>
+      <if test="recTime != null" >
+        #{recTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="back1 != null" >
+        #{back1,jdbcType=SMALLINT},
+      </if>
+      <if test="back2 != null" >
+        #{back2,jdbcType=SMALLINT},
+      </if>
+      <if test="back3 != null" >
+        #{back3,jdbcType=INTEGER},
+      </if>
+      <if test="back4 != null" >
+        #{back4,jdbcType=INTEGER},
+      </if>
+      <if test="back5 != null" >
+        #{back5,jdbcType=VARCHAR},
+      </if>
+      <if test="back6 != null" >
+        #{back6,jdbcType=VARCHAR},
+      </if>
+      <if test="back7 != null" >
+        #{back7,jdbcType=VARCHAR},
+      </if>
+      <if test="back8 != null" >
+        #{back8,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.abstracts.TWealthDayLogBeanExample" resultType="java.lang.Integer" >
+    select count(*) from tb_wealth_daylog
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.TWealthDayLogBean" >
+    update tb_wealth_daylog
+    <set >
+      <if test="dayString != null" >
+        day_string = #{dayString,jdbcType=VARCHAR},
+      </if>
+      <if test="dayInt != null" >
+        day_int = #{dayInt,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userName != null" >
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="wealthYes != null" >
+        wealth_yes = #{wealthYes,jdbcType=INTEGER},
+      </if>
+      <if test="wealthEarn != null" >
+        wealth_earn = #{wealthEarn,jdbcType=INTEGER},
+      </if>
+      <if test="wealthExchange != null" >
+        wealth_exchange = #{wealthExchange,jdbcType=INTEGER},
+      </if>
+      <if test="wealthTotal != null" >
+        wealth_total = #{wealthTotal,jdbcType=INTEGER},
+      </if>
+      <if test="wealthQueque != null" >
+        wealth_queque = #{wealthQueque,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=INTEGER},
+      </if>
+      <if test="recTime != null" >
+        rec_time = #{recTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="back1 != null" >
+        back1 = #{back1,jdbcType=SMALLINT},
+      </if>
+      <if test="back2 != null" >
+        back2 = #{back2,jdbcType=SMALLINT},
+      </if>
+      <if test="back3 != null" >
+        back3 = #{back3,jdbcType=INTEGER},
+      </if>
+      <if test="back4 != null" >
+        back4 = #{back4,jdbcType=INTEGER},
+      </if>
+      <if test="back5 != null" >
+        back5 = #{back5,jdbcType=VARCHAR},
+      </if>
+      <if test="back6 != null" >
+        back6 = #{back6,jdbcType=VARCHAR},
+      </if>
+      <if test="back7 != null" >
+        back7 = #{back7,jdbcType=VARCHAR},
+      </if>
+      <if test="back8 != null" >
+        back8 = #{back8,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where wlog_id = #{wlogId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.TWealthDayLogBean" >
+    update tb_wealth_daylog
+    set day_string = #{dayString,jdbcType=VARCHAR},
+      day_int = #{dayInt,jdbcType=INTEGER},
+      user_id = #{userId,jdbcType=INTEGER},
+      user_name = #{userName,jdbcType=VARCHAR},
+      wealth_yes = #{wealthYes,jdbcType=INTEGER},
+      wealth_earn = #{wealthEarn,jdbcType=INTEGER},
+      wealth_exchange = #{wealthExchange,jdbcType=INTEGER},
+      wealth_total = #{wealthTotal,jdbcType=INTEGER},
+      wealth_queque = #{wealthQueque,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=INTEGER},
+      rec_time = #{recTime,jdbcType=TIMESTAMP},
+      back1 = #{back1,jdbcType=SMALLINT},
+      back2 = #{back2,jdbcType=SMALLINT},
+      back3 = #{back3,jdbcType=INTEGER},
+      back4 = #{back4,jdbcType=INTEGER},
+      back5 = #{back5,jdbcType=VARCHAR},
+      back6 = #{back6,jdbcType=VARCHAR},
+      back7 = #{back7,jdbcType=VARCHAR},
+      back8 = #{back8,jdbcType=VARCHAR}
+    where wlog_id = #{wlogId,jdbcType=INTEGER}
+  </update>
+</mapper>

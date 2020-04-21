@@ -1,0 +1,37 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 文件状态类
+ * 
+ * @author cychen
+ *
+ */
+public class FileStatus {
+
+	/** 上传中 */
+	public static final short UPLOADING = 1;
+	/** 上传成功 */
+	public static final short SUCCESS = 2;
+	/** 上传失败 */
+	public static final short FAILURE = 3;
+
+	/**
+	 * 获取文件状态描述
+	 * 
+	 * @param fileStatus 文件状态值
+	 * @return 文件状态描述
+	 */
+	public static String getDescription(short fileStatus) {
+		if (fileStatus == UPLOADING) {
+			return "上传中";
+		}
+		if (fileStatus == SUCCESS) {
+			return "上传成功";
+		}
+		if (fileStatus == FAILURE) {
+			return "上传失败";
+		}
+		return "";
+	}
+
+}

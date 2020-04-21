@@ -1,0 +1,146 @@
+package com.yqbing.servicebing.utils;
+
+import java.text.*;
+import java.util.*;
+
+/**
+ * 分表策略辅助类
+ * 
+ * @author mapb
+ *
+ */
+public class ShardStrategyHelper {
+
+    /** 日期格式 */
+    private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
+    /** 日期格式 */
+    private final static SimpleDateFormat MONTH_FORMAT = new SimpleDateFormat("yyyyMM");
+    
+    private final static SimpleDateFormat YYMMDD_FORMAT = new SimpleDateFormat("yyMMdd");
+
+    /**
+     * 获取标识日期表名
+     * 
+     * @param id 标识
+     * @param baseTableName 基础表名
+     * @return 标识日期表名
+     */
+    public static String getIdDateTableName(String baseTableName, Long id) {
+        // 检查空值
+        if (id == null) {
+            return baseTableName + "_" + DATE_FORMAT.format(new Date());
+        }
+
+        // 转化日期
+        String date = Long.toString(id);
+        if (date == null || date.length() < 6) {
+            return baseTableName + "_" + DATE_FORMAT.format(new Date());
+        }
+        Date dateObj = new Date();
+    	try {
+			dateObj = YYMMDD_FORMAT.parse(date.substring(0,6));
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        String day = DATE_FORMAT.format(dateObj);
+        String today = DATE_FORMAT.format(new Date());
+        // 判断是否为今天
+        if (!today.equals(day)) {
+            // 返回表名
+        	
+            return baseTableName + "_" + MONTH_FORMAT.format(dateObj);
+        }
+        // 返回表名
+        return baseTableName + "_" + day;
+    }
+
+    /**
+     * 获取今日日期表名
+     * 
+     * @param baseTableName 基础表名
+     * @return 今日日期表名
+     */
+    public static String getTodayDateTableName(String baseTableName) {
+        // 返回表名
+        return baseTableName + "_" + DATE_FORMAT.format(new Date());
+    }
+
+    /**
+     * 获取指定日期表名
+     * 
+     * @param baseTableName 基础表名
+     * @param time 指定时间
+     * @return 指定月份表名
+     */
+    public static String getAssignedDateTableName(String baseTableName, long time) {
+        // 返回表名
+        return getAssignedDateTableName(baseTableName, new Date(time));
+    }
+
+    /**
+     * 获取指定日期表名
+     * 
+     * @param baseTableName 基础表名
+     * @param date 指定日期
+     * @return 指定日期表名
+     * @throws ParseException
+     */
+    public static String getAssignedDateTableName(String baseTableName, Date date) {
+        String day = DATE_FORMAT.format(date);
+        String today = DATE_FORMAT.format(new Date());
+        // 判断是否为今天
+        if (!today.equals(day)) {
+            // 返回表名
+            return baseTableName + "_" + MONTH_FORMAT.format(date);
+        }
+        // 返回表名
+        return baseTableName + "_" + day;
+    }
+
+    /**
+     * 获取指定日期表名
+     * 
+     * @param baseTableName 基础表名
+     * @param date 指定日期
+     * @return 指定日期表名
+     */
+    public static String getAssignedDateTableName(String baseTableName, String date) {
+    	// 返回表名
+    	if (date == null) {
+    		return baseTableName + "_" + DATE_FORMAT.format(new Date());
+    	}
+    	Date dateObj = new Date();
+    	try {
+			dateObj = DATE_FORMAT.parse(date);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        String day = DATE_FORMAT.format(dateObj);
+        String today = DATE_FORMAT.format(new Date());
+        // 判断是否为今天
+        if (!today.equals(day)) {
+            // 返回表名
+            return baseTableName + "_" + MONTH_FORMAT.format(dateObj);
+        }
+        // 返回表名
+        return baseTableName + "_" + day;
+    }
+
+    /**
+     * 获取指定场馆表名
+     * 
+     * @param baseTableName 基础表名
+     * @param date 指定日期
+     * @return 指定场馆表名
+     */
+    public static String getAssignedVenueCodeTableName(String baseTableName, String venueCode) {
+        // 返回表名
+        if (venueCode == null) {
+            return baseTableName + "_" + venueCode;
+        }
+        return baseTableName + "_" + venueCode;
+    }
+
+}

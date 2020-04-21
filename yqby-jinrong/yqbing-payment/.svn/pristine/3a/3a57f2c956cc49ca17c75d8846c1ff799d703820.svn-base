@@ -1,0 +1,9 @@
+package com.yqbing.servicebing.webapp.controller;
+
+//支付宝付款
+public class ALIController {
+
+	
+	
+	
+}

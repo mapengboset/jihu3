@@ -1,0 +1,52 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import java.io.IOException;
+
+import org.apache.commons.lang.StringUtils;
+import net.sf.json.JSONObject;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yqbing.servicebing.utils.StringUtil;
+
+@RestController
+@RequestMapping(value="/app/user/api")
+public class UserApiController {
+	
+	
+//	@RequestMapping(value="/reg")注册  
+	@RequestMapping(value="/reg")
+    public String reg(String data) throws IOException {
+		String result = StringUtils.EMPTY;
+		if(StringUtil.isNotEmpty(data)) {
+			JSONObject dataJo = JSONObject.fromObject(data);
+			String loginUser = JSONUtil.getString(dataJo, ParamConstant.LOGIN_USER);
+			String loginPassword = JSONUtil.getString(dataJo, ParamConstant.LOGIN_PASSWORD);
+			String mobile = JSONUtil.getString(dataJo, ParamConstant.MOBILE);
+			int appId = JSONUtil.getInt(dataJo, ParamConstant.APP_ID);
+			
+			UserInfo user = new UserInfo();
+			user.setLoginUser(loginUser);
+			user.setLoginPassword(loginPassword);
+			user.setMobile(mobile);
+			user.setAppId(appId);
+			result = userService.createUser(user);
+		}else {
+			result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+		}
+		return result;
+    }
+	
+	
+	
+	
+	
+//	@RequestMapping(value="/login")登录
+//	@RequestMapping(value="/logout")退出登录
+//	@RequestMapping(value="/getUserIdByToken")//获取token
+//	@RequestMapping(value="/updatePassword")修改密码
+//	@RequestMapping(value="/updateMobile")修改手机号
+//	@RequestMapping(value="/getUserInfoByMobile")获取手机号
+//	@RequestMapping(value="/getTokenByUserId")token 返回用户ID
+//	@RequestMapping(value="/submitUserToken")提交用户token
+}

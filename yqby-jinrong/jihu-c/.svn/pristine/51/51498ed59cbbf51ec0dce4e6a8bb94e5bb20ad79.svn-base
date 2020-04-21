@@ -1,0 +1,99 @@
+package com.yqbing.servicebing.webapp.response;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.io.Serializable;
+@ApiModel(value = "游戏")
+public class GameAppRes implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5815477093708941869L;
+
+	private Integer id;//id
+	@ApiModelProperty(value = "app名称", name = "appName")
+	private String appName;//名称
+	@ApiModelProperty(value = "app包名", name = "appPake")
+	private String appPake;//包名
+	@ApiModelProperty(value = "applog图片", name = "img")
+	private String img;//头像
+	@ApiModelProperty(value = "app下载地址", name = "url")
+	private String url;//下载地址
+	@ApiModelProperty(value = "列表排序规则", name = "sort")
+	private Integer sort;//排序
+	@ApiModelProperty(value = "单项分类", name = "TAGID")
+	private String TAGID;//单项分类
+	@ApiModelProperty(value = "单项分类name", name = "TagIdName")
+	private String TagIdName;//单项分类
+	
+	@ApiModelProperty(value = "应用分类Type", name = "type")
+	private String type;//应用分类
+	@ApiModelProperty(value = "模块分类", name = "module")
+	private String module;//模块分类
+	
+	public String getModule() {
+		return module;
+	}
+	public void setModule(String module) {
+		this.module = module;
+	}
+	public String getTagIdName() {
+		return TagIdName;
+	}
+	public void setTagIdName(String tagIdName) {
+		TagIdName = tagIdName;
+	}
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public String getAppName() {
+		return appName;
+	}
+	public void setAppName(String appName) {
+		this.appName = appName;
+	}
+	public String getAppPake() {
+		return appPake;
+	}
+	public void setAppPake(String appPake) {
+		this.appPake = appPake;
+	}
+	public String getImg() {
+		return img;
+	}
+	public void setImg(String img) {
+		this.img = img;
+	}
+	public String getUrl() {
+		return url;
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	public Integer getSort() {
+		return sort;
+	}
+	public void setSort(Integer sort) {
+		this.sort = sort;
+	}
+	public String getTAGID() {
+		return TAGID;
+	}
+	public void setTAGID(String tAGID) {
+		TAGID = tAGID;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
+	
+	
+	
+}

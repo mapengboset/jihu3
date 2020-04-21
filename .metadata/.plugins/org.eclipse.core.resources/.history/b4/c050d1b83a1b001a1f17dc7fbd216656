@@ -1,0 +1,21 @@
+package com.hiko.gym.common.service.thirdLogin;
+
+import com.hiko.gym.common.exception.GymException;
+
+/**
+ * QQ用户登陆验证服务接口
+ * @author zhouwf
+ *
+ */
+public interface QQUserCheckService {
+
+	/**
+	 * @param marketChannel 渠道标识 1.钛酷  2.浩沙
+	 * @param uid 登录用户标识
+	 * @param accessToken 访问授权凭证
+	 * @return 是否有效
+	 * @throws GymException 健身馆异常
+	 */
+	public boolean checkUserValid(Integer marketChannel, String uid, String accessToken) throws GymException ;
+	
+}

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.UserActionLogMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.UserActionLog" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="uid" property="uid" jdbcType="BIGINT" />
+    <result column="optype" property="optype" jdbcType="SMALLINT" />
+    <result column="action_source" property="actionSource" jdbcType="CHAR" />
+    <result column="occurtime" property="occurtime" jdbcType="TIMESTAMP" />
+    <result column="opdesc" property="opdesc" jdbcType="VARCHAR" />
+    <result column="app_pack" property="appPack" jdbcType="VARCHAR" />
+    <result column="keyword" property="keyword" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, uid, optype, action_source, occurtime, opdesc, app_pack, keyword
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.dao.UserActionLogExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from user_action_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_action_log
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from user_action_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.UserActionLog" >
+    insert into user_action_log (id, uid, optype, 
+      action_source, occurtime, opdesc, 
+      app_pack, keyword)
+    values (#{id,jdbcType=BIGINT}, #{uid,jdbcType=BIGINT}, #{optype,jdbcType=SMALLINT}, 
+      #{actionSource,jdbcType=CHAR}, #{occurtime,jdbcType=TIMESTAMP}, #{opdesc,jdbcType=VARCHAR}, 
+      #{appPack,jdbcType=VARCHAR}, #{keyword,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.UserActionLog" >
+    insert into user_action_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="uid != null" >
+        uid,
+      </if>
+      <if test="optype != null" >
+        optype,
+      </if>
+      <if test="actionSource != null" >
+        action_source,
+      </if>
+      <if test="occurtime != null" >
+        occurtime,
+      </if>
+      <if test="opdesc != null" >
+        opdesc,
+      </if>
+      <if test="appPack != null" >
+        app_pack,
+      </if>
+      <if test="keyword != null" >
+        keyword,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="uid != null" >
+        #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="optype != null" >
+        #{optype,jdbcType=SMALLINT},
+      </if>
+      <if test="actionSource != null" >
+        #{actionSource,jdbcType=CHAR},
+      </if>
+      <if test="occurtime != null" >
+        #{occurtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="opdesc != null" >
+        #{opdesc,jdbcType=VARCHAR},
+      </if>
+      <if test="appPack != null" >
+        #{appPack,jdbcType=VARCHAR},
+      </if>
+      <if test="keyword != null" >
+        #{keyword,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.dao.UserActionLogExample" resultType="java.lang.Integer" >
+    select count(*) from user_action_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.UserActionLog" >
+    update user_action_log
+    <set >
+      <if test="uid != null" >
+        uid = #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="optype != null" >
+        optype = #{optype,jdbcType=SMALLINT},
+      </if>
+      <if test="actionSource != null" >
+        action_source = #{actionSource,jdbcType=CHAR},
+      </if>
+      <if test="occurtime != null" >
+        occurtime = #{occurtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="opdesc != null" >
+        opdesc = #{opdesc,jdbcType=VARCHAR},
+      </if>
+      <if test="appPack != null" >
+        app_pack = #{appPack,jdbcType=VARCHAR},
+      </if>
+      <if test="keyword != null" >
+        keyword = #{keyword,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.UserActionLog" >
+    update user_action_log
+    set uid = #{uid,jdbcType=BIGINT},
+      optype = #{optype,jdbcType=SMALLINT},
+      action_source = #{actionSource,jdbcType=CHAR},
+      occurtime = #{occurtime,jdbcType=TIMESTAMP},
+      opdesc = #{opdesc,jdbcType=VARCHAR},
+      app_pack = #{appPack,jdbcType=VARCHAR},
+      keyword = #{keyword,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

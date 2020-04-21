@@ -1,0 +1,34 @@
+package com.yqbing.servicebing.repository.jihu.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.yqbing.servicebing.repository.jihu.bean.LuckdrawRecord;
+import com.yqbing.servicebing.webapp.response.AwardRes;
+
+public interface LuckdrawRecordMapper {
+	
+    int countByExample(LuckdrawRecordExample example);
+
+    int deleteByPrimaryKey(Integer id);
+
+    int insert(LuckdrawRecord record);
+
+    int insertSelective(LuckdrawRecord record);
+
+    List<LuckdrawRecord> selectByExample(LuckdrawRecordExample example);
+
+    LuckdrawRecord selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(LuckdrawRecord record);
+
+    int updateByPrimaryKey(LuckdrawRecord record);
+
+	LuckdrawRecord queryUserAndId(@Param("id")String id, @Param("userId")Integer userId);
+
+	List<AwardRes> queryAllData(@Param("page")int page, @Param("size")Integer size);
+
+	List<AwardRes> queryUserIdAndType(@Param("userId")Integer userId, @Param("type")String type);
+	
+}

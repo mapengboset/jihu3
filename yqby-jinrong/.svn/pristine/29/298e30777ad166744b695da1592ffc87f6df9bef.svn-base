@@ -1,0 +1,162 @@
+package com.yqbing.servicebing.service;
+
+import org.apache.poi.ss.formula.functions.T;
+
+import com.yqbing.servicebing.common.ResultModel;
+import com.yqbing.servicebing.repository.database.bean.ZanclickLogBean;
+
+public interface AntCreditService {
+
+	/**
+	 * 
+	
+	 * @Title: createGroup
+	
+	 * @Description: TODO
+	
+	 * @param userId  用户iD
+	 * @param storeName 商铺名字
+	 * @param storeAddress 商铺地址
+	 * @param phone 商铺手机号
+	 * @param seller_no 支付宝收款账号
+	 * @param uid 支付Id
+	 * @return
+	
+	 * @return: ResultModel
+	 */
+	ResultModel<T> createGroup(long userId, String storeName, String storeAddress,
+			String phone, String seller_no, String result);
+    
+	/**
+	 * 
+	
+	 * @Title: queryOrderNo
+	
+	 * @Description: TODO
+	
+	 * @param userId    用户id
+	 * @param store_Id  商铺Id
+	 * @return
+	
+	 * @return: ResultModel
+	 */
+	ResultModel queryOrderNo(long userId, Integer store_Id);
+    
+	/**
+	 * 
+	
+	 * @Title: editOrderNo
+	
+	 * @Description: TODO
+	
+	 * @param seller_no 支付宝账号
+	 * @param store_Id 商铺ID
+	 * @return
+	
+	 * @return: ResultModel
+	 */
+	ResultModel editOrderNo(String seller_no, long userId,String result);
+
+	/**
+	 * 
+	
+	 * @Title: notifyOrderNo
+	
+	 * @Description: TODO
+	
+	 * @param data
+	 * @return
+	
+	 * @return: ResultModel
+	 */
+	ResultModel notifyOrderNo(ZanclickLogBean data);
+     
+	/**
+	 * 
+	
+	 * @Title: queryOrderNoDatil
+	
+	 * @Description: TODO
+	
+	 * @param data
+	 * @return
+	
+	 * @return: ResultModel
+	 */
+	ResultModel queryOrderNoDatil(String data);
+
+	
+	/**
+	 * 
+	
+	 * @Title: notifyCreateOrderNo
+	
+	 * @Description: TODO
+	
+	 * @param data
+	 * @return
+	
+	 * @return: ResultModel
+	 */
+	ResultModel notifyCreateOrderNo(String data);
+    
+	/**
+	 * 
+	
+	 * @Title: payHtml
+	
+	 * @Description: TODO
+	
+	 * @param store_Id
+	 * @param totalAmount
+	 * @return
+	
+	 * @return: ResultModel
+	 */
+	ResultModel payHtml(long userId, String totalAmount);
+    
+	/**
+	 * 
+	
+	 * @Title: ifCreate
+	
+	 * @Description: TODO
+	
+	 * @param store_Id
+	 * @return
+	
+	 * @return: ResultModel
+	 */
+	ResultModel ifCreate(long userId,Integer platformId);
+    
+	/**
+	 * 
+	
+	 * @Title: getUid
+	
+	 * @Description: TODO
+	
+	 * @param store_id
+	 * @param platformId
+	 * @param data
+	 * @return
+	
+	 * @return: ResultModel
+	 */
+	ResultModel getUid(String store_id, Integer platformId, String data);
+    
+	/**
+	 * 
+	
+	 * @Title: antcreditOff
+	
+	 * @Description: TODO
+	
+	 * @param userId
+	 * @return
+	
+	 * @return: ResultModel
+	 */
+	ResultModel antcreditOff(long userId);
+
+}

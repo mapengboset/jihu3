@@ -1,0 +1,32 @@
+package com.yqbing.servicebing.webapp.task;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Controller;
+
+import com.yqbing.servicebing.service.AntCreditService;
+
+
+@Controller
+@Lazy(false) 
+public class AntCerditfDelClosed {
+
+private static final Logger LOGGER = LoggerFactory.getLogger(AntCerditfDelClosed.class);
+	
+	
+	@Resource(name = "antCreditService")
+	private AntCreditService antCreditService;
+	
+	@Scheduled(cron = "0 0 0 * * ?")
+	public void delClosed()throws Exception{
+		antCreditService.delClosed();
+	} 
+	
+}
+
+
+

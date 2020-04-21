@@ -1,0 +1,58 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.yqbing.servicebing.exception.BingException;
+import com.yqbing.servicebing.repository.database.bean.TUserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.WeBankBean;
+import com.yqbing.servicebing.repository.database.dao.TUserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.WeBankBeanMapper;
+import com.yqbing.servicebing.service.WeBankService;
+import com.yqbing.servicebing.webapp.response.weBankResponse;
+
+@Service("weBankService")
+public class WeBankServiceImpl implements WeBankService {
+
+	@Autowired
+	private WeBankBeanMapper weBankBeanMapper = null;
+	@Autowired
+	private TUserInfoBeanMapper userInfoBeanMapper = null;
+
+	public weBankResponse queryList(String token, String version, int isios,
+			int page, int size) throws BingException {
+		Integer successsize = null;
+		Integer failssize = null;
+
+		successsize = weBankBeanMapper.querysucccount(token, "1");
+		failssize = weBankBeanMapper.queryfailcount(token, "2");
+		PageHelper.startPage(page, size);
+		List<WeBankBean> wes = weBankBeanMapper.query(token);
+		PageInfo<WeBankBean> pageInfo = new PageInfo<WeBankBean>(wes);
+		weBankResponse response = new weBankResponse();
+		response.setSuccessCount(successsize);
+		response.setFailCount(failssize);
+		response.setData(pageInfo);
+		// TODO Auto-generated method stub
+		return response;
+	}
+
+	public int webanksub(TUserInfoBean user, String picUrl, String name,
+			String version) throws BingException {
+		WeBankBean weBankBean = new WeBankBean();
+		weBankBean.setCreateTime(new Date());
+		weBankBean.setInvitedToken(user.gettToken());
+		weBankBean.setUserId(user.getUserId());
+		weBankBean.setPicUrl(picUrl);
+		weBankBean.setBeInvitedTime(new Date());
+		weBankBean.setBeInvited(name);
+		weBankBean.setCreateTime(new Date());
+		int i = weBankBeanMapper.insertSelective(weBankBean);
+		return i;
+	}
+}

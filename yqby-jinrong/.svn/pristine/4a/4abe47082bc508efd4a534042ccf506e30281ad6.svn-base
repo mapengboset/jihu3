@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="charset" content="utf-8">
+    <meta content="telephone=no,email=no,address=no" name="format-detection"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="frontend-mobile" content="yes"/>
+    <link rel="stylesheet" href="wzBac/lib/layui/css/layui.css">
+    <style>
+
+        .video_class {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: 100% 100%;
+            display: inline-block;
+        }
+
+        .bg_class {
+            background: rgba(0, 0, 0, .6);
+            width: 100%;
+            height: 100vh;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+        }
+
+        .text_class {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -webkit-transform: translateX(-50%) translateY(-50%);
+            -moz-transform: translateX(-50%) translateY(-50%);
+            -ms-transform: translateX(-50%) translateY(-50%);
+            transform: translateX(-50%) translateY(-50%);
+            text-align: center;
+        }
+
+        .btn_class {
+            background-color: #43bc71;
+            border: 1px solid #2b9152;
+            transition: background-color .5s ease;
+            cursor: pointer;
+            display: inline-block;
+            width: 200px;
+            padding: 10px;
+            text-align: center;
+            font-size: 1em;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .btn_class:hover {
+            background-color: #2b9152;
+            color: #fff;
+        }
+
+        .text_class h1 {
+            font-size: 60px;
+            color: #fff;
+        }
+
+        .text_class p {
+            font-size: 30px;
+            color: #fff;
+            padding: 20px 0px;
+        }
+
+        .videos_res {
+            overflow: hidden;
+            height: 100vh;
+            margin: 0 auto
+        }
+        .userMes{
+
+        }
+        .userMes ul li{
+            padding-bottom: 20px;
+        }
+        .userMes ul li input{
+            padding:5px 10px;
+            height:30px;
+            line-height: 30px;
+            border-radius: 5px;
+            width:88%;
+            color: #666;
+        }
+        .userMes ul li input:focus{
+            outline: #444444;
+            box-shadow: 1px 1px 1px 1px #17da6173;
+            transition: all .5s;
+        }
+        .smallTip{
+            position: absolute;
+            bottom:20px;
+            font-size: .65em;
+            color: #fff;
+            width:100%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bgLogin">
+<div class="contact">
+    <div class="video_class">
+        <div class="videos_res">
+            <!--<video preload="metadata" autoplay loop>
+                <source src="http://p2a60yqmm.bkt.clouddn.com/shaonv.mov" type="video/mp4">
+            </video>-->
+            <img style="width: 100%;" src="" alt="">
+        </div>
+        <div class="bg_class"></div>
+        <div class="text_class">
+        <form name="logform" id="logform"  action="system/login" method="post">
+            <div class="userMes">
+                <ul>
+                    <li>
+                        <input name="username" class="userAcc" type="text" placeholder="输入账号/英文数字汉字均可">
+                    </li>
+                    <li>
+                        <input name="password" class="userPas" type="text" placeholder="输入密码">
+                    </li>
+                </ul>
+            </div>
+            </form>
+            <a id="toLogin"  onclick="login()"  class="btn_class">点击登录</a>
+        </div>
+        <!--<div class="smallTip">您的UID为账号，可以通过此账号去查找好友进行聊天</div>-->
+
+    </div>
+</div>
+
+</body>
+<script type="text/javascript">
+	 function login(){
+		
+		document.forms["logform"].submit();
+	 }
+
+</script>
+<script src="wzBac/js/jquery-3.2.1.min.js"></script>
+<script src="wzBac/lib/layui/layui.all.js"></script>
+</html>

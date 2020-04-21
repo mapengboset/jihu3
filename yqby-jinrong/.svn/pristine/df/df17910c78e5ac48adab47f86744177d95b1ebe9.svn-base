@@ -1,0 +1,131 @@
+package com.yqbing.servicebing.mina.server;
+
+
+/**
+ * 
+ * @Title:     
+ * @Description:    客户端消息   
+ * @author: mapb   
+ * @date:   2018年11月7日 下午4:37:31   
+ * @version V1.0
+ */
+public class MessageData {
+
+	/** 消息类型*/
+	private Integer msgType = null;
+	/** 房间号*/
+	private String deviceId = null;
+	/** 状态*/
+	private String content = null;
+	
+	
+	//-------------------跑步机
+	private String mac = null;//跑步机的设备编号
+	private String cmd = null;//代表命令
+	private String userId = null;//用户id
+	private Integer runTime = null;//设置运动时间
+	private String username = null;
+	private Integer Code = null;//设置运动时间
+	private String qrContent = null;//设置运动时间
+	private String avatar = null;//设置运动时间
+	
+	public String getAvatar() {
+		return avatar;
+	}
+
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
+	}
+
+	public String getQrContent() {
+		return qrContent;
+	}
+
+	public void setQrContent(String qrContent) {
+		this.qrContent = qrContent;
+	}
+
+	public MessageData() {
+		super();
+	}
+
+	public MessageData(Integer msgType, String deviceId, String content) {
+		super();
+		this.msgType = msgType;
+		this.deviceId = deviceId;
+		this.content = content;
+	}
+
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+	}
+   
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public Integer getMsgType() {
+		return msgType;
+	}
+
+	public void setMsgType(Integer msgType) {
+		this.msgType = msgType;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public String getMac() {
+		return mac;
+	}
+
+	public void setMac(String mac) {
+		this.mac = mac;
+	}
+
+	public String getCmd() {
+		return cmd;
+	}
+
+	public void setCmd(String cmd) {
+		this.cmd = cmd;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public Integer getRunTime() {
+		return runTime;
+	}
+
+	public void setRunTime(Integer runTime) {
+		this.runTime = runTime;
+	}
+
+	public Integer getCode() {
+		return Code;
+	}
+
+	public void setCode(Integer code) {
+		Code = code;
+	}
+	
+}

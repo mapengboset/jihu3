@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.OfferInfoBeanMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.OfferInfoBean" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="userId" property="userid" jdbcType="BIGINT" />
+    <result column="userName" property="username" jdbcType="VARCHAR" />
+    <result column="hotId" property="hotid" jdbcType="BIGINT" />
+    <result column="hotCityName" property="hotcityname" jdbcType="VARCHAR" />
+    <result column="shopName" property="shopname" jdbcType="VARCHAR" />
+    <result column="offerTitle" property="offertitle" jdbcType="VARCHAR" />
+    <result column="offerType" property="offertype" jdbcType="TINYINT" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="quotation" property="quotation" jdbcType="VARCHAR" />
+    <result column="shopPicture" property="shoppicture" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, userId, userName, hotId, hotCityName, shopName, offerTitle, offerType, phone, 
+    address, quotation, shopPicture, status, createTime
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.abstracts.OfferInfoBeanExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from tb_offer_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_offer_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from tb_offer_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.OfferInfoBean" >
+    insert into tb_offer_info (id, userId, userName, 
+      hotId, hotCityName, shopName, 
+      offerTitle, offerType, phone, 
+      address, quotation, shopPicture, 
+      status, createTime)
+    values (#{id,jdbcType=BIGINT}, #{userid,jdbcType=BIGINT}, #{username,jdbcType=VARCHAR}, 
+      #{hotid,jdbcType=BIGINT}, #{hotcityname,jdbcType=VARCHAR}, #{shopname,jdbcType=VARCHAR}, 
+      #{offertitle,jdbcType=VARCHAR}, #{offertype,jdbcType=TINYINT}, #{phone,jdbcType=VARCHAR}, 
+      #{address,jdbcType=VARCHAR}, #{quotation,jdbcType=VARCHAR}, #{shoppicture,jdbcType=VARCHAR}, 
+      #{status,jdbcType=TINYINT}, #{createtime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.OfferInfoBean" >
+    insert into tb_offer_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userid != null" >
+        userId,
+      </if>
+      <if test="username != null" >
+        userName,
+      </if>
+      <if test="hotid != null" >
+        hotId,
+      </if>
+      <if test="hotcityname != null" >
+        hotCityName,
+      </if>
+      <if test="shopname != null" >
+        shopName,
+      </if>
+      <if test="offertitle != null" >
+        offerTitle,
+      </if>
+      <if test="offertype != null" >
+        offerType,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="quotation != null" >
+        quotation,
+      </if>
+      <if test="shoppicture != null" >
+        shopPicture,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createtime != null" >
+        createTime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="userid != null" >
+        #{userid,jdbcType=BIGINT},
+      </if>
+      <if test="username != null" >
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="hotid != null" >
+        #{hotid,jdbcType=BIGINT},
+      </if>
+      <if test="hotcityname != null" >
+        #{hotcityname,jdbcType=VARCHAR},
+      </if>
+      <if test="shopname != null" >
+        #{shopname,jdbcType=VARCHAR},
+      </if>
+      <if test="offertitle != null" >
+        #{offertitle,jdbcType=VARCHAR},
+      </if>
+      <if test="offertype != null" >
+        #{offertype,jdbcType=TINYINT},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="quotation != null" >
+        #{quotation,jdbcType=VARCHAR},
+      </if>
+      <if test="shoppicture != null" >
+        #{shoppicture,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.abstracts.OfferInfoBeanExample" resultType="java.lang.Integer" >
+    select count(*) from tb_offer_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.OfferInfoBean" >
+    update tb_offer_info
+    <set >
+      <if test="userid != null" >
+        userId = #{userid,jdbcType=BIGINT},
+      </if>
+      <if test="username != null" >
+        userName = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="hotid != null" >
+        hotId = #{hotid,jdbcType=BIGINT},
+      </if>
+      <if test="hotcityname != null" >
+        hotCityName = #{hotcityname,jdbcType=VARCHAR},
+      </if>
+      <if test="shopname != null" >
+        shopName = #{shopname,jdbcType=VARCHAR},
+      </if>
+      <if test="offertitle != null" >
+        offerTitle = #{offertitle,jdbcType=VARCHAR},
+      </if>
+      <if test="offertype != null" >
+        offerType = #{offertype,jdbcType=TINYINT},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="quotation != null" >
+        quotation = #{quotation,jdbcType=VARCHAR},
+      </if>
+      <if test="shoppicture != null" >
+        shopPicture = #{shoppicture,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="createtime != null" >
+        createTime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.OfferInfoBean" >
+    update tb_offer_info
+    set userId = #{userid,jdbcType=BIGINT},
+      userName = #{username,jdbcType=VARCHAR},
+      hotId = #{hotid,jdbcType=BIGINT},
+      hotCityName = #{hotcityname,jdbcType=VARCHAR},
+      shopName = #{shopname,jdbcType=VARCHAR},
+      offerTitle = #{offertitle,jdbcType=VARCHAR},
+      offerType = #{offertype,jdbcType=TINYINT},
+      phone = #{phone,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      quotation = #{quotation,jdbcType=VARCHAR},
+      shopPicture = #{shoppicture,jdbcType=VARCHAR},
+      status = #{status,jdbcType=TINYINT},
+      createTime = #{createtime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

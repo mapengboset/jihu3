@@ -1,0 +1,85 @@
+package com.hiko.gym.common.repository.redis;
+
+import java.text.*;
+
+import javax.annotation.*;
+
+import org.springframework.data.redis.core.*;
+import org.springframework.stereotype.*;
+
+/**
+ * 场馆客户最新体测日期值实现类
+ * 
+ * @author cychen
+ *
+ */
+@Repository("rVenueCustomerLatestMeasureDateValue")
+public class RVenueCustomerLatestMeasureDateValueImpl implements RVenueCustomerLatestMeasureDateValue {
+
+	/** Redis模板 */
+	@Resource(name = "redisTemplate")
+	private RedisTemplate<String, String> redisTemplate = null;
+
+	/** 键值格式 */
+	private static final MessageFormat KEY_FORMAT = new MessageFormat("Value:VenueCustomerLatestMeasureDate:{0}");
+
+	/**
+	 * 设置场馆客户最新体测日期
+	 * 
+	 * @param venueCustomerId 场馆客户标识
+	 * @param latestMeasureDate 最新体测日期
+	 */
+	@Override
+	public void set(String venueCustomerId, String latestMeasureDate) {
+		// 初始化
+		String key = KEY_FORMAT.format(new String[] { venueCustomerId });
+
+		// 调用接口
+		redisTemplate.opsForValue().set(key, latestMeasureDate);
+	}
+
+	/**
+	 * 获取场馆客户最新体测日期
+	 * 
+	 * @param venueCustomerId 场馆客户标识
+	 * @return 最新体测日期
+	 */
+	@Override
+	public String get(String venueCustomerId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new String[] { venueCustomerId });
+
+		// 调用接口
+		return redisTemplate.opsForValue().get(key);
+	}
+
+	/**
+	 * 删除场馆客户最新体测日期
+	 * 
+	 * @param venueCustomerId 场馆客户标识
+	 */
+	@Override
+	public void remove(String venueCustomerId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new String[] { venueCustomerId });
+
+		// 调用接口
+		redisTemplate.delete(key);
+	}
+
+	/**
+	 * 存在场馆客户最新体测日期
+	 * 
+	 * @param venueCustomerId 场馆客户标识
+	 * @return 是否存在
+	 */
+	@Override
+	public boolean exist(String venueCustomerId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new String[] { venueCustomerId });
+
+		// 调用接口
+		return redisTemplate.hasKey(key);
+	}
+
+}

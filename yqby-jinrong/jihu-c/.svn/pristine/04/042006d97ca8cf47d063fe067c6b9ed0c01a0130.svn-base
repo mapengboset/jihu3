@@ -1,0 +1,49 @@
+package com.yqbing.servicebing.service;
+
+public interface AccountService {
+    
+	/**
+	 * 
+	
+	 * @Title: bindingInvite
+	
+	 * @Description: 解绑和绑定
+	
+	 * @param token
+	 * @param invite
+	 * @return
+	
+	 * @return: String
+	 */
+	String bindingInvite(String token, String invite);
+    
+	/**
+	 * 
+	
+	 * @Title: quitUser
+	
+	 * @Description: 退出登录
+	
+	 * @param token
+	 * @return
+	
+	 * @return: String
+	 */
+	String quitUser(String token);
+    
+	/**
+	 * 
+	
+	 * @Title: uploadLogImg
+	
+	 * @Description: 上传用户头像
+	
+	 * @param token
+	 * @param imgUrl
+	 * @return
+	
+	 * @return: String
+	 */
+	String uploadLogImg(String token, String imgUrl,String userName);
+	
+}

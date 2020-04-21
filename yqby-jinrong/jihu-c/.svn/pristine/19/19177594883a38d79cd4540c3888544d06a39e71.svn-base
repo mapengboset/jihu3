@@ -1,0 +1,113 @@
+package com.yqbing.servicebing.repository.jihuc;
+
+public class UserExtBean {
+    private Long id;
+
+    private String token;
+
+    private Byte thirdplat;
+
+    private String thirdtoken;
+
+    private String paypwd;
+
+    private String idcardurl;
+
+    private Byte applypaystatus;
+
+    private String applypaypwd;
+
+    private String idcard;
+
+    private String invitecode;
+
+    private String pid;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token == null ? null : token.trim();
+    }
+
+    public Byte getThirdplat() {
+        return thirdplat;
+    }
+
+    public void setThirdplat(Byte thirdplat) {
+        this.thirdplat = thirdplat;
+    }
+
+    public String getThirdtoken() {
+        return thirdtoken;
+    }
+
+    public void setThirdtoken(String thirdtoken) {
+        this.thirdtoken = thirdtoken == null ? null : thirdtoken.trim();
+    }
+
+    public String getPaypwd() {
+        return paypwd;
+    }
+
+    public void setPaypwd(String paypwd) {
+        this.paypwd = paypwd == null ? null : paypwd.trim();
+    }
+
+    public String getIdcardurl() {
+        return idcardurl;
+    }
+
+    public void setIdcardurl(String idcardurl) {
+        this.idcardurl = idcardurl == null ? null : idcardurl.trim();
+    }
+
+    public Byte getApplypaystatus() {
+        return applypaystatus;
+    }
+
+    public void setApplypaystatus(Byte applypaystatus) {
+        this.applypaystatus = applypaystatus;
+    }
+
+    public String getApplypaypwd() {
+        return applypaypwd;
+    }
+
+    public void setApplypaypwd(String applypaypwd) {
+        this.applypaypwd = applypaypwd == null ? null : applypaypwd.trim();
+    }
+
+    public String getIdcard() {
+        return idcard;
+    }
+
+    public void setIdcard(String idcard) {
+        this.idcard = idcard == null ? null : idcard.trim();
+    }
+
+    public String getInvitecode() {
+        return invitecode;
+    }
+
+    public void setInvitecode(String invitecode) {
+        this.invitecode = invitecode == null ? null : invitecode.trim();
+    }
+
+    public String getPid() {
+        return pid;
+    }
+
+    public void setPid(String pid) {
+        this.pid = pid == null ? null : pid.trim();
+    }
+}

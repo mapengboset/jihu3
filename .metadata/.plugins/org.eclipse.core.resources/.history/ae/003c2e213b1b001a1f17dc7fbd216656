@@ -1,0 +1,44 @@
+package com.yqbing.commons.utils.enums;
+
+/**
+ * 平台
+ */
+public enum YqbyPlatformEnum {
+
+//	平台ID，0：官网，1：B端，2：C端，3：校嗨
+	
+	WEBSITE(0, "官网"),
+	B(1, "B端"),
+	C(2, "C端"),
+	XIAO_HAI(3, "校嗨"),
+	INTERNET_BAR(4, "网吧");
+	
+	
+	private int id;
+	private String name;
+	
+	private YqbyPlatformEnum(int id, String name){
+		this.name=name;
+		this.id = id;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+	
+	public static YqbyPlatformEnum getEnum(int accessType){
+		YqbyPlatformEnum typeEnum = null;
+		YqbyPlatformEnum[] accessTypeEnums = YqbyPlatformEnum.values();
+		for (YqbyPlatformEnum relation : accessTypeEnums) {
+			if(relation.getId() == accessType){
+				typeEnum = relation;
+				break;
+			}
+		}
+		return typeEnum;
+	}
+}

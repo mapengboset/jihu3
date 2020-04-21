@@ -1,0 +1,355 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.StoreInfo;
+import com.yqbing.servicebing.repository.database.bean.StoreUser;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.dao.StoreInfoMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreUserMapper;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.service.CommonService;
+import com.yqbing.servicebing.service.StoreInfoService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.webapp.request.StoreInfoReq;
+
+
+@Service("storeInfoService")
+public class StoreInfoServiceImpl extends CommonService implements StoreInfoService{
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(StoreInfoServiceImpl.class);
+	
+	@Resource
+	private StoreUserMapper  storeUserMapper;
+	@Resource
+	private StoreInfoMapper  storeInfoMapper;
+	@Resource
+	private UserInfoBeanMapper  userInfoBeanMapper;
+	
+	
+	
+	@Override
+	public String register(StoreInfoReq req) {//
+		
+		//判断是否申请过店铺
+		UserInfoBean infoBean = queryTokenByUser(req.getToken());
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		try {
+			 //先判断是否开店
+			StoreUser su = storeUserMapper.selectByUserId(infoBean.getId());
+			if(su == null){//没有开店
+			StoreInfo storeInfo = new StoreInfo();
+			storeInfo = setStoreInfo(storeInfo, req, infoBean);
+			storeInfo.setCreatetime(new Date());
+			
+			storeInfoMapper.insertSelective(storeInfo);	
+			
+			StoreUser storeUser = new StoreUser();
+			storeUser.setStoreId(storeInfo.getStoreId());
+			storeUser.setUserId(infoBean.getId());
+			short s = 3;
+			storeUser.setStatus(s);
+			storeUser.setCreateTime(new Date());
+			storeUserMapper.insertSelective(storeUser);
+				return NotifyUtil.success();
+			}
+			Long storeId = su.getStoreId();
+			StoreInfo storeInfo = storeInfoMapper.selectByPrimaryKey(storeId);
+			if(storeInfo != null){
+				storeInfo = setStoreInfo(storeInfo, req, infoBean);
+				storeInfoMapper.updateByPrimaryKeySelective(storeInfo);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "操作失败");
+		}
+	   
+		//如果没有在申请
+		
+		//如果有不能申请
+		return NotifyUtil.success();
+	}
+
+
+
+	@Override
+	public String ifRegister(String token) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+	    //先判断是否开店
+		StoreUser su = storeUserMapper.selectByUserId(infoBean.getId());
+		if(su == null){
+			return NotifyUtil.success();
+		}else{
+			if(su.getStatus() == 2){//店员不能开店
+				return NotifyUtil.error(ErrorCodeEnum.ASSISTANTSRORE, "店员不能开店");
+			}
+		}
+		//没有开店 --> 是否是店长
+		
+		 return NotifyUtil.error(ErrorCodeEnum.SRORE, "店铺存在");
+	}
+
+
+
+	@Override
+	public String queryStoreInfo(String token) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+		
+		StoreUser su = storeUserMapper.selectByUserId(infoBean.getId());
+		if(su == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOTSRORE, "店铺不存在");
+		}
+		
+		StoreInfo storeInfo = storeInfoMapper.selectByPrimaryKey(su.getStoreId());
+		StoreInfoReq sq = null;
+		
+		if(storeInfo != null){
+			
+			sq = new StoreInfoReq();
+			sq.setStoreId(storeInfo.getStoreId());
+			sq.setAddress(storeInfo.getStoreAddress());
+			sq.setCardBack(storeInfo.getIdcardbackurl());
+			sq.setCardFace(storeInfo.getIdcardfaceurl());
+			sq.setCertName(storeInfo.getStoreName());
+			sq.setPhone(storeInfo.getPhone());
+			sq.setStoreState(storeInfo.getStoreState());
+			sq.setLevel(su.getStatus()+"");
+			sq.setRefuseReason(storeInfo.getRefuseReason());
+			sq.setStoreLicense(storeInfo.getStoreLicense());
+			sq.setStoreName(storeInfo.getStoreName());
+			sq.setCategoryId(storeInfo.getCategoryid());
+			sq.setCitys(storeInfo.getProvinceName()+"-"+storeInfo.getCityName()+"-"+storeInfo.getAreaName());
+		
+		}
+		
+		return NotifyUtil.success(sq);
+	}
+
+
+
+	@Override
+	public String quereyStoreName(String code) {
+		
+		StoreInfo storeInfo = storeInfoMapper.selectByCode(code);
+		StoreInfoReq sq = null;
+		
+		if(storeInfo != null){
+			
+			sq = new StoreInfoReq();
+			sq.setStoreId(storeInfo.getStoreId());
+			sq.setStoreName(storeInfo.getStoreName());
+			sq.setCitys(storeInfo.getProvinceName()+"-"+storeInfo.getCityName()+"-"+storeInfo.getAreaName());
+		
+		}
+		
+		return NotifyUtil.success(sq);
+	}
+
+
+	
+
+	@Override
+	public String myStaff(String token) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+		
+		Short s = 3;//店长
+		
+		StoreUser su = storeUserMapper.selectByUserIdAndStatus(infoBean.getId(),s);
+		
+		if(su == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOTSRORE, "店铺不存在");
+		}
+		
+		Short s1 = 2;//
+		
+		List<StoreUser>  sus = storeUserMapper.selectBystoreIdAndStatus(su.getStoreId(),s1);
+		
+		
+		
+		return NotifyUtil.success(sus);
+	}
+
+
+
+	@Override
+	public String joinStore(String token, Long storeId) {
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+		
+		Short s = 2;//店员
+		
+		StoreUser su = storeUserMapper.selectByUserIdAndStatus(infoBean.getId(),s);
+		
+		if(su == null){
+		   
+			StoreUser storeUser = new  StoreUser();
+			storeUser.setStoreId(storeId);
+			storeUser.setUserId(infoBean.getId());
+			Short s2 = 2;//店员
+			storeUser.setStatus(s2);
+			storeUser.setCreateTime(new Date());
+			try {
+				LOGGER.info("--------------------------------------------/store/joinStore:"+storeUser);
+				storeUserMapper.insertSelective(storeUser);
+				return NotifyUtil.success();
+			} catch (Exception e) {
+			   e.printStackTrace();
+			}
+			
+		}
+		 return NotifyUtil.error(ErrorCodeEnum.ASSISTANTSRORE, "已经加入过门店");
+	}
+
+
+
+	@Override
+	public String increaseWorker(String token, String name, String phone,String password) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+        Short s = 3;//店长
+		
+		StoreUser su = storeUserMapper.selectByUserIdAndStatus(infoBean.getId(),s);
+		
+		if(su == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOTSRORE, "店铺不存在");
+		}
+		UserInfoBean userInfoBean = userInfoBeanMapper.queryPhoneAndpassword(phone,password);
+		if(userInfoBean != null){
+			StoreUser storeUser = new  StoreUser();
+			storeUser.setStoreId(su.getStoreId());
+			storeUser.setUserId(userInfoBean.getId());
+			Short s2 = 2;//店员
+			storeUser.setStatus(s2);
+			storeUser.setCreateTime(new Date());
+			try {
+				LOGGER.info("--------------------------------------------/store/increaseWorker:"+storeUser);
+				
+				storeUserMapper.insertSelective(storeUser);
+				
+				return NotifyUtil.success(userInfoBean.getId());
+			} catch (Exception e) {
+			   e.printStackTrace();
+			   return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "添加失败");
+			}
+			
+		}
+		
+		
+		return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "用户不存在");
+	}
+
+
+
+	@Override
+	public String delWorker(String token, Long userId) {
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+		try {
+		//是否是店长
+		Short s1 = 3;//店长
+		StoreUser su1 = storeUserMapper.selectByUserIdAndStatus(infoBean.getId(),s1);
+		if(su1 == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOTSRORE, "不是店长");
+		}
+		
+        Short s = 2;//店员
+		
+		StoreUser su = storeUserMapper.selectByUserIdAndStatus(userId,s);
+		
+		if(su == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOTSRORE, "绑定不存在");
+		}
+	
+			
+			storeUserMapper.deleteByPrimaryKey(su.getId());
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return NotifyUtil.success();
+	}
+	public StoreInfo setStoreInfo(StoreInfo storeInfo,StoreInfoReq req,UserInfoBean infoBean){
+		
+		if(StringUtils.isNotBlank(req.getPhone())){
+			storeInfo.setPhone(req.getPhone());	
+		}
+		if(StringUtils.isNotBlank(req.getStoreName())){
+			storeInfo.setStoreName(req.getStoreName());
+		}
+		if(StringUtils.isNotBlank(req.getAddress())){
+			storeInfo.setStoreAddress(req.getAddress());
+		}
+		if(StringUtils.isNotBlank(req.getCertName())){
+			storeInfo.setOwnerName(req.getCertName());
+		}
+		if(StringUtils.isNotBlank(req.getStoreLicense())){
+			storeInfo.setStoreLicense(req.getStoreLicense());
+		}
+		if(StringUtils.isNotBlank(req.getCardFace())){
+			storeInfo.setIdcardfaceurl(req.getCardFace());
+		}
+		if(StringUtils.isNotBlank(req.getCardBack())){
+			storeInfo.setIdcardbackurl(req.getCardBack());
+		}
+		
+			storeInfo.setCategoryid(req.getCategoryId());
+			
+		short s = 2;
+		storeInfo.setStoreState(s);
+		storeInfo.setOwnerId(infoBean.getId());
+		if(StringUtils.isNotBlank(req.getCitys())){
+		String[] adds = req.getCitys().split(",");
+		if(adds.length == 1){
+			infoBean.setAdress(req.getCitys());
+		}else{
+			storeInfo.setProvinceId(Integer.valueOf(adds[3]));
+			storeInfo.setProvinceName(adds[0]);
+			storeInfo.setCityId(Integer.valueOf(adds[4]));
+			storeInfo.setCityName(adds[1]);
+		
+			storeInfo.setAreaId(Integer.valueOf(adds[5]));
+			storeInfo.setAreaName(adds[2]);
+			
+		}
+	}
+		return storeInfo;
+	}
+}

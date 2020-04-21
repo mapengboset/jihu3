@@ -1,0 +1,37 @@
+package com.yqbing.servicebing.service.impl;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.yqbing.servicebing.repository.database.bean.UserToken;
+import com.yqbing.servicebing.repository.database.dao.UserTokenMapper;
+import com.yqbing.servicebing.service.IUserTokenBaseService;
+
+
+
+@Service("userTokenBaseService")
+public class UserTokenBaseServiceImpl implements IUserTokenBaseService{
+
+	@Resource
+	UserTokenMapper userTokenMapper;
+	
+	@Override
+	public void saveOrUpdateUserToken(UserToken userToken) {
+		// TODO Auto-generated method stub
+		userTokenMapper.insertSelective(userToken);
+	}
+
+	@Override
+	public UserToken queryUserByToken(Integer appId, String token) {
+		// TODO Auto-generated method stub
+		return userTokenMapper.queryUserByToken(appId,token);
+	}
+
+	@Override
+	public UserToken queryPlatformUserByToken(Integer platformId, String token) {
+		// TODO Auto-generated method stub
+		return userTokenMapper.queryPlatformUserByToken(platformId,token);
+	}
+
+}

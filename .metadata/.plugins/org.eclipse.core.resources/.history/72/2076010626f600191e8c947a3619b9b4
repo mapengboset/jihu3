@@ -1,0 +1,541 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.alipay.api.domain.TicketDetailInfo;
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.City;
+import com.yqbing.servicebing.repository.database.bean.GoodsOrder;
+import com.yqbing.servicebing.repository.database.bean.GoodsOrderRes;
+import com.yqbing.servicebing.repository.database.bean.StoreInfo;
+import com.yqbing.servicebing.repository.database.bean.StoreUser;
+import com.yqbing.servicebing.repository.database.bean.TakeDddress;
+import com.yqbing.servicebing.repository.database.bean.TicketGoods;
+import com.yqbing.servicebing.repository.database.bean.TicketGoodsStandard;
+import com.yqbing.servicebing.repository.database.bean.TicketGoodsWithBLOBs;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.WealthLog;
+import com.yqbing.servicebing.repository.database.dao.CityMapper;
+import com.yqbing.servicebing.repository.database.dao.GoodsOrderExample;
+import com.yqbing.servicebing.repository.database.dao.GoodsOrderMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreInfoMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreUserMapper;
+import com.yqbing.servicebing.repository.database.dao.TakeDddressExample;
+import com.yqbing.servicebing.repository.database.dao.TakeDddressMapper;
+import com.yqbing.servicebing.repository.database.dao.TicketGoodsExample;
+import com.yqbing.servicebing.repository.database.dao.TicketGoodsExample.Criteria;
+import com.yqbing.servicebing.repository.database.dao.TicketGoodsMapper;
+import com.yqbing.servicebing.repository.database.dao.TicketGoodsStandardExample;
+import com.yqbing.servicebing.repository.database.dao.TicketGoodsStandardMapper;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.WealthLogMapper;
+import com.yqbing.servicebing.repository.redis.GoodsOrderLog;
+import com.yqbing.servicebing.service.CommonService;
+import com.yqbing.servicebing.service.GoodsOrderService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.webapp.request.AddressReq;
+import com.yqbing.servicebing.webapp.request.AddressRes;
+import com.yqbing.servicebing.webapp.request.GoodsOrderReq;
+
+
+@Service("goodsOrderService")
+@SuppressWarnings("all")
+public class GoodsOrderServiceImpl extends CommonService implements GoodsOrderService{
+
+	
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(GoodsOrderServiceImpl.class);
+	@Resource
+	private TicketGoodsMapper ticketGoodsMapper = null;
+	@Resource
+	private TakeDddressMapper takeDddressMapper = null;
+	@Resource
+	private GoodsOrderMapper goodsOrderMapper = null;
+	@Resource
+	private TicketGoodsStandardMapper ticketGoodsStandardMapper = null;
+	@Resource
+	private UserInfoBeanMapper userInfoBeanMapper = null;
+	@Resource
+	private WealthLogMapper  wealthLogMapper;
+	@Resource
+	private StoreUserMapper  storeUserMapper;
+	@Resource
+	private StoreInfoMapper  storeInfoMapper;
+	
+	@Resource
+	private GoodsOrderLog rgoodsOrderLog = null;
+	
+	@Resource
+	private CityMapper cityMapper = null;
+	
+	@Override
+	public String citys(String token) {
+		
+		List<City> citys =   cityMapper.queryCitys();
+		
+		
+		return NotifyUtil.success(citys);
+	}
+
+	@Override
+	public String myAddress(String token) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		TakeDddressExample tdressExample = new TakeDddressExample();
+		
+		tdressExample.createCriteria().andUserIdEqualTo(infoBean.getId());
+		
+		List<TakeDddress> list = takeDddressMapper.selectByExample(tdressExample);
+		
+		
+		return NotifyUtil.success(list);
+	}
+
+	@Override
+	public String addAddress(AddressReq req) {
+		UserInfoBean infoBean = queryTokenByUser(req.getToken());
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		
+		String success = null;
+		try {
+			TakeDddress dddress = new TakeDddress();
+			dddress.setUserId(infoBean.getId());
+			dddress.setPhone(req.getPhone());
+			dddress.setName(req.getName());
+			dddress.setDoornum(req.getDoornum());
+			dddress.setSex(req.getSex());
+			dddress.setAddress(req.getAddress());
+			dddress.setLable(req.getLable());
+			dddress.setProvince(req.getProvince());
+			dddress.setProvinceCode(req.getProvinceCode());
+			dddress.setCity(req.getCity());
+			dddress.setCityCode(req.getCityCode());
+			dddress.setArea(req.getArea());
+			dddress.setAreaCode(req.getAreaCode());
+			dddress.setCreateTime(new Date());
+			takeDddressMapper.insertSelective(dddress);
+		} catch (Exception e) {
+			
+			
+			e.printStackTrace();
+			
+			success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+		}
+		
+		return NotifyUtil.success();
+	}
+
+	@Override
+	public String delAddress(String token, Integer id) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		
+				String success = null;
+				try {
+					takeDddressMapper.deleteByPrimaryKey(id);
+				} catch (Exception e) {
+					
+					
+					e.printStackTrace();
+					
+					return	success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+				}
+		
+		return NotifyUtil.success();
+	}
+
+	@Override
+	public String editAddress(AddressReq req) {
+		
+		UserInfoBean infoBean = queryTokenByUser(req.getToken());
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		String success = null;
+		TakeDddress dddress = takeDddressMapper.selectByPrimaryKey(req.getId());
+		if(dddress == null){
+			success = NotifyUtil.error(ErrorCodeEnum.EXISTADDRESS);
+			return success;
+		}
+		try {
+			
+			if(StringUtils.isNotBlank(req.getPhone())){
+				dddress.setPhone(req.getPhone());
+				
+			}
+			
+			if(StringUtils.isNotBlank(req.getName())){
+				dddress.setName(req.getName());
+			}
+				
+			dddress.setDoornum(req.getDoornum());
+			
+			if(req.getSex()!= null){
+				dddress.setSex(req.getSex());
+			}
+			if(StringUtils.isNotBlank(req.getAddress())){
+				dddress.setAddress(req.getAddress());
+			}
+			if(req.getLable() != null){
+				dddress.setLable(req.getLable());
+			}
+			if(StringUtils.isNotBlank(req.getProvince())){
+				dddress.setProvince(req.getProvince());
+			}
+			if(StringUtils.isNotBlank(req.getProvinceCode())){
+				dddress.setProvinceCode(req.getProvinceCode());
+			}
+			if(StringUtils.isNotBlank(req.getCity())){
+				dddress.setCity(req.getCity());
+			}
+			if(StringUtils.isNotBlank(req.getCityCode())){
+				dddress.setCityCode(req.getCityCode());
+			}
+			if(StringUtils.isNotBlank(req.getArea())){
+				dddress.setArea(req.getArea());
+			}
+			if(StringUtils.isNotBlank(req.getAreaCode())){
+				dddress.setAreaCode(req.getAreaCode());
+			}
+			dddress.setUpdateTime(new Date());
+			takeDddressMapper.updateByPrimaryKeySelective(dddress);
+		} catch (Exception e) {
+			
+			
+			e.printStackTrace();
+			
+			return	success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+		}
+		
+		return NotifyUtil.success();
+	}
+
+	
+	
+	@Override
+	public String queryById(String token, Integer id) {
+		
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		
+		TakeDddress takeDddress = takeDddressMapper.selectByPrimaryKey(id);
+		if(takeDddress == null){
+			return NotifyUtil.success();
+			
+		}
+		AddressRes addressRes = new AddressRes();
+		addressRes.setAddress(takeDddress.getProvince()+""+takeDddress.getCity()+""+takeDddress.getArea()+""+takeDddress.getAddress()+""+takeDddress.getDoornum());
+		addressRes.setName(takeDddress.getName());
+		addressRes.setPhone(takeDddress.getPhone());
+		addressRes.setId(takeDddress.getId());
+		addressRes.setSex(takeDddress.getSex());
+		addressRes.setTag(takeDddress.getLable());
+		
+		return NotifyUtil.success(takeDddress);
+		
+	}
+
+	
+	@Override
+	public String order(GoodsOrderReq req) {
+		
+		//付款之前查看账户余额是否支持付款
+		UserInfoBean infoBean = queryTokenByUser(req.getToken());
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		StoreUser storeUser = storeUserMapper.selectByUserId(infoBean.getId());
+		if(storeUser == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOTSRORE);
+		}
+		if(storeUser.getUserState() != 1){
+			return NotifyUtil.error(ErrorCodeEnum.NOTSRORE);
+		}
+		Integer wealth =0;
+		Integer googsQuantity = null;
+		TicketGoods ticketGoods = null;
+		BigDecimal Price = null;
+		BigDecimal multiply = null;
+		Map<String,Object> map = null;
+		try {
+			wealth = infoBean.getWealth();//当前财富值
+			if(wealth == null || wealth == 0){
+				return NotifyUtil.error(ErrorCodeEnum.BALANCE);
+			}
+			googsQuantity = req.getGoogsNum();//购买数量
+			//商品单价
+			ticketGoods = ticketGoodsMapper.selectByPrimaryKey(req.getGoodsId());
+		     if(ticketGoods == null){
+		    	 return NotifyUtil.error(ErrorCodeEnum.PARAMERROE);
+		     }
+		     
+		     
+			/*List<TicketGoodsStandard> goodsStandards = ticketGoodsStandardMapper.selectByGoodsId(req.getGoodsId());
+            if(goodsStandards == null && goodsStandards.size() == 0){
+            	return NotifyUtil.error(ErrorCodeEnum.PARAMERROE);
+		     }*/
+		     
+		    TicketGoodsStandard goodsStandard = ticketGoodsStandardMapper.selectByPrimaryKey(req.getStandardId());
+		    
+		    if(goodsStandard == null ){
+            	return NotifyUtil.error(ErrorCodeEnum.PARAMERROE);
+		    
+		    }
+		    if(ticketGoods.getGoodsType().equals("ticket")){
+		    	
+		    	Price = goodsStandard.getStandardPrice().multiply(getGOODsReat(infoBean.getId()));
+		    }else{
+		    	Price = goodsStandard.getStandardPrice();
+		    }
+		    
+			
+			if(Price == null){
+				
+				return NotifyUtil.error(ErrorCodeEnum.PRICE);
+			
+			}
+			//快递费用
+			Integer ex = 0;
+			multiply = Price.multiply(new BigDecimal(googsQuantity)).add(new BigDecimal(ex)).multiply(new BigDecimal(100));
+			if(multiply==null){
+				
+				multiply = new BigDecimal(0);
+			
+			}
+			if(new BigDecimal(wealth).compareTo(multiply) == -1){//财富值>= 商品单价*商品数量+快递费用
+				
+				return NotifyUtil.error(ErrorCodeEnum.BALANCE);
+			}
+		//-----------下订单
+		
+		GoodsOrder goodsOrder = new GoodsOrder();
+		TakeDddress takeDddress = takeDddressMapper.selectByPrimaryKey(req.getAddressId());
+		if(takeDddress == null){
+			return NotifyUtil.error(ErrorCodeEnum.PARAMERROE);
+	     }
+		goodsOrder.setAddress(takeDddress.getAddress()+" "+takeDddress.getDoornum());
+		goodsOrder.setAddressName(takeDddress.getName());
+		goodsOrder.setAddressPhone(takeDddress.getPhone());
+		goodsOrder.setProvinceId(Integer.valueOf(takeDddress.getProvinceCode()));
+		goodsOrder.setProvinceName(takeDddress.getProvince());
+		goodsOrder.setCityId(Integer.valueOf(takeDddress.getCityCode()));
+		goodsOrder.setCityName(takeDddress.getCity());
+		if(StringUtils.isNotBlank(takeDddress.getAreaCode())){
+			
+			goodsOrder.setAreaId(Integer.valueOf(takeDddress.getAreaCode()));
+		
+		}
+		goodsOrder.setAreaName(takeDddress.getArea());
+		goodsOrder.setAmount(Price.multiply(new BigDecimal(googsQuantity)));
+		goodsOrder.setTotalamount(Price.multiply(new BigDecimal(googsQuantity)).add(new BigDecimal(ex)));
+		goodsOrder.setGoodsId(req.getGoodsId());
+		goodsOrder.setGoogsNum(googsQuantity);
+		//生成订单号
+		String increment = rgoodsOrderLog.increment(new Date().getTime());
+		
+		goodsOrder.setOrderId(increment);
+		goodsOrder.setPrice(Price);
+		goodsOrder.setUserId(infoBean.getId());
+		goodsOrder.setExpress(req.getExpress());
+		goodsOrder.setCreateTime(new Date());
+		goodsOrder.setOrderTime(new Date());
+		goodsOrder.setPayTime(new Date());
+		
+		
+		
+		goodsOrder.setGoodsName(ticketGoods.getName());
+		short s = 1;
+		goodsOrder.setGoodsImg(ticketGoods.getIcon());
+		goodsOrder.setPayType(req.getPayType());
+		goodsOrder.setStatus(s);
+		TicketGoodsStandard standard = ticketGoodsStandardMapper.selectByPrimaryKey(req.getStandardId());
+		if(standard != null){
+			
+			goodsOrder.setStandard(standard.getStandard());
+		}
+		map = new HashMap<String, Object>();
+		map.put("orderId", increment);
+		goodsOrderMapper.insertSelective(goodsOrder);
+			
+		//扣除财富值	
+		infoBean.setWealth(wealth-multiply.intValue());
+		infoBean.setUpdateTime(new Date());	
+		userInfoBeanMapper.updateByPrimaryKey(infoBean);
+		//存入到财富日志
+		WealthLog weal = new WealthLog();
+		
+		weal.setUserId(infoBean.getId());
+		weal.setUserName(infoBean.getName());
+		weal.setWealthBefore(infoBean.getWealth());
+		weal.setWealthAfter(infoBean.getWealth()-multiply.intValue());
+		weal.setWealthCount(multiply.intValue());
+	 
+	    short e = 4;
+		weal.setLogType(s);
+		weal.setWealthState(s);
+		weal.setExchangeType(e);
+		weal.setCreateTime(new Date());
+		weal.setRecTime(new Date());
+		wealthLogMapper.insertSelective(weal);
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+		}
+		
+		
+		
+		return NotifyUtil.success(map);
+	}
+
+	@Override
+	public String goodsDatail(String token,Integer type) {
+		
+		TicketGoodsExample goodsExample = new TicketGoodsExample();
+		Criteria createCriteria = goodsExample.createCriteria();
+		if(type ==1){
+			
+			createCriteria.andGoodsTypeEqualTo("ticket");
+		}else{
+			
+			createCriteria.andGoodsTypeEqualTo("machine");
+			
+			}
+		goodsExample.setOrderByClause(" create_time desc");
+		
+		List<TicketGoodsWithBLOBs> list = ticketGoodsMapper.selectByExampleWithBLOBs(goodsExample);
+		if(list == null || list.size() == 0){
+			return NotifyUtil.error(ErrorCodeEnum.PARAMERROE, "商品不存在");
+		}
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+	    
+		TicketGoodsWithBLOBs goods = list.get(0);
+		
+		TicketGoodsStandardExample standardExample = new TicketGoodsStandardExample();
+		standardExample.createCriteria().andGoodsIdEqualTo(goods.getId());
+		List<TicketGoodsStandard> standards = ticketGoodsStandardMapper.selectByExample(standardExample);
+		
+		if(standards == null){
+			
+			return NotifyUtil.error(ErrorCodeEnum.PARAMERROE, "商品不存在");
+		
+		}
+		
+			
+		for (TicketGoodsStandard ts : standards) {
+				
+			if(goods.getGoodsType().equals("ticket")){
+					
+				       ts.setStandardPrice(ts.getStandardPrice().multiply(getGOODsReat(infoBean.getId())));
+				
+			}else if(goods.getGoodsType().equals("machine")){
+				
+				       ts.setStandardPrice(ts.getStandardPrice());
+			}
+		}
+		
+		goods.setSellPrice(new BigDecimal(0));//快递
+		
+		goods.setStandards(standards);
+		
+		return NotifyUtil.success(goods);
+	}
+
+	@Override
+	public String myOrders(String token, short type, Integer page, Integer size) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		
+		List<GoodsOrderRes> goods = goodsOrderMapper.queryList(infoBean.getId(),type ,page*size,size);
+		
+		return NotifyUtil.success(goods);
+	}
+
+	@Override
+	public String orderDetail(String token,String id ,String orderId) {
+		GoodsOrder goodsOrder = null;
+		if(StringUtils.isNotBlank(orderId)){
+			 goodsOrder = goodsOrderMapper.selectByOrderId(orderId);
+		}else{
+			
+			 goodsOrder = goodsOrderMapper.selectByPrimaryKey(Integer.valueOf(id));
+		}
+		
+		
+		return NotifyUtil.success(goodsOrder);
+	}
+
+	@Override
+	public String ifOrder(String token,String orderId) {
+		
+		 GoodsOrder goodsOrder = goodsOrderMapper.selectByOrderId(orderId);
+		 try {
+			 
+			 short s = 3;
+			 if(goodsOrder != null){
+				 goodsOrder.setStatus(s);
+				 goodsOrder.setUpdateTime(new Date());;
+			 }
+			 goodsOrderMapper.updateByPrimaryKey(goodsOrder);
+			 
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+		
+		}
+		return NotifyUtil.success();
+	}
+
+	public BigDecimal getGOODsReat(Long userID){
+		StoreUser storeUser = storeUserMapper.selectByUserId(userID);
+		if(storeUser == null){
+			return null;
+		}
+		StoreInfo storeInfo = storeInfoMapper.selectByPrimaryKey(storeUser.getStoreId());
+        if(storeUser == null){
+			return null;
+		}
+        if(storeInfo.getBuyGoodsRate() == null){
+        	return new BigDecimal(1);
+        }
+        return storeInfo.getBuyGoodsRate().divide(new BigDecimal(100), 2);
+	}
+
+}

@@ -1,0 +1,3 @@
+com\yqbing\servicebing\webapp\handle\UnityExceptionHandler.class
+com\yqbing\servicebing\webapp\handle\SwaggerConfig.class
+com\yqbing\servicebing\webapp\interceptor\PermissionInterceptor.class

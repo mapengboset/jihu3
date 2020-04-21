@@ -1,0 +1,39 @@
+package com.yqbing.servicebing.repository.database.dao;
+
+import com.yqbing.servicebing.repository.database.bean.AppRecommend;
+
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+@Repository
+public interface AppRecommendMapper {
+    int countByExample(AppRecommendExample example);
+
+    int deleteByPrimaryKey(Integer id);
+
+    int insert(AppRecommend record);
+
+    int insertSelective(AppRecommend record);
+
+    List<AppRecommend> selectByExample(AppRecommendExample example);
+
+    AppRecommend selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(AppRecommend record);
+
+    int updateByPrimaryKey(AppRecommend record);
+    
+    /**
+     * 
+    
+     * @Title: queryTagId
+    
+     * @Description: TODO
+    
+     * @param fldkey
+     * @return
+    
+     * @return: List<AppRecommend>
+     */
+	List<AppRecommend> queryTagId(String tagId);
+}

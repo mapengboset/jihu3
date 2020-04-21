@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ETC办理</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="charset" content="utf-8">
+    <meta content="telephone=no,email=no,address=no" name="format-detection"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="frontend-mobile" content="yes"/>
+
+    <link rel="stylesheet" href="../taobaoPage/css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="../taobaoPage/css/date.css">
+    <link rel="stylesheet" href="../../../../js/layui/css/layui.css">
+    <link rel="stylesheet" href="../../css/myPrivate.css">
+    <link rel="stylesheet" href="../taobaoPage/css/taobao.css">
+    <style>
+       .taobaoDataTotal a:hover{
+            color: #fff !important;
+        }
+       .taobaoDataTotal p{
+           font-size: .6em !important;
+       }
+    </style>
+</head>
+<body class="bgGry">
+<div class="publicBgJd" style="background:linear-gradient(133deg,rgba(42,154,124,1) 0%,rgba(37,151,9,1) 100%);">
+    <div class="publicTaTip afterClear">
+        <div class="publicTaTipLeft">
+            <p><span class="nowYear">2018</span>年<span class="nowMonth"></span>月拉新数据</p>
+            <div style="font-size: .6em;"><span>结算数据：7天</span><span style="margin-left: 4%">实际数据：7天</span></div>
+        </div>
+        <div class="publicTaTipRight">
+            <p class="timeChooseSmall" startyear="2015" endyear="2030" id="kinerDatePickerInput"><img
+                    src="../../images/downIconPublic.png" alt=""></p>
+        </div>
+    </div>
+    <div class="taobaoDataTotal">
+        <a style="width: 48%;">
+            <p>提交用户数</p>
+            <p style="padding: 0;">(截止7天前)</p>
+            <h4 class="totalUserCnt">0</h4>
+        </a>
+        <a style="width: 50%;">
+            <p>可结算用户数</p>
+            <p style="padding: 0;">(截止7天前)</p>
+            <h4 class="totalValidCnt">0</h4>
+        </a>
+    </div>
+</div>
+<div class="taobaoDayData" id="taobaoBox">
+
+</div>
+</body>
+<script src="../../../../js/jquery-3.2.1.min.js"></script>
+<script src="../../../../js/environment.js"></script>
+<script src="../../../../js/common.js"></script>
+<script src="../../../../js/layui/layui.js"></script>
+
+<script src="../../js/swiper.min.js"></script>
+<script src="../../js/kinerDatePicker.js"></script>
+
+<script>
+    var version = urlParameter('version');
+    var appChannel = urlParameter('appChannel');
+    var businessType = 1;
+    var token = urlParameter('token');
+    token = replaceStr(token);
+    $(function () {
+        var nowDate = nowTime();
+        $('#kinerDatePickerInput').attr('default-val', nowDate);
+        $('#kinerDatePickerInput').kinerDatePicker({
+            clickMaskHide: false,
+            showHandler: function (ctx) {
+                console.log("显示时间选择器:", ctx);
+            },
+            hideHandler: function (ctx) {
+                console.log("隐藏时间选择器:", ctx);
+            },
+            changeHandler: function (vals, ctx) {
+                console.log("时间改变:", vals, ctx);
+                $('.kdp-time-show').html(vals[0] + '-' + vals[1]);
+            },
+            okHandler: function (vals, ctx) {
+                console.log("确定选择:", vals, ctx);
+                //淘宝数据页面查询
+                var startDate = vals[0] + '-' + vals[1] + '-01';
+                var endDate = vals[0] + '-' + vals[1] + '-31';
+                getJdDataList(startDate, endDate);
+                $('.seeTmallDetail').attr('data-time', vals[0] + '-' + vals[1])
+                $('.nowYear').html(vals[0]);
+                $('.nowMonth').html(vals[1]);
+            },
+            cancelHandler: function (ctx) {
+                console.log("取消选择:", ctx);
+            }
+        });
+        $('.kdp-mask').click(function () {
+            $('.kinerDatePicker-container').hide();
+        });
+    });
+    $(function () {
+        var startDate = startTime();
+        var endDate = endTime();
+        $('.seeTmallDetail').click(function () {
+            var nt = $(this).attr('data-time');
+            if (isEmpty(nt)) {
+                var date = new Date;
+                var year = date.getFullYear();
+                var month = date.getMonth() + 1;
+                month = (month < 10 ? "0" + month : month);
+                nt = year + '-' + month
+            }
+            location.href = 'detail/tmallDetail.html?nt=' + nt + '&token=' + token;
+        });
+        getJdDataList(startDate, endDate);
+    });
+
+    function getJdDataList(st, et) {
+//        var userId=urlParameter('userId');
+        var codeJson = '{"token":"' + token + '","startTime":"' + st + '-00:00:00","endTime":"' + et + '-23:59:59","version":"' + version + '","appChannel":"' + appChannel + '"}';
+        $.ajax({
+            url: ONLINEURL + 'queryCloudPayTaskDetail.do?data=' + codeJson,
+            type: 'post',
+            dataType: 'JSON',
+            success: function (data) {
+                console.log(data);
+                if (data.code == 0) {
+                    $('.totalUserCnt').html(data.body.totalTaskNum);
+                    $('.totalValidCnt').html(data.body.tasksEffectiveNum);
+                    var html = '';
+                    $('#taobaoBox').html(' ');
+                    for(var i=0;i<data.body.dataList.length;i++){
+                        var u=data.body.dataList[i];
+                        html+='<div class="taobaoDayDataList">\n' +
+                            '        <h3>'+u.date+'</h3>\n' +
+                            '        <div class="taobaoDayDataListBody">\n' +
+                            '            <a style="width: 50%">\n' +
+                            '                <h4>'+u.currTaskNum+'</h4>\n' +
+                            '                <p>提交用户数</p>\n' +
+                            '            </a>\n' +
+                            '            <a style="width: 50%">\n' +
+                            '                <h4>'+u.currTasksEffectiveNum+'</h4>\n' +
+                            '                <p>可结算用户数</p>\n' +
+                            '            </a>\n' +
+                            '        </div>\n' +
+                            '    </div>';
+                        $('#taobaoBox').html(html);
+                    }
+                } else {
+                    $('.totalUserCnt').html('0');
+                    $('.totalValidCnt').html('0');
+                    $('#taobaoBox').html('<div class="noDataImg"><img src="../../images/noDataImg.png"></div>');
+                }
+            }
+        })
+    }
+
+    //当前日期
+    function endTime() {
+        var date = new Date;
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        var day = date.getDate();
+        month = (month < 10 ? "0" + month : month);
+        day = (day < 10 ? "0" + day : day);
+        var nowDate = (year.toString() + '-' + month.toString() + '-' + day.toString());
+        return nowDate
+    }
+
+    //当前日期前一个月
+    function startTime() {
+        var date = new Date;
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        month = (month < 10 ? "0" + month : month);
+        var nowDate = (year.toString() + '-' + month.toString() + '-' + '01');
+        return nowDate
+    }
+
+    function nowTime() {
+        var date = new Date;
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        var day = date.getDate();
+        month = (month < 10 ? "0" + month : month);
+        day = (day < 10 ? "0" + day : day);
+        $('.nowYear').html(year.toString());
+        $('.nowMonth').html(month.toString());
+        var nowDate = (year.toString() + '-' + month.toString() + '-' + day);
+        return nowDate
+    }
+
+    function goBackiOS() {
+        window.callByJs.clickOnAndroid();
+        history.go(-1);
+    }
+</script>
+</html>

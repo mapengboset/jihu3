@@ -1,0 +1,165 @@
+package com.yqbing.servicebing.repository.database.bean;
+
+import java.util.Date;
+
+public class AppWealthRule {
+    private Integer id;
+
+    private String appPack;
+
+    private String isOpen;
+
+    private String rewardIsOpen;
+
+    private Integer jihuRate;
+
+    private Integer channelRate;
+
+    private Integer channelAgentRate;
+
+    private Integer channelStoreRate;
+
+    private Integer agentCityRate;
+
+    private Integer agentCountyRate;
+
+    private Integer storeShopkeeperRate;
+
+    private Integer storeShopassistantRate;
+
+    private Date createTime;
+
+    private Byte status;
+
+    private String storeType;
+
+    private String storeSubType;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getAppPack() {
+        return appPack;
+    }
+
+    public void setAppPack(String appPack) {
+        this.appPack = appPack == null ? null : appPack.trim();
+    }
+
+    public String getIsOpen() {
+        return isOpen;
+    }
+
+    public void setIsOpen(String isOpen) {
+        this.isOpen = isOpen == null ? null : isOpen.trim();
+    }
+
+    public String getRewardIsOpen() {
+        return rewardIsOpen;
+    }
+
+    public void setRewardIsOpen(String rewardIsOpen) {
+        this.rewardIsOpen = rewardIsOpen == null ? null : rewardIsOpen.trim();
+    }
+
+    public Integer getJihuRate() {
+        return jihuRate;
+    }
+
+    public void setJihuRate(Integer jihuRate) {
+        this.jihuRate = jihuRate;
+    }
+
+    public Integer getChannelRate() {
+        return channelRate;
+    }
+
+    public void setChannelRate(Integer channelRate) {
+        this.channelRate = channelRate;
+    }
+
+    public Integer getChannelAgentRate() {
+        return channelAgentRate;
+    }
+
+    public void setChannelAgentRate(Integer channelAgentRate) {
+        this.channelAgentRate = channelAgentRate;
+    }
+
+    public Integer getChannelStoreRate() {
+        return channelStoreRate;
+    }
+
+    public void setChannelStoreRate(Integer channelStoreRate) {
+        this.channelStoreRate = channelStoreRate;
+    }
+
+    public Integer getAgentCityRate() {
+        return agentCityRate;
+    }
+
+    public void setAgentCityRate(Integer agentCityRate) {
+        this.agentCityRate = agentCityRate;
+    }
+
+    public Integer getAgentCountyRate() {
+        return agentCountyRate;
+    }
+
+    public void setAgentCountyRate(Integer agentCountyRate) {
+        this.agentCountyRate = agentCountyRate;
+    }
+
+    public Integer getStoreShopkeeperRate() {
+        return storeShopkeeperRate;
+    }
+
+    public void setStoreShopkeeperRate(Integer storeShopkeeperRate) {
+        this.storeShopkeeperRate = storeShopkeeperRate;
+    }
+
+    public Integer getStoreShopassistantRate() {
+        return storeShopassistantRate;
+    }
+
+    public void setStoreShopassistantRate(Integer storeShopassistantRate) {
+        this.storeShopassistantRate = storeShopassistantRate;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Byte getStatus() {
+        return status;
+    }
+
+    public void setStatus(Byte status) {
+        this.status = status;
+    }
+
+    public String getStoreType() {
+        return storeType;
+    }
+
+    public void setStoreType(String storeType) {
+        this.storeType = storeType == null ? null : storeType.trim();
+    }
+
+    public String getStoreSubType() {
+        return storeSubType;
+    }
+
+    public void setStoreSubType(String storeSubType) {
+        this.storeSubType = storeSubType == null ? null : storeSubType.trim();
+    }
+}

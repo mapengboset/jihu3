@@ -1,0 +1,245 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.AppBanner;
+import com.yqbing.servicebing.repository.database.bean.AppRecommend;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+import com.yqbing.servicebing.repository.database.bean.SysDict;
+import com.yqbing.servicebing.repository.database.bean.UserAppTask;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.dao.AppBannerExample;
+import com.yqbing.servicebing.repository.database.dao.AppBannerExample.Criteria;
+import com.yqbing.servicebing.repository.database.dao.AppBannerMapper;
+import com.yqbing.servicebing.repository.database.dao.AppRecommendMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseMapper;
+import com.yqbing.servicebing.repository.database.dao.SysDictExample;
+import com.yqbing.servicebing.repository.database.dao.SysDictMapper;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskMapper;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.redis.RStoreHouseData;
+import com.yqbing.servicebing.repository.redis.RUserAppTaskData;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.service.HomePageService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.webapp.response.HomeAppRes;
+import com.yqbing.servicebing.webapp.response.StoreAppRes;
+import com.yqbing.servicebing.webapp.response.StoreTypeRes;
+import com.yqbing.servicebing.webapp.response.homePageRes;
+
+
+@Service("homePageService")
+@SuppressWarnings("all")
+public class HomePageServiceImpl implements HomePageService{
+	
+    @Resource
+	private AppBannerMapper appBannerMapper= null;
+    @Resource
+    private SysDictMapper sysDictMapper= null;
+     @Resource
+	 private StoreHouseMapper storeHouseMapper= null;
+    
+     @Resource
+	 private AppRecommendMapper appRecommendMapper= null;
+     
+     @Resource
+	 private RStoreHouseData rStoreHouseData = null;
+     @Resource
+	 private RUserAppTaskData rUserAppTaskData = null;
+     @Resource
+	 private UserAppTaskMapper userAppTaskMapper = null;
+     @Resource
+	 private UserInfoBeanMapper userInfoBeanMapper = null;
+     @Resource
+	 private RUserLogBean rUserLogBean = null;
+	private static final Logger LOGGER = LoggerFactory.getLogger(HomePageServiceImpl.class);
+	@Override
+	public String homePage(String token,String type) {
+		// TODO Auto-generated method stub
+		//或者首页大图
+		Byte s = 0;
+		String typeapp = "home_tag";
+		
+		UserInfoBean infoBean = rUserLogBean.getRaw(token);
+		
+		if(infoBean == null){
+			
+			infoBean = userInfoBeanMapper.queryToken(token);
+		}
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		List<HomeAppRes> apps = null;//热门应用
+		
+		homePageRes res = new homePageRes();
+		if(StringUtils.isNotBlank(type)){
+			if(Integer.valueOf(type) == 2){
+				typeapp = "game_type";
+			}
+		}
+		AppBannerExample example = new AppBannerExample();
+		Criteria criteria = example.createCriteria();
+		criteria.andAppCategoryIdEqualTo("home_banner").andStatusEqualTo(s);
+		List<AppBanner> pic = appBannerMapper.selectByExample(example);
+		res.setPic(pic);//图片
+		
+		SysDictExample example2 = new SysDictExample();
+		example2.createCriteria().andParentKeyEqualTo(typeapp);
+		List<SysDict> list = sysDictMapper.selectByExample(example2);
+		for (SysDict sysDict : list) {
+			String fldkey = sysDict.getFldkey();
+			List<AppRecommend> ares =  appRecommendMapper.queryTagId(fldkey);
+			for (AppRecommend a : ares) {
+				HomeAppRes appRes = new HomeAppRes();
+				StoreHouse sh = rStoreHouseData.getAppPack(a.getAppId());
+				if(sh ==  null){
+					 sh = storeHouseMapper.getByAppPack(a.getAppId());
+				}else{
+					return NotifyUtil.error(ErrorCodeEnum.NULLOBJECT, "app信息不存在");
+				}
+				//在我的下载列表 存在不在展示
+				UserAppTask userAppTask = rUserAppTaskData.getUserAppTask(infoBean.getId()+"", a.getAppId());
+				if(userAppTask != null){
+					continue;
+				}
+				
+				
+				appRes.setSort(a.getSort());
+				appRes.setAppName(sh.getAppName());
+				appRes.setAppPake(sh.getAppPack());
+				appRes.setImg(sh.getAppUrlImg());
+				appRes.setUrl(sh.getAppUrl());
+				appRes.setId(sh.getId());
+				appRes.setTAGID(a.getTagId());
+				apps.add(appRes);
+			}
+			res.setApps(apps);
+		}
+		
+		Map<String,Object> map = new HashMap<String,Object>();
+		map.put("token",token);
+		 
+		return NotifyUtil.success(map);
+	}
+	
+	@Override
+	public String moreApp(String token, String page, String size, String type) {
+		// TODO Auto-generated method stub
+		Integer type1 = 1;
+		Integer startIndex = 0;
+		Integer pageSize = 15;
+		Map<String,Object> map = new HashMap<String,Object>();
+		List<StoreTypeRes> sts = new ArrayList<StoreTypeRes>();
+		try {
+			
+			if(StringUtils.isNotBlank(type)){
+				type1 = Integer.valueOf(type);
+			}
+			if(StringUtils.isNotBlank(page)){
+				
+				startIndex =  Integer.valueOf(page);
+			}
+			if(StringUtils.isNotBlank(size)){
+				pageSize =  Integer.valueOf(size);
+			}
+			SysDictExample example = new SysDictExample();
+			example.createCriteria().andParentKeyEqualTo("app_type");
+			List<SysDict> list = sysDictMapper.selectByExample(example);
+			for (SysDict s : list) {
+				StoreTypeRes res = new StoreTypeRes();
+				res.setName(s.getName());
+				res.setSeq(s.getSeq());
+				res.setImg(s.getExtraValue());
+				res.setValue(s.getBaseValue());
+				List<StoreAppRes> sas = new ArrayList<StoreAppRes>();
+			List<StoreHouse> stores =	storeHouseMapper.queryByType(startIndex,pageSize,Integer.valueOf(s.getBaseValue()));
+			for (StoreHouse storeHouse : stores) {
+				StoreAppRes storeAppRes = new StoreAppRes();
+				storeAppRes.setAppName(storeHouse.getAppName());
+				storeAppRes.setAppPake(storeHouse.getAppPack());
+				storeAppRes.setId(storeHouse.getId());
+				storeAppRes.setImg(storeHouse.getAppUrlImg());
+			//	storeAppRes.setStatus(); //已经下载的任务查询是否已经下载
+				storeAppRes.setUrl(storeHouse.getAppUrl());
+				sas.add(storeAppRes);
+			}
+			
+				res.setStores(sas);
+				sts.add(res);
+			}
+			map.put("body",sts);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "获取失败请重新尝试");
+		}
+		
+	//	sysDictMapper.queryType(startIndex,pageSize,type1);
+		
+		return NotifyUtil.success(map);
+	}
+
+	@Override
+	public String moreTypeApp(String token, String page, String size,
+			String type) {
+		Integer type1 = 1;
+		Integer startIndex = 0;
+		Integer pageSize = 15;
+		Map<String,Object> map = new HashMap<String,Object>();
+		try {
+			
+			if(StringUtils.isNotBlank(type)){
+				type1 = Integer.valueOf(type);
+			}
+			if(StringUtils.isNotBlank(page)){
+				
+				startIndex =  Integer.valueOf(page);
+			}
+			if(StringUtils.isNotBlank(size)){
+				pageSize =  Integer.valueOf(size);
+			}
+		
+				List<StoreAppRes> sas = new ArrayList<StoreAppRes>();
+			List<StoreHouse> stores =	storeHouseMapper.queryByType(startIndex,pageSize,Integer.valueOf(type1));
+			for (StoreHouse storeHouse : stores) {
+				StoreAppRes storeAppRes = new StoreAppRes();
+				storeAppRes.setAppName(storeHouse.getAppName());
+				storeAppRes.setAppPake(storeHouse.getAppPack());
+				storeAppRes.setId(storeHouse.getId());
+				storeAppRes.setImg(storeHouse.getAppUrlImg());
+			//	storeAppRes.setStatus(); //已经下载的任务查询是否已经下载
+				storeAppRes.setUrl(storeHouse.getAppUrl());
+				sas.add(storeAppRes);
+			}
+		
+			map.put("body",sas);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "获取失败请重新尝试");
+		}
+		
+	//	sysDictMapper.queryType(startIndex,pageSize,type1);
+		
+		return NotifyUtil.success(map);
+		
+		
+			
+	}
+   
+	
+	
+}

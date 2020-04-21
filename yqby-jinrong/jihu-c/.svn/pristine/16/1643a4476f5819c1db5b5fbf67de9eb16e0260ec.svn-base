@@ -1,0 +1,30 @@
+package com.yqbing.servicebing.repository.database.dao;
+
+import com.yqbing.servicebing.repository.database.abstracts.StoreHouseAbs;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+@Repository
+public interface StoreHouseMapper {
+    int countByExample(StoreHouseExample example);
+
+    int deleteByPrimaryKey(Integer id);
+
+    int insert(StoreHouse record);
+
+    int insertSelective(StoreHouse record);
+
+    List<StoreHouse> selectByExample(StoreHouseExample example);
+
+    StoreHouseAbs selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(StoreHouse record);
+
+    int updateByPrimaryKey(StoreHouse record);
+
+	StoreHouse getByAppName(String appName);
+
+//	List<StoreHouse> searchAppName(String appName);
+}

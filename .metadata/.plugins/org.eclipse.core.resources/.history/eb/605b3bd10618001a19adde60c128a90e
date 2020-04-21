@@ -1,0 +1,787 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.WealthLogMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.WealthLog" >
+    <id column="log_id" property="logId" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="login_plat" property="loginPlat" jdbcType="SMALLINT" />
+    <result column="admin_id" property="adminId" jdbcType="INTEGER" />
+    <result column="wealth_before" property="wealthBefore" jdbcType="INTEGER" />
+    <result column="wealth_after" property="wealthAfter" jdbcType="INTEGER" />
+    <result column="wealth_count" property="wealthCount" jdbcType="INTEGER" />
+    <result column="money" property="money" jdbcType="INTEGER" />
+    <result column="zhimoney" property="zhimoney" jdbcType="INTEGER" />
+    <result column="taomoney" property="taomoney" jdbcType="INTEGER" />
+    <result column="ETCmoney" property="ETCmoney" jdbcType="INTEGER" />
+    <result column="log_type" property="logType" jdbcType="SMALLINT" />
+    <result column="order_id" property="orderId" jdbcType="VARCHAR" />
+    <result column="type_id" property="typeId" jdbcType="SMALLINT" />
+    <result column="type_desc" property="typeDesc" jdbcType="VARCHAR" />
+    <result column="detail_id" property="detailId" jdbcType="INTEGER" />
+    <result column="wealth_type" property="wealthType" jdbcType="SMALLINT" />
+    <result column="wealth_state" property="wealthState" jdbcType="SMALLINT" />
+    <result column="exchange_type" property="exchangeType" jdbcType="SMALLINT" />
+    <result column="alipay" property="alipay" jdbcType="VARCHAR" />
+    <result column="wechat" property="wechat" jdbcType="VARCHAR" />
+    <result column="bank_id" property="bankId" jdbcType="SMALLINT" />
+    <result column="card_no" property="cardNo" jdbcType="VARCHAR" />
+    <result column="bank_name" property="bankName" jdbcType="VARCHAR" />
+    <result column="commit_time" property="commitTime" jdbcType="TIMESTAMP" />
+    <result column="exchange_time" property="exchangeTime" jdbcType="TIMESTAMP" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="rec_time" property="recTime" jdbcType="TIMESTAMP" />
+    <result column="type" property="type" jdbcType="SMALLINT" />
+    <result column="version" property="version" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    log_id, user_id, user_name,login_plat, admin_id, wealth_before, wealth_after, wealth_count,log_type, order_id, type_id, type_desc, detail_id, wealth_type, wealth_state, exchange_type, 
+    alipay, wechat, bank_id, card_no, bank_name, commit_time, exchange_time, create_time, 
+    rec_time, type, version
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.dao.WealthLogExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from wealth_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="queryByWealth" resultType="java.lang.Integer" >
+   
+   select  
+   
+   SUM(w.wealth_count) as money  
+   
+   from
+     
+   wealth_log w 
+   
+   where 
+   
+   w.user_id = #{userId,jdbcType=BIGINT}
+   
+   and
+   
+   w.log_type = 2  
+   
+   and 
+   
+   w.type_id = #{type,jdbcType=INTEGER}
+
+  </select>
+  
+  <select id="queryByWealthDate" resultType="java.lang.Integer" >
+   
+   select  
+   
+   SUM(w.wealth_count) as money  
+   
+   from
+     
+   wealth_log w 
+   
+   where 
+   
+   w.user_id = #{userId,jdbcType=BIGINT}
+   
+   and
+   
+   w.log_type = 2  
+   
+   and 
+   
+   w.type_id = #{type,jdbcType=INTEGER}
+   
+   and 
+   
+   w.create_time BETWEEN DATE_FORMAT(NOW(),'%Y-%m-%d 00:00:00')  AND DATE_FORMAT(NOW(),'%Y-%m-%d 14:59:59')
+
+  </select>
+  
+  <select id="queryByWealthDateWeek" resultType="java.lang.Integer" >
+   
+   select  
+   
+   SUM(w.wealth_count) as money  
+   
+   from
+     
+   wealth_log w 
+   
+   where 
+   
+   w.user_id = #{userId,jdbcType=BIGINT}
+   
+   and
+   
+   w.log_type = 2  
+   
+   and 
+   
+   w.type_id = #{type,jdbcType=INTEGER}
+   
+   and 
+   
+   YEARWEEK(date_format(w.exchange_time,'%Y-%m-%d'),1) = YEARWEEK(now(),1)
+  </select>
+  
+  <select id="queryByWealthDateMoth" resultType="java.lang.Integer" >
+   
+   select  
+   
+   SUM(w.wealth_count) as money  
+   
+   from
+     
+   wealth_log w 
+   
+   where 
+   
+   w.user_id = #{userId,jdbcType=BIGINT}
+   
+   and
+   
+   w.log_type = 2  
+   
+   and 
+   
+   w.type_id = #{type,jdbcType=INTEGER}
+   
+   and 
+   
+   DATE_FORMAT(w.exchange_time, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' )
+
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from wealth_log
+    where log_id = #{logId,jdbcType=INTEGER}
+  </select>
+  <select id="queryDateStime" resultMap="BaseResultMap">
+     
+     SELECT
+     
+	 SUM(w.wealth_count) AS money,
+	 w.log_id,
+	 w.exchange_time as exchangeTime,
+	 w.create_time
+     FROM
+     
+	 wealth_log w
+	 
+     WHERE
+     
+     w.user_id = #{userId,jdbcType=BIGINT}
+     
+     AND
+	 
+	 w.log_type = 2
+	 
+     AND w.type_id = #{type,jdbcType=INTEGER}
+    <choose>
+	<when test="stime != null">
+		AND w.exchange_time &gt;= #{stime}
+	</when>
+	
+    </choose>
+     <choose>
+	<when test="etime != null">
+		AND w.exchange_time &lt;= #{etime}
+	</when>
+	
+    </choose>
+    
+     GROUP BY
+	 
+	 w.exchange_time
+	 order by  w.exchange_time desc
+    <choose>
+	<when test="page != null">
+		limit #{page}
+	</when>
+	<otherwise>
+		limit 0
+	</otherwise>
+    </choose>
+     <choose>
+	<when test="size != null">
+		, #{size}
+	</when>
+	<otherwise>
+		, 1000
+	</otherwise>
+    </choose>
+    
+     
+  </select>
+  
+  <select id="queryUserSum" resultType="java.lang.Integer">
+     
+     SELECT
+     
+	 SUM(w.wealth_count) AS money
+	 
+     FROM
+     
+	 wealth_log w
+	 
+     WHERE
+     
+     w.user_id = #{userId,jdbcType=BIGINT}
+     
+     AND
+	 
+	 w.log_type = 1
+	 
+     AND w.wealth_state = 1
+     
+     AND w.exchange_type = 1
+     <choose>
+	<when test="stime != null">
+	
+		AND w.rec_time &gt;= #{stime}
+	</when>
+	
+	
+    </choose>
+     <choose>
+	<when test="etime != null">
+	
+		AND w.rec_time &lt;= #{etime}
+	</when>
+	
+	
+    </choose>
+    
+  </select>
+  <select id="queryStoreDaySum" resultType="java.lang.Integer">
+     
+   SELECT
+   
+	SUM(w.wealth_count) AS money
+	
+   FROM
+   
+	wealth_log AS w
+	
+   WHERE
+   
+	user_id IN (
+	
+		SELECT
+		
+			user_id
+			
+		FROM
+		
+			store_user
+		WHERE
+		
+			store_id = #{storeId,jdbcType=BIGINT}
+	)
+	
+   AND w.log_type = 1
+   
+   AND w.wealth_state = 1
+   
+   AND w.exchange_type = 1
+     <choose>
+	<when test="stime != null">
+	
+		AND w.rec_time &gt;= #{stime}
+	</when>
+	
+	
+    </choose>
+     <choose>
+	<when test="etime != null">
+	
+		AND w.rec_time &lt;= #{etime}
+	</when>
+	
+	
+    </choose>
+    
+  </select>
+  
+  <select id="queryStoreSum" resultType="java.lang.Integer">
+     
+   SELECT
+   
+	SUM(w.wealth_count) AS money
+	
+   FROM
+   
+	wealth_log AS w
+	
+   WHERE
+   
+	user_id IN (
+	
+		SELECT
+		
+			user_id
+			
+		FROM
+		
+			store_user
+		WHERE
+		
+			store_id = #{storeId,jdbcType=BIGINT}
+	)
+	
+   AND w.log_type = 1
+   
+   AND w.wealth_state = 1
+   
+   AND w.exchange_type = 1
+
+  </select>
+  
+  
+  
+  <select id="queryDateWeksStime" resultMap="BaseResultMap">
+     
+     SELECT
+     
+	  SUM(w.wealth_count) AS money,
+	  w.rec_time,
+	  w.log_id,
+	  w.exchange_time as exchangeTime,
+	  (SELECT
+	   SUM(we.wealth_count) AS money
+       FROM
+	   wealth_log we
+       WHERE
+	   we.log_type = 2
+       AND we.type_id = 1
+       AND we.user_id=#{userId,jdbcType=BIGINT}
+       AND we.exchange_time = w.exchange_time) AS zhimoney,
+	 
+	   (SELECT
+	   SUM(wa.wealth_count) AS money
+       FROM
+	   wealth_log wa
+       WHERE
+	   wa.log_type = 2
+       AND wa.type_id = 2
+       AND wa.user_id=#{userId,jdbcType=BIGINT}
+       AND wa.exchange_time = w.exchange_time) AS taomoney,
+	   
+	   (SELECT
+	   SUM(wl.wealth_count) AS money
+       FROM
+	   wealth_log wl
+       WHERE
+	   wl.log_type = 2
+       AND wl.type_id = 3
+       AND wl.user_id=#{userId,jdbcType=BIGINT}
+       AND wl.exchange_time = w.exchange_time) AS ETCmoney
+     FROM
+     
+	 wealth_log w
+	 
+     WHERE
+     
+     w.user_id = #{userId,jdbcType=BIGINT}
+     
+     AND
+	 
+	 w.log_type = 2
+	 
+     AND w.type_id in (1,2,3)
+     
+     
+    <choose>
+	<when test="stime != null">
+		AND w.exchange_time &gt;= #{stime}
+	</when>
+	
+    </choose>
+     <choose>
+	<when test="etime != null">
+		AND w.exchange_time &lt;= #{etime}
+	</when>
+	
+    </choose>
+    
+    group by w.exchange_time ORDER BY w.exchange_time desc 
+   
+    <choose>
+	<when test="page != null">
+		limit #{page}
+	</when>
+	<otherwise>
+		limit 0
+	</otherwise>
+    </choose>
+     <choose>
+	<when test="size != null">
+		, #{size}
+	</when>
+	<otherwise>
+		, 1000
+	</otherwise>
+    </choose>
+  </select>
+  <select id="selectByOrder" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from wealth_log
+    where order_id = #{orderId,jdbcType=VARCHAR} and wealth_state = 1
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from wealth_log
+    where log_id = #{logId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.WealthLog" >
+    insert into wealth_log (log_id, user_id, user_name, 
+      login_plat, admin_id, wealth_before, 
+      wealth_after, wealth_count, log_type, 
+      order_id, type_id, type_desc, 
+      detail_id, wealth_type, wealth_state, 
+      exchange_type, alipay, wechat, 
+      bank_id, card_no, bank_name, 
+      commit_time, exchange_time, create_time, 
+      rec_time, type, version
+      )
+    values (#{logId,jdbcType=INTEGER}, #{userId,jdbcType=BIGINT}, #{userName,jdbcType=VARCHAR}, 
+      #{loginPlat,jdbcType=SMALLINT}, #{adminId,jdbcType=INTEGER}, #{wealthBefore,jdbcType=INTEGER}, 
+      #{wealthAfter,jdbcType=INTEGER}, #{wealthCount,jdbcType=INTEGER}, #{logType,jdbcType=SMALLINT}, 
+      #{orderId,jdbcType=VARCHAR}, #{typeId,jdbcType=SMALLINT}, #{typeDesc,jdbcType=VARCHAR}, 
+      #{detailId,jdbcType=INTEGER}, #{wealthType,jdbcType=SMALLINT}, #{wealthState,jdbcType=SMALLINT}, 
+      #{exchangeType,jdbcType=SMALLINT}, #{alipay,jdbcType=VARCHAR}, #{wechat,jdbcType=VARCHAR}, 
+      #{bankId,jdbcType=SMALLINT}, #{cardNo,jdbcType=VARCHAR}, #{bankName,jdbcType=VARCHAR}, 
+      #{commitTime,jdbcType=TIMESTAMP}, #{exchangeTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{recTime,jdbcType=TIMESTAMP}, #{type,jdbcType=SMALLINT}, #{version,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.WealthLog" >
+    insert into wealth_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="logId != null" >
+        log_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="userName != null" >
+        user_name,
+      </if>
+      <if test="loginPlat != null" >
+        login_plat,
+      </if>
+      <if test="adminId != null" >
+        admin_id,
+      </if>
+      <if test="wealthBefore != null" >
+        wealth_before,
+      </if>
+      <if test="wealthAfter != null" >
+        wealth_after,
+      </if>
+      <if test="wealthCount != null" >
+        wealth_count,
+      </if>
+      <if test="logType != null" >
+        log_type,
+      </if>
+      <if test="orderId != null" >
+        order_id,
+      </if>
+      <if test="typeId != null" >
+        type_id,
+      </if>
+      <if test="typeDesc != null" >
+        type_desc,
+      </if>
+      <if test="detailId != null" >
+        detail_id,
+      </if>
+      <if test="wealthType != null" >
+        wealth_type,
+      </if>
+      <if test="wealthState != null" >
+        wealth_state,
+      </if>
+      <if test="exchangeType != null" >
+        exchange_type,
+      </if>
+      <if test="alipay != null" >
+        alipay,
+      </if>
+      <if test="wechat != null" >
+        wechat,
+      </if>
+      <if test="bankId != null" >
+        bank_id,
+      </if>
+      <if test="cardNo != null" >
+        card_no,
+      </if>
+      <if test="bankName != null" >
+        bank_name,
+      </if>
+      <if test="commitTime != null" >
+        commit_time,
+      </if>
+      <if test="exchangeTime != null" >
+        exchange_time,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="recTime != null" >
+        rec_time,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="version != null" >
+        version,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="logId != null" >
+        #{logId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="loginPlat != null" >
+        #{loginPlat,jdbcType=SMALLINT},
+      </if>
+      <if test="adminId != null" >
+        #{adminId,jdbcType=INTEGER},
+      </if>
+      <if test="wealthBefore != null" >
+        #{wealthBefore,jdbcType=INTEGER},
+      </if>
+      <if test="wealthAfter != null" >
+        #{wealthAfter,jdbcType=INTEGER},
+      </if>
+      <if test="wealthCount != null" >
+        #{wealthCount,jdbcType=INTEGER},
+      </if>
+      <if test="logType != null" >
+        #{logType,jdbcType=SMALLINT},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="typeId != null" >
+        #{typeId,jdbcType=SMALLINT},
+      </if>
+      <if test="typeDesc != null" >
+        #{typeDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="detailId != null" >
+        #{detailId,jdbcType=INTEGER},
+      </if>
+      <if test="wealthType != null" >
+        #{wealthType,jdbcType=SMALLINT},
+      </if>
+      <if test="wealthState != null" >
+        #{wealthState,jdbcType=SMALLINT},
+      </if>
+      <if test="exchangeType != null" >
+        #{exchangeType,jdbcType=SMALLINT},
+      </if>
+      <if test="alipay != null" >
+        #{alipay,jdbcType=VARCHAR},
+      </if>
+      <if test="wechat != null" >
+        #{wechat,jdbcType=VARCHAR},
+      </if>
+      <if test="bankId != null" >
+        #{bankId,jdbcType=SMALLINT},
+      </if>
+      <if test="cardNo != null" >
+        #{cardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="bankName != null" >
+        #{bankName,jdbcType=VARCHAR},
+      </if>
+      <if test="commitTime != null" >
+        #{commitTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="exchangeTime != null" >
+        #{exchangeTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="recTime != null" >
+        #{recTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=SMALLINT},
+      </if>
+      <if test="version != null" >
+        #{version,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.dao.WealthLogExample" resultType="java.lang.Integer" >
+    select count(*) from wealth_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.WealthLog" >
+    update wealth_log
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="userName != null" >
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="loginPlat != null" >
+        login_plat = #{loginPlat,jdbcType=SMALLINT},
+      </if>
+      <if test="adminId != null" >
+        admin_id = #{adminId,jdbcType=INTEGER},
+      </if>
+      <if test="wealthBefore != null" >
+        wealth_before = #{wealthBefore,jdbcType=INTEGER},
+      </if>
+      <if test="wealthAfter != null" >
+        wealth_after = #{wealthAfter,jdbcType=INTEGER},
+      </if>
+      <if test="wealthCount != null" >
+        wealth_count = #{wealthCount,jdbcType=INTEGER},
+      </if>
+      <if test="logType != null" >
+        log_type = #{logType,jdbcType=SMALLINT},
+      </if>
+      <if test="orderId != null" >
+        order_id = #{orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="typeId != null" >
+        type_id = #{typeId,jdbcType=SMALLINT},
+      </if>
+      <if test="typeDesc != null" >
+        type_desc = #{typeDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="detailId != null" >
+        detail_id = #{detailId,jdbcType=INTEGER},
+      </if>
+      <if test="wealthType != null" >
+        wealth_type = #{wealthType,jdbcType=SMALLINT},
+      </if>
+      <if test="wealthState != null" >
+        wealth_state = #{wealthState,jdbcType=SMALLINT},
+      </if>
+      <if test="exchangeType != null" >
+        exchange_type = #{exchangeType,jdbcType=SMALLINT},
+      </if>
+      <if test="alipay != null" >
+        alipay = #{alipay,jdbcType=VARCHAR},
+      </if>
+      <if test="wechat != null" >
+        wechat = #{wechat,jdbcType=VARCHAR},
+      </if>
+      <if test="bankId != null" >
+        bank_id = #{bankId,jdbcType=SMALLINT},
+      </if>
+      <if test="cardNo != null" >
+        card_no = #{cardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="bankName != null" >
+        bank_name = #{bankName,jdbcType=VARCHAR},
+      </if>
+      <if test="commitTime != null" >
+        commit_time = #{commitTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="exchangeTime != null" >
+        exchange_time = #{exchangeTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="recTime != null" >
+        rec_time = #{recTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=SMALLINT},
+      </if>
+      <if test="version != null" >
+        version = #{version,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where log_id = #{logId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.WealthLog" >
+    update wealth_log
+    set user_id = #{userId,jdbcType=BIGINT},
+      user_name = #{userName,jdbcType=VARCHAR},
+      login_plat = #{loginPlat,jdbcType=SMALLINT},
+      admin_id = #{adminId,jdbcType=INTEGER},
+      wealth_before = #{wealthBefore,jdbcType=INTEGER},
+      wealth_after = #{wealthAfter,jdbcType=INTEGER},
+      wealth_count = #{wealthCount,jdbcType=INTEGER},
+      log_type = #{logType,jdbcType=SMALLINT},
+      order_id = #{orderId,jdbcType=VARCHAR},
+      type_id = #{typeId,jdbcType=SMALLINT},
+      type_desc = #{typeDesc,jdbcType=VARCHAR},
+      detail_id = #{detailId,jdbcType=INTEGER},
+      wealth_type = #{wealthType,jdbcType=SMALLINT},
+      wealth_state = #{wealthState,jdbcType=SMALLINT},
+      exchange_type = #{exchangeType,jdbcType=SMALLINT},
+      alipay = #{alipay,jdbcType=VARCHAR},
+      wechat = #{wechat,jdbcType=VARCHAR},
+      bank_id = #{bankId,jdbcType=SMALLINT},
+      card_no = #{cardNo,jdbcType=VARCHAR},
+      bank_name = #{bankName,jdbcType=VARCHAR},
+      commit_time = #{commitTime,jdbcType=TIMESTAMP},
+      exchange_time = #{exchangeTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      rec_time = #{recTime,jdbcType=TIMESTAMP},
+      type = #{type,jdbcType=SMALLINT},
+      version = #{version,jdbcType=VARCHAR}
+    where log_id = #{logId,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,62 @@
+package com.hiko.gym.common.repository.database.base;
+
+import java.util.*;
+
+import org.apache.ibatis.annotations.*;
+import org.springframework.stereotype.*;
+
+/**
+ * 推送消息DAO接口
+ * 
+ * @author cychen
+ *
+ */
+@Repository("dPushMessageDAO")
+public interface DPushMessageDAO {
+
+	/**
+	 * 获取推送消息信息
+	 * 
+	 * @param id 消息标识
+	 * @return 推送消息信息
+	 */
+	public DPushMessage get(@Param("id") Long id);
+
+	/**
+	 * 统计推送消息数量
+	 * 
+	 * @param query 推送消息统计信息
+	 * @return 推送消息数量
+	 */
+	public Integer count(@Param("query") DPushMessageQuery query);
+
+	/**
+	 * 查询推送消息信息
+	 * 
+	 * @param query 推送消息查询信息
+	 * @param orderBy 排序方式
+	 * @param startIndex 开始序号
+	 * @param pageSize 页面大小
+	 * @return 推送消息信息列表
+	 */
+	public List<DPushMessage> query(@Param("query") DPushMessageQuery query, @Param("orderBy") String orderBy,
+			@Param("startIndex") Integer startIndex, @Param("pageSize") Integer pageSize);
+
+	/**
+	 * 创建推送消息信息
+	 * 
+	 * @param id 消息标识
+	 * @param create 推送消息创建信息
+	 * @return 创建行数
+	 */
+	public Integer create(@Param("id") Long id, @Param("create") DPushMessageCreate create);
+
+	/**
+	 * 修改推送消息信息
+	 * 
+	 * @param modify 推送消息修改信息
+	 * @return 修改行数
+	 */
+	public Integer modify(@Param("modify") DPushMessageModify modify);
+
+}

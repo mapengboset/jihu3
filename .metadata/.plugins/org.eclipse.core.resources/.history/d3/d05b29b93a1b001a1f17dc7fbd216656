@@ -1,0 +1,42 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 教练类型类
+ * 
+ * @author cychen
+ *
+ */
+public class CoachType {
+
+	/** 全部 */
+	public static final short ALL = 0;
+	/** 私教 */
+	public static final short TEACHER = 1;
+	/** 顾问 */
+	public static final short ADVISOR = 2;
+	/** 教练 */
+	public static final short COACH = 3;
+
+	/**
+	 * 获取教练类型描述
+	 * 
+	 * @param coachType 教练类型值
+	 * @return 教练类型描述
+	 */
+	public static String getDescription(short coachType) {
+		if (coachType == ALL) {
+			return "全部";
+		}
+		if (coachType == TEACHER) {
+			return "私教";
+		}
+		if (coachType == ADVISOR) {
+			return "顾问";
+		}
+		if (coachType == COACH) {
+			return "教练";
+		}
+		return "";
+	}
+
+}

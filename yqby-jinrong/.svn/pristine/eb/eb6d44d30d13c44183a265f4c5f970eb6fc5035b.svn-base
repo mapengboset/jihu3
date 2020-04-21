@@ -1,0 +1,221 @@
+package com.yqbing.servicebing.repository.redis;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Repository;
+
+import com.yqbing.servicebing.repository.database.bean.WeBankBean;
+import com.yqbing.servicebing.utils.DateUtil;
+
+
+@Repository("rWeBankBean")
+public class RWeBankBeanLogImpl implements RWeBankBeanLog{
+
+	
+	/** Redis模板 */
+	@Resource(name = "redisTemplate")
+	private RedisTemplate<String, String> redisTemplate = null;
+
+	/** 键值格式 */
+	private static final MessageFormat KEY_FORMAT = new MessageFormat("Hash:WeBankBean:{0}");
+	
+	private static String key = "jinrong_webank_";
+	
+	//存取最新的提交记录(userid)
+	public  void set(RWeBankBean rWeBankBean){
+		Long userid = rWeBankBean.getUserid();
+		Map<String, Object> map = new HashMap<String, Object>();
+		 key += KEY_FORMAT.format(new Long[] { userid });
+		       
+		       
+		 
+		        if(rWeBankBean.getPhone() != null){
+		        	map.put(rWeBankBean.PHONE, rWeBankBean.getPhone().toString());
+		        }
+				
+		        if(rWeBankBean.getBeInvited() != null){
+		        	map.put(rWeBankBean.BEINVITED, rWeBankBean.getBeInvited().toString());
+		        }
+		        if(rWeBankBean.getInvitedName() != null){
+		        	map.put(rWeBankBean.INVITEDNAME, rWeBankBean.getInvitedName().toString());
+		        }
+		        if(rWeBankBean.getStoreId() != null){
+		        	map.put(rWeBankBean.STOREID, rWeBankBean.getStoreId().toString());
+		        }
+		        if(rWeBankBean.getStoreCode() != null){
+		        	map.put(rWeBankBean.STORECODE, rWeBankBean.getStoreCode().toString());
+		        }
+		        if(rWeBankBean.getStoreName() != null){
+		        	map.put(rWeBankBean.STORENAME, rWeBankBean.getStoreName().toString());
+		        }
+		        if(rWeBankBean.getStoreUsername() != null){
+		        	map.put(rWeBankBean.STOREUSERNAME, rWeBankBean.getStoreUsername().toString());
+		        }
+		        if(rWeBankBean.getMoney() != null){
+		        	map.put(rWeBankBean.MONEY, rWeBankBean.getMoney().toString());
+		        }
+		        if(rWeBankBean.getBeInvitedTime() != null){
+		        	map.put(rWeBankBean.BEINVITEDTIME, rWeBankBean.getBeInvitedTime().toString());
+		        }
+		        if(rWeBankBean.getWealth() != null){
+		        	map.put(rWeBankBean.WEALTH, rWeBankBean.getWealth().toString());
+		        }
+		        if(rWeBankBean.getIsSuccessful() != null){
+		        	map.put(rWeBankBean.ISSUCCESSFUL, rWeBankBean.getIsSuccessful().toString());
+		        }
+		        if(rWeBankBean.getCreateTime() != null){
+		        	map.put(rWeBankBean.CREATETIME, rWeBankBean.getCreateTime().toString());
+		        }
+		        if(rWeBankBean.getUpdateTime() != null){
+		        	map.put(rWeBankBean.UPDATETIME, rWeBankBean.getUpdateTime().toString());
+		        }
+		 
+		
+		// 调用接口
+			redisTemplate.opsForHash().putAll(key, map);
+	}
+	
+	//修改最新的提交记录
+	public RWeBankBean get(Long userId) throws Exception{
+		if (!exist(userId)) {
+			return null;
+		}
+		RWeBankBean rWeBankBean = null;
+		List<String> keyList = new ArrayList<String>();
+	     key += KEY_FORMAT.format(new Long[] { userId });
+	     
+	     
+			keyList.add(RWeBankBean.PHONE);
+			keyList.add(RWeBankBean.BEINVITED);
+			keyList.add(RWeBankBean.INVITEDNAME);
+			keyList.add(RWeBankBean.STOREID);
+			keyList.add(RWeBankBean.STORECODE);
+			keyList.add(RWeBankBean.STORENAME);
+			keyList.add(RWeBankBean.STOREUSERNAME);
+			keyList.add(RWeBankBean.MONEY);
+			keyList.add(RWeBankBean.BEINVITEDTIME);
+			keyList.add(RWeBankBean.WEALTH);
+			keyList.add(RWeBankBean.ISSUCCESSFUL);
+			keyList.add(RWeBankBean.CREATETIME);
+			keyList.add(RWeBankBean.UPDATETIME);
+			// 调用接口
+			HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
+			List<String> valueList = hashOperations.multiGet(key, keyList);
+			
+			// 转化数据
+			if (valueList != null && !valueList.isEmpty()) {
+				// 判断有效
+				boolean isValid = false;
+				for (String value : valueList) {
+					if (value != null) {
+						isValid = true;
+						break;
+					}
+				}
+
+				// 有效赋值
+				if (isValid) {
+					rWeBankBean = new RWeBankBean();
+					rWeBankBean.setUserid(userId);
+					if (valueList.size() > 0) {
+						rWeBankBean.setPhone(valueList.get(0));
+					}
+					if (valueList.size() > 1) {
+						rWeBankBean.setBeInvited(valueList.get(1));
+					}
+					if (valueList.size() > 2) {
+						rWeBankBean.setInvitedName(valueList.get(2));
+					}
+					if (valueList.size() > 3) {
+						rWeBankBean.setStoreId(Integer.valueOf(valueList.get(3)));
+					}
+					if (valueList.size() > 4) {
+						rWeBankBean.setStoreCode(valueList.get(4));
+					}
+					if (valueList.size() > 5) {
+						rWeBankBean.setStoreName(valueList.get(5));
+					}
+					if (valueList.size() > 6) {
+						rWeBankBean.setStoreUsername(valueList.get(6));
+					}
+					if (valueList.size() > 7) {
+						rWeBankBean.setMoney(Integer.valueOf(valueList.get(7)));
+					}
+					if (valueList.size() > 8) {
+						rWeBankBean.setBeInvitedTime(DateUtil.parseDateTime(valueList.get(8)));
+					}
+					if (valueList.size() > 9) {
+						rWeBankBean.setWealth(Integer.valueOf(valueList.get(9)));
+					}
+					if (valueList.size() > 10) {
+						rWeBankBean.setIsSuccessful(valueList.get(10));
+					}
+					if (valueList.size() >11) {
+						rWeBankBean.setCreateTime(DateUtil.parseDateTime(valueList.get(11)));
+					}
+					if (valueList.size() > 12) {
+						rWeBankBean.setUpdateTime(DateUtil.parseDateTime(valueList.get(12)));
+					}
+				}
+			}
+
+			
+			
+			return rWeBankBean;
+	}
+	//存取记录
+	
+	public 	void set(Long userId,Long id,RWeBankBean value){
+		// 初始化
+				String key = KEY_FORMAT.format(new Long[] { userId });
+
+				// 调用接口
+				redisTemplate.opsForHash().put(key, id, value);
+	}
+	//获取记录
+	public String get(Long userId, Long name) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { userId });
+
+		// 调用接口
+		HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
+		return hashOperations.get(key, name);
+	}
+	//删除记录
+	public void remove(Long userId){
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { userId });
+
+		// 调用接口
+		redisTemplate.delete(key);
+	}
+	//存在参数值
+    public boolean exist(Long userId){
+    	String key = KEY_FORMAT.format(new Long[] { userId });
+
+		// 调用接口
+		return redisTemplate.hasKey(key);
+    }
+    
+    /*
+     * 
+     * 使用：List<Object> strings = new ArrayList<Object>();
+        strings.add("1");
+        strings.add("2");
+        strings.add("3");
+        template.opsForList().leftPushAll("listcollection4", strings);
+        System.out.println(template.opsForList().range("listcollection4",0,-1));
+               结果:[3, 2, 1]
+     * 
+     * 
+     * 
+     * */
+}

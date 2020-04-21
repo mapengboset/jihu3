@@ -1,0 +1,207 @@
+package com.yqbing.servicebing.service;
+
+
+import java.util.Map;
+
+public interface AccountService {
+    
+	/**
+	 * 
+	
+	 * @Title: bindingInvite
+	
+	 * @Description: 解绑和绑定
+	
+	 * @param token
+	 * @param invite
+	 * @param storeId 
+	 * @param isInt 
+	 * @return
+	
+	 * @return: String
+	 */
+	String bindingInvite(String token, String invite, String storeId,String storeName, Integer isInt);
+    
+	/**
+	 * 
+	
+	 * @Title: quitUser
+	
+	 * @Description: 退出登录
+	
+	 * @param token
+	 * @return
+	
+	 * @return: String
+	 */
+	String quitUser(String token);
+    
+	/**
+	 * 
+	
+	 * @Title: uploadLogImg
+	
+	 * @Description: 上传用户头像
+	
+	 * @param token
+	 * @param imgUrl
+	 * @param address 
+	 * @param brith 
+	 * @param sex 
+	 * @return
+	
+	 * @return: String
+	 */
+	String uploadLogImg(String token, String imgUrl,String userName, Integer sex, String brith, String address);
+    
+	/**
+	 * 
+	
+	 * @Title: localApp
+	
+	 * @Description: 记录本地app
+	
+	 * @param map
+	 * @return
+	
+	 * @return: String
+	 */
+	String localApp(Map<String, Object> map);
+    /**
+     * 
+    
+     * @Title: userDownApp
+    
+     * @Description: 用户下载app
+    
+     * @param map
+     * @return
+    
+     * @return: String
+     */
+	String userDownApp(Map<String, Object> map);
+    
+	/**
+	 * 
+	
+	 * @Title: replaceUserApp
+	
+	 * @Description: TODO
+	
+	 * @param token
+	 * @return
+	
+	 * @return: String
+	 */
+	String replaceUserApp(String token);
+    
+	/**
+	 * 
+	
+	 * @Title: getInvite
+	
+	 * @Description: TODO
+	
+	 * @param token
+	 * @param phone
+	 * @param isInt 
+	 * @return
+	
+	 * @return: String
+	 */
+	String getInvite(String token, String phone, Integer isInt);
+    
+	/**
+	 * 
+	
+	 * @Title: regions
+	
+	 * @Description: TODO
+	
+	 * @return
+	
+	 * @return: String
+	 */
+	String regions();
+
+
+	String aPPRegions();
+    
+	/**
+	 * 
+	
+	 * @Title: delLocalApp
+	
+	 * @Description: TODO
+	
+	 * @param map
+	 * @return
+	
+	 * @return: String
+	 */
+	String delLocalApp(Map<String, Object> map);
+    
+	/**
+	 * 
+	
+	 * @Title: suggest
+	
+	 * @Description: TODO
+	
+	 * @param token
+	 * @param content
+	 * @return
+	
+	 *
+	 */
+	String suggest(String token, String content);
+    
+	/**
+	 * 
+	
+	 * @Title: feiFanCallBack
+	
+	 * @Description: TODO
+	
+	 * @param appPack
+	 * @param userId
+	 * @param imei
+	
+	 * @return: void
+	 */
+	void feiFanCallBack(String appPack, Long userId, String imei);
+    /**
+     * 
+    
+     * @Title: downLog
+    
+     * @Description: TODO
+    
+     * @param device
+     * @param appPack
+     * @param token
+     * @param type 
+     * @return
+    
+     * @return: String
+     */
+	String downLog(String device, String appPack, String token, Integer type);
+    /**
+     * 
+    
+     * @Title: jianyuCallBack
+    
+     * @Description: TODO
+    
+     * @param type
+     * @param appPack
+     * @param token
+     * @param imei
+     * @param body
+    
+     * @return: void
+     */
+	void jianyuCallBack(Integer type, String appPack, String token, String imei,
+			String body);
+	
+}

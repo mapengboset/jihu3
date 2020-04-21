@@ -1,0 +1,179 @@
+package com.yqbing.servicebing.service.impl;
+
+import io.swagger.models.auth.In;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import sun.net.www.protocol.http.HttpURLConnection;
+
+import com.alibaba.excel.read.context.AnalysisContext;
+import com.alibaba.excel.read.event.AnalysisEventListener;
+import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
+import com.yqbing.servicebing.repository.database.abstracts.WeBankBeanExample;
+import com.yqbing.servicebing.repository.database.bean.WeBankBean;
+import com.yqbing.servicebing.repository.database.dao.WeBankBeanMapper;
+import com.yqbing.servicebing.service.WeBankControService;
+import com.yqbing.servicebing.utils.DateUtil;
+import com.yqbing.servicebing.utils.ExcelUtil;
+import com.yqbing.servicebing.utils.StrUtils;
+import com.yqbing.servicebing.utils.excel.ExcelWeBankModel;
+import com.yqbing.servicebing.utils.excel.exportWeBank;
+
+@Service("weBankControService")
+public class WeBankControServiceImpl implements WeBankControService{
+
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(WeBankControServiceImpl.class);
+	
+	@Autowired
+	private WeBankBeanMapper weBankBeanMapper = null;
+	
+	@Override
+	public PageInfo<WeBankBean> query(String name, String stime, String etime) {
+		// TODO Auto-generated method stub
+		WeBankBeanExample example = new WeBankBeanExample();
+		PageInfo<WeBankBean> info = null;
+		try {
+			example.createCriteria().andBeInvitedLike("%"+name).andBeInvitedTimeBetween(DateUtil.parse(stime),DateUtil.parse(etime));
+            List<WeBankBean> list = this.weBankBeanMapper.selectByExample(example);
+            LOGGER.info("-----------------------------------------微众提取记录"+new Gson().toJson(list));
+            info = new PageInfo<WeBankBean>(list);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return info;
+	}
+
+	@Override//公司名称 名店名称 开始时间和结束时间的联合查询
+	public PageInfo<WeBankBean> queryWelth(String company, String store,String stime, String etime) {
+       HashMap<String,Object> map = new HashMap<String, Object>();
+       map.put("company",company);
+       map.put("store",store);
+       map.put("stime",stime);
+       map.put("etime",etime);
+       PageInfo<WeBankBean> info = null;
+       try {
+		
+    	   List<WeBankBean> list = this.weBankBeanMapper.queryWelth(map);
+    	   LOGGER.info("-----------------------------------------微众发放记录记录"+new Gson().toJson(list));
+    	   info = new PageInfo<WeBankBean>(list);
+	} catch (Exception e) {
+		// TODO: handle exception
+		e.printStackTrace();
+	}
+		return info;
+	}
+
+	@Override
+	public void importWB(MultipartFile excel) throws Exception {
+		List<WeBankBean> list = null;
+		
+		List<Object> readExcel = ExcelUtil.readExcel(excel, new ExcelWeBankModel());
+		if(readExcel != null){
+			list = new ArrayList<WeBankBean>();
+			for (int i = 0; i < readExcel.size(); i++) {
+				Object[] object = (Object[]) readExcel.get(i);
+				WeBankBean bean = null;
+				bean = weBankBeanMapper.queryBeInvited(object[1].toString());
+				if(null == bean){
+					continue;
+				}
+				bean.setUpdateTime(DateUtil.parseDateTime(object[0].toString()));//提交时间
+				bean.setBeInvited(object[1].toString());;//公司名称
+				bean.setMoney(Integer.valueOf(object[2].toString()));//已启动额度
+				String succcess = null;
+				if("是".equals(object[2].toString())){
+					succcess = "1";
+				}else{
+					succcess = "2";
+				}
+				bean.setIsSuccessful(succcess);//是否成功
+				list.add(bean);
+			}
+			weBankBeanMapper.updateBatch(list);
+		}
+	}
+
+	@Override
+	public void exportWB(String time,HttpServletResponse response) throws Exception {
+	
+		List<WeBankBean> wes = weBankBeanMapper.queryTime(time);
+		List<exportWeBank> list = new ArrayList<exportWeBank>();
+		for (WeBankBean e : wes) {
+			exportWeBank model = new exportWeBank();
+			 model.setTime(DateUtil.formatDateTime(e.getBeInvitedTime()));
+			 model.setCompany(e.getBeInvited());
+			 model.setPicurl(e.getPicUrl());
+			 
+			 list.add(model);
+		    // String picUrl = e.getPicUrl();
+		   //  getPic(picUrl, e.getBeInvited(), "d://");
+		}
+		String fileName = "机呼下载列表";
+		String sheetName = "sheet";
+		ExcelUtil.writeExcel(response, list, fileName, sheetName, new exportWeBank());
+	
+	}
+    @SuppressWarnings("resource")
+	public void getPic(String urlStr,String fileName,String savePath) throws Exception{
+    	URL url = new URL(urlStr);  
+        HttpURLConnection conn = (HttpURLConnection)url.openConnection();  
+                //设置超时间为3秒
+        conn.setConnectTimeout(3*1000);
+        //防止屏蔽程序抓取而返回403错误
+        conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
+        
+        //得到输入流
+        InputStream inputStream = conn.getInputStream();
+        
+        //得到自己的数组
+        byte[] data = readInputStream(inputStream);
+        File saveDir  = new File(savePath);
+        if(!saveDir .exists()){
+        	saveDir .mkdir();
+        }
+        
+        File file = new File(saveDir+File.separator+fileName+".jpg");
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(data);
+        fos.close();
+        inputStream.close();
+    }
+    
+    /**
+     * 从输入流中获取字节数组
+     * @param inputStream
+     * @return
+     * @throws IOException
+     */
+    public static  byte[] readInputStream(InputStream inputStream) throws IOException {  
+        byte[] buffer = new byte[1024];  
+        int len = 0;  
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();  
+        while((len = inputStream.read(buffer)) != -1) {  
+            bos.write(buffer, 0, len);  
+        }  
+        bos.close();  
+        return bos.toByteArray();  
+    }  
+}

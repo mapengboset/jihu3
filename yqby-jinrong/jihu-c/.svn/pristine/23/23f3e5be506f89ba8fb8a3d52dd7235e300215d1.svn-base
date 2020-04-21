@@ -1,0 +1,25 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import io.swagger.annotations.Api;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * 
+
+ * @ClassName: ChargBoxController
+
+ * @Description: 充电宝管理接口
+
+ * @author: mpb
+
+ * @date: 2019年4月15日 下午2:54:40
+ */
+@RestController
+@CrossOrigin
+@Api(tags = "充电宝接口")
+@SuppressWarnings("all")
+public class ChargBoxController  extends BaseController{
+
+}

@@ -1,0 +1,280 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.service.AccountService;
+import com.yqbing.servicebing.service.ChargBoxService;
+import com.yqbing.servicebing.utils.HttpRequest;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.webapp.request.TAlipayNotify;
+
+/**
+ * 
+
+ * @ClassName: ChargBoxController
+
+ * @Description: 充电宝管理接口
+
+ * @author: mpb
+
+ * @date: 2019年4月15日 下午2:54:40
+ */
+@RestController
+@CrossOrigin
+@Api(tags = "充电宝接口")
+@SuppressWarnings("all")
+public class ChargBoxController  extends BaseController{
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ChargBoxController.class);
+	@Resource
+	private ChargBoxService chargBoxService = null;
+	//任务列表
+	//我的任务下载列表
+	 @ApiOperation(value = "充电宝首页")
+	@RequestMapping(value = "/ChargBox/chargHomePage",
+		        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String chargHomePage(
+			@ApiParam(name = "token",value="用户token") @RequestParam(value = "token", required = true) String token,
+			@ApiParam(name = "deviceId",value="充电宝设备id") @RequestParam(value = "deviceId", required = true) String deviceId){
+			
+		        LOGGER.info("--------------------------------------------ChargBox/chargHomePage:"+token+"deviceId:"+deviceId);
+			    String result = StringUtils.EMPTY;
+		        
+		        try {
+		        	 if(!StringUtils.isNotBlank(token)){
+				        	
+			        	    result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"token必须填写");
+			    			
+			    			return result;
+			        }
+		        	 if(!StringUtils.isNotBlank(token)){
+		        		 
+		        		 result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"设备id不能为空");
+		        		 
+		        		 return result;
+		        	 }
+			        
+			        result =  chargBoxService.chargHomePage(token,deviceId);
+		         
+		        } catch (Exception e) {
+		        	e.printStackTrace();
+		        	LOGGER.error("系统异常" + e.getLocalizedMessage());
+		        	result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+		           
+		        }
+		       
+			    return result;
+		 }
+	
+
+	 //获取支付参数
+	 @ApiOperation(value = "获取支付参数")
+		@RequestMapping(value = "/ChargBox/getOrder",
+			        	method = {RequestMethod.GET,RequestMethod.POST})
+		public String getOrder(@ApiParam(name = "token",value="用户token") @RequestParam(value = "token", required = true) String token,
+				@ApiParam(name = "ideaId",value="套餐列表ID") @RequestParam(value = "ideaId", required = true) String ideaId,
+				@ApiParam(name = "deviceId",value="设备地址") @RequestParam(value = "deviceId", required = true) String deviceId,
+				@ApiParam(name = "totalAmount",value="订单金额") @RequestParam(value = "totalAmount", required = false) String totalAmount,
+				@ApiParam(name = "type",value="1微信 2支付宝 3免费 ") @RequestParam(value = "type", required = true) Integer type){
+		 LOGGER.info("--------------------------------------------ChargBox/getOrder:"+ideaId+"<>"+deviceId+"<>"+type);
+		    String result = StringUtils.EMPTY;
+	        
+	        try {
+	        	 if(!StringUtils.isNotBlank(token)){
+			        	
+		        	    result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"token必须填写");
+		    			
+		    			return result;
+		        }
+	        	
+	        	 if(!StringUtils.isNotBlank(ideaId)){
+	        		 
+	        		 result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"ideaId必须填写");
+	        		 
+	        		 return result;
+	        	 }
+	        	 if(!StringUtils.isNotBlank(deviceId)){
+	        		 
+	        		 result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"deviceId必须填写");
+	        		 
+	        		 return result;
+	        	 }
+	        	 
+		        
+		        result =  chargBoxService.getOrder(token,ideaId,deviceId,type,totalAmount);
+		        LOGGER.info("-------------------支付宝验证参数" + result);
+	         
+	        } catch (Exception e) {
+	        	e.printStackTrace();
+	        	LOGGER.error("系统异常" + e.getLocalizedMessage());
+	        	result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+	           
+	        }
+	       
+		        return result;
+		 }
+	 
+	 //回调地址-->存入数据库1556201267995
+	 @RequestMapping(value = "/ChargBox/alipay_notify_url",
+	        	method = {RequestMethod.GET,RequestMethod.POST})
+	 public String  alipayUrl(HttpServletRequest request) throws Exception{
+		 LOGGER.info("支付宝异步通知开始:------------------------");
+			//获取支付宝POST过来反馈信息
+	    	String sign = request.getParameter("sign");//签名 不可空 
+	    	String sign_type = request.getParameter("sign_type");//签名方式 不可空
+	    	String notify_type = request.getParameter("notify_type");//通知类型 不可空
+	    	String notify_time = request.getParameter("notify_time");//通知时间 不可空
+	    	String seller_id = request.getParameter("seller_id");//卖家支付宝用户号 不可空
+	    	String app_id = request.getParameter("app_id");//应用Id
+	    	String charset = request.getParameter("charset");//编码格式
+	    	String version = request.getParameter("version");//接口版本
+	    	String fundChannel = request.getParameter("fundChannel");//接口版本
+	    	String amount = request.getParameter("amount");//接口版本
+	    	//支付宝交易号
+	    	String trade_no = request.getParameter("trade_no");//支付宝交易号 不可空
+	    	//交易状态
+	    	String trade_status = request.getParameter("trade_status");//交易状态  不可空
+	    	//商户订单号	
+	    	String out_trade_no = request.getParameter("out_trade_no");//商户网站唯一订单号 
+	    	String total_amount = request.getParameter("total_amount");//交易金额 不可空
+	    	String notify_id = request.getParameter("notify_id");//通知校验ID 不可空
+	    	
+	    	
+	    	Map<String,String> params = new HashMap<String,String>();
+	    	params.put("sign", sign);
+	    	params.put("sign_type", sign_type);
+	  
+				params.put("notify_type",notify_type);
+				params.put("notify_time",notify_time);
+		    	params.put("seller_id",seller_id);
+		    	params.put("app_id",app_id);
+		    	params.put("charset",charset);
+		    	params.put("version",version);
+		    	params.put("trade_no",trade_no);
+		    	params.put("trade_status",trade_status);
+		    	params.put("out_trade_no",out_trade_no);
+		    	params.put("total_amount",total_amount);
+		    	params.put("notify_id",notify_id);
+		    	LOGGER.info("支付宝异步通知参数"+new Gson().toJson(params));
+		    	
+		    	//修改订单表
+	    	    chargBoxService.alipayUrl(params);
+	    	    
+	    	    LOGGER.info("支付宝异步返回参数trade_status"+trade_status);
+	    		return "success";
+			
+	    	
+	 }
+	 
+	 
+	 
+	 //返回充值密码
+	@ApiOperation(value = "返回充值密码/充电")
+	@RequestMapping(value = "/ChargBox/boxPassword",
+		        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String boxPassword(@ApiParam(name = "token",value="用户token") @RequestParam(value = "token", required = true) String token,
+			@ApiParam(name = "orderNo",value="订单号") @RequestParam(value = "orderNo", required = true) String orderNo,
+			@ApiParam(name = "deviceId",value="设备地址") @RequestParam(value = "deviceId", required = true) String deviceId){
+		    LOGGER.info("--------------------------------------------ChargBox/boxPassword:"+orderNo+"<>"+deviceId);
+		    String result = StringUtils.EMPTY;
+	        
+	        try {
+	        	 if(!StringUtils.isNotBlank(token)){
+			        	
+		        	    result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"token必须填写");
+		    			
+		    			return result;
+		        }
+	        	
+	        	 if(!StringUtils.isNotBlank(orderNo)){
+	        		 
+	        		 result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"orderNo必须填写");
+	        		 
+	        		 return result;
+	        	 }
+	        	 if(!StringUtils.isNotBlank(deviceId)){
+	        		 
+	        		 result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"deviceId必须填写");
+	        		 
+	        		 return result;
+	        	 }
+	        	 
+		        
+		        result =  chargBoxService.boxPassword(token,orderNo,deviceId);
+		        LOGGER.info("-----------------------------------------返回充电密码"+new Gson().toJson(result));
+	        } catch (Exception e) {
+	        	e.printStackTrace();
+	        	LOGGER.error("系统异常" + e.getLocalizedMessage());
+	        	result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+	           
+	        }
+	       
+		    return result;
+	 }
+	
+	/*@ApiOperation(value = "充值状态")
+	@RequestMapping(value = "/ChargBox/boxIsPay",
+		        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String boxIsPay(){
+		 return null;
+	 }
+	*/
+	@ApiOperation(value = "充值记录/订单记录")
+	@RequestMapping(value = "/ChargBox/boxOrder",
+		        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String boxOrder(@ApiParam(name = "token",value="用户token") @RequestParam(value = "token", required = true) String token){
+		
+		 LOGGER.info("--------------------------------------------ChargBox/boxOrder:"+token);
+		    String result = StringUtils.EMPTY;
+	        
+	        try {
+	        	 if(!StringUtils.isNotBlank(token)){
+			        	
+		        	    result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"token必须填写");
+		    			
+		    			return result;
+		        }
+	        	
+		        
+		        result =  chargBoxService.boxOrder(token);
+	         
+	        } catch (Exception e) {
+	        	e.printStackTrace();
+	        	LOGGER.error("系统异常" + e.getLocalizedMessage());
+	        	result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+	           
+	        }
+	       
+		    return result;
+	 }
+	
+	@ApiOperation(value = "充值记录详情/订单记录详情")
+	@RequestMapping(value = "/ChargBox/boxOrderDatail",
+		        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String boxOrderDatail(){
+		 return null;
+	 }
+	
+	
+}

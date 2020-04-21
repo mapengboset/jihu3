@@ -1,0 +1,82 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.AppRecommend;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+import com.yqbing.servicebing.repository.database.bean.UserAppTask;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.dao.AppRecommendMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseMapper;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskMapper;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.UserLocalAppMapper;
+import com.yqbing.servicebing.repository.redis.RStoreHouseData;
+import com.yqbing.servicebing.repository.redis.RUserAppTaskData;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.service.ChargBoxService;
+import com.yqbing.servicebing.service.CommonService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.webapp.response.StoreAppRes;
+
+
+@Service("chargBoxService")
+@SuppressWarnings("all")
+public class ChargBoxServiceImpl extends CommonService implements ChargBoxService{
+	
+	
+	 private static final Logger LOGGER = LoggerFactory.getLogger(ChargBoxServiceImpl.class);
+	 
+	 @Resource
+	 private AppRecommendMapper appRecommendMapper= null;
+	 @Resource
+	 private UserInfoBeanMapper userInfoBeanMapper = null;
+	 @Resource
+	 private StoreHouseMapper storeHouseMapper = null;
+	 
+	 @Resource
+	 private RUserLogBean rUserLogBean = null;
+	 @Resource
+	 private RUserAppTaskData rUserAppTaskData = null;
+	 @Resource
+	 private RStoreHouseData rStoreHouseData = null;
+	 @Resource
+	 private UserLocalAppMapper userLocalAppMapper = null;
+	 @Resource
+	 private UserAppTaskMapper userAppTaskMapper = null;
+	 
+	@Override
+	public String myTaskApps(String token) {
+		try {
+			 UserInfoBean infoBean = rUserLogBean.getRaw(token);
+				
+				if(infoBean == null){
+					
+					infoBean = userInfoBeanMapper.queryToken(token);
+				}
+				if(infoBean == null){
+					return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+					
+				}
+				List<StoreAppRes> apps = getTypeByApps("free_charge_tag", infoBean);
+				return NotifyUtil.success(apps);
+				
+		} catch (Exception e) {
+			e.printStackTrace();
+
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, e.getLocalizedMessage());
+			
+		}
+	}
+	
+	
+}

@@ -1,0 +1,39 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 文件类型类
+ * 
+ * @author cychen
+ *
+ */
+public class FileType {
+
+	/** 其他文件 */
+	public static final short OTHER = 0;
+	/** 用户头像 */
+	public static final short AVATAR = 1;
+	/** 日记照片 */
+	public static final short PHOTO = 2;
+	/** 日记照片 */
+	public static final short PHOTOFILE = 5;
+
+	/**
+	 * 获取文件类型描述
+	 * 
+	 * @param fileType 文件类型值
+	 * @return 文件类型描述
+	 */
+	public static String getDescription(short fileType) {
+		if (fileType == OTHER) {
+			return "其他文件";
+		}
+		if (fileType == AVATAR) {
+			return "用户头像";
+		}
+		if (fileType == PHOTO) {
+			return "日记照片";
+		}
+		return "";
+	}
+
+}

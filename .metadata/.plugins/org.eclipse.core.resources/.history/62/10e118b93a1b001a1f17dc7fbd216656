@@ -1,0 +1,70 @@
+package com.hiko.gym.common.repository.database.base;
+
+import java.util.*;
+
+import org.apache.ibatis.annotations.*;
+import org.springframework.stereotype.*;
+
+/**
+ * 短消息DAO接口
+ * 
+ * @author cychen
+ *
+ */
+@Repository("dShortMessageDAO")
+public interface DShortMessageDAO {
+
+	/**
+	 * 获取短消息信息
+	 * 
+	 * @param id 消息标识
+	 * @return 短消息信息
+	 */
+	public DShortMessage get(@Param("id") Long id);
+
+	/**
+	 * 统计短消息数量
+	 * 
+	 * @param query 短消息统计信息
+	 * @return 短消息数量
+	 */
+	public Integer count(@Param("query") DShortMessageQuery query);
+
+	/**
+	 * 查询短消息信息
+	 * 
+	 * @param query 短消息查询信息
+	 * @param orderBy 排序方式
+	 * @param startIndex 开始序号
+	 * @param pageSize 页面大小
+	 * @return 短消息信息列表
+	 */
+	public List<DShortMessage> query(@Param("query") DShortMessageQuery query, @Param("orderBy") String orderBy,
+			@Param("startIndex") Integer startIndex, @Param("pageSize") Integer pageSize);
+
+	/**
+	 * 创建短消息信息
+	 * 
+	 * @param id 消息标识
+	 * @param create 短消息创建信息
+	 * @return 创建行数
+	 */
+	public Integer create(@Param("id") Long id, @Param("create") DShortMessageCreate create);
+
+	/**
+	 * 修改短消息信息
+	 * 
+	 * @param modify 短消息修改信息
+	 * @return 修改行数
+	 */
+	public Integer modify(@Param("modify") DShortMessageModify modify);
+
+	/**
+	 * 获取今日发送条数
+	 * 
+	 * @param phone 接收电话
+	 * @return 发送条数
+	 */
+	public Integer getTodaySendCount(@Param("phone") String phone);
+
+}

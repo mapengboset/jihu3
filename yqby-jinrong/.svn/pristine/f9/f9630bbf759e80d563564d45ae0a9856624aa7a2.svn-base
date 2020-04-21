@@ -1,0 +1,105 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.yqbing.servicebing.common.ResultModel;
+import com.yqbing.servicebing.repository.database.bean.TUserInfoBean;
+import com.yqbing.servicebing.service.TUserInfoBeanService;
+
+@Controller
+@Api(tags = "测试管理")
+public class TestController extends BaseController {
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(TestController.class);
+
+	@Resource(name = "userInfoBeanService")
+	private TUserInfoBeanService userInfoBeanService = null;;
+
+	@RequestMapping(value = { "/test/myname" }, method = RequestMethod.GET)
+	@ResponseBody
+	@ApiOperation(value = "测试 查询 用户基本信息表")
+	public ResultModel getName(
+			@ApiParam(value = "费用户名字") @RequestParam(value = "name", required = false) String name) {
+		ResultModel resultModel = ResultModel.success();
+		try {
+			List<TUserInfoBean> users = userInfoBeanService.queryName(name);
+
+			resultModel.setResult(users);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+
+		}
+
+		return resultModel;
+	}
+	public static void main(String[] args) {
+		
+		  double  fei = Double.valueOf("0.023");
+		   /* switch (3) {
+				case 3:
+					fei = Double.valueOf(aliPay3fei);
+					break;
+				case 6:
+					fei = Double.valueOf(aliPay6fei);
+					break;
+				case 12:
+					fei = Double.valueOf(aliPay12fei);
+					break;
+				case 24:
+					fei = Double.valueOf(aliPay24fei);
+					break;
+				default:
+					break;
+			}
+		    */
+		    int type = 2;
+		    String total = "1111.11";
+		    BigDecimal dtotal = new BigDecimal(total);
+		    
+			BigDecimal dtotal1 = BigDecimal.valueOf(100).multiply(dtotal);
+			
+			long longValue = dtotal1.longValue();
+			
+			BigDecimal eachPrin = BigDecimal.valueOf(longValue).divide(new BigDecimal(3), BigDecimal.ROUND_DOWN);
+			
+			 BigDecimal totalFeeInDecimal = BigDecimal.valueOf(longValue).multiply(new BigDecimal(fei));
+			    
+			    
+			    long totalFeeInLong = totalFeeInDecimal.setScale(0, BigDecimal.ROUND_HALF_EVEN).longValue();//总费用
+			    
+			     BigDecimal eachFee = BigDecimal.valueOf(totalFeeInLong).divide(new BigDecimal(3), BigDecimal.ROUND_DOWN);
+			    
+			     BigDecimal add = eachPrin.add(eachFee);//每期总费用(本金+手续费)
+			    if(type == 1){//fen
+				
+				 BigDecimal fen = new BigDecimal(totalFeeInLong).divide(new BigDecimal(100),2,BigDecimal.ROUND_DOWN);//手续费
+			//	 return fen.toString();
+				 
+			    }else if(type == 2){//每期费用
+				 BigDecimal fenqi = add.divide(new BigDecimal(100),2,BigDecimal.ROUND_DOWN);//分期费用  33.93/期
+		//		 return fenqi.toString();
+				 System.out.println(fenqi);
+			    }else if(type == 3){
+				//总费用
+				 BigDecimal zong =  new BigDecimal(totalFeeInLong+longValue).divide(new BigDecimal(100),2,BigDecimal.ROUND_DOWN);//顾客实付费用
+		//		 return zong.toString();
+			    }
+		
+    }
+}

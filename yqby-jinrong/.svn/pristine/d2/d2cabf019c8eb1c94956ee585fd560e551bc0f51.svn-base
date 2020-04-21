@@ -1,0 +1,251 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.text.ParseException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.PageHelper;
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.abstracts.BanK360InfoBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.BanK360InfoBeanExample.Criteria;
+import com.yqbing.servicebing.repository.database.abstracts.Bank360OffBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.StoreUserBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.ZanclickOffBeanExample;
+import com.yqbing.servicebing.repository.database.bean.BanK360InfoBean;
+import com.yqbing.servicebing.repository.database.bean.Bank360ActivateBean;
+import com.yqbing.servicebing.repository.database.bean.Bank360OffBean;
+import com.yqbing.servicebing.repository.database.bean.StoreInfoBean;
+import com.yqbing.servicebing.repository.database.bean.StoreUserBean;
+import com.yqbing.servicebing.repository.database.bean.TUserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.ZanclickOffBean;
+import com.yqbing.servicebing.repository.database.dao.BanK360InfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.Bank360ActivateBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.Bank360OffBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreUserBeanMapper;
+import com.yqbing.servicebing.service.Bank360Service;
+import com.yqbing.servicebing.utils.DateUtil;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.utils.QRCodeUtil;
+import com.yqbing.servicebing.utils.QrcodeImageUtils;
+import com.yqbing.servicebing.utils.StrUtils;
+
+
+
+@Service("bank360Service")
+@SuppressWarnings("all")
+public class Bank360ServiceImpl implements Bank360Service{
+	private static final Logger LOGGER = LoggerFactory.getLogger(Bank360ServiceImpl.class);
+	@Autowired
+	private StoreInfoBeanMapper storeInfoBeanMapper = null;
+	@Autowired
+	private StoreUserBeanMapper storeUserBeanMapper = null;
+	
+	@Autowired
+	private BanK360InfoBeanMapper banK360InfoBeanMapper = null;
+	@Autowired
+	private Bank360OffBeanMapper bank360OffBeanMapper = null;
+	
+	@Autowired
+	private Bank360ActivateBeanMapper bank360ActivateBeanMapper = null;
+	
+	@Override
+	public String put360Bank(TUserInfoBean validToken) {
+		
+		
+		
+		String success = StringUtils.EMPTY;
+		
+		long userId = validToken.getUserId();
+		
+		short p = 1;
+		StoreUserBeanExample example2 = new StoreUserBeanExample();
+		com.yqbing.servicebing.repository.database.abstracts.StoreUserBeanExample.Criteria criteria2 = example2.createCriteria();
+		
+		criteria2.andUserIdEqualTo(Integer.valueOf(userId+"")).andUserStateEqualTo(p);
+		List<StoreUserBean> list = storeUserBeanMapper.selectByExample(example2);
+		
+		//ResultModel success = ResultModel.success();
+	//	List<StoreInfoBean> list = storeInfoBeanMapper.selectByExample(example);
+		if(null == list || list.size()<= 0){
+			success = NotifyUtil.error(ErrorCodeEnum.DISACCORD,"店铺不存在");
+			return success;
+		}
+		StoreUserBean suBean = list.get(0);
+		
+		StoreInfoBean infoBean = storeInfoBeanMapper.selectByPrimaryKey(suBean.getStoreId());
+		/*if(!infoBean.getStoreName().equals(storeName)){
+			success = NotifyUtil.error(ErrorCodeEnum.NOTSRORENAME,"请输入自己的门店名称");
+			return success;
+		}*/
+		//是否已经申请过
+		BanK360InfoBeanExample banK360InfoBeanExample = new BanK360InfoBeanExample();
+		Criteria criteria = banK360InfoBeanExample.createCriteria();
+		criteria.andUserIdEqualTo(userId);
+		List<BanK360InfoBean> bankinfos = banK360InfoBeanMapper.selectByExample(banK360InfoBeanExample);
+		if(bankinfos != null &&  bankinfos.size() >  0){
+			LOGGER.info("----------------------------已经申请过了,用户信息userinfo:"+new Gson().toJson(validToken));
+			success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,"禁止重复申请");
+			return success;
+		}
+		
+		if(infoBean == null){
+			success = NotifyUtil.error(ErrorCodeEnum.NOTSRORE,"店铺不存在");
+			return success;
+		}
+		// TODO Auto-generated method stub
+		
+		BanK360InfoBean banK360 = new BanK360InfoBean();
+		banK360.setUserId(userId);
+		banK360.setUserName(validToken.getUserName());
+		banK360.setUserPhone(validToken.getUserPhone());
+		banK360.setStoreId(infoBean.getStoreId());
+		banK360.setStoreName(infoBean.getStoreName());
+		banK360.setCityId(infoBean.getCityId());
+		banK360.setCityName(infoBean.getCityName());
+		banK360.setCreateTime(new Date());
+		try {
+			
+			banK360InfoBeanMapper.insertSelective(banK360);
+			LOGGER.info("----------------------------申请成功,banK360:"+new Gson().toJson(banK360));
+			success =  NotifyUtil.success();
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			success = NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+		
+		}
+		return success;
+	}
+
+	@Override
+	public String queryBank360Off(long userId) {
+		
+		// TODO Auto-generated method stub
+		//	ResultModel success = ResultModel.success();
+			String success = StringUtils.EMPTY;
+			Bank360OffBeanExample banK360OffBean = new Bank360OffBeanExample();
+		      banK360OffBean.createCriteria();
+		     Bank360OffBean bank360OffBean =null;
+			List<Bank360OffBean> list = bank360OffBeanMapper.selectByExample(banK360OffBean);
+			if(list != null){
+				bank360OffBean = list.get(0);
+				
+			}
+			success = NotifyUtil.success(bank360OffBean);
+			return success;
+	}
+
+	@Override
+	public String bank360List(TUserInfoBean validToken, String page,
+			String size, String startTime, String endTime) {
+		String success = StringUtils.EMPTY;
+		String qrCodeUrl =  StringUtils.EMPTY;
+		
+		/**
+		 * .判断是否存在推广链接
+		   .如果存在链接 生成二维码链接,并存到七牛上
+		   .通过推广链接拿出来这个用户所有的激活量
+		 */
+	    long userId = validToken.getUserId();
+	    Map<String,Object> map = null;
+		short p = 1;
+		StoreUserBeanExample example2 = new StoreUserBeanExample();
+		com.yqbing.servicebing.repository.database.abstracts.StoreUserBeanExample.Criteria criteria2 = example2.createCriteria();
+		
+		criteria2.andUserIdEqualTo(Integer.valueOf(userId+"")).andUserStateEqualTo(p);
+		List<StoreUserBean> list = storeUserBeanMapper.selectByExample(example2);
+		if(null == list || list.size()<= 0){
+			success = NotifyUtil.error(ErrorCodeEnum.DISACCORD,"店铺不存在");
+			return success;
+		}
+		StoreUserBean suBean = list.get(0);
+		BanK360InfoBeanExample banK360InfoBeanExample = new BanK360InfoBeanExample();
+		Criteria criteria = banK360InfoBeanExample.createCriteria();
+		criteria.andUserIdEqualTo(userId);
+		List<BanK360InfoBean> bankinfos = banK360InfoBeanMapper.selectByExample(banK360InfoBeanExample);
+		if(null == bankinfos ||  bankinfos.size() <=  0){
+			LOGGER.info("----------------------------申请拉新资格,userinfo:"+new Gson().toJson(validToken));
+			success = NotifyUtil.error(ErrorCodeEnum.BANK360LAXIN,"申请拉新资格");
+			return success;
+		}
+		if(bankinfos != null){
+			BanK360InfoBean banKinfo = bankinfos.get(0);
+			String bankUrl = banKinfo.getBankUrl();
+			if(StringUtils.isBlank(bankUrl)){//为空:在申请当中
+				LOGGER.info("----------------------------正在审核当,banK360:"+new Gson().toJson(banKinfo));
+				success = NotifyUtil.error(ErrorCodeEnum.BANK360ING,"正在审核当中请稍后");
+				return success;
+			}
+			
+			String qrCode = banKinfo.getQrCode();
+			if(StringUtils.isBlank(qrCode)){//为空 生成二维码 存到七牛哪里.七牛返回链接存到数据库里
+				try {
+					/* qrCodeUrl = QRCodeUtil.geneQRCodeToSting(bankUrl, "qrCode-"
+					        + suBean.getStoreId() + "-" + System.currentTimeMillis(),
+					103, 103);*/
+                    String logoFile = "http://p2a60yqmm.bkt.clouddn.com/icon360bank.png";
+                    qrCodeUrl = QrcodeImageUtils.drawLogoQRCode(logoFile, "360bank_qrCode-" + "-" + System.currentTimeMillis(), bankUrl, null);
+              
+              
+				//	 qrCodeUrl = "www.baidu.com";
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				map = new HashMap<String,Object>();
+				map.put("qrcode", qrCodeUrl);
+				banKinfo.setQrCode(qrCodeUrl);
+				banK360InfoBeanMapper.updateByPrimaryKeySelective(banKinfo);
+				success = NotifyUtil.success(map);
+				
+				return success;
+			}
+			//-----------不是空,显示二维码链接,同时激活数量展示出来
+			Date parsestartTime = null;
+			Date parseendTime = null;
+			int page1 = 0;
+			int size1 = 1000;
+			HashMap<String, Object> map1 = new HashMap<String, Object>();
+			if (!StrUtils.isNullOrBlank(startTime)&& !StrUtils.isNullOrBlank(endTime)) {
+				try {
+					parsestartTime = DateUtil.parse(startTime);
+					parseendTime = DateUtil.parse(endTime);
+					if(!StrUtils.isNullOrBlank(page) && !StrUtils.isNullOrBlank(size)){
+						page1 = Integer.valueOf(page);
+						size1 = Integer.valueOf(size);
+					}
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			PageHelper.startPage(page1, size1);
+			map1.put("startTime", parsestartTime);
+			map1.put("endTime", parseendTime);
+			map1.put("bankUrl", bankUrl);
+			List<Bank360ActivateBean> bas = bank360ActivateBeanMapper.queryList(map1);
+			
+			int total = bank360ActivateBeanMapper.queryToal(map1);
+			map = new HashMap<String,Object>();
+			map.put("total", total);
+			map.put("qrcode", qrCode);
+			map.put("list", bas);
+			success = NotifyUtil.success(map);
+			return success;
+			
+		}
+		
+		return success;
+	}
+	
+}

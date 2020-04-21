@@ -1,0 +1,71 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 设备类型
+ * 
+ * @author cychen
+ *
+ */
+public class DeviceType {
+
+	/** 类型相关 */
+	/** 跑步机 */
+	public static final Integer PAO_BU_JI = 1;
+	/** 游泳 */
+	public static final Integer YOU_YONG = 2;
+	/** 有氧舞蹈 */
+	public static final Integer YOU_YANG_WU_DAO = 3;
+	/** 杠铃操 */
+	public static final Integer GANG_LING_CAO = 4;
+	/** 搏击操 */
+	public static final Integer BO_JI_CAO = 5;
+	/** 椭圆机 */
+	public static final Integer TUO_YUAN_JI = 6;
+	/** 动感单车 */
+	public static final Integer DONG_GAN_DAN_CHE = 7;
+	/** 坐式划艇拉力练习器 */
+	public static final Integer HUA_TING_LA_LI = 8;
+	/** 坐式肩膀后展练习器 */
+	public static final Integer JIAN_BANG_HOU_ZHAN = 9;
+	/** 坐式肩膀后展练习器 */
+	public static final Integer LA_LI_BEI_JI = 10;
+	/** 坐式肩膀后展练习器 */
+	public static final Integer BEI_JI_SHEN_ZHAN = 11;
+	/** 坐式肩膀后展练习器 */
+	public static final Integer ZUO_SHI_FEI_NIAO = 12;
+	/** 坐式肩膀后展练习器 */
+	public static final Integer ZUO_SHI_TI_XI = 13;
+	/** 坐式大腿伸展练习器 */
+	public static final Integer ZUO_SHI_DA_TUI_SHEN_ZHAN = 14;
+	/** 坐式后腿屈伸练习器 */
+	public static final Integer ZUO_SHI_HOU_TUI_QU_SHEN = 15;
+	/** 坐式后腿屈伸练习器 */
+	public static final Integer DA_TUI_WAI_CE_JI = 16;
+	/** 坐式后腿屈伸练习器 */
+	public static final Integer DA_TUI_NEI_CE_JI = 17;
+	/** 坐式肩膀推举练习器 */
+	public static final Integer JIAN_BANG_TUI_JU = 18;
+	/** 坐式双向推胸练习器 */
+	public static final Integer SHUANG_XIANG_TUI_XIONG = 19;
+	/** 蝴蝶式扩胸练习器 */
+	public static final Integer HU_DIE_SHI_KUO_XIONG = 20;
+	/** 卧式腿屈展器 */
+	public static final Integer WO_SHI_TUI_QU_ZHAN = 21;
+	/** 二头肌双向练习器 */
+	public static final Integer ER_TOU_JI_SHUANG_XIANG = 22;
+	/** 三头肌双向练习器 */
+	public static final Integer SAN_TOU_JI_SHUANG_XIANG = 23;
+	/** 立式大腿伸展练习器 */
+	public static final Integer LI_SHI_DA_TUI_SHEN_ZHAN = 24;
+	/** 立式大腿伸展练习器 */
+	public static final Integer TIAO_JIE_DENG_TUI = 25;
+	/** 立式大腿伸展练习器 */
+	public static final Integer LI_SHI_DA_TUI_QU_SHEN = 26;
+	/** 龙门架 */
+	public static final Integer LONG_MEN_JIA = 30;
+	/** 多功能器械 */
+	public static final Integer DUO_GONG_NENG_QI_XIE = 31;
+	/** 体测数据 */
+	public static final Integer TI_CE_JI = 27;
+	
+}

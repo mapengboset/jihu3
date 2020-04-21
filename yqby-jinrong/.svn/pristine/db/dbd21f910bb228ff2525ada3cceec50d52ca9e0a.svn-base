@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.TbStoreAgentMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.TbStoreAgent" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="cityAgentId" property="cityagentid" jdbcType="BIGINT" />
+    <result column="agentName" property="agentname" jdbcType="VARCHAR" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="agentPwd" property="agentpwd" jdbcType="VARCHAR" />
+    <result column="provinceId" property="provinceid" jdbcType="BIGINT" />
+    <result column="cityId" property="cityid" jdbcType="BIGINT" />
+    <result column="areaId" property="areaid" jdbcType="BIGINT" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="agentType" property="agenttype" jdbcType="TINYINT" />
+    <result column="agentLinkMan" property="agentlinkman" jdbcType="VARCHAR" />
+    <result column="userType" property="usertype" jdbcType="TINYINT" />
+    <result column="account" property="account" jdbcType="VARCHAR" />
+    <result column="wealth" property="wealth" jdbcType="INTEGER" />
+    <result column="userToken" property="usertoken" jdbcType="VARCHAR" />
+    <result column="pId" property="pid" jdbcType="BIGINT" />
+    <result column="operator" property="operator" jdbcType="VARCHAR" />
+    <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="regTime" property="regtime" jdbcType="INTEGER" />
+    <result column="agencyFree" property="agencyfree" jdbcType="TINYINT" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="idCard" property="idcard" jdbcType="VARCHAR" />
+    <result column="agentPic" property="agentpic" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, cityAgentId, agentName, mobile, agentPwd, provinceId, cityId, areaId, address, 
+    agentType, agentLinkMan, userType, account, wealth, userToken, pId, operator, createTime, 
+    regTime, agencyFree, status, idCard, agentPic
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.abstracts.TbStoreAgentExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from tb_store_agent
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_store_agent
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from tb_store_agent
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.TbStoreAgent" >
+    insert into tb_store_agent (id, cityAgentId, agentName, 
+      mobile, agentPwd, provinceId, 
+      cityId, areaId, address, 
+      agentType, agentLinkMan, userType, 
+      account, wealth, userToken, 
+      pId, operator, createTime, 
+      regTime, agencyFree, status, 
+      idCard, agentPic)
+    values (#{id,jdbcType=BIGINT}, #{cityagentid,jdbcType=BIGINT}, #{agentname,jdbcType=VARCHAR}, 
+      #{mobile,jdbcType=VARCHAR}, #{agentpwd,jdbcType=VARCHAR}, #{provinceid,jdbcType=BIGINT}, 
+      #{cityid,jdbcType=BIGINT}, #{areaid,jdbcType=BIGINT}, #{address,jdbcType=VARCHAR}, 
+      #{agenttype,jdbcType=TINYINT}, #{agentlinkman,jdbcType=VARCHAR}, #{usertype,jdbcType=TINYINT}, 
+      #{account,jdbcType=VARCHAR}, #{wealth,jdbcType=INTEGER}, #{usertoken,jdbcType=VARCHAR}, 
+      #{pid,jdbcType=BIGINT}, #{operator,jdbcType=VARCHAR}, #{createtime,jdbcType=TIMESTAMP}, 
+      #{regtime,jdbcType=INTEGER}, #{agencyfree,jdbcType=TINYINT}, #{status,jdbcType=TINYINT}, 
+      #{idcard,jdbcType=VARCHAR}, #{agentpic,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.TbStoreAgent" >
+    insert into tb_store_agent
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="cityagentid != null" >
+        cityAgentId,
+      </if>
+      <if test="agentname != null" >
+        agentName,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="agentpwd != null" >
+        agentPwd,
+      </if>
+      <if test="provinceid != null" >
+        provinceId,
+      </if>
+      <if test="cityid != null" >
+        cityId,
+      </if>
+      <if test="areaid != null" >
+        areaId,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="agenttype != null" >
+        agentType,
+      </if>
+      <if test="agentlinkman != null" >
+        agentLinkMan,
+      </if>
+      <if test="usertype != null" >
+        userType,
+      </if>
+      <if test="account != null" >
+        account,
+      </if>
+      <if test="wealth != null" >
+        wealth,
+      </if>
+      <if test="usertoken != null" >
+        userToken,
+      </if>
+      <if test="pid != null" >
+        pId,
+      </if>
+      <if test="operator != null" >
+        operator,
+      </if>
+      <if test="createtime != null" >
+        createTime,
+      </if>
+      <if test="regtime != null" >
+        regTime,
+      </if>
+      <if test="agencyfree != null" >
+        agencyFree,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="idcard != null" >
+        idCard,
+      </if>
+      <if test="agentpic != null" >
+        agentPic,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="cityagentid != null" >
+        #{cityagentid,jdbcType=BIGINT},
+      </if>
+      <if test="agentname != null" >
+        #{agentname,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="agentpwd != null" >
+        #{agentpwd,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceid != null" >
+        #{provinceid,jdbcType=BIGINT},
+      </if>
+      <if test="cityid != null" >
+        #{cityid,jdbcType=BIGINT},
+      </if>
+      <if test="areaid != null" >
+        #{areaid,jdbcType=BIGINT},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="agenttype != null" >
+        #{agenttype,jdbcType=TINYINT},
+      </if>
+      <if test="agentlinkman != null" >
+        #{agentlinkman,jdbcType=VARCHAR},
+      </if>
+      <if test="usertype != null" >
+        #{usertype,jdbcType=TINYINT},
+      </if>
+      <if test="account != null" >
+        #{account,jdbcType=VARCHAR},
+      </if>
+      <if test="wealth != null" >
+        #{wealth,jdbcType=INTEGER},
+      </if>
+      <if test="usertoken != null" >
+        #{usertoken,jdbcType=VARCHAR},
+      </if>
+      <if test="pid != null" >
+        #{pid,jdbcType=BIGINT},
+      </if>
+      <if test="operator != null" >
+        #{operator,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="regtime != null" >
+        #{regtime,jdbcType=INTEGER},
+      </if>
+      <if test="agencyfree != null" >
+        #{agencyfree,jdbcType=TINYINT},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="idcard != null" >
+        #{idcard,jdbcType=VARCHAR},
+      </if>
+      <if test="agentpic != null" >
+        #{agentpic,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.abstracts.TbStoreAgentExample" resultType="java.lang.Integer" >
+    select count(*) from tb_store_agent
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.TbStoreAgent" >
+    update tb_store_agent
+    <set >
+      <if test="cityagentid != null" >
+        cityAgentId = #{cityagentid,jdbcType=BIGINT},
+      </if>
+      <if test="agentname != null" >
+        agentName = #{agentname,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="agentpwd != null" >
+        agentPwd = #{agentpwd,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceid != null" >
+        provinceId = #{provinceid,jdbcType=BIGINT},
+      </if>
+      <if test="cityid != null" >
+        cityId = #{cityid,jdbcType=BIGINT},
+      </if>
+      <if test="areaid != null" >
+        areaId = #{areaid,jdbcType=BIGINT},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="agenttype != null" >
+        agentType = #{agenttype,jdbcType=TINYINT},
+      </if>
+      <if test="agentlinkman != null" >
+        agentLinkMan = #{agentlinkman,jdbcType=VARCHAR},
+      </if>
+      <if test="usertype != null" >
+        userType = #{usertype,jdbcType=TINYINT},
+      </if>
+      <if test="account != null" >
+        account = #{account,jdbcType=VARCHAR},
+      </if>
+      <if test="wealth != null" >
+        wealth = #{wealth,jdbcType=INTEGER},
+      </if>
+      <if test="usertoken != null" >
+        userToken = #{usertoken,jdbcType=VARCHAR},
+      </if>
+      <if test="pid != null" >
+        pId = #{pid,jdbcType=BIGINT},
+      </if>
+      <if test="operator != null" >
+        operator = #{operator,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null" >
+        createTime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="regtime != null" >
+        regTime = #{regtime,jdbcType=INTEGER},
+      </if>
+      <if test="agencyfree != null" >
+        agencyFree = #{agencyfree,jdbcType=TINYINT},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="idcard != null" >
+        idCard = #{idcard,jdbcType=VARCHAR},
+      </if>
+      <if test="agentpic != null" >
+        agentPic = #{agentpic,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.TbStoreAgent" >
+    update tb_store_agent
+    set cityAgentId = #{cityagentid,jdbcType=BIGINT},
+      agentName = #{agentname,jdbcType=VARCHAR},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      agentPwd = #{agentpwd,jdbcType=VARCHAR},
+      provinceId = #{provinceid,jdbcType=BIGINT},
+      cityId = #{cityid,jdbcType=BIGINT},
+      areaId = #{areaid,jdbcType=BIGINT},
+      address = #{address,jdbcType=VARCHAR},
+      agentType = #{agenttype,jdbcType=TINYINT},
+      agentLinkMan = #{agentlinkman,jdbcType=VARCHAR},
+      userType = #{usertype,jdbcType=TINYINT},
+      account = #{account,jdbcType=VARCHAR},
+      wealth = #{wealth,jdbcType=INTEGER},
+      userToken = #{usertoken,jdbcType=VARCHAR},
+      pId = #{pid,jdbcType=BIGINT},
+      operator = #{operator,jdbcType=VARCHAR},
+      createTime = #{createtime,jdbcType=TIMESTAMP},
+      regTime = #{regtime,jdbcType=INTEGER},
+      agencyFree = #{agencyfree,jdbcType=TINYINT},
+      status = #{status,jdbcType=TINYINT},
+      idCard = #{idcard,jdbcType=VARCHAR},
+      agentPic = #{agentpic,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

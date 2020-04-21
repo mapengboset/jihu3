@@ -1,0 +1,117 @@
+# 基础数据库
+# JDBC驱动类名
+base.jdbc.driverClassName=com.mysql.jdbc.Driver
+# JDBC连接地址
+base.jdbc.url=jdbc:mysql://47.94.254.221:3306/easy_money_3_0_0?allowMultiQueries=true&useUnicode=true&characterEncoding=utf8
+# JDBC用户名称
+base.jdbc.username=test
+# JDBC用户密码
+base.jdbc.password=Yqbing666-8881
+# DBCP初始化大小
+base.dbcp.initialSize=5
+# DBCP最大激活数
+base.dbcp.maxActive=100
+# DBCP最大空闲数
+base.dbcp.maxIdle=30
+# DBCP最大等待数
+base.dbcp.maxWait=1000
+# DBCP预处理声明
+base.dbcp.poolPreparedStatements=true
+# DBCP默认自动提交
+base.dbcp.defaultAutoCommit=false
+# DBCP自动回收活动连接时间
+base.dbcp.timeBetweenEvictionRunsMillis=3600000
+# DBCP最小回收空闲连接时间
+base.dbcp.minEvictableIdleTimeMillis=3600000
+
+
+#从数据库
+# JDBC驱动类名
+base.slave.driverClassName=com.mysql.jdbc.Driver
+# JDBC连接地址
+base.slave.url=jdbc:mysql://47.94.254.221:3306/easy_money_3_0_0?allowMultiQueries=true&useUnicode=true&characterEncoding=utf8
+# JDBC用户名称
+base.slave.username=test
+# JDBC用户密码
+base.slave.password=Yqbing666-8881
+# DBCP初始化大小
+base.slave.initialSize=5
+# DBCP最大激活数
+base.slave.maxActive=100
+# DBCP最大空闲数
+base.slave.maxIdle=30
+# DBCP最大等待数
+base.slave.maxWait=1000
+# DBCP预处理声明
+base.slave.poolPreparedStatements=true
+# DBCP默认自动提交
+base.slave.defaultAutoCommit=false
+# DBCP自动回收活动连接时间
+base.slave.timeBetweenEvictionRunsMillis=3600000
+# DBCP最小回收空闲连接时间
+base.slave.minEvictableIdleTimeMillis=3600000
+
+
+
+
+# Redis配置
+# Redis主机地址
+redis.host=47.94.211.93
+# Redis服务端口
+redis.port=6379
+#Redis认证密码
+redis.password=yqbing2018
+# Redis数据库选择
+redis.dbIndex=1
+# Redis超时时间
+redis.timeout=1000
+# Redis连接池最大连接数
+redis.pool.maxTotal=200
+# Redis连接池最大等待时间(毫秒)
+redis.pool.maxWaitMillis=300
+# Redis连接池最小空闲连接数
+redis.pool.minIdle=10
+# Redis连接池最大空闲连接数
+redis.pool.maxIdle=50
+# Redis连接池借出时检测
+redis.pool.testOnBorrow=true
+# Redis连接池返还时检测
+redis.pool.testOnReturn=true
+# Redis连接池空闲时检测
+redis.pool.testWhileIdle=true
+
+
+
+#--------------------------------------------------------------------------------------------------------------------
+#appId 赞吧提供
+ant_appId=201812251159481205954
+#android appid
+ant_appId_android=2018120462475299
+ant_appId_ios=2018120462475299
+ant_UID=
+#pid
+ant_pid=2088231557568653
+#秘钥格式  RSA2
+ant_RSA2=RSA2
+#签名算法	 SHA256WithRSA
+ant_sign=SHA256WithRSA
+#授权私钥钥 传给 ios app
+ant_RSA_PRIVATE_ios=MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCURSOdWUR2orsGayaUyOTeGESHZveCGIvWrR7V/iqm3UXwmHupMGOHtSM9v0IfASph9uaHG7kwWio6j4HQ925P6zQ1VkkCVjiAmyVaeYabjAWjsBNqt4+kEzzA7pNyArYU/uVx7IU4xY1XbSG7xAgK16yIN3KDnPvIUx5jMHDqcAtO6u578l7x5qAIlE/DC7Hn8J1QJP7REJAQWagwtXcjI9HGgtj3BauhhTD3SfwWFO8JJIe2nL1vxioIrh38OSuFWoyIku8t6gqfKQyzJq5wmHwRD870AF8T3ihPV6I9sDl6wYwBbnsLqFgVFg4A541cMBt342x9UXFm9l30kDVzAgMBAAECggEAJSTU8TxFvHqz473AIpHZVBI8SLdw1fSUQ6mHChDsWnUgak+o2w+2P28Pbw6U3/OIzJXv1nUJhaVw4s7EtLbnubmwkJQXIjC7Yux7BRlgsWL4nrMjih6GK5JuK98YrP0k5Eme7VVVYo2LBRXf14waf6zcGhvZ4kLXiK3Z9PtTrkcTzFh8OVp5zXXFbVqQbp4SPEoyNE6GOUzvb4nXpz9hzuIjEMRGaGY2r2oXZiaeJhATatJmNJXHmmdNfgo5xcJnVW3uKxMyGEup6UwAxSqehH2vQ63sKYo5gfgz5prQCqDDZ2SQgejr1qV/hhc7Q8Ika0rE93OuZiPYbVH3jzygQQKBgQDuqR7In7xPH6pef+ncvlYhLidoND5nH//0zf5gn2LrMCWl7REVy0vtCLrJml+5eyr6576uheFdNcv/VxHoUkMhwcOvQxQ5v99WoPKeoGmS/Z8QL48tfk4CFL/Mut6auY+bqkRZZBp6hDgV7wyQ7fYT/lFzn0KqGMQKxU7g6KQCQwKBgQCfCtVWsuk0B0HLCx0u7CiYNF5b5UixdBReUNZ5WoOFtT8xgtJrH82Xtu9IhFVAkUYtN3rZ7Ge76InOzQ7Bj7NI2r2CWcZ6n1F9j0mzkSRl1wN3hdyRQHUZWkcWdfZiVh3XKWYXSfKVSiN6Qd+t3RB4MMHeGurzkyOsh9ud1bBFEQKBgGcYGzoi9l9fmGLV8pnuhpoyq8cxujsl8ZU4XsgyUbKyy7CPZa/6b8Pm33ky/GLNN9XGwfH111JCaOrWG+A1mNY+M1/EJDqGDd4IDIZFWRWsBUgio0DNrLjtaaTwnDROMCDYPko3GdEOyIOBDfaVNJWSaHD/vPZpWFYmwVoaZK6tAoGBAI3tyAbv8Ib6tu8wwuFd5Lg3e8F8cwvRcF/euhdf/CE1ZuiTO55Xqkxq90z6s23EdyDg8uRJQSWC1oBTpIh96dvpQNdzsFk7lih716TEsPulDrX6IqUJJbbzRp83tCF7gnPBwRalajNqDxEKekeZERqBQHEqCmRF+b79GrLWwNBRAoGBAKzVx/0C6+hk9se2Z6XhqsRgv3b6nW8hJJABQCqOSAb+CMPfHx4EkYYOoc+1VxgtWYK55WyhgzQCj3w05o4P0SQwuuqKCnfgTiYZiOPfazfssLcGXzLZ+LXd/NBnQzj0o9Tyxra3xZwuDREwGD7Qj6DOUps35U9Uk9EkL9XRUmch                   
+ant_RSA_PRIVATE_android=MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCURSOdWUR2orsGayaUyOTeGESHZveCGIvWrR7V/iqm3UXwmHupMGOHtSM9v0IfASph9uaHG7kwWio6j4HQ925P6zQ1VkkCVjiAmyVaeYabjAWjsBNqt4+kEzzA7pNyArYU/uVx7IU4xY1XbSG7xAgK16yIN3KDnPvIUx5jMHDqcAtO6u578l7x5qAIlE/DC7Hn8J1QJP7REJAQWagwtXcjI9HGgtj3BauhhTD3SfwWFO8JJIe2nL1vxioIrh38OSuFWoyIku8t6gqfKQyzJq5wmHwRD870AF8T3ihPV6I9sDl6wYwBbnsLqFgVFg4A541cMBt342x9UXFm9l30kDVzAgMBAAECggEAJSTU8TxFvHqz473AIpHZVBI8SLdw1fSUQ6mHChDsWnUgak+o2w+2P28Pbw6U3/OIzJXv1nUJhaVw4s7EtLbnubmwkJQXIjC7Yux7BRlgsWL4nrMjih6GK5JuK98YrP0k5Eme7VVVYo2LBRXf14waf6zcGhvZ4kLXiK3Z9PtTrkcTzFh8OVp5zXXFbVqQbp4SPEoyNE6GOUzvb4nXpz9hzuIjEMRGaGY2r2oXZiaeJhATatJmNJXHmmdNfgo5xcJnVW3uKxMyGEup6UwAxSqehH2vQ63sKYo5gfgz5prQCqDDZ2SQgejr1qV/hhc7Q8Ika0rE93OuZiPYbVH3jzygQQKBgQDuqR7In7xPH6pef+ncvlYhLidoND5nH//0zf5gn2LrMCWl7REVy0vtCLrJml+5eyr6576uheFdNcv/VxHoUkMhwcOvQxQ5v99WoPKeoGmS/Z8QL48tfk4CFL/Mut6auY+bqkRZZBp6hDgV7wyQ7fYT/lFzn0KqGMQKxU7g6KQCQwKBgQCfCtVWsuk0B0HLCx0u7CiYNF5b5UixdBReUNZ5WoOFtT8xgtJrH82Xtu9IhFVAkUYtN3rZ7Ge76InOzQ7Bj7NI2r2CWcZ6n1F9j0mzkSRl1wN3hdyRQHUZWkcWdfZiVh3XKWYXSfKVSiN6Qd+t3RB4MMHeGurzkyOsh9ud1bBFEQKBgGcYGzoi9l9fmGLV8pnuhpoyq8cxujsl8ZU4XsgyUbKyy7CPZa/6b8Pm33ky/GLNN9XGwfH111JCaOrWG+A1mNY+M1/EJDqGDd4IDIZFWRWsBUgio0DNrLjtaaTwnDROMCDYPko3GdEOyIOBDfaVNJWSaHD/vPZpWFYmwVoaZK6tAoGBAI3tyAbv8Ib6tu8wwuFd5Lg3e8F8cwvRcF/euhdf/CE1ZuiTO55Xqkxq90z6s23EdyDg8uRJQSWC1oBTpIh96dvpQNdzsFk7lih716TEsPulDrX6IqUJJbbzRp83tCF7gnPBwRalajNqDxEKekeZERqBQHEqCmRF+b79GrLWwNBRAoGBAKzVx/0C6+hk9se2Z6XhqsRgv3b6nW8hJJABQCqOSAb+CMPfHx4EkYYOoc+1VxgtWYK55WyhgzQCj3w05o4P0SQwuuqKCnfgTiYZiOPfazfssLcGXzLZ+LXd/NBnQzj0o9Tyxra3xZwuDREwGD7Qj6DOUps35U9Uk9EkL9XRUmch
+#传给赞吧私钥
+ant_privatekey=MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCURSOdWUR2orsGayaUyOTeGESHZveCGIvWrR7V/iqm3UXwmHupMGOHtSM9v0IfASph9uaHG7kwWio6j4HQ925P6zQ1VkkCVjiAmyVaeYabjAWjsBNqt4+kEzzA7pNyArYU/uVx7IU4xY1XbSG7xAgK16yIN3KDnPvIUx5jMHDqcAtO6u578l7x5qAIlE/DC7Hn8J1QJP7REJAQWagwtXcjI9HGgtj3BauhhTD3SfwWFO8JJIe2nL1vxioIrh38OSuFWoyIku8t6gqfKQyzJq5wmHwRD870AF8T3ihPV6I9sDl6wYwBbnsLqFgVFg4A541cMBt342x9UXFm9l30kDVzAgMBAAECggEAJSTU8TxFvHqz473AIpHZVBI8SLdw1fSUQ6mHChDsWnUgak+o2w+2P28Pbw6U3/OIzJXv1nUJhaVw4s7EtLbnubmwkJQXIjC7Yux7BRlgsWL4nrMjih6GK5JuK98YrP0k5Eme7VVVYo2LBRXf14waf6zcGhvZ4kLXiK3Z9PtTrkcTzFh8OVp5zXXFbVqQbp4SPEoyNE6GOUzvb4nXpz9hzuIjEMRGaGY2r2oXZiaeJhATatJmNJXHmmdNfgo5xcJnVW3uKxMyGEup6UwAxSqehH2vQ63sKYo5gfgz5prQCqDDZ2SQgejr1qV/hhc7Q8Ika0rE93OuZiPYbVH3jzygQQKBgQDuqR7In7xPH6pef+ncvlYhLidoND5nH//0zf5gn2LrMCWl7REVy0vtCLrJml+5eyr6576uheFdNcv/VxHoUkMhwcOvQxQ5v99WoPKeoGmS/Z8QL48tfk4CFL/Mut6auY+bqkRZZBp6hDgV7wyQ7fYT/lFzn0KqGMQKxU7g6KQCQwKBgQCfCtVWsuk0B0HLCx0u7CiYNF5b5UixdBReUNZ5WoOFtT8xgtJrH82Xtu9IhFVAkUYtN3rZ7Ge76InOzQ7Bj7NI2r2CWcZ6n1F9j0mzkSRl1wN3hdyRQHUZWkcWdfZiVh3XKWYXSfKVSiN6Qd+t3RB4MMHeGurzkyOsh9ud1bBFEQKBgGcYGzoi9l9fmGLV8pnuhpoyq8cxujsl8ZU4XsgyUbKyy7CPZa/6b8Pm33ky/GLNN9XGwfH111JCaOrWG+A1mNY+M1/EJDqGDd4IDIZFWRWsBUgio0DNrLjtaaTwnDROMCDYPko3GdEOyIOBDfaVNJWSaHD/vPZpWFYmwVoaZK6tAoGBAI3tyAbv8Ib6tu8wwuFd5Lg3e8F8cwvRcF/euhdf/CE1ZuiTO55Xqkxq90z6s23EdyDg8uRJQSWC1oBTpIh96dvpQNdzsFk7lih716TEsPulDrX6IqUJJbbzRp83tCF7gnPBwRalajNqDxEKekeZERqBQHEqCmRF+b79GrLWwNBRAoGBAKzVx/0C6+hk9se2Z6XhqsRgv3b6nW8hJJABQCqOSAb+CMPfHx4EkYYOoc+1VxgtWYK55WyhgzQCj3w05o4P0SQwuuqKCnfgTiYZiOPfazfssLcGXzLZ+LXd/NBnQzj0o9Tyxra3xZwuDREwGD7Qj6DOUps35U9Uk9EkL9XRUmch
+
+
+
+
+
+#-----------------------------------测试环境  http://duchong-api.ngrok.zanclick.cn/gateway.do
+#####################################ant_ceshi=http://duchong-api.ngrok.zanclick.cn/gateway.do
+#赞吧  1测式环境
+ant_ceshi=http://jihu-api.ngrok.zanclick.cn/gateway.do
+#付款页面
+
+#赞吧  1 付款
+ant_html5=http://jihu-html.ngrok.zanclick.cn/open/html/pay.html
+#测试环境 本服务器地址
+ant_https=https://jinrongt.jihustore.com/service-bing

@@ -1,0 +1,26 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 课程统计标识接口
+ * 
+ * @author cychen
+ *
+ */
+public interface RCourseStatisticsId {
+
+	/**
+	 * 递增课程统计标识
+	 * 
+	 * @return 课程统计标识
+	 */
+	public Long increment();
+
+	/**
+	 * 递增课程统计标识
+	 * 
+	 * @param time 指定时间(毫秒)
+	 * @return 课程统计标识
+	 */
+	public Long increment(long time);
+
+}

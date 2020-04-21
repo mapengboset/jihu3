@@ -1,0 +1,192 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.text.ParseException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.dao.StoreInfoMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreUserMapper;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.service.CommonService;
+import com.yqbing.servicebing.service.UserLogIngService;
+import com.yqbing.servicebing.utils.CloudUtil;
+import com.yqbing.servicebing.utils.DateUtil;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.utils.SendUtils;
+import com.yqbing.servicebing.webapp.controller.UserLogIngController;
+import com.yqbing.servicebing.webapp.response.UserService;
+
+@Service("userLogIngService")
+@SuppressWarnings("all")
+public class UserLogIngServiceImpl  extends CommonService implements UserLogIngService{
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserLogIngServiceImpl.class);
+	private static final byte t = 0;
+	private static final byte s = 1;
+	@Resource
+	private RUserLogBean rUserLogBean = null;
+	
+	@Resource
+	private UserInfoBeanMapper userInfoBeanMapper = null;
+	@Value("${user_service}")
+	private String userHttps = null;
+	@Override
+	public String login(String password, String phone, String code,
+				String device, String version, Integer plat) {
+			
+	            if(phone.equals("youke123123")){
+				
+				Map<String,Object> map = new HashMap<String,Object>();
+				map.put("token","yokejixudengluzhong");
+				map.put("first","wu");
+				map.put("username","游客");
+				map.put("img","");
+				map.put("phone","youke123123");
+			    map.put("password",0);
+			//	map.put("replace",""}user.getPhone()==null?"":user.getPhone());
+			//	map.put("UploadToken",uploadToken);
+				return NotifyUtil.success(map);
+		       }
+		
+		
+		        short y = 1;
+		        UserInfoBean user =null;
+		        String token = null;
+		        //判断验证码是否存在/是否超时
+				String code2 = getCode(code,phone);
+				if(code2 != null){
+					return code2;
+				}
+				//成功,返回token//缓存到key(phone)redis
+				user = rUserLogBean.getPhone(phone);
+				if(user == null){
+					user = userInfoBeanMapper.queryAndPhone(phone);
+				}
+				if(user == null){
+					user = new UserInfoBean();
+					user.setPhone(phone);
+				
+					user.setDevice(device);
+				    user.setPassword(password);
+					user.setType(1+"");
+					user.setStatus(t);
+				//	user.setVersion(version);
+				//	user.setPlat(plat);
+					UserService userService = getUserId(device, version, phone, plat,y);
+					if(userService == null){
+						return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "小萌萌.不好意思再来一次吧");
+					}
+					user.setId(Long.valueOf(userService.getUserId()+""));
+					token = userService.getToken();
+					user.setToken(token);
+					user.setCreateTime(new Date());
+					user.setName("梦想-"+phone);
+					int i = userInfoBeanMapper.insertSelective(user);
+					if(i == 0){
+						return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "小萌萌.不好意思再来一次吧");
+					}
+					rUserLogBean.sePhone(phone, user);
+					rUserLogBean.set(token, user);
+				
+	         }else{
+	        	 LOGGER.info("---------------------------用户登录信息"+user.getStatus()); 
+	        	 if(user.getStatus() == 1){//已经冻结禁止登陆
+	        		 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "已经冻结,请联系客服");
+	        	 }
+	        	 y = 2;
+	        	 UserService userService = getUserId(device, version, phone, plat,y);
+				 if(userService == null){
+						return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "老弟,不好意思再来一次吧");
+					}
+			//	 user.setId(Long.valueOf(userService.getUserId()+""));
+				 token = userService.getToken();
+	        	 user.setToken(token);
+	        	 user.setUpdateTime(new Date());
+	        	 if(token != null){
+	        		 
+	        		 userInfoBeanMapper.updateByPrimaryKeySelective(user);
+	        		 rUserLogBean.remove(token);
+	        	 }
+	         }
+			//	String uploadToken = CloudUtil.getUploadToken();
+				Map<String,Object> map = new HashMap<String,Object>();
+				map.put("token",token);
+				map.put("userId",user.getId());
+				/*map.put("username",user.getName()==null?"":user.getName());
+				map.put("img",user.getImage()==null?"":user.getImage());
+				map.put("phone",user.getPhone()==null?"":user.getPhone());*/
+				map.put("storeInfo",queryStore(token));
+					
+				map.put("password",user.getPassword());
+			//	map.put("replace",""}user.getPhone()==null?"":user.getPhone());
+			//	map.put("UploadToken",uploadToken);
+				return NotifyUtil.success(map);
+	}
+	
+	public  String getCode(String code,String phone){
+		Integer code1 = rUserLogBean.getCode(phone);
+		if(code1 == null || code1 == 0){
+			
+			return NotifyUtil.error(ErrorCodeEnum.EXISTPHONE, "老弟,请重新获取验证码");
+			
+		}else if(!code1.equals(Integer.valueOf(code))){//验证码错误
+			
+			return NotifyUtil.error(ErrorCodeEnum.ERRORCODE, "老弟,验证码写错了");
+		}
+		return null;
+	}
+	
+	public UserService getUserId(String device,String version,String mobile,Integer plat, short y){
+		Map<String,String> map = new HashMap<String, String>();
+		Map<String,String> map1 = new HashMap<String, String>();
+	//	Map<String, String> sign = ParamSignUtil.sign(map);
+	//	map.put("sign", sign)
+		String appChannel = "91";
+		if(plat == 2){//android
+			appChannel = "92";
+		}
+		map.put("appChannel", appChannel);
+		map.put("device", device);
+		map.put("version", version);
+		map.put("loginUser", mobile);
+		UserService userService = new UserService();
+		map1.put("data", new Gson().toJson(map));
+		String user= null;
+		if(y == 1){
+			
+			 user= SendUtils.doPost(userHttps+"/app/user/api/reg", map1);
+		}else{
+			 user= SendUtils.doPost(userHttps+"/app/user/api/login", map1);
+		}
+		JSONObject JSONObject = new JSONObject(user);
+		int code = JSONObject.getInt("code");
+		if(code != 0){
+			 
+			 return userService;
+		 }
+		 
+		 JSONObject object = JSONObject.getJSONObject("body");
+		 Integer userId = (Integer) object.get("userId");
+		 Integer appId = (Integer) object.get("appId");
+		 String token = object.getString("token");
+		 userService.setAppId(appId);
+		 userService.setUserId(userId);
+		 userService.setToken(token);
+		
+		return userService;
+	}
+}

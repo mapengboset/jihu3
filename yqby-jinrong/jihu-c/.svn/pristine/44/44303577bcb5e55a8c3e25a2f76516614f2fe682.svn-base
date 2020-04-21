@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="charset" content="utf-8">
+    <meta content="telephone=no,email=no,address=no" name="format-detection"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="frontend-mobile" content="yes"/>
+    <meta name="referrer" content="never">
+    <title>常见问题</title>
+    <link rel="stylesheet" href="http://www.yqbing.com/page/mobilePage/css/myPrivate.css">
+    <style>
+        *{margin:0;padding:0;}
+        li {
+            list-style: none;
+        }
+        .pbimg{width:100%;}
+        .pbimg img{
+            width:100%;}
+    </style>
+</head>
+<body>
+<div class="pbimg">
+  <img src="http://p2a60yqmm.bkt.clouddn.com/etcc1.png" class="img100" />
+  <img src="http://p2a60yqmm.bkt.clouddn.com/etcc2.png" class="img100" />
+  <img src="http://p2a60yqmm.bkt.clouddn.com/etcc3.png" class="img100" />
+  <img src="http://p2a60yqmm.bkt.clouddn.com/etcc4.png" class="img100" />
+  <img src="http://p2a60yqmm.bkt.clouddn.com/etcc5.png" class="img100" />
+  <img src="http://p2a60yqmm.bkt.clouddn.com/etcc6.png" class="img100" />
+  <img src="http://p2a60yqmm.bkt.clouddn.com/etcc7.png" class="img100" />
+  <img src="http://p2a60yqmm.bkt.clouddn.com/etcc8.png" class="img100" />
+  <img src="http://p2a60yqmm.bkt.clouddn.com/etcc9.png" class="img100" />
+  <img src="http://p2a60yqmm.bkt.clouddn.com/etcc10.png" class="img100" />
+  <img src="http://p2a60yqmm.bkt.clouddn.com/etcc11.png" class="img100" />
+  <img src="http://p2a60yqmm.bkt.clouddn.com/etcc12.png" class="img100" />
+  <img src="http://p2a60yqmm.bkt.clouddn.com/etcc13.png" class="img100" />
+  <img src="http://p2a60yqmm.bkt.clouddn.com/etcc14.png" class="img100" />
+</div>
+</body>
+
+</html>

@@ -1,0 +1,38 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import org.springframework.data.annotation.Reference;
+
+import com.yqbing.servicebing.service.IAliPayService;
+import com.yqbing.servicebing.utils.web.CommonResult;
+
+//支付宝付款
+public class ALIController {
+
+	@Reference
+	IAliPayService aliPayService;
+	
+	//调起支付
+	public CommonResult createPay(String pID,String amount){
+		
+		CommonResult ali = aliPayService.createPay(pID, amount);
+		
+		return ali;
+		
+	}
+	
+/*	public CommonResult notifyPay(){
+		
+		CommonResult ali = aliPayService.notifyPay();
+		
+		return ali;
+		
+	}*/
+	//交易查询,成功进行分账处理
+	public CommonResult queryPay(String trade_no){
+		
+		CommonResult ali = aliPayService.queryPay(trade_no);
+		
+		return ali;
+		
+	}
+}

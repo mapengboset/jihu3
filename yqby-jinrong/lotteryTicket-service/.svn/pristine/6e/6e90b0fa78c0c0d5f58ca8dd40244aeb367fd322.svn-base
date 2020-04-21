@@ -1,0 +1,541 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.request.AlipayFundTransToaccountTransferRequest;
+import com.alipay.api.response.AlipayFundTransToaccountTransferResponse;
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.StoreInfo;
+import com.yqbing.servicebing.repository.database.bean.StoreUser;
+import com.yqbing.servicebing.repository.database.bean.UserExt;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.WealthLog;
+import com.yqbing.servicebing.repository.database.dao.StoreInfoMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreUserMapper;
+import com.yqbing.servicebing.repository.database.dao.UserExtMapper;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.WealthLogMapper;
+import com.yqbing.servicebing.repository.jihuc.dao.SysDictMapper;
+import com.yqbing.servicebing.repository.redis.RAccountCodeLog;
+import com.yqbing.servicebing.repository.redis.RCashOutLog;
+import com.yqbing.servicebing.service.AccountService;
+import com.yqbing.servicebing.service.CommonService;
+import com.yqbing.servicebing.utils.DateUtil;
+import com.yqbing.servicebing.utils.HttpUtil;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.webapp.response.MyStoreInfo;
+
+
+
+@Service("accountService")
+@SuppressWarnings("all")
+public class AccountServiceImpl extends CommonService implements AccountService {
+    
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
+	 @Value("${charg_service}")
+	 private   String  chargHttps;
+	 @Value("${ali_https}")
+	 private   String  aliHttps;
+	 @Value("${ali_appid}")
+	 private   String  aliAppid;
+	 @Value("${private_key}")
+	 private   String  privateKey;
+	 @Value("${alipay_public_key}")
+	 private   String  alipayBublicKey;
+	 @Value("${ali_gateway}")
+	 private   String  aliGateway;
+	 @Resource
+	 private StoreUserMapper  storeUserMapper;
+	 @Resource
+	 private StoreInfoMapper  storeInfoMapper;
+	 @Resource
+	 private UserExtMapper  userExtMapper;
+	 @Resource
+	 private WealthLogMapper  wealthLogMapper;
+	 @Resource
+	 private RAccountCodeLog rAccountCodeLog = null;
+	 @Resource
+	 private SysDictMapper sysDictMapper = null;
+	 @Resource
+	 private UserInfoBeanMapper  userInfoBeanMapper;
+	
+	@Override
+	public String cashOut(String token, String money, String device,
+			Integer plat) {
+		
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		 if(!getIsOut()){
+			 return NotifyUtil.error(ErrorCodeEnum.OUTERROR);
+		 }
+		
+		StoreUser su = storeUserMapper.selectByUserId(infoBean.getId());
+			
+		if(su == null){
+				return NotifyUtil.error(ErrorCodeEnum.NOTSRORE, "店铺不存在");
+		}
+		//是否设置提现账号和密码
+		UserExt ue = userExtMapper.selectByUserId(infoBean.getId());
+		
+		if(ue == null){
+			
+			return NotifyUtil.error(ErrorCodeEnum.NOTALIPAY, "请设置提现账户信息");
+		}
+		if(ue !=null){
+			
+		    if(StringUtils.isBlank(ue.getAliAccount()) ||StringUtils.isBlank(ue.getPaypwd())){
+		
+		    	return NotifyUtil.error(ErrorCodeEnum.NOTALIPAY, "请设置提现账户密码");
+			
+		    }
+		}
+		StoreInfo storeInfo = storeInfoMapper.selectByPrimaryKey(su.getStoreId());
+		//认证情况下超过限额 (您的日提现额已用完,请明日再来)
+		//未认证 日提现额已用完,请明日再来
+		//全部认证情况下 超过门店额度,(门店额度不足,请明日在来)
+		//用户输入不是100倍数的时候,请输入100倍数
+		
+		
+		
+		//---------身份证或者 营业执照只上传一个情况下
+		//超过个人提现额(您的日提现额已经用完,请明日在来)
+		
+		//超过门店额度(请掌柜前去认证)
+		
+		 
+		Integer amount = Integer.valueOf(money);
+//-----------------------------------------------------------------------------------------------------------------------------------------
+		//普通用户不不支持提现
+		if(su.getStatus() == 1){
+			return NotifyUtil.error(ErrorCodeEnum.GENERAL);
+		}
+		
+		//门店冻结/审核中等 (您所在的门店异常,暂不支持提现)
+		if(storeInfo.getStoreState() != 1){
+			return NotifyUtil.error(ErrorCodeEnum.STOREERROR);
+		}
+		
+		//shopowner_withdrawal_limit 掌柜基本额度
+		String userSum = sysDictMapper.getShopowner("shopowner_withdrawal_limit");//掌柜基本额度
+		String waiterSum = sysDictMapper.getShopowner("waiter_withdrawal_limit");//店小二基本额度
+		String storeSum = sysDictMapper.getShopowner("store_withdrawal_limit");//门店总额度
+		String idcardsum = sysDictMapper.getShopowner("idcard_increase_limit");//身份证
+		String licensesum = sysDictMapper.getShopowner("license_increase_limit");//营业执照
+	//	String storeDaysum = sysDictMapper.getShopowner("store_daily_withdrawal_limit");//门店每日额度
+		//个人总累计额度
+		Integer umoney = wealthLogMapper.queryUserSum(infoBean.getId(),null,null);
+		if(umoney == null){
+			 umoney = 0;
+	 	}
+		//门店总累计额度 (queryStoreSum)
+		Integer Storemoney = wealthLogMapper.queryStoreSum(storeInfo.getStoreId());
+		if(Storemoney == null){
+			Storemoney = 0;
+	 	}
+		//个人当日总累计提现额
+		Integer dayMoney = wealthLogMapper.queryUserSum(infoBean.getId(),DateUtil.format(new Date())+" :00:00:00",DateUtil.format(new Date())+" :23:59:59");
+		if(dayMoney == null){
+			dayMoney = 0;
+	 	}
+		
+		//掌柜 ---------------门店是否认证
+		if(su.getStatus() == 3){//店长
+			
+			//1未认证
+		    if(storeInfo.getIdcardcheckstatus() !=2 && storeInfo.getLicensecheckstatus()!=2){
+		    	
+		    	//个人总累计额度 是否超过掌柜额度  -->请掌柜认证-->提现成功
+		    	if(umoney+amount >  Integer.valueOf(userSum)){
+		    		
+		    		return NotifyUtil.error(ErrorCodeEnum.STOROWEN);
+		    	}
+		    		//门店总累计额度 (queryStoreSum)是否超过门店总额度  --->请掌柜认证-->提现成功
+		    		
+		    		if(amount > (Integer.valueOf(storeSum) - Storemoney)){
+		    			
+		    			return NotifyUtil.error(ErrorCodeEnum.STOROWEN);
+		    		}
+		    		
+		    		
+		    		//------提现
+		    	}else{//已经认证
+		    		
+		    	    
+		    		//------->身份证  --个人当日累计额度 是否超过掌柜额度  -->请掌柜认证  -->门店日累计提现额是否超过门店总额度   -->提现成功
+		    		 if(storeInfo.getIdcardcheckstatus() ==2 && storeInfo.getLicensecheckstatus()!=2){
+		    	      
+		    			 if(dayMoney+amount >  Integer.valueOf(userSum) + Integer.valueOf(idcardsum)){
+		        		
+		        		return NotifyUtil.error(ErrorCodeEnum.STOROWEN);
+		        	   }
+		    	    
+		    		 }else if(storeInfo.getIdcardcheckstatus() !=2 && storeInfo.getLicensecheckstatus()==2){
+		    			 //------->营业执照  -->个人累计额度 是否超过掌柜额度  -->请掌柜认证 -->门店日累计提现额是否超过门店总额度 -->提现成功
+				    	    if(dayMoney+amount >  Integer.valueOf(userSum) + Integer.valueOf(licensesum)){
+				        		
+				        		return NotifyUtil.error(ErrorCodeEnum.STOROWEN);
+				        	}
+		    			 
+		    			 
+		    		 }else if(storeInfo.getIdcardcheckstatus() ==2 && storeInfo.getLicensecheckstatus()==2){
+		    			//------->身份+营业执照 -->个人累计额度 是否超过掌柜额度  -->日提现额已经用完,请明日再来 -->门店日累计提现额是否超过门店总额度 -->提现成功
+				            if(dayMoney+amount >  Integer.valueOf(userSum) + Integer.valueOf(licensesum) + Integer.valueOf(idcardsum)){
+				        		
+				        		return NotifyUtil.error(ErrorCodeEnum.DAYLACK);
+				        	}
+		    		 }
+		    	}
+			
+			
+		}else if(su.getStatus() == 2){//店员
+		
+		//店小二 -------------------门店是否认证
+		//未认证
+		//个人累计额度 是否超过店小二基本额度 -->请掌柜认证 -->门店总累计提现额 是否超过门店额度 -->请掌柜认证-->提现成功
+			
+		if(storeInfo.getIdcardcheckstatus() !=2 && storeInfo.getLicensecheckstatus()!=2){
+			
+			if(umoney+amount >  Integer.valueOf(waiterSum)){
+	    		
+	    		return NotifyUtil.error(ErrorCodeEnum.STOROWEN);
+	    	}
+			if(amount > (Integer.valueOf(storeSum) - Storemoney)){
+				
+				return NotifyUtil.error(ErrorCodeEnum.STOROWEN);
+			}
+		}else{
+		//2认证
+		//------->身份证  --.个人日累计额度 是否超过店小二基本额度  -->请掌柜认证  -->门店日累计提现额是否超过门店总额度 -->提现成功
+			if(storeInfo.getIdcardcheckstatus() ==2 && storeInfo.getLicensecheckstatus()!=2){
+				
+				if(dayMoney+amount >  Integer.valueOf(waiterSum) + Integer.valueOf(idcardsum)){
+		    		
+		    		return NotifyUtil.error(ErrorCodeEnum.STOROWEN);
+		    	}
+			}else if(storeInfo.getIdcardcheckstatus() !=2 && storeInfo.getLicensecheckstatus()==2){
+				//------->营业执照  -->个人日累计额度 是否超过店小二基本额度  -->请掌柜认证 -->门店日累计提现额是否超过门店总额度 -->提现成功
+		         if(dayMoney+amount >  Integer.valueOf(waiterSum) + Integer.valueOf(licensesum)){
+		     		
+		     		return NotifyUtil.error(ErrorCodeEnum.STOROWEN);
+		     	 }
+			}else if(storeInfo.getIdcardcheckstatus() ==2 && storeInfo.getLicensecheckstatus()==2){
+				//------->身份+营业执照 -->个人日累计额度 是否超过店小二基本额度  -->日提现额已经用完,请明日再来 -->门店日累计提现额是否超过门店总额度 -->提现成功
+		         if(dayMoney+amount >  Integer.valueOf(waiterSum) + Integer.valueOf(licensesum) + Integer.valueOf(idcardsum)){
+		     		
+		     		return NotifyUtil.error(ErrorCodeEnum.DAYLACK);
+		     	 }
+			}
+		
+		} 
+	 }
+        //门店日累计提现额是否超过门店总额度 
+        Integer StoreDaymoney = wealthLogMapper.queryStoreDaySum(storeInfo.getStoreId(),DateUtil.format(new Date())+" :00:00:00",DateUtil.format(new Date())+" :23:59:59");//门店当日总累计额度
+ 	    if(StoreDaymoney == null){
+ 	    	StoreDaymoney = 0;
+ 	    }
+ 	    if(amount > Integer.valueOf(storeSum) - StoreDaymoney){
+ 	    	return NotifyUtil.error(ErrorCodeEnum.STOROLACK);
+ 	    }
+ 	   //-----------提现  
+ 	   if(infoBean.getWealth() <= amount){//提现金额不能大于账户实际金额
+			 return NotifyUtil.error(ErrorCodeEnum.NOTMONEY);
+		}
+		//判断同一个订单号,是否提现成功
+ 	    String outTradeNo = getOutOrder();
+		WealthLog weal = wealthLogMapper.selectByOrder(outTradeNo);
+		if(weal != null ){//财富已经发送过
+			return NotifyUtil.error(ErrorCodeEnum.MONEYSEND, "已经申请了提现请稍等");
+		}
+		
+		
+		AlipayClient alipayClient = new DefaultAlipayClient(aliGateway, aliAppid, privateKey, "json", "UTF-8", alipayBublicKey, "RSA2");
+		AlipayFundTransToaccountTransferRequest request = new AlipayFundTransToaccountTransferRequest();
+		Map<String,Object> map = new HashMap<String, Object>();
+		
+		map.put("out_biz_no",outTradeNo);
+		map.put("payee_type", "ALIPAY_LOGONID");
+	    map.put("payee_account", ue.getAliAccount());//支付宝账号
+		
+		 
+		map.put("amount",new BigDecimal(amount).divide(new BigDecimal(100)));
+		
+		
+		request.setBizContent(new Gson().toJson(map));
+		
+		AlipayFundTransToaccountTransferResponse response = null;
+		
+		try {
+			response = alipayClient.execute(request);
+			if(response.isSuccess()){
+				
+			//	if(response.getSubCode().equals("10000")){//提现成功,存到提现日志
+					if(weal == null){
+						weal = new WealthLog();
+					}
+					short s = 1;
+					weal.setUserId(infoBean.getId());
+					weal.setUserName(infoBean.getName());
+					weal.setLoginPlat(s);
+					weal.setWealthBefore(infoBean.getWealth());
+					weal.setWealthAfter(infoBean.getWealth()-amount);
+					weal.setWealthCount(amount);
+				
+					weal.setLogType(s);
+					weal.setWealthState(s);
+					weal.setExchangeType(s);
+					weal.setAlipay(ue.getAliAccount());
+					weal.setCreateTime(new Date());
+					weal.setRecTime(new Date());
+					wealthLogMapper.insertSelective(weal);
+					infoBean.setWealth(infoBean.getWealth()-amount);
+					infoBean.setUpdateTime(new Date());
+					userInfoBeanMapper.updateByPrimaryKeySelective(infoBean);
+		//		}
+			}else{
+				//提现失败原因
+				if(weal == null){
+					weal = new WealthLog();
+				}
+				short s = 1;
+				weal.setUserId(infoBean.getId());
+				weal.setUserName(infoBean.getName());
+				weal.setLoginPlat(s);
+				weal.setWealthBefore(infoBean.getWealth());
+				weal.setWealthAfter(infoBean.getWealth());
+				weal.setWealthCount(amount);
+			
+				weal.setLogType(s);
+				short s1 = 2;
+				weal.setWealthState(s1);
+				weal.setExchangeType(s);
+				weal.setAlipay(ue.getAliAccount());
+				weal.setTypeDesc(response.getSubMsg());
+				wealthLogMapper.insertSelective(weal);
+				return NotifyUtil.error(ErrorCodeEnum.MONEYSEND,response.getSubMsg());
+			}
+			
+			
+		} catch (AlipayApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+		}
+		
+		return NotifyUtil.success();
+	}
+
+
+
+	@Override
+	public String myStoreInfo(String token) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+		MyStoreInfo myStoreInfo = new MyStoreInfo();
+		StoreUser su = storeUserMapper.selectByUserId(infoBean.getId());
+		StoreInfo storeInfo = null;
+		if(su != null){
+		//	 return NotifyUtil.error(ErrorCodeEnum.NOTSRORE, "店铺不存在");
+			 myStoreInfo.setLevel(su.getStatus()+"");
+			 storeInfo = storeInfoMapper.selectByPrimaryKey(su.getStoreId());
+			 if(storeInfo != null){
+				 //	return NotifyUtil.error(ErrorCodeEnum.NOTSRORE, "店铺不存在");
+				 myStoreInfo.setImg(storeInfo.getStorePic());
+				 myStoreInfo.setStoreCode(storeInfo.getStoreCode());
+				 myStoreInfo.setStoreId(storeInfo.getStoreId());
+				 if(storeInfo.getStoreState() == 1){
+					 
+					 myStoreInfo.setStoreName(su.getStatus() ==2?infoBean.getName():storeInfo.getStoreName());
+				 }else{
+					 myStoreInfo.setStoreName("梦想-"+infoBean.getPhone());
+				 }
+				 myStoreInfo.setIdCardCheckStatus(storeInfo.getIdcardcheckstatus());
+				 myStoreInfo.setLicenseCheckStatus(storeInfo.getLicensecheckstatus());
+				 myStoreInfo.setStoreState(storeInfo.getStoreState());
+			 }
+		}else{
+			 myStoreInfo.setStoreName(infoBean.getName());
+		 }
+		myStoreInfo.setWealth(infoBean.getWealth());
+		
+		return NotifyUtil.success(myStoreInfo);
+	}
+
+
+
+	@Override
+	public String cashoutRegister(String token, String aliaccount, String name,
+			String card, String password) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+		UserExt ue = userExtMapper.selectByUserId(infoBean.getId());
+		if(ue == null){//从来没有绑定过
+			UserExt userExt = new UserExt();
+			userExt.setAliAccount(aliaccount);
+			userExt.setAliName(name);
+			userExt.setIdcard(card);
+			userExt.setPaypwd(password);
+			userExt.setUserId(infoBean.getId());
+			userExt.setCreateTime(new Date());
+			userExtMapper.insert(userExt);
+			return NotifyUtil.success();
+		}
+		ue.setAliAccount(aliaccount);
+		ue.setAliName(name);
+		ue.setIdcard(card);
+		ue.setUserId(infoBean.getId());
+		userExtMapper.updateByPrimaryKey(ue);
+		return  NotifyUtil.success();
+	}
+
+
+
+	@Override
+	public String resPassword(String token, String password) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+		UserExt ue = userExtMapper.selectByUserId(infoBean.getId());
+		
+		
+		if(ue == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOTALIPAY, "没有设置过密码");
+		}
+		ue.setPaypwd(password);
+		userExtMapper.updateByPrimaryKey(ue);
+		return NotifyUtil.success();
+	}
+
+
+
+	@Override
+	public String resPasswordPage(String token) {
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("phone", infoBean.getPhone());
+		return NotifyUtil.success(map);
+	}
+
+
+
+	@Override
+	public String PasswordCODE(String code,String phone) {
+		
+		Integer code1 = rAccountCodeLog.getCode(phone);
+		if(code1 == null || code1 == 0){
+			
+			return NotifyUtil.error(ErrorCodeEnum.EXISTPHONE, "请重新获取验证码");
+			
+		}else if(!code1.equals(Integer.valueOf(code))){//验证码错误
+			
+			return NotifyUtil.error(ErrorCodeEnum.ERRORCODE, "验证码写错了");
+		}
+		return NotifyUtil.success();
+	}
+
+
+
+	@Override
+	public String ifcashout(String token) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+		try {
+			
+			UserExt ue = userExtMapper.selectByUserId(infoBean.getId());
+			
+			return NotifyUtil.success(ue);
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+		
+		
+		return NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+	}
+   
+	public boolean getIsOut(){
+		String stime = sysDictMapper.getShopowner("withdrawal_starttime");//提现开始时间
+		String etime = sysDictMapper.getShopowner("withdrawal_endtime");//提示结束时间
+		
+		if(StringUtils.isNotBlank(stime) && StringUtils.isNotBlank(etime)){
+			      
+			      int hh = DateUtil.getHH();
+			
+			      if(Integer.valueOf(stime) <= hh && hh <= Integer.valueOf(etime)){
+			    	  
+			    	String open = sysDictMapper.getShopowner("is_open");//1.开启 0.关闭
+			  		
+			    	if(Integer.valueOf(open) != 1){//开启
+			    		 return false;
+			    	}
+			    	  return true;
+			      
+			      }
+			
+		}
+		return false;
+		
+		
+		
+		
+	}
+	
+	public static void main(String[] args) {
+		String stime = "08";
+		String etime = "20";
+		
+		if(StringUtils.isNotBlank(stime) && StringUtils.isNotBlank(etime)){
+			      
+			      int hh = DateUtil.getHH();
+			
+			      if(Integer.valueOf(etime) <= hh && hh >= Integer.valueOf(stime)){
+			    	  
+			    	System.out.println("d");
+			      
+			      }
+			
+			     
+			
+		}
+	}
+}

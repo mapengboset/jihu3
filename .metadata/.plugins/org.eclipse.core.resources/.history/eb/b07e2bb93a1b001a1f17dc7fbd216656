@@ -1,0 +1,37 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 第三方类型类
+ * 
+ * @author cychen
+ *
+ */
+public class ThirdType {
+
+	/** 腾讯微信 */
+	public static final short TENCENT_WECHAT = 1;
+	/** 腾讯QQ */
+	public static final short TENCENT_QQ = 2;
+	/** 新浪微博 */
+	public static final short SINA_WEIBO = 3;
+
+	/**
+	 * 获取第三方类型描述
+	 * 
+	 * @param thirdType 第三方类型值
+	 * @return 第三方类型描述
+	 */
+	public static String getDescription(short thirdType) {
+		if (thirdType == TENCENT_WECHAT) {
+			return "腾讯微信";
+		}
+		if (thirdType == TENCENT_QQ) {
+			return "腾讯QQ";
+		}
+		if (thirdType == SINA_WEIBO) {
+			return "新浪微博";
+		}
+		return "";
+	}
+
+}

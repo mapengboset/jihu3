@@ -1,0 +1,163 @@
+package com.hiko.gym.common.repository.redis;
+
+import java.text.*;
+import java.util.*;
+
+import javax.annotation.*;
+
+import org.springframework.data.redis.core.*;
+import org.springframework.stereotype.*;
+
+/**
+ * 客户场馆列表实现类
+ * 
+ * @author cychen
+ *
+ */
+@Repository("rCustomerVenueList")
+public class RCustomerVenueListImpl implements RCustomerVenueList {
+
+	/** Redis模板 */
+	@Resource(name = "redisTemplate")
+	private RedisTemplate<String, String> redisTemplate = null;
+
+	/** 键值格式 */
+	private static final MessageFormat KEY_FORMAT = new MessageFormat("List:RCustomerVenueList:{0}");
+
+	/**
+	 * 添加场馆标识
+	 * 
+	 * @param customerId 客户标识
+	 * @param venueId 场馆标识
+	 */
+	@Override
+	public void add(Long customerId, Integer venueId) {
+		// 生成键值
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 删除取值
+		redisTemplate.opsForList().remove(key, 0l, venueId.toString());
+
+		// 添加取值
+		redisTemplate.opsForList().rightPush(key, venueId.toString());
+	}
+
+	/**
+	 * 删除场馆标识
+	 * 
+	 * @param customerId 客户标识
+	 * @param venueId 场馆标识
+	 */
+	@Override
+	public void remove(Long customerId, Integer venueId) {
+		// 生成键值
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 删除取值
+		redisTemplate.opsForList().remove(key, 0l, venueId.toString());
+	}
+
+	/**
+	 * 存在场馆标识
+	 * 
+	 * @param customerId 客户标识
+	 * @param venueId 场馆标识
+	 * @return 是否存在
+	 */
+	@Override
+	public Boolean exist(Long customerId, Integer venueId) {
+		// 生成键值
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 依次检查
+		List<String> valueList = redisTemplate.opsForList().range(key, 0l, -1l);
+		if (valueList != null) {
+			for (String value : valueList) {
+				if (venueId.toString().equals(value)) {
+					return Boolean.TRUE;
+				}
+			}
+		}
+
+		// 返回失败
+		return Boolean.FALSE;
+	}
+
+	/**
+	 * 获取列表大小
+	 * 
+	 * @param customerId 客户标识
+	 * @return 列表大小
+	 */
+	@Override
+	public Long size(Long customerId) {
+		// 生成键值
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 返回大小
+		return redisTemplate.opsForList().size(key);
+	}
+
+	/**
+	 * 最后场馆标识
+	 * 
+	 * @param customerId 客户标识
+	 * @return 场馆标识
+	 */
+	@Override
+	public Integer last(Long customerId) {
+		// 生成键值
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 获取最后
+		String value = redisTemplate.opsForList().index(key, -1l);
+		if (value == null) {
+			return null;
+		}
+
+		// 返回数据
+		return Integer.parseInt(value);
+	}
+
+	/**
+	 * 清除列表内容
+	 * 
+	 * @param customerId 客户标识
+	 */
+	@Override
+	public void clear(Long customerId) {
+		// 生成键值
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 删除列表
+		redisTemplate.delete(key);
+	}
+
+	/**
+	 * 获取场馆标识
+	 * 
+	 * @param customerId 客户标识
+	 * @param startIndex 开始序号
+	 * @param endIndex 结束序号
+	 * @return 场馆标识列表
+	 */
+	public List<Integer> range(Long customerId, Long startIndex, Long endIndex) {
+		// 初始化
+		List<Integer> valueList = new ArrayList<Integer>();
+
+		// 生成键值
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 依次检查
+		List<String> $valueList = redisTemplate.opsForList().range(key, startIndex, endIndex);
+		if ($valueList != null) {
+			for (String $value : $valueList) {
+				valueList.add(Integer.parseInt($value));
+			}
+		}
+
+		// 返回列表
+		return valueList;
+	}
+
+}

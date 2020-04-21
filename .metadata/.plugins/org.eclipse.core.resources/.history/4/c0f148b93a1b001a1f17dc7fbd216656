@@ -1,0 +1,32 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 客户来源类
+ * 
+ * @author cychen
+ *
+ */
+public class CustomerSource {
+
+	/** 宅不住 */
+	public static final short ZHAIBUZHU = 1;
+	/** 数字健身 */
+	public static final short DIGITGYM = 2;
+
+	/**
+	 * 获取客户来源描述
+	 * 
+	 * @param customerSource 客户来源值
+	 * @return 客户来源描述
+	 */
+	public static String getDescription(short customerSource) {
+		if (customerSource == ZHAIBUZHU) {
+			return "宅不住";
+		}
+		if (customerSource == DIGITGYM) {
+			return "数字健身";
+		}
+		return "";
+	}
+
+}

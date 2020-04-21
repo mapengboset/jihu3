@@ -1,0 +1,30 @@
+package com.yqbing.servicebing.webapp.response;
+
+import java.io.Serializable;
+import java.util.List;
+
+import com.yqbing.servicebing.repository.database.bean.AppBanner;
+
+public class homePageRes  implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1772448200310705267L;
+  
+	private List<AppBanner> pic;//首页大图
+	private List<HomeAppRes> apps;//热门应用
+	public List<AppBanner> getPic() {
+		return pic;
+	}
+	public void setPic(List<AppBanner> pic) {
+		this.pic = pic;
+	}
+	public List<HomeAppRes> getApps() {
+		return apps;
+	}
+	public void setApps(List<HomeAppRes> apps) {
+		this.apps = apps;
+	}
+	
+}

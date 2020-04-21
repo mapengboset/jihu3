@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;jihu-c/src/main/java/com/yqbing/servicebing/repository/database/dao/regionMapper.xml&apos; to &apos;RegionMapper.xml&apos;" description="Rename resource &apos;regionMapper.xml&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/main/java/com/yqbing/servicebing/repository/database/dao/regionMapper.xml" name="RegionMapper.xml" stamp="1555998627281" updateReferences="true"/>
+</session>

@@ -1,0 +1,46 @@
+package com.hiko.gym.common.exception;
+
+/**
+ * 身馆异常类
+ * 
+ * @author cychen
+ *
+ */
+public class GymException extends Exception {
+
+	/**
+	 * 构造函数
+	 */
+	public GymException() {
+		super();
+	}
+
+	/**
+	 * 构造函数
+	 * 
+	 * @param message 异常消息
+	 */
+	public GymException(String message) {
+		super(message);
+	}
+
+	/**
+	 * 构造函数
+	 * 
+	 * @param cause 异常原因
+	 */
+	public GymException(Throwable cause) {
+		super(cause);
+	}
+
+	/**
+	 * 构造函数
+	 * 
+	 * @param message 异常消息
+	 * @param cause 异常原因
+	 */
+	public GymException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+}

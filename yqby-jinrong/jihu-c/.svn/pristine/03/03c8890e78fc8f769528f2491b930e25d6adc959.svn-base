@@ -1,0 +1,37 @@
+package com.yqbing.servicebing.service;
+
+public interface LaChineService {
+    
+	/**
+	 * 
+	
+	 * @Title: queryList
+	
+	 * @Description: TODO
+	
+	 * @param stime
+	 * @param etime
+	 * @param courrent
+	 * @param size
+	 * @param code
+	 * @return
+	
+	 * @return: String
+	 */
+	String queryList(String stime, String etime, Integer courrent, Integer size, String code);
+    
+	/**
+	 * 
+	
+	 * @Title: gameCpas
+	
+	 * @Description: TODO
+	
+	 * @param name
+	 * @return
+	
+	 * @return: String
+	 */
+	String gameCpss(String name);
+
+}

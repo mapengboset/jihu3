@@ -1,0 +1,7 @@
+eclipse.preferences.version=1
+encoding//src/main/resources/antcredit.properties=UTF-8
+encoding//src/main/resources/db/yqbing-payment-ceshi.properties=UTF-8
+encoding//src/main/resources/db/yqbing-payment-online.properties=UTF-8
+encoding//src/main/resources/db/yqbing-sso-ceshi.properties=UTF-8
+encoding//src/main/resources/db/yqbing-sso-online.properties=UTF-8
+encoding//src/main/resources/db/yqbing-sso-test.properties=UTF-8

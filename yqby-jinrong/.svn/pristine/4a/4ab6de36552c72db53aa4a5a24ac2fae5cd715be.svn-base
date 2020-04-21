@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.WeBankBeanMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.WeBankBean" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="userId" property="userId" jdbcType="BIGINT" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="be_invited" property="beInvited" jdbcType="VARCHAR" />
+    <result column="invited_token" property="invitedToken" jdbcType="VARCHAR" />
+    <result column="invited_name" property="invitedName" jdbcType="VARCHAR" />
+    <result column="money" property="money" jdbcType="INTEGER" />
+    <result column="be_invited_time" property="beInvitedTime" jdbcType="TIMESTAMP" />
+    <result column="wealth" property="wealth" jdbcType="INTEGER" />
+    <result column="is_successful" property="isSuccessful" jdbcType="CHAR" />
+    <result column="existence" property="existence" jdbcType="CHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="pic_url" property="picUrl" jdbcType="VARCHAR" />
+    <result column="back1" property="back1" jdbcType="VARCHAR" />
+    <result column="back2" property="back2" jdbcType="VARCHAR" />
+    <result column="back3" property="back3" jdbcType="VARCHAR" />
+    <result column="back4" property="back4" jdbcType="VARCHAR" />
+    <result column="back5" property="back5" jdbcType="VARCHAR" />
+    <result column="store_ID" property="storeId" jdbcType="INTEGER" />
+    <result column="store_name" property="storeName" jdbcType="VARCHAR" />
+    <result column="store_username" property="storeUsername" jdbcType="VARCHAR" />
+    <result column="store_code" property="storeCode" jdbcType="VARCHAR" />
+  </resultMap>
+ 
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, userId, phone, be_invited, invited_token, invited_name, money, be_invited_time, 
+    wealth, is_successful, existence, create_time, update_time, pic_url, back1, back2, 
+    back3, back4, back5, store_ID, store_name, store_username, store_code
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.abstracts.WeBankBeanExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from tb_we_bank
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_we_bank
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from tb_we_bank
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.WeBankBean" >
+    insert into tb_we_bank (id, userId, phone, 
+      be_invited, invited_token, invited_name, 
+      money, be_invited_time, wealth, 
+      is_successful, existence, create_time, 
+      update_time, pic_url, back1, 
+      back2, back3, back4, 
+      back5,store_ID, store_name, 
+      store_username, store_code)
+    values (#{id,jdbcType=BIGINT}, #{userid,jdbcType=BIGINT}, #{phone,jdbcType=VARCHAR}, 
+      #{beInvited,jdbcType=VARCHAR}, #{invitedToken,jdbcType=VARCHAR}, #{invitedName,jdbcType=VARCHAR}, 
+      #{money,jdbcType=INTEGER}, #{beInvitedTime,jdbcType=TIMESTAMP}, #{wealth,jdbcType=INTEGER}, 
+      #{isSuccessful,jdbcType=CHAR}, #{existence,jdbcType=CHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{picUrl,jdbcType=VARCHAR}, #{back1,jdbcType=VARCHAR}, 
+      #{back2,jdbcType=VARCHAR}, #{back3,jdbcType=VARCHAR}, #{back4,jdbcType=VARCHAR}, 
+      #{back5,jdbcType=VARCHAR}, #{storeId,jdbcType=INTEGER}, #{storeName,jdbcType=VARCHAR}, 
+      #{storeUsername,jdbcType=VARCHAR}, #{storeCode,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"  parameterType="com.yqbing.servicebing.repository.database.bean.WeBankBean" >
+    insert into tb_we_bank
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        userId,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="beInvited != null" >
+        be_invited,
+      </if>
+      <if test="invitedToken != null" >
+        invited_token,
+      </if>
+      <if test="invitedName != null" >
+        invited_name,
+      </if>
+      <if test="money != null" >
+        money,
+      </if>
+      <if test="beInvitedTime != null" >
+        be_invited_time,
+      </if>
+      <if test="wealth != null" >
+        wealth,
+      </if>
+      <if test="isSuccessful != null" >
+        is_successful,
+      </if>
+      <if test="existence != null" >
+        existence,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="picUrl != null" >
+        pic_url,
+      </if>
+      <if test="back1 != null" >
+        back1,
+      </if>
+      <if test="back2 != null" >
+        back2,
+      </if>
+      <if test="back3 != null" >
+        back3,
+      </if>
+      <if test="back4 != null" >
+        back4,
+      </if>
+      <if test="back5 != null" >
+        back5,
+      </if>
+       <if test="storeId != null" >
+        store_ID,
+      </if>
+      <if test="storeName != null" >
+        store_name,
+      </if>
+      <if test="storeUsername != null" >
+        store_username,
+      </if>
+      <if test="storeCode != null" >
+        store_code,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="beInvited != null" >
+        #{beInvited,jdbcType=VARCHAR},
+      </if>
+      <if test="invitedToken != null" >
+        #{invitedToken,jdbcType=VARCHAR},
+      </if>
+      <if test="invitedName != null" >
+        #{invitedName,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null" >
+        #{money,jdbcType=INTEGER},
+      </if>
+      <if test="beInvitedTime != null" >
+        #{beInvitedTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="wealth != null" >
+        #{wealth,jdbcType=INTEGER},
+      </if>
+      <if test="isSuccessful != null" >
+        #{isSuccessful,jdbcType=CHAR},
+      </if>
+      <if test="existence != null" >
+        #{existence,jdbcType=CHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="picUrl != null" >
+        #{picUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="back1 != null" >
+        #{back1,jdbcType=VARCHAR},
+      </if>
+      <if test="back2 != null" >
+        #{back2,jdbcType=VARCHAR},
+      </if>
+      <if test="back3 != null" >
+        #{back3,jdbcType=VARCHAR},
+      </if>
+      <if test="back4 != null" >
+        #{back4,jdbcType=VARCHAR},
+      </if>
+      <if test="back5 != null" >
+        #{back5,jdbcType=VARCHAR},
+      </if>
+       <if test="storeId != null" >
+        #{storeId,jdbcType=INTEGER},
+      </if>
+      <if test="storeName != null" >
+        #{storeName,jdbcType=VARCHAR},
+      </if>
+      <if test="storeUsername != null" >
+        #{storeUsername,jdbcType=VARCHAR},
+      </if>
+      <if test="storeCode != null" >
+        #{storeCode,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.abstracts.WeBankBeanExample" resultType="java.lang.Integer" >
+    select count(*) from tb_we_bank
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.WeBankBean" >
+    update tb_we_bank
+    <set >
+      <if test="userId != null" >
+        userId = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="beInvited != null" >
+        be_invited = #{beInvited,jdbcType=VARCHAR},
+      </if>
+      <if test="invitedToken != null" >
+        invited_token = #{invitedToken,jdbcType=VARCHAR},
+      </if>
+      <if test="invitedName != null" >
+        invited_name = #{invitedName,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null" >
+        money = #{money,jdbcType=INTEGER},
+      </if>
+      <if test="beInvitedTime != null" >
+        be_invited_time = #{beInvitedTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="wealth != null" >
+        wealth = #{wealth,jdbcType=INTEGER},
+      </if>
+      <if test="isSuccessful != null" >
+        is_successful = #{isSuccessful,jdbcType=CHAR},
+      </if>
+      <if test="existence != null" >
+        existence = #{existence,jdbcType=CHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="picUrl != null" >
+        pic_url = #{picUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="back1 != null" >
+        back1 = #{back1,jdbcType=VARCHAR},
+      </if>
+      <if test="back2 != null" >
+        back2 = #{back2,jdbcType=VARCHAR},
+      </if>
+      <if test="back3 != null" >
+        back3 = #{back3,jdbcType=VARCHAR},
+      </if>
+      <if test="back4 != null" >
+        back4 = #{back4,jdbcType=VARCHAR},
+      </if>
+      <if test="back5 != null" >
+        back5 = #{back5,jdbcType=VARCHAR},
+      </if>
+       <if test="storeId != null" >
+        store_ID = #{storeId,jdbcType=INTEGER},
+      </if>
+      <if test="storeName != null" >
+        store_name = #{storeName,jdbcType=VARCHAR},
+      </if>
+      <if test="storeUsername != null" >
+        store_username = #{storeUsername,jdbcType=VARCHAR},
+      </if>
+      <if test="storeCode != null" >
+        store_code = #{storeCode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.WeBankBean" >
+    update tb_we_bank
+    set userId = #{userId,jdbcType=BIGINT},
+      phone = #{phone,jdbcType=VARCHAR},
+      be_invited = #{beInvited,jdbcType=VARCHAR},
+      invited_token = #{invitedToken,jdbcType=VARCHAR},
+      invited_name = #{invitedName,jdbcType=VARCHAR},
+      money = #{money,jdbcType=INTEGER},
+      be_invited_time = #{beInvitedTime,jdbcType=TIMESTAMP},
+      wealth = #{wealth,jdbcType=INTEGER},
+      is_successful = #{isSuccessful,jdbcType=CHAR},
+      existence = #{existence,jdbcType=CHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      pic_url = #{picUrl,jdbcType=VARCHAR},
+      back1 = #{back1,jdbcType=VARCHAR},
+      back2 = #{back2,jdbcType=VARCHAR},
+      back3 = #{back3,jdbcType=VARCHAR},
+      back4 = #{back4,jdbcType=VARCHAR},
+      back5 = #{back5,jdbcType=VARCHAR},
+      store_ID = #{storeId,jdbcType=INTEGER},
+      store_name = #{storeName,jdbcType=VARCHAR},
+      store_username = #{storeUsername,jdbcType=VARCHAR},
+      store_code = #{storeCode,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="query" resultMap="BaseResultMap" parameterType="HashMap" >
+   select 
+   tw.be_invited_time,
+   tw.be_invited,
+   tw.phone,
+   tw.money,
+   tw.is_successful 
+   from tb_we_bank tw
+   LEFT JOIN tb_user_info ti 
+   on
+   <choose>
+   <when test="role == 3" >
+         
+       tw.store_ID = ti.store_id  
+   </when> 
+   <otherwise>
+       tw.userId = ti.user_id
+   </otherwise>
+   </choose>
+   where 
+    
+   ti.user_role <![CDATA[!= ]]> 1 and
+   tw.existence = 0 and 
+   <choose>
+   <when test="role == 3" >
+         
+       tw.store_ID = #{token}
+   </when> 
+   <otherwise>
+       tw.userId =  #{token}
+   </otherwise>
+   </choose>
+   and
+   tw.be_invited_time >= #{startTime} and
+   tw.be_invited_time &lt;= #{endTime} 
+   GROUP BY tw.id
+   order by tw.be_invited_time desc 
+  </select>
+  <!-- 需要优化的 -->
+  <select id="querysucccount" resultType="java.lang.Integer" parameterType="HashMap" >
+  select count(1) from 
+  tb_we_bank tw where 
+  tw.existence = 0 
+  
+   <choose>
+   <when test="role == 3" >
+         
+        and tw.store_ID = #{token,jdbcType=BIGINT}
+   </when> 
+   <otherwise>
+       and tw.userId = #{token,jdbcType=BIGINT}
+   </otherwise>
+   </choose>
+  
+ 
+  and tw.is_successful in(1,4)  
+  and tw.be_invited_time >= #{startTime}
+  and tw.be_invited_time &lt;= #{endTime}
+  </select>
+  <select id="queryfailcount" resultType="java.lang.Integer" parameterType="HashMap" >
+  select count(1) from 
+  tb_we_bank tw where 
+  tw.existence = 0 
+ <choose>
+   <when test="role == 3" >
+         
+        and tw.store_ID = #{token,jdbcType=BIGINT}
+   </when> 
+   <otherwise>
+       and tw.userId = #{token,jdbcType=BIGINT}
+   </otherwise>
+   </choose>
+  and tw.is_successful = 2  
+  and tw.be_invited_time >= #{startTime}
+  and tw.be_invited_time &lt;= #{endTime}
+  </select>
+  
+  <!-- <select id="queryfailcount" resultType="java.lang.Integer" parameterType="java.lang.Long" >
+  select count(1) from 
+  tb_we_bank tw where 
+  tw.existence = 0 
+  and tw.userId = #{token,jdbcType=BIGINT}
+  and tw.is_successful = 2  
+  and date_format(tw.be_invited_time, '%Y%m')  = DATE_FORMAT( CURDATE() , '%Y%m')
+  </select> -->
+</mapper>

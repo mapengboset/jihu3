@@ -1,0 +1,2 @@
+2019-09-18 17:36:20.469 ERROR [Signature.java:36] - Sign Before MD5:appid=wx6e3b92a84b8a737a&attach=5&body=私教服务&mch_id=1405193702&nonce_str=1634358275&notify_url=http://wx.techfit.cn/gym-web/weixin/tenpay/pay_notify&openid=o0WHmwFGN14ZEiRNoDqABOsFLDK4&out_trade_no=16112916343500001&spbill_create_ip=223.223.198.235&total_fee=1&trade_type=JSAPI&key=46100784FDA3CEF41908722B2FE50261
+2019-09-18 17:36:20.786 ERROR [Signature.java:38] - Sign Result:308FF44F932312C22781F835EB31C525

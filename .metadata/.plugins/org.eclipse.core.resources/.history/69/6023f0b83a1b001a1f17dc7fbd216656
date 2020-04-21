@@ -1,0 +1,91 @@
+package com.hiko.gym.common.repository.redis;
+
+import java.text.*;
+
+import javax.annotation.*;
+
+import org.springframework.data.redis.core.*;
+import org.springframework.stereotype.*;
+
+/**
+ * 设备使用时间值实现类
+ * 
+ * @author cychen
+ *
+ */
+@Repository("rDeviceUsedDurationValue")
+public class RDeviceUsedDurationValueImpl implements RDeviceUsedDurationValue {
+
+	/** Redis模板 */
+	@Resource(name = "redisTemplate")
+	private RedisTemplate<String, String> redisTemplate = null;
+
+	/** 键值格式 */
+	private static final MessageFormat KEY_FORMAT = new MessageFormat("Value:DeviceUsedDuration:{0}");
+
+	/**
+	 * 设置设备使用时间
+	 * 
+	 * @param deviceId 设备标识
+	 * @param usedDuration 使用时间(分钟)
+	 */
+	@Override
+	public void set(Integer deviceId, Long usedDuration) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Integer[] { deviceId });
+
+		// 调用接口
+		redisTemplate.opsForValue().set(key, usedDuration.toString());
+	}
+
+	/**
+	 * 获取设备使用时间
+	 * 
+	 * @param deviceId 设备标识
+	 * @return 使用时间(分钟)
+	 */
+	@Override
+	public Long get(Integer deviceId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Integer[] { deviceId });
+
+		// 调用接口
+		String usedDuration = redisTemplate.opsForValue().get(key);
+
+		// 返回数据
+		if (usedDuration != null) {
+			return Long.parseLong(usedDuration);
+		}
+		return null;
+	}
+
+	/**
+	 * 删除设备使用时间
+	 * 
+	 * @param deviceId 设备标识
+	 */
+	@Override
+	public void remove(Integer deviceId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Integer[] { deviceId });
+
+		// 调用接口
+		redisTemplate.delete(key);
+	}
+
+	/**
+	 * 存在设备使用时间
+	 * 
+	 * @param deviceId 设备标识
+	 * @return 是否存在
+	 */
+	@Override
+	public boolean exist(Integer deviceId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Integer[] { deviceId });
+
+		// 调用接口
+		return redisTemplate.hasKey(key);
+	}
+
+}

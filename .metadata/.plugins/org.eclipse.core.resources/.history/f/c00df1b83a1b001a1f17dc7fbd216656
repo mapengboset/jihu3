@@ -1,0 +1,78 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 客户运动天数
+ * 
+ * @author yinjy
+ *
+ */
+public class RSportDay {
+	/** 属性相关 */
+	/** 客户标识 */
+	private Long customerId = null;
+	/** 运动天数 */
+	private Integer days = null;
+	/** 运动最新日期 */
+	private String latestDate = null;
+
+	/** 常量相关 */
+	/** 运动天数 */
+	public static final String DAYS = "days";
+	/** 运动最新日期 */
+	public static final String LATESTDATE = "latestDate";
+
+	/**
+	 * 获取客户标识
+	 * 
+	 * @return 客户标识
+	 */
+	public Long getCustomerId() {
+		return customerId;
+	}
+
+	/**
+	 * 设置客户标识
+	 * 
+	 * @param customerId 客户标识
+	 */
+	public void setCustomerId(Long customerId) {
+		this.customerId = customerId;
+	}
+
+	/**
+	 * 获取运动天数
+	 * 
+	 * @return 运动天数
+	 */
+	public Integer getDays() {
+		return days;
+	}
+
+	/**
+	 * 设置运动天数
+	 * 
+	 * @param days 运动天数
+	 */
+	public void setDays(Integer days) {
+		this.days = days;
+	}
+
+	/**
+	 * 获取最新运动日期
+	 * 
+	 * @return 最新运动日期
+	 */
+	public String getLatestDate() {
+		return latestDate;
+	}
+
+	/**
+	 * 设置最新运动日期
+	 * 
+	 * @param latestDate 最新运动日期
+	 */
+	public void setLatestDate(String latestDate) {
+		this.latestDate = latestDate;
+	}
+
+}

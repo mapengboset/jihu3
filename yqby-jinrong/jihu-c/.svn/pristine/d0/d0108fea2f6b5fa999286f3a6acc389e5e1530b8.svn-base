@@ -1,0 +1,746 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import org.apache.commons.lang.StringUtils;
+import org.docx4j.model.datastorage.XPathEnhancerParser.main_return;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.abstracts.UserInfoBeanAbs;
+import com.yqbing.servicebing.repository.database.bean.AppAppraise;
+import com.yqbing.servicebing.repository.database.bean.FeiFanActivate;
+import com.yqbing.servicebing.repository.database.bean.Region;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+import com.yqbing.servicebing.repository.database.bean.Suggest;
+import com.yqbing.servicebing.repository.database.bean.UserAppTask;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.UserLocalApp;
+import com.yqbing.servicebing.repository.database.bean.UserTaskLog;
+import com.yqbing.servicebing.repository.database.dao.FeiFanActivateMapper;
+import com.yqbing.servicebing.repository.database.dao.RegionMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseMapper;
+import com.yqbing.servicebing.repository.database.dao.SuggestMapper;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskExample;
+import com.yqbing.servicebing.repository.database.dao.UserLocalAppExample;
+import com.yqbing.servicebing.repository.database.dao.UserTaskLogMapper;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskExample.Criteria;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskMapper;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.UserLocalAppMapper;
+import com.yqbing.servicebing.repository.redis.RCpdAppsData;
+import com.yqbing.servicebing.repository.redis.RStoreHouseData;
+import com.yqbing.servicebing.repository.redis.RStoreInfoData;
+import com.yqbing.servicebing.repository.redis.RUserAppTaskData;
+import com.yqbing.servicebing.repository.redis.RUserLocalApData;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.repository.redis.RregionData;
+import com.yqbing.servicebing.repository.redis.StoreInfoBean;
+import com.yqbing.servicebing.service.AccountService;
+import com.yqbing.servicebing.service.CommonService;
+import com.yqbing.servicebing.utils.DateUtil;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.utils.SendUtils;
+import com.yqbing.servicebing.utils.StringUtil;
+import com.yqbing.servicebing.webapp.response.AreaRes;
+import com.yqbing.servicebing.webapp.response.CityRes;
+import com.yqbing.servicebing.webapp.response.CpdApps;
+import com.yqbing.servicebing.webapp.response.ProvinceRes;
+import com.yqbing.servicebing.webapp.response.UserDownAppRes;
+import com.yqbing.servicebing.webapp.response.UserInfoRes;
+
+
+@Service("accountService")
+@SuppressWarnings("all")
+public class AccountServiceImpl extends CommonService  implements AccountService{
+	
+	 private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
+	 @Value("${ali_https}")
+	 private   String  aliHttps;
+	 @Resource
+	 private UserInfoBeanMapper userInfoBeanMapper = null;
+	 @Resource
+	 private SuggestMapper suggestMapper = null;
+	 @Resource
+	 private StoreHouseMapper storeHouseMapper = null;
+	 @Resource
+	 private RegionMapper regionMapper = null;
+	 @Resource
+	 private RUserLocalApData rUserLocalApData = null;
+	 @Resource
+	 private UserTaskLogMapper userTaskLogMapper = null;
+	 @Resource
+	 private RUserLogBean rUserLogBean = null;
+	 @Resource
+	 private RregionData regionData = null;
+	 @Resource
+	 private RUserAppTaskData rUserAppTaskData = null;
+	 @Resource
+	 private RStoreHouseData rStoreHouseData = null;
+	 @Resource
+	 private UserLocalAppMapper userLocalAppMapper = null;
+	 @Resource
+	 private UserAppTaskMapper userAppTaskMapper = null;
+	 @Resource
+	 private RCpdAppsData rCpdAppsData = null;
+	 @Resource
+	 private FeiFanActivateMapper feiFanActivateMapper = null;
+	 
+	 @Resource
+	 private RStoreInfoData  rStoreInfoData = null;
+	 @Override
+	 public String bindingInvite(String token, String invite,String storeId,String storeName, Integer isInt) {
+		// TODO Auto-generated method stub
+		try {
+			UserInfoBean infoBean = rUserLogBean.getRaw(token);
+			if(null == infoBean){
+				
+			infoBean = userInfoBeanMapper.queryToken(token);
+			}
+			if(infoBean != null){
+				
+				StoreInfoBean storeInfo = rStoreInfoData.getStoreInfo(invite);
+				if(storeInfo == null){
+					return NotifyUtil.error(ErrorCodeEnum.NOTSTORE, "邀请码输入错误");
+				}
+				if(storeInfo.getStoreCode() != null && storeInfo.getType() == null){
+					storeInfo.setType(1);
+				}
+				if(null != isInt &&isInt == 1){//网吧
+					
+					if(storeInfo.getType() != 1){//门店
+						return NotifyUtil.error(ErrorCodeEnum.NOTSTORE, "请输入网吧邀请码");
+					}
+				}
+				
+				Integer userId = storeInfo.getUserId();
+				String firstInviteCode = infoBean.getFirstInviteCode();
+				if(StringUtils.isBlank(firstInviteCode)){//第-次绑定
+					infoBean.setFirstInviteCode(invite);
+					infoBean.setFirstStoreId(Integer.valueOf(storeId));
+					infoBean.setFirstStoreName(storeName);
+					infoBean.setFirstStoreUserId(userId);
+					infoBean.setInviteCode(invite);
+					infoBean.setStoreId(Integer.valueOf(storeId));
+					infoBean.setStoreName(storeName);
+					infoBean.setStoreUserId(userId);
+					infoBean.setUpdateTime(new Date());
+					
+				}else{//第二次绑定,FirstInviteCode永远不能改变
+                //    if(firstInviteCode.equals(invite)){
+                //    	return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "已经绑定过了");
+				//	}
+					infoBean.setInviteCode(invite);
+					infoBean.setStoreId(Integer.valueOf(storeId));
+					infoBean.setStoreName(storeName);
+					infoBean.setStoreUserId(userId);
+					infoBean.setUpdateTime(new Date());
+				}
+				int i = userInfoBeanMapper.updateByPrimaryKey(infoBean);
+				if(i > 0){
+					rUserLogBean.set(token, infoBean);
+					return NotifyUtil.success();
+				}
+				
+			}else{
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "系统异常");
+		}
+		
+		
+		return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "系统异常");
+	}
+	@Override
+	public String quitUser(String token) {
+		
+		try {
+		UserInfoBean infoBean = queryTokenByUser(token);
+			if(null == infoBean){
+				return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "系统异常");
+			}	
+			else{
+				infoBean.setToken(null);
+				userInfoBeanMapper.updateByPrimaryKey(infoBean);
+				rUserLogBean.remove(token);
+				return NotifyUtil.success();
+			}
+		  } catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "系统异常");
+		  }
+	}
+	@Override
+	public String uploadLogImg(String token, String imgUrl,String userName,Integer sex, String brith, String address) {
+		try {
+			    
+			UserInfoBean infoBean = queryTokenByUser(token);
+				if( null ==infoBean){
+					return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户没有登录");
+				}
+				if(StringUtil.isNotEmpty(imgUrl)){
+					infoBean.setImage(imgUrl);
+				}
+				if(StringUtil.isNotEmpty(userName)){
+					infoBean.setName(userName);
+				}
+				if(StringUtil.isNotEmpty(sex)){
+					infoBean.setSex(Short.valueOf(sex+""));
+				}
+				if(StringUtil.isNotEmpty(brith)){
+					infoBean.setBrith(brith);
+				}
+				if(StringUtils.isNotBlank(address)){
+					String[] adds = address.split(",");
+					if(adds.length == 1){
+						infoBean.setAdress(address);
+					}else{
+						infoBean.setProvinceId(Integer.valueOf(adds[3]));
+						infoBean.setProvinceName(adds[0]);
+						infoBean.setCityId(Integer.valueOf(adds[4]));
+						infoBean.setCityName(adds[1]);
+					
+						infoBean.setAreaId(Integer.valueOf(adds[5]));
+						infoBean.setAreaName(adds[2]);
+						if(adds.length> 6){
+							
+							infoBean.setAdress(adds[6]);
+						}
+					}
+					
+					
+				}
+				infoBean.setUpdateTime(new Date());
+				userInfoBeanMapper.updateByPrimaryKeySelective(infoBean);
+				rUserLogBean.remove(token);
+				
+				return NotifyUtil.success();
+			
+		  } catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "系统异常");
+		  }
+	}
+	@Override
+	public String localApp(Map<String, Object> map) {
+		ArrayList<UserLocalApp> list = new ArrayList<UserLocalApp>();
+		UserLocalApp  uApp =null;
+		try {
+			String apps = (String) map.get("apps");
+			String device = (String) map.get("device");
+			String token = (String) map.get("token");
+			
+			UserInfoBean infoBean = queryTokenByUser(token);
+			if(null == infoBean){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+			}
+		
+			if(StringUtils.isBlank(apps)){
+				return NotifyUtil.error(ErrorCodeEnum.NULLPARAM, "app信息不能为空");
+			}
+			String[] applist = apps.split(",");
+			if(applist.length > 0){
+				
+				userLocalAppMapper.deleteByUserId(infoBean.getId());//删除之前
+				rUserLocalApData.removeUserLocalApp(infoBean.getId());
+			}
+			for(String app : applist) {//包名
+				String[] a = app.split(":");
+				UserLocalApp localApp = new UserLocalApp();
+		/*		uApp =userLocalAppMapper.UserLocalApp(a[0],infoBean.getId()+"");
+				if(uApp != null){//已经存在 更新
+					uApp.setAppVersion(a[1]);
+					uApp.setDevice(device);
+					uApp.setUpdateTime(new Date());
+					int i = userLocalAppMapper.updateByPrimaryKey(uApp);
+					rUserLocalApData.setUserLocalApp(infoBean.getId()+"", localApp);
+				}else{*/
+					StoreHouse appPack = storeHouseMapper.getByAppPack(a[0]);
+					if(appPack != null){
+						localApp.setAppName(appPack.getAppName());
+						localApp.setAppPack(a[0]);
+						localApp.setAppVersion(a[1]);
+						localApp.setDevice(device);
+						localApp.setUserId(infoBean.getId());
+						localApp.setCreateTime(new Date());
+						list.add(localApp);
+						if(!getLocalApp(infoBean.getId(), a[0])){
+							
+							int i = userLocalAppMapper.insertSelective(localApp);
+							rUserLocalApData.setUserLocalApp(infoBean.getId()+"", localApp);
+						}
+					}
+			//	}
+				
+				
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "请刷新,重试");
+		}
+		
+		
+		return NotifyUtil.success();
+	}
+	@Override
+	public String delLocalApp(Map<String, Object> map) {
+		
+		ArrayList<UserLocalApp> list = new ArrayList<UserLocalApp>();
+		UserLocalApp  uApp =null;
+		try {
+			String apps = (String) map.get("apps");
+			String device = (String) map.get("device");
+			String token = (String) map.get("token");
+			
+			UserInfoBean infoBean = queryTokenByUser(token);
+			if(null ==  infoBean){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+			}
+		
+			if(StringUtils.isBlank(apps)){
+				return NotifyUtil.error(ErrorCodeEnum.NULLPARAM, "app信息不能为空");
+			}
+			
+			uApp =userLocalAppMapper.UserLocalApp(apps,infoBean.getId()+"");
+			
+			if(uApp != null){
+				userLocalAppMapper.deleteByPrimaryKey(uApp.getId());
+				rUserLocalApData.removeUserLocalApp(infoBean.getId());
+			}
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "请刷新,重试");
+		}
+		
+		
+		return NotifyUtil.success();
+	}
+	
+	
+	@Override
+	public String userDownApp(Map<String, Object> map) {//包名 
+		
+		StoreHouse sh = null;
+		Byte t = 0;
+		UserAppTask appTask = null;
+	//	CpdApps cpd2 = null;
+		try {
+			String appPack = (String) map.get("appPack");
+			String device = (String) map.get("device");
+			String token = (String) map.get("token");
+			Integer type = (Integer) map.get("type");
+			Object cpd = map.get("cpd");
+		   
+			UserInfoBean infoBean = queryTokenByUser(token);
+			if( null ==  infoBean){
+				
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+			}
+			    //判断用户是否下载过
+			    appTask =  rUserAppTaskData.getUserAppTask(infoBean.getId()+"", appPack);
+			if(null  ==  appTask){
+				appTask = userAppTaskMapper.queryPackAndUserId(appPack,infoBean.getId());
+			}
+			if(type == 3001){
+				
+				 sh = rStoreHouseData.getAppPack(appPack);
+				
+			}else{
+				
+				 sh = storeHouseMapper.getByAppPack(appPack);
+					
+			}
+           if( null ==   sh){
+				
+				return NotifyUtil.error(ErrorCodeEnum.NULLOBJECT, "app信息不能为空");
+				
+			}    
+			if(appTask == null){
+				
+				appTask = new UserAppTask();
+				
+			if(sh.getAppType() == 3002){//非凡
+				//上报
+				JSONObject JSONObject = new JSONObject(cpd);
+				Map<String,String> json = new HashMap<String, String>();
+				json.put("did", JSONObject.getString("imei"));
+				json.put("uid", sh.getDownTimes()+"");
+				json.put("ip", JSONObject.get("ip").toString());
+				json.put("redirect", "0");
+				json.put("callback",aliHttps+"/account/feiFanCallBack?appPack="+appPack+"&userId="+infoBean.getId()+"&imei="+JSONObject.getString("imei"));
+				 LOGGER.info("---------------------------------非凡上报参数地址"+json);
+				String doGet = SendUtils.doGet("http://clk.api.f2time.com/app/clk", json);
+			     //uid=10519, ip=192.168.100.185, callback=http://jinrongt.jihustore.com/jihu-c/account/feiFanCallBack?appPack=com.tencent.lycqsh&userId=150150&imei=866265039292893, did=866265039292893
+                if( doGet !=null){
+                	
+            	   JSONObject json1 = new JSONObject(doGet);
+  				   String code = json1.getString("code");
+  				   if(!code.equals("A000000")){//上报成功
+  					 throw new RuntimeException(doGet);
+  				   }
+  				   
+  				 LOGGER.info("---------------------------------非凡上报成功"+json1);
+				}
+               
+			}
+				appTask.setAppType(sh.getAppType());
+				appTask.setAppImg(sh.getAppUrlImg());
+				appTask.setAppUrl(sh.getAppUrl());
+				appTask.setAppVersion(sh.getAppVersion());
+				appTask.setAppName(sh.getAppName());
+				appTask.setStoreId(sh.getId());
+			
+				appTask.setAppPack(appPack);
+				appTask.setUserId(infoBean.getId());
+				appTask.setStatus(t);
+				appTask.setCreateTime(new Date());
+				if(appTask.getId() != null){
+					
+					userAppTaskMapper.updateByPrimaryKey(appTask);
+					
+				}else{
+					byte ts = 0 ;
+				if(sh.getAppType() == 3002){
+					 ts = 3;
+				}else if(sh.getAppType() == 3001){
+					 ts = 2;
+				}else{
+					 if(sh.getIsSelf() != 0){
+						 
+						 ts = 1;
+					 }
+				}
+				appTask.setTaskType(ts);
+				userAppTaskMapper.insertSelective(appTask);
+				short y= 5;
+				
+		        addUserActionLog(infoBean.getId(), "下载完成", appPack, device, y);//存用户行为
+				
+				if(type == 3001){
+				
+					byte s = 0;
+					UserTaskLog taskLog = new UserTaskLog();
+					taskLog.setTaskNum(1);
+					taskLog.setTaskType(t);
+					taskLog.setStatus(s);
+					taskLog.setRemark("任务下载");
+					taskLog.setUserId(infoBean.getId());
+					try {
+						taskLog.setCreateDay(DateUtil.parse(DateUtil.format(new Date())));
+						taskLog.setCreateTime(new Date());
+						
+						userTaskLogMapper.insertSelective(taskLog);
+						
+						/*UserLocalApp  localApp = new UserLocalApp(); 
+						localApp.setAppName(appPack.getAppName());
+						localApp.setAppPack(a[0]);
+						localApp.setAppVersion(a[1]);
+						localApp.setDevice(device);
+						localApp.setUserId(infoBean.getId());
+						localApp.setCreateTime(new Date());*/
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+			}
+			}
+			}
+			UserLocalApp localApp =userLocalAppMapper.UserLocalApp(appPack,infoBean.getId()+"");
+			
+			if(localApp != null){
+				    localApp.setAppPack(appPack);
+				
+					localApp.setAppName(sh.getAppName());
+					localApp.setAppVersion(sh.getAppVersion());
+				
+					localApp.setAppName(sh.getAppName());
+					localApp.setAppVersion(sh.getAppVersion());
+					localApp.setDevice(device);
+					localApp.setUpdateTime(new Date());
+				    userLocalAppMapper.updateByPrimaryKey(localApp);
+			}else{
+				localApp = new UserLocalApp();
+           
+				localApp.setAppName(sh.getAppName());
+				localApp.setAppVersion(sh.getAppVersion());
+				
+				localApp.setAppPack(appPack);
+				
+				localApp.setDevice(device);
+				localApp.setUserId(infoBean.getId());
+				localApp.setCreateTime(new Date());
+				userLocalAppMapper.insertSelective(localApp);
+			}
+			rUserLocalApData.removeUserLocalApp(infoBean.getId());
+			rUserAppTaskData.setUserAppTask(infoBean.getId()+"", appTask);
+		} catch (Exception e) {
+			e.printStackTrace();
+		//	return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "请刷新,重试");
+		}
+		
+		
+		return NotifyUtil.success();
+	}
+	@Override
+	public String replaceUserApp(String token) {
+		ArrayList<UserDownAppRes> udas = new ArrayList<UserDownAppRes>();
+		Byte t = 1;
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		/*List<UserAppTask> list = rUserAppTaskData.getUserAppTaskList(infoBean.getId()+"");
+		if(null == list || list.size()<= 0){
+			 UserAppTaskExample example = new UserAppTaskExample();
+			 Criteria criteria = example.createCriteria();
+			 criteria.andUserIdEqualTo(infoBean.getId());
+			 list= userAppTaskMapper.selectByExample(example);
+			 if(null == list || list.size()<= 0){
+					return NotifyUtil.error(ErrorCodeEnum.USERNULLAPP, "没有可更新app");
+			 }
+		}*/
+		
+		List<UserLocalApp> list =  userLocalAppMapper.queryThenVersion(infoBean.getId());
+	//	List<UserLocalApp> list = rUserLocalApData.getUserLocalApp(infoBean.getId()+"");
+		if(null == list || list.size() == 0){
+			
+		}
+		
+		for (UserLocalApp ut : list) {
+			 StoreHouse sh = storeHouseMapper.getByAppPack(ut.getAppPack());
+				if(sh ==  null){
+					continue;
+				}
+				
+				//和当前version 作对比不一样的话就取库里的内容
+				UserDownAppRes userDownAppRes = new UserDownAppRes();
+				userDownAppRes.setImg(sh.getAppUrlImg());
+				userDownAppRes.setAppName(sh.getAppName());
+				userDownAppRes.setAppPake(sh.getAppPack());
+				userDownAppRes.setAppType(getAppType(sh.getAppType()));
+				userDownAppRes.setUrl(sh.getAppUrl());
+				userDownAppRes.setId(sh.getId());
+				userDownAppRes.setType(sh.getIsSelf());
+				
+				userDownAppRes.setStatus(t);//1 更新
+						
+					udas.add(userDownAppRes);
+				
+		}
+		 LOGGER.info("-----------------------------replaceUserApp/"+new Gson().toJson(udas));
+		 return NotifyUtil.success(udas);
+	}
+	@Override
+	public String getInvite(String token, String phone, Integer isInt) {
+		// TODO Auto-generated method stub
+		Map<String,Object> map = new HashMap<String,Object>();
+		UserInfoBean infoBean = rUserLogBean.getRaw(token);
+		if(null == infoBean){
+			
+			infoBean = userInfoBeanMapper.queryToken(token);
+			if(null == infoBean){
+				
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+			}
+			rUserLogBean.set(token, infoBean);
+		}
+		infoBean.setFirstInviteCode(infoBean.getFirstInviteCode() == null?"":infoBean.getFirstInviteCode());
+		infoBean.setFirstStoreName(infoBean.getFirstStoreName()== null?"":infoBean.getFirstStoreName());
+		infoBean.setStoreName(infoBean.getStoreName()== null?"":infoBean.getStoreName());
+		infoBean.setInviteCode(infoBean.getInviteCode()== null?"":infoBean.getInviteCode());
+		
+		StoreInfoBean storeInfo = rStoreInfoData.getStoreInfo(infoBean.getInviteCode());
+		if(storeInfo != null){
+			//不空 是网吧 1
+			if(storeInfo.getStoreCode() != null  && storeInfo.getType() == null){
+				storeInfo.setType(1);
+			}
+			
+			infoBean.setStorePhone(storeInfo.getBack8());
+			
+			infoBean.setStorefaceImg(storeInfo.getStorePic());
+			
+			infoBean.setStoreAddress(storeInfo.getStoreAddress());
+		
+			if(null != isInt && isInt == 1){//网吧
+				
+				if(storeInfo.getType() != 1){//网吧
+					
+					infoBean.setFirstInviteCode("");
+					
+					infoBean.setInviteCode("");
+				}
+				
+			}
+		}
+		return NotifyUtil.success(infoBean);
+	}
+	@Override
+	public String regions() {
+		// TODO Auto-generated method stub
+		//返回所有省
+	//	List<Map<Region,List<Region>>> list = new ArrayList<Map<Region,List<Region>>>();
+		
+		
+		/*
+		regionData.setProvinceRes("pro", p);
+		for (Region region : p) {
+			List<Region> ps = regionMapper.queryParent(region.getId());
+			for (Region r2 : ps) {
+				regionData.setProvinceRes(r2.getId()+"", ps);
+			}
+			regionData.setProvinceRes(region.getId()+"", p);*/
+		//	regionMapper.setCityRes()
+		
+	//	HashMap<Region,List<Region>> map = new HashMap<Region, List<Region>>();
+		List<Region> p = regionMapper.queryParent(1L);
+		List<ProvinceRes> list = new ArrayList<ProvinceRes>();
+	
+		for (Region region : p) {
+			ProvinceRes pres = new ProvinceRes();
+			pres.setId(region.getId());
+			pres.setName(region.getName());
+			List<Region> parent = regionMapper.queryParent(region.getId());
+			List<CityRes> citys = new ArrayList<CityRes>();
+			for (Region c : parent) {
+				CityRes cityRes = new CityRes();
+				cityRes.setId(c.getId());
+				cityRes.setName(c.getName());
+				List<Region> ps = regionMapper.queryParent(c.getId());
+				List<AreaRes> areas = new ArrayList<AreaRes>();
+				for (Region r2 : ps) {
+					AreaRes res = new AreaRes();
+					res.setId(r2.getId());
+					res.setName(r2.getName());
+					areas.add(res);
+				}
+				cityRes.setArea(areas);
+				citys.add(cityRes);
+			}
+			pres.setCity(citys);
+			list.add(pres);
+		}
+	//	regionData.setProvinceRes("all",list);
+		return NotifyUtil.success(list);
+		
+	}
+	@Override
+	public String aPPRegions() {
+		
+		
+		
+		Object obj = regionData.getProvinceRes("all");
+		
+		
+	
+		return NotifyUtil.success(obj);
+	}
+
+	public static void main(String[] args) {
+		String s = "dddf";
+		String[] split = s.split(",");
+		System.out.println(split.length);
+	}
+	
+	
+	@Override
+	public String suggest(String token, String content) {
+		// TODO Auto-generated method stub
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(null == infoBean){
+			 NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		Suggest suggest = new Suggest();
+		suggest.setContent(content);
+		suggest.setUserId(infoBean.getId());
+		suggest.setCreateTime(new Date());
+		suggestMapper.insertSelective(suggest);
+	//	rUserLogBean.setSetsut(infoBean.getId(), content);
+		return NotifyUtil.success();
+	}
+	@Override
+	public void feiFanCallBack(String appPack, Long userId, String imei) {
+		FeiFanActivate activate = new FeiFanActivate();
+		try {
+			activate.setApppack(appPack);
+			activate.setImei(imei);
+			activate.setUserid(userId);
+			activate.setCreatetime(new Date());
+			feiFanActivateMapper.insertSelective(activate);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	@Override
+	public String downLog(String device, String appPack, String token,Integer type) {
+		UserInfoBean infoBean = queryTokenByUser(token);
+		short y= 6;
+		if(null == infoBean){
+			 NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		String sta = "开始下载";
+		if(type == 0){//开始下载 1下载完成 2.打开应用
+			
+			sta = "开始下载"; 
+		}else if(type == 1){
+			sta = "下载完成";
+		}else if(type == 2){
+			sta = "打开应用";
+		}else if(type == 3){
+			sta = "继续下载";
+		}
+		addUserActionLog(infoBean.getId(), sta, appPack, device,y);//存用户行为
+		return NotifyUtil.success();
+	}
+	
+}

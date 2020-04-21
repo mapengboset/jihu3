@@ -1,0 +1,47 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 体质指数评级类
+ * 
+ * @author cychen
+ *
+ */
+public class BmiGrade {
+
+	/** 较轻 */
+	public static final short LIGHTER = -1;
+	/** 正常 */
+	public static final short NORMAL = 0;
+	/** 过重 */
+	public static final short HEAVIER = 1;
+	/** 肥胖 */
+	public static final short FAT = 2;
+	/** 非常胖 */
+	public static final short VERY_FAT = 3;
+
+	/**
+	 * 获取体质指数评级描述
+	 * 
+	 * @param bmiGrade 体质指数评级值
+	 * @return 体质指数评级描述
+	 */
+	public static String getDescription(short bmiGrade) {
+		if (bmiGrade == LIGHTER) {
+			return "较轻";
+		}
+		if (bmiGrade == NORMAL) {
+			return "正常";
+		}
+		if (bmiGrade == HEAVIER) {
+			return "过重";
+		}
+		if (bmiGrade == FAT) {
+			return "肥胖";
+		}
+		if (bmiGrade == VERY_FAT) {
+			return "过胖";
+		}
+		return "";
+	}
+
+}

@@ -1,0 +1,57 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 成就类型类
+ * 
+ * @author cychen
+ *
+ */
+public class AchievementType {
+
+	/** 累计步行数 */
+	public static final short STEP = 1;
+	/** 单日运动总时间 */
+	public static final short PERTIME = 2;
+	/** 单日步行数 */
+	public static final short PERSTEP = 3;
+	/** 累计卡路里 */
+	public static final short KCAL = 4;
+	/** 单日卡路里 */
+	public static final short PERKCAL = 5;
+	/** 运动总时间 */
+	public static final short TIME = 6;
+	/** 分享次数 */
+	public static final short SHARE = 7;
+
+	/**
+	 * 获取成就类型描述
+	 * 
+	 * @param achievementType 成就类型值
+	 * @return 成就类型描述
+	 */
+	public static String getDescription(short achievementType) {
+		if (achievementType == STEP) {
+			return "累计步行数";
+		}
+		if (achievementType == PERTIME) {
+			return "单日运动总时间";
+		}
+		if (achievementType == PERSTEP) {
+			return "单日步行数";
+		}
+		if (achievementType == KCAL) {
+			return "累计卡路里";
+		}
+		if (achievementType == PERKCAL) {
+			return "单日卡路里";
+		}
+		if (achievementType == TIME) {
+			return "运动总时间";
+		}
+		if (achievementType == SHARE) {
+			return "分享次数";
+		}
+		return "";
+	}
+
+}

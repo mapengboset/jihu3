@@ -1,0 +1,47 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 公告日志类型类
+ * 
+ * @author cychen
+ *
+ */
+public class NoticeLogType {
+
+	/** 创建 */
+	public static final short CREATED = 0;
+	/** 编辑 */
+	public static final short EDITED = 1;
+	/** 发布 */
+	public static final short PUBLISHED = 2;
+	/** 删除 */
+	public static final short DELETED = 3;
+	/** 恢复 */
+	public static final short RECOVERD = 4;
+
+	/**
+	 * 获取公告日志类型描述
+	 * 
+	 * @param noticeLogType 公告日志类型值
+	 * @return 公告日志类型描述
+	 */
+	public static String getDescription(short noticeLogType) {
+		if (noticeLogType == CREATED) {
+			return "创建";
+		}
+		if (noticeLogType == EDITED) {
+			return "编辑";
+		}
+		if (noticeLogType == PUBLISHED) {
+			return "发布";
+		}
+		if (noticeLogType == DELETED) {
+			return "删除";
+		}
+		if (noticeLogType == RECOVERD) {
+			return "恢复";
+		}
+		return "";
+	}
+
+}

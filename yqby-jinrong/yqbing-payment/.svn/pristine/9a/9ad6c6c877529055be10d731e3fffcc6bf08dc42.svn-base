@@ -1,0 +1,283 @@
+//
+//  Created by  fred on 2016/10/26.
+//  Copyright © 2016年 Alibaba. All rights reserved.
+//
+
+package com.yqbing.servicebing.utils.gateway;
+
+import com.alibaba.cloudapi.sdk.constant.SdkConstant;
+import com.alibaba.cloudapi.sdk.model.ApiCallback;
+import com.alibaba.cloudapi.sdk.model.ApiRequest;
+import com.alibaba.cloudapi.sdk.model.ApiResponse;
+import com.alibaba.cloudapi.sdk.model.HttpClientBuilderParams;
+import com.yqbing.servicebing.repository.database.bean.User;
+import com.yqbing.servicebing.webapp.controller.BaiMeiYunController;
+import com.yqbing.servicebing.webapp.request.BaiMeiYunReq;
+import com.yqbing.servicebing.webapp.response.vo.BaiMeiYunRes;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+
+
+
+
+public class Demogroup {
+	
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(Demogroup.class);
+
+    static{
+        //HTTP Client init
+        HttpClientBuilderParams httpParam = new HttpClientBuilderParams();
+        httpParam.setAppKey("203774203");
+        httpParam.setAppSecret("vox8pr4a87s4jknl41nuoqmygx8uhxo8");
+        
+        //测试
+     //   httpParam.setAppKey("203767136");
+     //   httpParam.setAppSecret("1tuvqn8wo7dujo0ow3b9sknw0ntk2b9a");
+        
+        
+        HttpApiClientgroup.getInstance().init(httpParam);
+
+
+
+
+    }
+    private static final BaiMeiYunRes re = new BaiMeiYunRes();
+   // public static ConcurrentHashMap<String, Object> map = new ConcurrentHashMap<>();
+    public static void contractViewHttpTest(){
+        HttpApiClientgroup.getInstance().contractView(new ApiCallback() {
+            @Override
+            public void onFailure(ApiRequest request, Exception e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(ApiRequest request, ApiResponse response) {
+                try {
+                    System.out.println(getResultString(response));
+                }catch (Exception ex){
+                    ex.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public static void contractViewHttpSyncTest(){
+        ApiResponse response = HttpApiClientgroup.getInstance().contractViewSyncMode();
+        try {
+            System.out.println(getResultString(response));
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+    }
+    
+    
+    public static Map<String, Object> contractSignHttpSyncTest(User user, String returnUrl, String notifyUrl) throws Exception{
+        ApiResponse response = HttpApiClientgroup.getInstance().contractSignSyncMode(user.getName(),returnUrl,notifyUrl);
+        try {
+        	
+        	re.setData(getResultString(response));
+             
+             
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return re.getData();
+    }
+    public static Map<String, Object> userVerifyHttpSyncTest(User user, String returnUrl, String notifyUrl) throws Exception{
+        ApiResponse response = HttpApiClientgroup.getInstance().userVerifySyncMode(user.getName(),returnUrl,notifyUrl);
+        try {
+        	re.setData(getResultString(response));
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return re.getData();
+    }
+  
+    public static void contractDownloadHttpTest(){
+        HttpApiClientgroup.getInstance().contractDownload(new ApiCallback() {
+            @Override
+            public void onFailure(ApiRequest request, Exception e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(ApiRequest request, ApiResponse response) {
+                try {
+                    System.out.println(getResultString(response));
+                }catch (Exception ex){
+                    ex.printStackTrace();
+                }
+            }
+        });
+    }
+
+   
+    public static Map<String, Object> userInfoHttpSyncTest(String moblie){
+        ApiResponse response = HttpApiClientgroup.getInstance().userInfoSyncMode(moblie);
+        try {
+            re.setData(getResultString(response));
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return re.getData();
+    }
+
+    public static Map<String, Object> userAddHttpSyncTest(String moble,String name,String IdCard) throws UnsupportedEncodingException{
+        ApiResponse response = HttpApiClientgroup.getInstance().userAddSyncMode(moble,name,IdCard);
+        try {
+            re.setData(getResultString(response));
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return re.getData();
+    }
+
+    public static Map<String, Object> userEditHttpSyncTest(
+			String moble, String name,
+			String idCard) {
+    	  ApiResponse response = HttpApiClientgroup.getInstance().userEditSyncMode(moble,name,idCard);
+          try {
+              re.setData(getResultString(response));
+          }catch (Exception ex){
+              ex.printStackTrace();
+          }
+		return re.getData();
+	}
+    
+    
+/*    public static ConcurrentHashMap<String, Object> contractSignHttpTest(User user, String returnUrl, String notifyUrl){
+    	HttpApiClientgroup instance = HttpApiClientgroup.getInstance();
+    	ApiCallback callback = new ApiCallback() {
+            @Override
+            public void onFailure(ApiRequest request, Exception e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(ApiRequest request, ApiResponse response) {
+                try {
+                	map.put("data", getResultString(response));
+               	//re.setData(getResultString(response));
+                }catch (Exception ex){
+                    ex.printStackTrace();
+                }
+            }
+        };
+    	if(map.isEmpty()){
+    		instance.contractSign(callback,user.getMobile(),returnUrl,notifyUrl);
+    		
+    	}
+        return map;
+    }*/
+
+
+
+
+
+   /* public static ConcurrentHashMap<String,Object>  userVerifyHttpTest(User user,String returnUrl,String notifyUrl){
+    	
+    	HttpApiClientgroup.getInstance().userVerify(new ApiCallback(){
+    		@Override
+            public void onFailure(ApiRequest request, Exception e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(ApiRequest request, ApiResponse response) {
+                try {
+                	map.put("data", getResultString(response));
+                //	re.setData(getResultString(response));
+                }catch (Exception ex){
+                    ex.printStackTrace();
+                }
+            }
+    	},user.getMobile(),returnUrl,notifyUrl);
+    	return map;
+    
+    }*/
+
+
+
+
+   /* public static ConcurrentHashMap<String,Object>  userInfoHttpTest(User user){
+        HttpApiClientgroup.getInstance().userInfo(new ApiCallback() {
+            @Override
+            public void onFailure(ApiRequest request, Exception e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(ApiRequest request, ApiResponse response) {
+                try {
+                	map.put("data", getResultString(response));
+                //	re.setData(getResultString(response));
+                }catch (Exception ex){
+                    ex.printStackTrace();
+                }
+            }
+        },user.getMobile());
+        return map;
+    }*/
+
+
+
+
+    public static void getapisHttpTest(){
+        HttpApiClientgroup.getInstance().getapis(new ApiCallback() {
+            @Override
+            public void onFailure(ApiRequest request, Exception e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(ApiRequest request, ApiResponse response) {
+                try {
+                    System.out.println(getResultString(response));
+                }catch (Exception ex){
+                    ex.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public static void getapisHttpSyncTest(){
+        ApiResponse response = HttpApiClientgroup.getInstance().getapisSyncMode();
+        try {
+            System.out.println(getResultString(response));
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+    }
+
+
+
+
+    private static Map<String,Object> getResultString(ApiResponse response) throws IOException {
+    	Map<String,Object> map = new HashMap<String, Object>();
+        StringBuilder result = new StringBuilder();
+       // result.append("Response from backend server").append(SdkConstant.CLOUDAPI_LF).append(SdkConstant.CLOUDAPI_LF);
+     //   result.append("ResultCode:").append(SdkConstant.CLOUDAPI_LF).append(response.getCode()).append(SdkConstant.CLOUDAPI_LF).append(SdkConstant.CLOUDAPI_LF);
+        if(response.getCode() != 200){
+          //  result.append("Error description:").append(response.getHeaders().get("X-Ca-Error-Message")).append(SdkConstant.CLOUDAPI_LF).append(SdkConstant.CLOUDAPI_LF);
+            map.put("ResultCode", 500);
+            map.put("error", response.getHeaders().get("X-Ca-Error-Message")+SdkConstant.CLOUDAPI_LF+SdkConstant.CLOUDAPI_LF);
+            LOGGER.info("-----------------------------------------------百媒云错误="+response.getHeaders().get("X-Ca-Error-Message")+SdkConstant.CLOUDAPI_LF+SdkConstant.CLOUDAPI_LF);
+        }
+        result.append(SdkConstant.CLOUDAPI_LF).append(new String(response.getBody() , SdkConstant.CLOUDAPI_ENCODING));
+        map.put("ResultCode", response.getCode()+"");
+        map.put("ResultBody", result.toString());
+        return map;
+    }
+
+	
+
+}

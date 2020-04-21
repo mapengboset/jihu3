@@ -1,0 +1,42 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 设备使用次数值接口
+ * 
+ * @author cychen
+ *
+ */
+public interface RDeviceUsedTimesValue {
+
+	/**
+	 * 设置设备使用次数
+	 * 
+	 * @param deviceId 设备标识
+	 * @param usedTimes 使用次数
+	 */
+	public void set(Integer deviceId, Integer usedTimes);
+
+	/**
+	 * 获取设备使用次数
+	 * 
+	 * @param deviceId 设备标识
+	 * @return 使用次数
+	 */
+	public Integer get(Integer deviceId);
+
+	/**
+	 * 删除设备使用次数
+	 * 
+	 * @param deviceId 设备标识
+	 */
+	public void remove(Integer deviceId);
+
+	/**
+	 * 存在设备使用次数
+	 * 
+	 * @param deviceId 设备标识
+	 * @return 是否存在
+	 */
+	public boolean exist(Integer deviceId);
+
+}

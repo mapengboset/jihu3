@@ -1,0 +1,66 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import java.io.IOException;
+import java.net.URLDecoder;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.google.gson.Gson;
+import com.yqbing.servicebing.constants.store.ParamConstant;
+import com.yqbing.servicebing.service.IBaiMeiService;
+import com.yqbing.servicebing.service.IBaiMeiYunService;
+import com.yqbing.servicebing.utils.enums.ErrorCode;
+import com.yqbing.servicebing.utils.json.JSONObject;
+import com.yqbing.servicebing.utils.json.JSONUtil;
+import com.yqbing.servicebing.utils.web.CommonResult;
+
+@RestController
+@RequestMapping(value="/app/user/baimei")
+@Api(tags = "百媒云签署合同")
+@CrossOrigin
+public class BaiMeiController {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(BaiMeiController.class);
+	
+	@Resource
+	IBaiMeiService baiMeiService;
+	
+	@RequestMapping(value="/ifattestation",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	@ApiOperation(value = "实名认证")
+    public CommonResult ifattestation(HttpServletRequest request, String data) throws IOException {
+		LOGGER.info("---------------------------------实名认证"+data);
+		CommonResult result = null;
+		String t = null;
+		if(StringUtils.isNotEmpty(data)) {
+			
+			JSONObject dataJo = JSONObject.fromObject(data);
+			String token = JSONUtil.getString(dataJo, ParamConstant.TOKEN);
+			if(StringUtils.isBlank(token)){
+				return new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+			}
+			String decode = URLDecoder.decode(token, "UTF-8");
+			t = decode.replace(' ','+');
+			Integer appId = JSONUtil.getInt(dataJo, ParamConstant.APP_ID);
+			result = baiMeiService.ifattestation(t,appId);
+		}else {
+			result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+		}
+		LOGGER.info("---------------------------------实名认证"+new Gson().toJson(result));
+		return result;
+    }
+	
+	
+}

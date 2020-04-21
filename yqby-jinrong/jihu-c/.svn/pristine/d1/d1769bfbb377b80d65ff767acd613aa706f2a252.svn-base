@@ -1,0 +1,45 @@
+package com.yqbing.servicebing.webapp.response.local;
+
+import io.swagger.annotations.ApiModelProperty;
+
+import java.io.Serializable;
+import java.util.List;
+
+import com.yqbing.servicebing.repository.database.bean.AppBanner;
+
+public class LocalPageRes implements Serializable{
+
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1389555592960848718L;
+	/**
+	 * 
+	 */
+	@ApiModelProperty(value = "首页大图", name = "pic")
+	private List<AppBanner> pic;//首页大图
+	@ApiModelProperty(value = "所有模块", name = "apps")
+	private List<LocalModel> models;//
+	private List<CityRes> citys;//
+	public List<AppBanner> getPic() {
+		return pic;
+	}
+	public void setPic(List<AppBanner> pic) {
+		this.pic = pic;
+	}
+	public List<LocalModel> getModels() {
+		return models;
+	}
+	public void setModels(List<LocalModel> models) {
+		this.models = models;
+	}
+	public List<CityRes> getCitys() {
+		return citys;
+	}
+	public void setCitys(List<CityRes> citys) {
+		this.citys = citys;
+	}
+	
+	
+}

@@ -1,0 +1,334 @@
+package com.hiko.gym.common.repository.database.base;
+
+import java.sql.*;
+
+/**
+ * 短消息查询类
+ * 
+ * @author cychen
+ *
+ */
+public class DShortMessageQuery {
+
+	/** 消息标识 */
+	private Long id = null;
+	/** 消息状态(1:发送中;2:发送成功;3:发送失败) */
+	private Short status = null;
+	/** 起始消息状态(1:发送中;2:发送成功;3:发送失败) */
+	private Short beginStatus = null;
+	/** 终止消息状态(1:发送中;2:发送成功;3:发送失败) */
+	private Short endStatus = null;
+	/** 短信类型(1:注册用户;2:找回密码;3:绑定手机;4.解绑手机) */
+	private Short type = null;
+	/** 起始短信类型(1:注册用户;2:找回密码;3:绑定手机;4.解绑手机) */
+	private Short beginType = null;
+	/** 终止短信类型(1:注册用户;2:找回密码;3:绑定手机;4.解绑手机) */
+	private Short endType = null;
+	/** 接收电话 */
+	private String phone = null;
+	/** 消息内容 */
+	private String content = null;
+	/** 失败原因 */
+	private String cause = null;
+	/** 创建时间 */
+	private Timestamp createdTime = null;
+	/** 起始创建时间 */
+	private Timestamp beginCreatedTime = null;
+	/** 终止创建时间 */
+	private Timestamp endCreatedTime = null;
+	/** 修改时间 */
+	private Timestamp modifiedTime = null;
+	/** 起始修改时间 */
+	private Timestamp beginModifiedTime = null;
+	/** 终止修改时间 */
+	private Timestamp endModifiedTime = null;
+
+	/**
+	 * 获取消息标识
+	 * 
+	 * @return 消息标识
+	 */
+	public Long getId() {
+		return id;
+	}
+
+	/**
+	 * 设置消息标识
+	 * 
+	 * @param id 消息标识
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	/**
+	 * 获取消息状态(1:发送中;2:发送成功;3:发送失败)
+	 * 
+	 * @return 消息状态(1:发送中;2:发送成功;3:发送失败)
+	 */
+	public Short getStatus() {
+		return status;
+	}
+
+	/**
+	 * 设置消息状态(1:发送中;2:发送成功;3:发送失败)
+	 * 
+	 * @param status 消息状态(1:发送中;2:发送成功;3:发送失败)
+	 */
+	public void setStatus(Short status) {
+		this.status = status;
+	}
+
+	/**
+	 * 获取起始消息状态(1:发送中;2:发送成功;3:发送失败)
+	 * 
+	 * @return 起始消息状态(1:发送中;2:发送成功;3:发送失败)
+	 */
+	public Short getBeginStatus() {
+		return beginStatus;
+	}
+
+	/**
+	 * 设置起始消息状态(1:发送中;2:发送成功;3:发送失败)
+	 * 
+	 * @param beginStatus 起始消息状态(1:发送中;2:发送成功;3:发送失败)
+	 */
+	public void setBeginStatus(Short beginStatus) {
+		this.beginStatus = beginStatus;
+	}
+
+	/**
+	 * 获取终止消息状态(1:发送中;2:发送成功;3:发送失败)
+	 * 
+	 * @return 终止消息状态(1:发送中;2:发送成功;3:发送失败)
+	 */
+	public Short getEndStatus() {
+		return endStatus;
+	}
+
+	/**
+	 * 设置终止消息状态(1:发送中;2:发送成功;3:发送失败)
+	 * 
+	 * @param endStatus 终止消息状态(1:发送中;2:发送成功;3:发送失败)
+	 */
+	public void setEndStatus(Short endStatus) {
+		this.endStatus = endStatus;
+	}
+
+	/**
+	 * 获取短信类型(1:注册用户;2:找回密码;3:绑定手机;4.解绑手机)
+	 * 
+	 * @return 短信类型(1:注册用户;2:找回密码;3:绑定手机;4.解绑手机)
+	 */
+	public Short getType() {
+		return type;
+	}
+
+	/**
+	 * 设置短信类型(1:注册用户;2:找回密码;3:绑定手机;4.解绑手机)
+	 * 
+	 * @param type 短信类型(1:注册用户;2:找回密码;3:绑定手机;4.解绑手机)
+	 */
+	public void setType(Short type) {
+		this.type = type;
+	}
+
+	/**
+	 * 获取起始短信类型(1:注册用户;2:找回密码;3:绑定手机;4.解绑手机)
+	 * 
+	 * @return 起始短信类型(1:注册用户;2:找回密码;3:绑定手机;4.解绑手机)
+	 */
+	public Short getBeginType() {
+		return beginType;
+	}
+
+	/**
+	 * 设置起始短信类型(1:注册用户;2:找回密码;3:绑定手机;4.解绑手机)
+	 * 
+	 * @param beginType 起始短信类型(1:注册用户;2:找回密码;3:绑定手机;4.解绑手机)
+	 */
+	public void setBeginType(Short beginType) {
+		this.beginType = beginType;
+	}
+
+	/**
+	 * 获取终止短信类型(1:注册用户;2:找回密码;3:绑定手机;4.解绑手机)
+	 * 
+	 * @return 终止短信类型(1:注册用户;2:找回密码;3:绑定手机;4.解绑手机)
+	 */
+	public Short getEndType() {
+		return endType;
+	}
+
+	/**
+	 * 设置终止短信类型(1:注册用户;2:找回密码;3:绑定手机;4.解绑手机)
+	 * 
+	 * @param endType 终止短信类型(1:注册用户;2:找回密码;3:绑定手机;4.解绑手机)
+	 */
+	public void setEndType(Short endType) {
+		this.endType = endType;
+	}
+
+	/**
+	 * 获取接收电话
+	 * 
+	 * @return 接收电话
+	 */
+	public String getPhone() {
+		return phone;
+	}
+
+	/**
+	 * 设置接收电话
+	 * 
+	 * @param phone 接收电话
+	 */
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	/**
+	 * 获取消息内容
+	 * 
+	 * @return 消息内容
+	 */
+	public String getContent() {
+		return content;
+	}
+
+	/**
+	 * 设置消息内容
+	 * 
+	 * @param content 消息内容
+	 */
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	/**
+	 * 获取失败原因
+	 * 
+	 * @return 失败原因
+	 */
+	public String getCause() {
+		return cause;
+	}
+
+	/**
+	 * 设置失败原因
+	 * 
+	 * @param cause 失败原因
+	 */
+	public void setCause(String cause) {
+		this.cause = cause;
+	}
+
+	/**
+	 * 获取创建时间
+	 * 
+	 * @return 创建时间
+	 */
+	public Timestamp getCreatedTime() {
+		return createdTime;
+	}
+
+	/**
+	 * 设置创建时间
+	 * 
+	 * @param createdTime 创建时间
+	 */
+	public void setCreatedTime(Timestamp createdTime) {
+		this.createdTime = createdTime;
+	}
+
+	/**
+	 * 获取起始创建时间
+	 * 
+	 * @return 起始创建时间
+	 */
+	public Timestamp getBeginCreatedTime() {
+		return beginCreatedTime;
+	}
+
+	/**
+	 * 设置起始创建时间
+	 * 
+	 * @param beginCreatedTime 起始创建时间
+	 */
+	public void setBeginCreatedTime(Timestamp beginCreatedTime) {
+		this.beginCreatedTime = beginCreatedTime;
+	}
+
+	/**
+	 * 获取终止创建时间
+	 * 
+	 * @return 终止创建时间
+	 */
+	public Timestamp getEndCreatedTime() {
+		return endCreatedTime;
+	}
+
+	/**
+	 * 设置终止创建时间
+	 * 
+	 * @param endCreatedTime 终止创建时间
+	 */
+	public void setEndCreatedTime(Timestamp endCreatedTime) {
+		this.endCreatedTime = endCreatedTime;
+	}
+
+	/**
+	 * 获取修改时间
+	 * 
+	 * @return 修改时间
+	 */
+	public Timestamp getModifiedTime() {
+		return modifiedTime;
+	}
+
+	/**
+	 * 设置修改时间
+	 * 
+	 * @param modifiedTime 修改时间
+	 */
+	public void setModifiedTime(Timestamp modifiedTime) {
+		this.modifiedTime = modifiedTime;
+	}
+
+	/**
+	 * 获取起始修改时间
+	 * 
+	 * @return 起始修改时间
+	 */
+	public Timestamp getBeginModifiedTime() {
+		return beginModifiedTime;
+	}
+
+	/**
+	 * 设置起始修改时间
+	 * 
+	 * @param beginModifiedTime 起始修改时间
+	 */
+	public void setBeginModifiedTime(Timestamp beginModifiedTime) {
+		this.beginModifiedTime = beginModifiedTime;
+	}
+
+	/**
+	 * 获取终止修改时间
+	 * 
+	 * @return 终止修改时间
+	 */
+	public Timestamp getEndModifiedTime() {
+		return endModifiedTime;
+	}
+
+	/**
+	 * 设置终止修改时间
+	 * 
+	 * @param endModifiedTime 终止修改时间
+	 */
+	public void setEndModifiedTime(Timestamp endModifiedTime) {
+		this.endModifiedTime = endModifiedTime;
+	}
+
+}

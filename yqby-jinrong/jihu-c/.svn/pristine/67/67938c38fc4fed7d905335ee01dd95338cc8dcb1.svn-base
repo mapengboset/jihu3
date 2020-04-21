@@ -1,0 +1,134 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.google.gson.Gson;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+import com.yqbing.servicebing.repository.database.bean.UserDownDataDayDetail;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseExample;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseExample.Criteria;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseMapper;
+import com.yqbing.servicebing.repository.database.dao.UserDownDataDayDetailMapper;
+import com.yqbing.servicebing.service.LaChineService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.webapp.response.LaChineVORes;
+
+
+
+@Service("laChineService")
+@SuppressWarnings("all")
+public class LaChineServiceImpl implements LaChineService{
+
+	@Resource
+	UserDownDataDayDetailMapper userDownDataDayDetailMapper=null;
+	 @Autowired
+	 private StoreHouseMapper storeHouseMapper= null;
+	 
+	 
+	 private static final Logger LOGGER = LoggerFactory.getLogger(LaChineServiceImpl.class);
+	@Override
+	public String queryList(String stime, String etime, Integer courrent,
+			Integer size,String code ) {
+		
+		List<LaChineVORes> las = new ArrayList<LaChineVORes>();
+		List<LaChineVORes> klas = new ArrayList<LaChineVORes>();
+		if(StringUtils.isNotBlank(code)){
+		
+		  String[] split = code.split(",");
+		  List<UserDownDataDayDetail>	udds =   userDownDataDayDetailMapper.queryInvite(split,stime,etime+" :24:00",courrent,size);
+		  Integer to = 0;
+		  for (UserDownDataDayDetail u : udds) {
+			  LaChineVORes voRes = new LaChineVORes();
+			    if(u.getSelf() == 1){//快下
+			    	 voRes.setIcon("http://p2a60yqmm.bkt.clouddn.com/kuaixiaLogo.png");
+			    	 voRes.setName("快下其它");
+			    	 
+			    	 voRes.setTotal(to+=u.getTotal().ROUND_DOWN );
+			    	 klas.add(voRes);
+			    }
+			    
+			    
+		  }
+		  if(klas.size() == 0){
+			      LaChineVORes voRes = new LaChineVORes();
+			      voRes.setIcon("http://p2a60yqmm.bkt.clouddn.com/kuaixiaLogo.png");
+		    	  voRes.setName("快下其它");
+		    	
+		    	  klas.add(voRes);
+		  }
+		  
+		  Map<String, Object> map = new HashMap<String, Object>();
+		  for (UserDownDataDayDetail u : udds) {
+			  LaChineVORes voRes = new LaChineVORes();
+				
+				    if(u.getSelf() == 2){
+				   
+				    	
+				    	voRes.setName(u.getName());
+				        voRes.setIcon(u.getImg());
+						voRes.setTotal(u.getTotal().ROUND_DOWN);
+						map.put(u.getName(), voRes);
+						las.add(voRes);
+				    }
+		}
+		  StoreHouseExample houseExample = new StoreHouseExample();
+		  houseExample.createCriteria().andStatusEqualTo(0).andIsSelfEqualTo(2);
+		  List<StoreHouse> list = storeHouseMapper.selectByExample(houseExample);
+		 
+		  for (StoreHouse s : list) {
+			  if(map.containsKey(s.getAppName())){//true
+				  
+			  }else{
+				  LaChineVORes voRes = new LaChineVORes();
+				    	voRes.setName(s.getAppName());
+				        voRes.setIcon(s.getAppUrlImg());
+						voRes.setTotal(0);
+						 las.add(voRes);
+			  }
+			  
+			  
+		  }
+		  
+		  if(klas.size() > 0){
+			  
+			  LaChineVORes laChineVORes = klas.get(0);
+			  laChineVORes.setTotal(to);
+			  las.add(laChineVORes);
+		  }
+	
+			
+		}
+		
+		return NotifyUtil.success(las);
+	}
+	
+	
+	
+	@Override
+	public String gameCpss(String name) {
+	   
+		StoreHouseExample example = new StoreHouseExample();
+		Criteria criteria = example.createCriteria();
+		if(!StringUtils.isBlank(name)){
+			criteria.andAppNameLike(name);
+		}
+		criteria.andStatusEqualTo(0).andIsSelfEqualTo(3);
+		List<StoreHouse> list = storeHouseMapper.selectByExample(example);
+		
+		return  NotifyUtil.success(list);
+	}
+	
+
+}

@@ -1,0 +1,80 @@
+package com.yqbing.servicebing.service;
+
+public interface ChargBoxService {
+    
+	
+	/**
+	 * 
+	
+	 * @Title: myTaskApps
+	
+	 * @Description: 我的任务下载列表
+	
+	 * @param token
+	 * @return
+	
+	 * @return: String
+	 */
+	String myTaskApps(String token);
+    /**
+     * 
+    
+     * @Title: chargHomePage
+    
+     * @Description: TODO
+    
+     * @param token
+     * @param deviceId 设备编号
+     * @return
+    
+     * @return: String
+     */
+	String chargHomePage(String token, String deviceId);
+	/**
+	 * 
+	
+	 * @Title: boxOrder
+	
+	 * @Description: TODO
+	
+	 * @param token
+	 * @return
+	
+	 * @return: String
+	 */
+	String boxOrder(String token);
+	
+	/**
+	 * 
+	
+	 * @Title: boxPassword
+	
+	 * @Description: TODO
+	
+	 * @param token
+	 * @param orderNo  订单号
+	 * @param deviceId 设备ID
+	 * @return
+	
+	 * @return: String
+	 */
+	String boxPassword(String token, String orderNo, String deviceId);
+	
+	/**
+	 * 
+	
+	 * @Title: getOrder
+	
+	 * @Description: TODO
+	
+	 * @param token
+	 * @param ideaId 套餐ID
+	 * @param deviceId 充电宝设备ID
+	 * @param type 1微信 2支付宝 3免费
+	 * @return
+	
+	 * @return: String
+	 */
+	String getOrder(String token, String ideaId, String deviceId, Integer type);
+
+}

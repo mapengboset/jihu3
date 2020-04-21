@@ -1,0 +1,229 @@
+package com.hiko.gym.common.repository.redis;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Repository;
+
+/**
+ * 客户运动数据对象实现类
+ * @author zhouwf
+ *
+ */
+@Repository("rCustomerSportObject")
+public class RCustomerSportObjectImpl implements RCustomerSportObject {
+
+	/** Redis模板 */
+	@Resource(name = "redisTemplate")
+	private RedisTemplate<String, String> redisTemplate = null;
+
+	/** 键值格式 */
+	private static final MessageFormat KEY_FORMAT = new MessageFormat("Object:CustomerSport:{0}");
+	
+	/**
+	 * 设置客户对象
+	 * 
+	 * @param customerId 客户标识
+	 * @param customer 客户对象
+	 */
+	@Override
+	public void set(Long customerId, RCustomerSport rCustomerSport) {
+		// TODO Auto-generated method stub
+		// 初始化
+		Map<String, String> map = new HashMap<String, String>();
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 赋值参数
+		if (rCustomerSport.getCustomerId() != null) {
+			map.put(RCustomerSport.CUSTOMERID, rCustomerSport.getCustomerId().toString());
+		}
+		if (rCustomerSport.getCalorie() != null) {
+			map.put(RCustomerSport.CALORIE, rCustomerSport.getCalorie().toString());
+		}
+		if (rCustomerSport.getBushu() != null) {
+			map.put(RCustomerSport.BUSHU, rCustomerSport.getBushu().toString());
+		}
+		if (rCustomerSport.getDistance() != null) {
+			map.put(RCustomerSport.DISTANCE, rCustomerSport.getDistance().toString());
+		}
+		if (rCustomerSport.getPraise() != null) {
+			map.put(RCustomerSport.PRAISE, rCustomerSport.getPraise().toString());
+		}
+		if (rCustomerSport.getTarget() != null) {
+			map.put(RCustomerSport.TARGET, rCustomerSport.getTarget().toString());
+		}
+		if (rCustomerSport.getWeight() != null) {
+			map.put(RCustomerSport.WEIGHT, rCustomerSport.getWeight().toString());
+		}
+		// 调用接口
+		redisTemplate.opsForHash().putAll(key, map);
+	}
+
+	/**
+	 * 获取客户对象
+	 * 
+	 * @param customerId 客户标识
+	 * @return 客户对象
+	 */
+	@Override
+	public RCustomerSport get(Long customerId) {
+		// TODO Auto-generated method stub
+		// 初始化
+		RCustomerSport customerSport = null;
+		List<String> keyList = new ArrayList<String>();
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 赋值参数
+		keyList.add(RCustomerSport.CUSTOMERID);
+		keyList.add(RCustomerSport.CALORIE);
+		keyList.add(RCustomerSport.BUSHU);
+		keyList.add(RCustomerSport.DISTANCE);
+		keyList.add(RCustomerSport.PRAISE);
+		keyList.add(RCustomerSport.TARGET);
+		keyList.add(RCustomerSport.WEIGHT);
+
+		// 调用接口
+		HashOperations<String, String, String> objectOperations = redisTemplate.opsForHash();
+		List<String> valueList = objectOperations.multiGet(key, keyList);
+		
+		// 转化数据
+		if (valueList != null && !valueList.isEmpty()) {
+			customerSport = new RCustomerSport();
+			String[] valueArray = valueList.toArray(new String[0]);
+			int length = valueArray.length;
+			if (length > 0 && valueArray[0] != null) {
+				customerSport.setCustomerId(Long.parseLong(valueArray[0]));
+			}
+			if (length > 1 && valueArray[1] != null) {
+				customerSport.setCalorie(Double.parseDouble(valueArray[1]));
+			}
+			if (length > 2 && valueArray[2] != null) {
+				customerSport.setBushu(Integer.parseInt(valueArray[2]));
+			}
+			if (length > 3 && valueArray[3] != null) {
+				customerSport.setDistance(Double.parseDouble(valueArray[3]));
+			}
+			if (length > 4 && valueArray[4] != null) {
+				customerSport.setPraise(Integer.parseInt(valueArray[4]));
+			}
+			if (length > 5 && valueArray[5] != null) {
+				customerSport.setTarget(Integer.parseInt(valueArray[5]));
+			}
+			if (length > 6 && valueArray[6] != null) {
+				customerSport.setWeight(Double.valueOf(valueArray[6]));
+			}
+		}
+
+		// 返回数据
+		return customerSport;
+	}
+
+	/**
+	 * 删除客户对象
+	 * 
+	 * @param customerId 客户标识
+	 */
+	@Override
+	public void remove(Long customerId) {
+		// TODO Auto-generated method stub
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		redisTemplate.delete(key);
+	}
+
+	/**
+	 * 存在客户对象
+	 * 
+	 * @param customerId 客户标识
+	 * @return 是否存在
+	 */
+	@Override
+	public boolean exist(Long customerId) {
+		// TODO Auto-generated method stub
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		return redisTemplate.hasKey(key);
+	}
+
+	/**
+	 * 设置参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 * @param value 参数值
+	 */
+	@Override
+	public void set(Long customerId, String name, String value) {
+		// TODO Auto-generated method stub
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		redisTemplate.opsForHash().put(key, name, value);
+	}
+
+	/**
+	 * 获取参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 * @return 参数值
+	 */
+	@Override
+	public String get(Long customerId, String name) {
+		// TODO Auto-generated method stub
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		HashOperations<String, String, String> objectOperations = redisTemplate.opsForHash();
+		return objectOperations.get(key, name);
+	}
+
+	/**
+	 * 删除参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 */
+	@Override
+	public void remove(Long customerId, String name) {
+		// TODO Auto-generated method stub
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		HashOperations<String, String, String> objectOperations = redisTemplate.opsForHash();
+		objectOperations.delete(key, name);
+	}
+
+	/**
+	 * 存在参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 * @return 持久化异常
+	 */
+	@Override
+	public boolean exist(Long customerId, String name) {
+		// TODO Auto-generated method stub
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		HashOperations<String, String, String> objectOperations = redisTemplate.opsForHash();
+		return objectOperations.hasKey(key, name);
+	}
+
+}

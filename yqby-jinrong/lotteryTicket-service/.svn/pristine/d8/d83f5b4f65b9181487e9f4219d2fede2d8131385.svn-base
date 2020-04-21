@@ -1,0 +1,27 @@
+package com.yqbing.servicebing.repository.database.dao;
+
+import com.yqbing.servicebing.repository.database.bean.WealthLog;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+public interface WealthLogMapper {
+    int countByExample(WealthLogExample example);
+
+    int deleteByPrimaryKey(Integer logId);
+
+    int insert(WealthLog record);
+
+    int insertSelective(WealthLog record);
+
+    List<WealthLog> selectByExample(WealthLogExample example);
+
+    WealthLog selectByPrimaryKey(Integer logId);
+
+    int updateByPrimaryKeySelective(WealthLog record);
+
+    int updateByPrimaryKey(WealthLog record);
+
+	WealthLog selectByOrder(@Param("orderId")String orderId);
+}

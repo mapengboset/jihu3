@@ -1,0 +1,930 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.docx4j.model.datastorage.XPathEnhancerParser.main_return;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.domain.AlipayTradeAppPayModel;
+import com.alipay.api.internal.util.AlipaySignature;
+import com.alipay.api.request.AlipayTradeAppPayRequest;
+import com.alipay.api.response.AlipayTradeAppPayResponse;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.abstracts.StoreHouseAbs;
+import com.yqbing.servicebing.repository.database.bean.AppAppraise;
+import com.yqbing.servicebing.repository.database.bean.AppRecommend;
+import com.yqbing.servicebing.repository.database.bean.AppWealthRule;
+import com.yqbing.servicebing.repository.database.bean.ChargOrder;
+import com.yqbing.servicebing.repository.database.bean.FreeScale;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+import com.yqbing.servicebing.repository.database.bean.UserAppTask;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.UserTaskLog;
+import com.yqbing.servicebing.repository.database.dao.AppRecommendMapper;
+import com.yqbing.servicebing.repository.database.dao.AppWealthRuleExample;
+import com.yqbing.servicebing.repository.database.dao.AppWealthRuleMapper;
+import com.yqbing.servicebing.repository.database.dao.ChargOrderExample;
+import com.yqbing.servicebing.repository.database.dao.ChargOrderMapper;
+import com.yqbing.servicebing.repository.database.dao.FreeScaleMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseMapper;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskMapper;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.UserLocalAppMapper;
+import com.yqbing.servicebing.repository.database.dao.UserTaskLogExample;
+import com.yqbing.servicebing.repository.database.dao.UserTaskLogExample.Criteria;
+import com.yqbing.servicebing.repository.database.dao.UserTaskLogMapper;
+import com.yqbing.servicebing.repository.redis.RCharBoxData;
+import com.yqbing.servicebing.repository.redis.RStoreHouseData;
+import com.yqbing.servicebing.repository.redis.RStoreInfoData;
+import com.yqbing.servicebing.repository.redis.RUserAppTaskData;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.repository.redis.StoreInfoBean;
+import com.yqbing.servicebing.service.AccountService;
+import com.yqbing.servicebing.service.ChargBoxService;
+import com.yqbing.servicebing.service.CommonService;
+import com.yqbing.servicebing.service.StoreInfoService;
+import com.yqbing.servicebing.utils.DataFormatUntil;
+import com.yqbing.servicebing.utils.DateUtil;
+import com.yqbing.servicebing.utils.HttpServiceUtil;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.utils.SendUtils;
+import com.yqbing.servicebing.webapp.alipay.AlipayConfig;
+import com.yqbing.servicebing.webapp.alipay.AlipayCore;
+import com.yqbing.servicebing.webapp.response.BoxOrder;
+import com.yqbing.servicebing.webapp.response.BoxStoreAppRes;
+import com.yqbing.servicebing.webapp.response.ChargCode;
+import com.yqbing.servicebing.webapp.response.ChargHomeRes;
+import com.yqbing.servicebing.webapp.response.ChargPass;
+import com.yqbing.servicebing.webapp.response.CpdApps;
+import com.yqbing.servicebing.webapp.response.EntryVo;
+import com.yqbing.servicebing.webapp.response.StoreAppRes;
+
+
+@Service("chargBoxService")
+@SuppressWarnings("all")
+public class ChargBoxServiceImpl extends CommonService implements ChargBoxService{
+	
+	
+	 private static final Logger LOGGER = LoggerFactory.getLogger(ChargBoxServiceImpl.class);
+	 private static final byte s = 0;
+	 private static final byte t = 1;
+	 
+	 @Value("${charg_service}")
+	 private   String  chargHttps;
+	 @Value("${ali_https}")
+	 private   String  aliHttps;
+	 @Value("${ali_appid}")
+	 private   String  aliAppid;
+	 @Value("${private_key}")
+	 private   String  privateKey;
+	 @Value("${alipay_public_key}")
+	 private   String  alipayBublicKey;
+	 @Value("${ali_gateway}")
+	 private   String  aliGateway;
+//	 private static  String  chargHttps = "http://39cd8365.ngrok.io";
+	 @Resource
+	 private AppRecommendMapper appRecommendMapper= null;
+	 @Resource
+	 private AccountService accountService = null;
+	 
+	 @Resource
+	 private UserInfoBeanMapper userInfoBeanMapper = null;
+	 @Resource
+	 private StoreHouseMapper storeHouseMapper = null;
+	 
+	 @Resource
+	 private RUserLogBean rUserLogBean = null;
+	 @Resource
+	 private RCharBoxData rCharBoxData = null;
+	 @Resource
+	 private RUserAppTaskData rUserAppTaskData = null;
+	 @Resource
+	 private RStoreHouseData rStoreHouseData = null;
+	 @Resource
+	 private UserLocalAppMapper userLocalAppMapper = null;
+	 @Resource
+	 private UserAppTaskMapper userAppTaskMapper = null;
+	 @Resource
+	 private UserTaskLogMapper userTaskLogMapper = null;
+	 @Resource
+	 private ChargOrderMapper chargOrderMapper = null;
+	 @Resource
+	 private AppWealthRuleMapper appWealthRuleMapper = null;
+	 @Resource
+	 private StoreInfoService storeInfoService = null;
+	 @Resource
+	 private RStoreInfoData  rStoreInfoData = null;
+	 
+	 @Override
+		public String chargHomePage(String token, String deviceId) {
+		          ChargHomeRes homeRes = null;
+		 try {
+		
+			 
+			 
+			 UserInfoBean infoBean = rUserLogBean.getRaw(token);
+				
+				if(infoBean == null){
+					
+					infoBean = userInfoBeanMapper.queryToken(token);
+				}
+				if(infoBean == null){
+					return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+					
+				}
+				 
+				homeRes = new ChargHomeRes();
+				//或者充电套餐列表
+				 HashMap<String,String> map = new HashMap<String, String>();
+				 map.put("deviceId", deviceId);
+				// String chargHttps = "http://192.168.100.121:8080";
+				 String taocan = SendUtils.doPost(chargHttps+"/kxzs/idea/list", map);
+				 JSONObject JSONObject = new JSONObject(taocan);
+				 int code = JSONObject.getInt("code");
+				 if(code != 0){
+					 
+					 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,JSONObject.getString("msg"));
+				 }
+				Object object = JSONObject.get("body");
+				
+				List<EntryVo> list= new Gson().fromJson(object.toString(), new TypeToken<List<EntryVo>>() {}.getType());
+				homeRes.setEntrys(list);
+				
+				 //返回免费次数
+				 List<UserTaskLog> free = isFree(infoBean, 2);
+				 if(null == free ||  free.size() == 0){
+					 homeRes.setFree(0);
+				 }
+				 homeRes.setFree(free.size());
+				
+				 //返回任务列表
+				 
+			//	 List<BoxStoreAppRes> boxs = new ArrayList<BoxStoreAppRes>();
+				 List<BoxStoreAppRes> apps = getCpdApps(infoBean);
+				
+				 //组合
+				/* List<StoreAppRes> sapp = getTypeByApps("free_charge_tag", infoBean,0,10);
+				 if(null != sapp && sapp.size() > 0){//
+				 for (StoreAppRes s : sapp) {
+					 BoxStoreAppRes box = new BoxStoreAppRes();
+					 box.setId(s.getId());
+					 box.setAppName(s.getAppName());
+					 box.setAppPake(s.getAppPake());
+					 box.setAppType(s.getAppType());
+					 box.setImg(s.getImg());
+					 box.setLocalstatus(s.getLocalstatus());
+					 box.setModel(s.getModel());
+					 box.setPid(0);
+					 box.setSource(0);
+					 box.setType(s.getType());
+					 box.setUrl(s.getUrl());
+					 boxs.add(box);
+				}
+				 boxs.addAll(apps);
+				}*/
+			//	homeRes.setApps(boxs);
+				homeRes.setApps(apps);
+				return NotifyUtil.success(homeRes);
+				
+		} catch (Exception e) {
+			e.printStackTrace();
+
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, e.getLocalizedMessage());
+			
+		}
+		}
+	 
+	 
+	 
+	 
+	@Override
+	public String myTaskApps(String token) {
+		try {
+			 UserInfoBean infoBean = rUserLogBean.getRaw(token);
+				
+				if(infoBean == null){
+					
+					infoBean = userInfoBeanMapper.queryToken(token);
+				}
+				if(infoBean == null){
+					return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+					
+				}
+				//或者充电套餐列表
+				
+				
+				//或者免费充电次数
+				
+				List<StoreAppRes> apps = getTypeByApps("free_charge_tag", infoBean,0,6);
+				return NotifyUtil.success(apps);
+				
+		} catch (Exception e) {
+			e.printStackTrace();
+
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, e.getLocalizedMessage());
+			
+		}
+	}
+	//是否还有免费任务
+    //有---查看今天是否使用过 --否 使用 修改状态标记以使用(只可以当前使用)
+	//返回当前免费机会
+	public List<UserTaskLog> isFree(UserInfoBean infoBean,Integer type ) {//type 1.只看今天 2.所有
+		try {
+			
+			List<UserTaskLog> list = null;
+			UserTaskLogExample logExample = new UserTaskLogExample();
+			Criteria criteria = logExample.createCriteria();
+			criteria.andUserIdEqualTo(infoBean.getId());
+			if(type == 1){
+				
+				criteria.andCreateDayEqualTo(DateUtil.parse(DateUtil.format(new Date()))).andStatusEqualTo(t);
+				
+			}else if(type == 2){
+				criteria.andStatusEqualTo(s);
+			}
+				list = userTaskLogMapper.selectByExample(logExample);
+				return list;
+				/*if(null != list && list.size() > 0){
+					
+					UserTaskLog userTaskLog = list.get(0);
+					userTaskLog.setStatus(t);
+					userTaskLog.setRemark("已经使用");
+					userTaskLog.setUpdateTime(new Date());
+					
+					return true;
+					
+					
+				}*/
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.error("-----------------------------------------"+e.getLocalizedMessage());
+			return null;
+			
+		}
+	 //     return list;
+	}
+
+	
+
+	@Override
+	public String boxOrder(String token) {
+		try {
+			 UserInfoBean infoBean = queryTokenByUser(token);
+				if(infoBean == null){
+					return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+					
+				}
+				 Map<String,String> map = new HashMap<String, String>();
+				 map.put("userId", infoBean.getId()+"");
+				 String orders = SendUtils.doPost(chargHttps+"/kxzs/orders", map);
+				 
+				 JSONObject JSONObject = new JSONObject(orders);
+				 int code = JSONObject.getInt("code");
+				 if(code != 0){
+					 
+					 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,JSONObject.getString("msg"));
+				 }
+				Object object = JSONObject.get("body");
+				
+				List<BoxOrder> list= new Gson().fromJson(object.toString(), new TypeToken<List<BoxOrder>>() {}.getType());
+			
+				return NotifyUtil.success(list);
+				
+		} catch (Exception e) {
+			e.printStackTrace();
+
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, e.getLocalizedMessage());
+			
+		}
+	}
+
+    public ChargOrder isPassword(Long Uid,String orderNo, String deviceId){
+    	 ChargOrderExample exa = new ChargOrderExample();
+		 exa.createCriteria().andOutTradeNoEqualTo(orderNo).andUserIdEqualTo(Uid).andDeviceidEqualTo(deviceId);
+		 List<ChargOrder> list11 = chargOrderMapper.selectByExample(exa);
+		 if(null != list11 && list11.size() > 0){
+			 ChargOrder order = list11.get(0);
+			 return order;
+			
+		 }
+		 return null;
+    }
+	
+	
+	@Override
+	public String boxPassword(String token, String orderNo, String deviceId) {
+		ChargOrder order = null;
+		try {
+			ChargPass chargPass = new ChargPass();
+			UserInfoBean infoBean = queryTokenByUser(token);
+			if(infoBean == null){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+			}
+			String[] split = null;
+			String ordernew = null;
+			//支付成功
+			if(!StringUtils.isBlank(orderNo)){
+				int indexOf = orderNo.indexOf("_");
+				if(indexOf != -1){
+					split = orderNo.split("_");
+					ordernew = split[0];
+				}else{
+					ordernew= orderNo;
+				}
+				
+				}
+			 order = isPassword(infoBean.getId(), ordernew, deviceId);
+
+			 if(order == null ){
+				 return NotifyUtil.error(ErrorCodeEnum.NOTFAIL, "订单不存在");
+			 }
+			 
+			 
+			 Map<String,String> map = new HashMap<String, String>();
+			 map.put("deviceId", deviceId);
+			 map.put("orderNo", ordernew);
+			 String pass = SendUtils.doPost(chargHttps+"/kxzs/device/code", map);
+			 
+			 JSONObject JSONObject = new JSONObject(pass);
+			 int code = JSONObject.getInt("code");
+			 if(code != 0){
+				 
+				 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,JSONObject.getString("msg"));
+			 }
+			 
+			JSONObject object = JSONObject.getJSONObject("body");
+			
+			Object object2 = object.get("activeCode");
+			
+			List<ChargCode> list= new Gson().fromJson(object2.toString(), new TypeToken<List<ChargCode>>() {}.getType());
+			
+			Integer endt = (Integer) object.get("endTime");
+	
+		
+			chargPass.setEndTime(endt+"");
+			//chargPass.setEndTime("2019");
+			chargPass.setActiveCode(list);
+			//
+			 short  s = 0;
+			 
+			 
+			 ChargOrderExample example = new ChargOrderExample();
+			 example.createCriteria().andOutTradeNoEqualTo(ordernew);
+			 List<ChargOrder> list1 = chargOrderMapper.selectByExample(example);
+			 if(null != list1 && list1.size() > 0){
+				 
+				  ChargOrder chargOrder = list1.get(0);
+				 if(chargOrder.getType() == 2){
+					 if(chargOrder.getStatus() == 2){
+						 return NotifyUtil.error(ErrorCodeEnum.ISPAYFALL,"支付审核中");
+					 }
+					 if(chargOrder.getStatus() == 1){
+						 return NotifyUtil.error(ErrorCodeEnum.ISPAYFALL,"支付失败");
+					 }
+				 }else if(chargOrder.getType() == 3){
+					 List<UserTaskLog> free = isFree(infoBean, 2);
+					 if(free != null && free.size() > 0){
+						 List<UserTaskLog> free1 = isFree(infoBean, 1);
+						 
+						 if(null == free1 || free1.size() == 0){
+							 List<UserTaskLog> free2 = isFree(infoBean, 3);
+						     //分佣金
+							 
+						     if(!DataFormatUntil.is5PCount(free2.size()) ){
+						 	
+								 if(free.get(0).getTaskType() == 1 || free.get(0).getTaskType() == 0){
+									 
+									 Map<String,String> map4 = new HashMap<String, String>();
+									 map4.put("orderNo", chargOrder.getOutTradeNo());
+									 
+									 AppWealthRuleExample appWealthRuleExample = new AppWealthRuleExample();
+									 appWealthRuleExample.createCriteria().andAppPackEqualTo("com.jihu.free").andStoreTypeEqualTo("2");
+									 
+									 
+									List<AppWealthRule> list2 = appWealthRuleMapper.selectByExample(appWealthRuleExample);
+									 if(list2 == null || list2.size() == 0){
+										 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,"分成比例不存在");
+									 }
+									 StoreHouseAbs houseAbs = storeHouseMapper.selectByPack("com.jihu.free");
+									 map4.put("baseMoney", houseAbs.getPrice().intValue()*100+"");
+									 map4.put("cityRate", list2.get(0).getAgentCityRate()+"");
+									 map4.put("countyRate", list2.get(0).getAgentCountyRate()+"");
+									 map4.put("storeRate", list2.get(0).getStoreShopkeeperRate()+"");
+									 String fen = SendUtils.doPost(chargHttps+"/kxzs/freeChargeCommission", map4);
+									 
+									 JSONObject fenj = new JSONObject(fen);
+									 int fendou = fenj.getInt("code");
+									 if(fendou != 0){
+										 
+										 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,JSONObject.getString("msg"));
+									 }
+								 }
+								 }
+								 UserTaskLog userTaskLog = free.get(0);
+								 userTaskLog.setStatus(t);
+								 userTaskLog.setUpdateTime(new Date());
+								 userTaskLogMapper.updateByPrimaryKey(userTaskLog);
+								 }
+					 }
+					 LOGGER.info("-----------------------------------------返回充电密码"+new Gson().toJson(chargPass));
+			
+				 }
+				 chargOrder.setChargcode(new Gson().toJson(list));
+				 chargOrder.setEndtime(endt);
+				 chargOrder.setStatus(s);
+				 chargOrder.setUpdateTime(new Date());
+				 chargOrderMapper.updateByPrimaryKey(chargOrder);
+			 }else{
+				 return NotifyUtil.error(ErrorCodeEnum.ISPAYFALL,"失败");
+			 }
+			
+			 LOGGER.info("-----------------------------------------返回充电密码"+new Gson().toJson(chargPass));
+			return NotifyUtil.success(chargPass);
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.error("-----------------------------------------"+e.getLocalizedMessage());
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+			
+		}
+	}
+
+
+	@Override
+	public String getOrder(String token, String ideaId, String deviceId,
+			Integer type,String totalAmount, Integer plat) {
+            try {
+			
+			UserInfoBean infoBean = queryTokenByUser(token);
+			if(infoBean == null){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+			}
+			List<UserTaskLog> free =null;
+			  if(type == 3){//免费18600822516
+					 
+					 free = isFree(infoBean,2);
+					 if(null == free || free.size() == 0){
+						 return NotifyUtil.error(ErrorCodeEnum.NOTFREE,"没有免费");
+					 }
+					 
+					 List<UserTaskLog> free1 = isFree(infoBean, 1);
+					// for (UserTaskLog userTaskLog : free1) {
+						 
+					//	 Date updateTime = userTaskLog.getUpdateTime();
+						 if(free1.size() > 0){
+							 return NotifyUtil.error(ErrorCodeEnum.USEDFREE,"一天只能免费用一次哦");
+						 }
+				//	}
+	        }
+			
+			Integer plat1 = 1;
+			if(plat != null){
+				
+				
+				if(plat == 1){
+					
+					plat1 =2;
+				}else if(plat == 2){
+					plat1 =1;
+				}
+			}
+             Map<String,String> map1 = new HashMap<String, String>();
+			 Map<String,String> map = new HashMap<String, String>();
+			 map.put("deviceId", deviceId);
+			 map.put("userId", infoBean.getId()+"");
+			 map.put("ideaId", ideaId);
+			 String order = null;
+			 String ideas = null;
+			 Integer cost = 0;
+			 Integer idea = 0;
+			 if(type == 3){
+				  UserTaskLog taskLog = free.get(0);
+				  Integer f = 1;
+				  if(taskLog.getTaskType() == 1){
+					  f = 2;
+				  }
+				  map.put("type", f+"");//1 注册 2下载
+				  order = SendUtils.doPost(chargHttps+"/kxzs/createFreeOrder", map);
+			 }else{
+				  order = SendUtils.doPost(chargHttps+"/kxzs/createOrder", map);
+				  
+				  Map<String,String> map2 = new HashMap<String, String>();
+				  
+					 map2.put("ideaId", ideaId);
+					 ideas = SendUtils.doPost(chargHttps+"/kxzs/idea/detail", map);
+					 
+					 JSONObject JSONOb = new JSONObject(ideas);
+					 
+					 int code = JSONOb.getInt("code");
+					 
+					 if(code != 0){
+						 
+						 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,JSONOb.getString("msg"));
+					 }
+					  JSONObject body = JSONOb.getJSONObject("body");
+					 
+					  cost = (Integer) body.get("cost");//时长
+					  
+					  totalAmount = cost * 0.01+"";
+					  
+					  idea = (Integer) body.get("idea");//分钟
+					   
+				  
+			 }
+               if(StringUtils.isBlank(order)){
+				 
+				 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE);
+			 }
+               
+			 JSONObject JSONObject = new JSONObject(order);
+			 
+			 int code = JSONObject.getInt("code");
+			 
+			 if(code != 0){
+				 
+				 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,JSONObject.getString("msg"));
+			 }
+			 JSONObject body = JSONObject.getJSONObject("body");
+			 String orderNo = body.getString("orderNo");
+			 String invitationCode = body.getString("invitationCode");//门店邀请码
+			 
+			 if(StringUtils.isBlank(infoBean.getFirstInviteCode())){//是空的直接绑定
+				 StoreInfoBean storeInfo = rStoreInfoData.getStoreInfo(invitationCode);
+				 if(storeInfo == null){
+					 
+					 storeInfoService.queryInvite(invitationCode);
+				 }
+				 storeInfo= rStoreInfoData.getStoreInfo(invitationCode);
+                     if(storeInfo == null){
+					 
+                    	 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,"设备码不存在");
+				 }
+				 accountService.bindingInvite(token, invitationCode, storeInfo.getStoreId()+"", storeInfo.getStoreName());
+			 }
+			 String s =  orderNo+"_"+rCharBoxData.increment(new Date().getTime());
+			// String orderNo=orderNo+new Date().getSeconds();
+			 map1.put("orderNo", orderNo);
+			 
+		     
+			 if(type == 2){
+				
+				 setChargOrder("", "", totalAmount,orderNo, type, deviceId, infoBean,2,ideaId,cost,idea);
+				//实例化客户端d
+				 AlipayClient alipayClient = new DefaultAlipayClient(aliGateway, aliAppid, privateKey, "json", "UTF-8", alipayBublicKey, "RSA2");
+				 //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
+				 AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
+				 //SDK已经封装掉了公共参数，这里只需要传入业务参数。以下方法为sdk的model入参方式(model和biz_content同时存在的情况下取biz_content)。
+				 AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
+				 model.setBody("快下充电宝");
+				 model.setSubject("充电宝");
+				 model.setOutTradeNo(s);
+				 model.setTimeoutExpress("30m");
+				 
+				 
+				 model.setTotalAmount(totalAmount);
+				 model.setProductCode("QUICK_MSECURITY_PAY");
+				 request.setBizModel(model);
+				 request.setNotifyUrl(aliHttps+"/ChargBox/alipay_notify_url");
+				 try {
+				         //这里和普通的接口调用不同，使用的是sdkExecute
+				         AlipayTradeAppPayResponse response = alipayClient.sdkExecute(request);
+				     //    System.out.println(response.getBody());//就是orderString 可以直接给客户端请求，无需再做处理。
+				         
+				        
+				         return  NotifyUtil.success(response.getBody());
+				     } catch (AlipayApiException e) {
+				         e.printStackTrace();
+				 }
+				 
+				 
+				 
+			 }
+			 if(type == 1){//微信
+				 Map<String,String> map3 = new HashMap<String, String>();
+				 Map<String,String> map2 = new HashMap<String, String>();
+				 map2.put("deviceId", deviceId);
+				 map2.put("ideaId", ideaId);
+				 
+				 map2.put("platform", plat1+"");
+				 map2.put("userThirdPartId", infoBean.getId()+"");
+				 map2.put("ipAddress", "192.168.0.5");
+				 String sss = SendUtils.doPost(chargHttps+"/kxzs/wxPayParams", map2);
+				 
+				 JSONObject JSONOb = new JSONObject(sss);
+				 
+				 int code1 = JSONOb.getInt("code");
+				 
+				 if(code1 != 0){
+					 
+					 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,JSONOb.getString("msg"));
+				 }
+				 JSONObject body1 = JSONOb.getJSONObject("body");
+			//	  cost = (Integer) body.get("cost");//时长
+			//	  idea = (Integer) body.get("idea");//分钟
+				 
+				 String timeStamp = body1.getString("timeStamp");
+				 String orderNo1 = body1.getString("orderNo");
+				 String packageValue = body1.getString("packageValue");
+				 String appId = body1.getString("appId");
+				 String sign = body1.getString("sign");
+				 String partnerId = body1.getString("partnerId");
+				 String prepayId = body1.getString("prepayId");
+				 String nonceStr = body1.getString("nonceStr");
+				 map3.put("timeStamp", timeStamp);
+				 map3.put("orderNo", orderNo1);
+				 map3.put("packageValue", packageValue);
+				 map3.put("appId", appId);
+				 map3.put("sign", sign);
+				 map3.put("partnerId", partnerId);
+				 map3.put("prepayId", prepayId);
+				 map3.put("nonceStr", nonceStr);
+				 setChargOrder("", "", totalAmount,orderNo1, type, deviceId, infoBean,2,ideaId,cost,idea);
+				 return NotifyUtil.success(map3);
+			 }
+			 if(type == 3){//免费
+				 
+				 setChargOrder("", "", totalAmount,orderNo, type, deviceId, infoBean,2,ideaId,cost,idea);
+				 
+				 NotifyUtil.success(map1);
+				}
+			   return NotifyUtil.success(map1);
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.error("-----------------------------------------"+e.getLocalizedMessage());
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+			
+		}
+	}
+	//修改充电宝订单状态
+	public void setChargOrder(String tradeNo,String sellerId,String totalAmount,String orderNo,Integer type,String deviceId,UserInfoBean infoBean, Integer status,String ideaId,Integer cost,Integer idea){
+		 
+		 ChargOrder chargOrder = null;
+		 short y= 2;
+		 short es=1;
+		 try {
+			 ChargOrderExample example = new ChargOrderExample();
+			 example.createCriteria().andOutTradeNoEqualTo(orderNo);
+			 List<ChargOrder> list = chargOrderMapper.selectByExample(example);
+			 if(null != list && list.size() > 0){
+				  chargOrder = list.get(0);
+			 }else{
+				 
+				  chargOrder = new ChargOrder();
+			 }
+			 if(type == 1){
+				  es=1;
+				  if(tradeNo != null){
+				  chargOrder.setTradeNo(tradeNo);
+				  }
+				  if(totalAmount != null){
+				  chargOrder.setTotalAmount(totalAmount);
+				  }
+				  if(sellerId != null){
+				  chargOrder.setSellerId(sellerId);
+				  }
+			 }else if(type == 2){
+				  es=2;
+				  if(tradeNo != null){
+				  chargOrder.setTradeNo(tradeNo);
+				  }
+				  if(totalAmount != null){
+				  chargOrder.setTotalAmount(totalAmount);
+				  }
+				  if(sellerId != null){
+				  chargOrder.setSellerId(sellerId);
+				  }
+			 }else{
+				  es=3;
+				  chargOrder.setTotalAmount("0");
+			 }
+			 if(deviceId != null && deviceId != ""){
+				 
+				 chargOrder.setDeviceid(deviceId);
+			 }
+			 if(ideaId != null){
+				 chargOrder.setIdeaid(Integer.valueOf(ideaId));
+			 }
+			 chargOrder.setOutTradeNo(orderNo);
+			 if(cost != 0 && idea != 0){
+				 chargOrder.setCost(cost);
+				 chargOrder.setIdea(idea);
+			 }
+			 chargOrder.setStatus(status.shortValue());
+			 chargOrder.setType(es);
+			 if(infoBean !=  null){
+				 chargOrder.setUserId(infoBean.getId());
+			 }
+			 if(chargOrder.getId()== null){//修改
+				 
+				 chargOrder.setCreateTime(new Date());
+				 chargOrderMapper.insertSelective(chargOrder);
+			 }else{
+				 chargOrder.setUpdateTime(new Date());
+				 chargOrderMapper.updateByPrimaryKey(chargOrder);
+			 }
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		
+	}
+
+
+	@Override
+	public void alipayUrl(Map<String, String> map) {
+		// TODO Auto-generated method stub
+		Integer status = 2;
+		try {
+			String tradeNo = map.get("trade_no");
+			String sellerId = map.get("seller_id");
+			String totalAmount = map.get("total_amount");
+			String orderNo = map.get("out_trade_no");
+			String tradeStatus = map.get("trade_status");
+			if(tradeStatus.equals("TRADE_SUCCESS") ){//代表
+				status =0;
+				
+			}else{
+				//失败
+				status =1;
+			}
+			if(!StringUtils.isBlank(orderNo)){
+				String[] split = orderNo.split("_");
+				 ChargOrderExample example = new ChargOrderExample();
+				 example.createCriteria().andOutTradeNoEqualTo(split[0]);
+				 List<ChargOrder> list = chargOrderMapper.selectByExample(example);
+				 if(list != null && list.size() > 0){
+					 
+					 Map<String,String> map1 = new HashMap<String, String>();
+					 map1.put("deviceId", list.get(0).getDeviceid());
+					 map1.put("orderNo", list.get(0).getOutTradeNo());
+					 map1.put("ideaId", list.get(0).getIdeaid()+"");
+					 map1.put("userId", list.get(0).getUserId()+"");
+					 if(StringUtils.isNotBlank(list.get(0).getTotalAmount())){
+						 
+						 String ss  = Double.valueOf(list.get(0).getTotalAmount())*100+"";
+						 map1.put("amount", ss.substring(0,ss.indexOf(".")));
+						 String issucc = SendUtils.doPost(chargHttps+"/kxzs/alipayNotify", map1);
+						 LOGGER.error("-----------------------------------------回调函数===B端网吧回调:"+issucc);
+						 JSONObject JSONObject = new JSONObject(issucc);
+						 int code = JSONObject.getInt("code");
+						 if(code != 0){
+						 }
+					 }
+					 
+					 
+					 setChargOrder(tradeNo, sellerId, totalAmount, split[0], 2, "", null,status,null,0,0);
+				 }
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	
+
+
+
+
+
+	@Override
+	public String refPass(String token, String deviceId, String orderNo) {
+
+		 Map<String,String> map = new HashMap<String, String>();
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		String[] split = null;
+		String ordernew = null;
+		//支付成功
+		if(!StringUtils.isBlank(orderNo)){
+			int indexOf = orderNo.indexOf("_");
+			if(indexOf != -1){
+				split = orderNo.split("_");
+				ordernew = split[0];
+			}else{
+				ordernew= orderNo;
+			}
+			
+			}
+		map.put("deviceId", deviceId);
+		map.put("orderNo", ordernew);
+		String sss = SendUtils.doPost(chargHttps+"/kxzs/refresh/code", map);
+		 
+		 JSONObject JSONOb = new JSONObject(sss);
+		 
+		 int code1 = JSONOb.getInt("code");
+		 
+		 if(code1 != 0){
+			 
+			 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,JSONOb.getString("msg"));
+		 }
+//		 JSONObject body1 = JSONOb.getJSONObject("body");
+//		  cost = (Integer) body.get("cost");//时长
+//		  idea = (Integer) body.get("idea");//分钟
+//		   
+//		 
+//		 String timeStamp = body1.getString("timeStamp");
+//		 String orderNo1 = body1.getString("orderNo");
+//		 String packageValue = body1.getString("packageValue");
+		
+		 return NotifyUtil.success();
+	}
+
+	
+	
+	@Override
+	public String isCharg(String token) {
+		
+		 Map<String,String> map = new HashMap<String, String>();
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		short s = 0;
+		ChargOrder order = null;
+		ChargOrderExample example = new ChargOrderExample();
+		example.createCriteria().andUserIdEqualTo(infoBean.getId()).andStatusEqualTo(s);//密码获取成功
+		example.setOrderByClause(" create_time desc");
+		List<ChargOrder> list = chargOrderMapper.selectByExample(example);
+		if(null == list || list.size() == 0){
+			 map.put("orderNo", "");
+			 return NotifyUtil.success(map);
+		}
+		
+		 order = list.get(0);
+		 Integer endtime = order.getEndtime();
+		 
+		 Integer date = Integer.valueOf(String.valueOf(new Date().getTime()).substring(0, 10)); 
+		 if(date > endtime){//服务结束
+			 short t = 3;
+			 order.setStatus(t);
+			 order.setUpdateTime(new Date());
+			 chargOrderMapper.updateByPrimaryKey(order);
+			 map.put("orderNo", "");
+			 return NotifyUtil.success(map);
+		 }
+		     map.put("orderNo", order.getOutTradeNo());
+		     map.put("deviceId", order.getDeviceid());
+		 return NotifyUtil.success(map);
+	}
+	/*public static void main(String[] args) {
+		Integer date = Integer.valueOf(String.valueOf(new Date().getTime()).substring(0, 10)); 
+		System.out.println(date);
+		
+		System.out.println(DataFormatUntil.is5PCount(11));
+	}*/
+
+
+
+
+	@Override
+	public void ChargOver(String token, String orderNo) {
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean != null){
+			
+			
+		
+		short s = 0;
+		ChargOrderExample example = new ChargOrderExample();
+		example.createCriteria().andOutTradeNoEqualTo(orderNo);//密码获取成功
+
+		List<ChargOrder> list = chargOrderMapper.selectByExample(example);
+		if(null != list && list.size() > 0){
+			short t= 3;
+			ChargOrder	order = list.get(0);
+			order.setStatus(t);
+			order.setUpdateTime(new Date());
+			chargOrderMapper.updateByPrimaryKey(order);
+			
+		}
+		
+		}
+	}
+	
+}

@@ -1,0 +1,25 @@
+package com.yqbing.servicebing.service;
+
+public interface UserLogIngService {
+    
+	/**
+	 * 
+	
+	 * @Title: login
+	
+	 * @Description: TODO
+	
+	 * @param password
+	 * @param phone
+	 * @param code
+	 * @param device
+	 * @param version
+	 * @param plat
+	 * @return
+	
+	 * @return: String
+	 */
+	String login(String password, String phone, String code, String device,
+			String version, Integer plat);
+
+}

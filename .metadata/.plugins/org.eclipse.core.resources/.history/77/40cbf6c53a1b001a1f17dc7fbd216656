@@ -1,0 +1,173 @@
+package com.hiko.gym.common.repository.database.base;
+
+import static org.junit.Assert.*;
+
+import java.util.*;
+
+import javax.annotation.*;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.springframework.test.context.*;
+import org.springframework.test.context.junit4.*;
+
+import com.alibaba.fastjson.*;
+
+/**
+ * 短消息DAO测试类
+ * 
+ * @author cychen
+ *
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:spring-config-test.xml" })
+public class DShortMessageDAOTest {
+
+	/** 短消息DAO类 */
+	@Resource(name = "dShortMessageDAO")
+	private DShortMessageDAO dShortMessageDAO = null;
+
+	/**
+	 * 测试获取短消息信息
+	 */
+	@Test
+	public void testGet() {
+		// TODO: 赋值参数
+		Long id = null;
+
+		// 调用函数
+		DShortMessage dShortMessage = dShortMessageDAO.get(id);
+
+		// 打印结果
+		System.out.println("testGet:");
+		System.out.println(JSON.toJSONString(dShortMessage));
+
+		// TODO: 检查结果
+		assertTrue(dShortMessage != null);
+	}
+
+	/**
+	 * 测试统计短消息数量
+	 */
+	@Test
+	public void testCount() {
+		// 初始化
+		DShortMessageQuery dShortMessageQuery = new DShortMessageQuery();
+
+		// TODO: 赋值参数
+		dShortMessageQuery.setId(null);
+		dShortMessageQuery.setStatus(null);
+		dShortMessageQuery.setType(null);
+		dShortMessageQuery.setPhone(null);
+		dShortMessageQuery.setContent(null);
+		dShortMessageQuery.setCause(null);
+		dShortMessageQuery.setCreatedTime(null);
+		dShortMessageQuery.setModifiedTime(null);
+
+		// 调用函数
+		Integer count = dShortMessageDAO.count(dShortMessageQuery);
+
+		// 打印结果
+		System.out.println("testCount:");
+		System.out.println(count);
+
+		// TODO: 检查结果
+		assertTrue(count != null);
+		assertTrue(count >= 0);
+	}
+
+	/**
+	 * 测试查询短消息信息
+	 */
+	@Test
+	public void testQuery() {
+		// 初始化
+		String orderBy = null;
+		Integer startIndex = null;
+		Integer pageSize = null;
+		DShortMessageQuery dShortMessageQuery = new DShortMessageQuery();
+
+		// TODO: 赋值参数
+		dShortMessageQuery.setId(null);
+		dShortMessageQuery.setStatus(null);
+		dShortMessageQuery.setType(null);
+		dShortMessageQuery.setPhone(null);
+		dShortMessageQuery.setContent(null);
+		dShortMessageQuery.setCause(null);
+		dShortMessageQuery.setCreatedTime(null);
+		dShortMessageQuery.setModifiedTime(null);
+		orderBy = null;
+		startIndex = null;
+		pageSize = null;
+
+		// 调用函数
+		List<DShortMessage> dShortMessageList = dShortMessageDAO.query(dShortMessageQuery, orderBy, startIndex,
+				pageSize);
+
+		// 打印结果
+		System.out.println("testQuery:");
+		System.out.println(JSON.toJSONString(dShortMessageList));
+
+		// TODO: 检查结果
+		assertTrue(dShortMessageList != null);
+		assertTrue(dShortMessageList.size() >= 0);
+	}
+
+	/**
+	 * 测试创建短消息信息
+	 */
+	@Test
+	public void testCreate() {
+		// 初始化
+		Long id = null;
+		DShortMessageCreate create = new DShortMessageCreate();
+
+		// TODO: 赋值参数
+		id = null;
+		create.setStatus(null);
+		create.setType(null);
+		create.setPhone(null);
+		create.setContent(null);
+		create.setCause(null);
+
+		// 调用函数
+		Integer count = dShortMessageDAO.create(id, create);
+
+		// 打印结果
+		System.out.println("testCreate:");
+		System.out.println(count);
+
+		// TODO: 检查结果
+		assertTrue(count != null);
+		assertTrue(count == 1);
+	}
+
+	/**
+	 * 测试修改短消息信息
+	 */
+	@Test
+	public void testModify() {
+		// 初始化
+		DShortMessageModify modify = new DShortMessageModify();
+
+		// TODO: 赋值参数
+		modify.setId(null);
+		modify.setStatus(null);
+		modify.setType(null);
+		modify.setPhone(null);
+		modify.setContent(null);
+		modify.setCause(null);
+
+		// 调用函数
+		Integer count = dShortMessageDAO.modify(modify);
+
+		// 打印结果
+		System.out.println("testModify:");
+		System.out.println(count);
+
+		// TODO: 检查结果
+		assertTrue(count != null);
+		assertTrue(count == 1);
+	}
+
+}

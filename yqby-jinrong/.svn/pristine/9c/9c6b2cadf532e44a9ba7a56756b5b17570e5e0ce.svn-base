@@ -1,0 +1,22 @@
+package com.yqbing.servicebing.repository.redis;
+
+import java.text.MessageFormat;
+
+import javax.annotation.Resource;
+
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Repository;
+
+
+@Repository("rWeBankBean")
+public class RWeBankBeanImpl implements RWeBankBean{
+
+	
+	/** Redis模板 */
+	@Resource(name = "redisTemplate")
+	private RedisTemplate<String, String> redisTemplate = null;
+
+	/** 键值格式 */
+	private static final MessageFormat KEY_FORMAT = new MessageFormat("Hash:WeBankBean:{0}");
+
+}

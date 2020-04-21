@@ -1,0 +1,26 @@
+package com.yqbing.servicebing.repository.database.dao;
+
+import com.yqbing.servicebing.repository.database.bean.AppCoupon;
+import java.util.List;
+
+public interface AppCouponMapper {
+    int countByExample(AppCouponExample example);
+
+    int deleteByPrimaryKey(Integer id);
+
+    int insert(AppCoupon record);
+
+    int insertSelective(AppCoupon record);
+
+    List<AppCoupon> selectByExampleWithBLOBs(AppCouponExample example);
+
+    List<AppCoupon> selectByExample(AppCouponExample example);
+
+    AppCoupon selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(AppCoupon record);
+
+    int updateByPrimaryKeyWithBLOBs(AppCoupon record);
+
+    int updateByPrimaryKey(AppCoupon record);
+}

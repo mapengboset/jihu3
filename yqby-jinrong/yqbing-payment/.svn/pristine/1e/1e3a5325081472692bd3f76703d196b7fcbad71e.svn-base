@@ -1,0 +1,315 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.google.gson.Gson;
+import com.yqbing.servicebing.repository.database.abstracts.UserExample;
+import com.yqbing.servicebing.repository.database.bean.User;
+import com.yqbing.servicebing.repository.database.bean.UserToken;
+import com.yqbing.servicebing.repository.database.dao.UserMapper;
+import com.yqbing.servicebing.repository.database.dao.UserTokenMapper;
+import com.yqbing.servicebing.service.IBaiMeiService;
+import com.yqbing.servicebing.utils.enums.ErrorCode;
+import com.yqbing.servicebing.utils.gateway.Demogroup;
+import com.yqbing.servicebing.utils.web.CommonResult;
+import com.yqbing.servicebing.webapp.request.BaiMeiYunReq;
+import com.yqbing.servicebing.webapp.response.vo.BaimeiYunData;
+import com.yqbing.servicebing.webapp.response.vo.BaimeiYunUser;
+
+@Service("baiMeiService")
+public class BaiMeiServiceImpl implements IBaiMeiService{
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(BaiMeiServiceImpl.class);
+	@Resource
+	UserMapper userMapper;
+	@Resource
+	UserTokenMapper userTokenMapper;
+	
+	
+	//-------------------------
+	@Value("${baimeiyun}")
+    private String baimeiyun;
+    @Value("${appKey}")
+    private String appKey;
+    @Value("${appSecret}")
+    private String appSecret;
+    @Value("${servehttp}")
+    private String servehttp;
+    @Value("${jhtest}")
+    private String jhtest;
+	
+	@Override
+	public CommonResult ifattestation(String token, Integer appId) {
+		
+		User user = getUser(token, appId);
+		if(user == null){
+			 return new CommonResult(ErrorCode.CODE_FAIL_ERROR,"用户有误");
+		}
+		BaiMeiYunReq yunReq = new BaiMeiYunReq();
+		BaimeiYunData yunData = null;
+		try {
+			if(StringUtils.isBlank(user.getIdcard()) || "n".equals(user.getBaiMei())){//跳转到页面
+				return getReg(yunReq, token, appId+"", user);
+			}
+			BaimeiYunUser baimeiYunUser = getUserInfo(user.getName());//表示手机号
+			if(StringUtils.isBlank(user.getBaiMei()) || !"q".equals(user.getBaiMei())){//进行实名认证
+				//第一步 查看认证消息 status： 0 未-->认证页面        1已经认证-->签署合同 (status 1:成功)       2 等待-->返回app        3失败 -->继续认证页面
+			
+				if(baimeiYunUser.getCode().equals("500")){
+					    return new CommonResult(ErrorCode.CODE_FAIL_ERROR,"获取百媒云享失败");
+				}
+				if(baimeiYunUser.getData() == null){
+					yunReq.setUrl(jhtest+"/page/mobilePage/html/protocol/registerInfor.html?token="+token+"&appChannel="+appId+"&phone="+user.getLoginUser());
+					yunReq.setType(0);
+					return new CommonResult(ErrorCode.CODE_SUCCESS, "请从新上传用户信息", yunReq);
+				}
+				String status = baimeiYunUser.getData().getStatus();
+				
+				if(status.equals("0")||status.equals("3")){//跳转到认证页面
+					 yunData = getUserVerify(token, user, appId+"");
+					if(yunData.getCode().equals("0")){
+						yunReq.setUrl(yunData.getData().getUrl());
+						LOGGER.info("---------------/跳转到认证页面 ---------------"+yunData.getData().getUrl());
+						yunReq.setType(1);
+						return new CommonResult(ErrorCode.CODE_SUCCESS, "成功", yunReq);
+					}
+				}
+				if(status.equals("1")){//签署合同页面
+					 yunData = getContractSign(token, user, appId+"");
+                     if(yunData.getCode().equals("0")){
+                    	yunReq.setType(2);
+						yunReq.setUrl(yunData.getData().getUrl());
+						return new CommonResult(ErrorCode.CODE_SUCCESS, "成功", yunReq);
+					}
+                     if(yunData.getCode().equals("100007")){
+                    	 user.setBaiMei("q");
+                    	 userMapper.updateByPrimaryKeySelective(user);
+         	        	 yunReq.setType(2);
+         	        	 yunReq.setUrl(jhtest+"/page/mobilePage/html/protocol/index.html?type=2&status=1&appChannel="+appId+"&token="+token);
+         	        	
+         	        	
+         	        	return new CommonResult(ErrorCode.CODE_SUCCESS, "成功", yunReq);
+         	        }
+				}
+                if(status.equals("2")){//返回app
+                
+                	yunReq.setType(4);
+                	yunReq.setUrl(jhtest+"/page/mobilePage/html/protocol/index.html?type=1&status=3&appChannel="+appId+"&token="+token);
+                	return new CommonResult(ErrorCode.CODE_SUCCESS, "成功", yunReq);
+					
+				}
+			    
+			}else{
+				//-------------------直接体现
+				yunReq.setType(3);
+				if(StringUtils.isBlank(user.getIdcard()) || !user.getIdcard().contains("-")){//身份证号码里面是否存冒号。存在就不用在存
+            		
+            		user.setIdcard(baimeiYunUser.getData().getIdCard()+"-"+baimeiYunUser.getData().getUserName());
+            		userMapper.updateByPrimaryKeySelective(user);
+            	}
+				return new CommonResult(ErrorCode.CODE_SUCCESS, "成功", yunReq);
+			}
+			
+			
+		} catch (Exception e) {
+		    e.printStackTrace();
+		    return new CommonResult(ErrorCode.CODE_FAIL_ERROR,"操作失败");
+		}
+		 if(null != yunData && yunData.getCode().equals("500")){
+			 yunData.setMsg("百媒云享连接失败");
+		 }else{
+			 yunData = new BaimeiYunData();
+			 yunData.setMsg("百媒云享连接失败");
+		 }
+		 return new CommonResult(ErrorCode.CODE_FAIL_ERROR,yunData.getMsg());
+	}
+	
+	
+	
+	
+	
+	
+	public User getUser(String token, Integer appId){
+		//如果数据库是q 直接体现
+		UserToken utoken = userTokenMapper.queryUserByToken(appId, token);
+		User user = null;
+		if(utoken != null){
+			 user = userMapper.selectByPrimaryKey(utoken.getUserId());
+		}
+		if(user == null){
+			 return null;
+		}
+		return user;
+	}
+	
+	
+	public BaimeiYunData getUserVerify(String token,User user,String appChannel){
+		
+		String returnUrl=servehttp+"/app/user/baimeiyun/synAttestation?type=1&token="+token+"&appChannel="+appChannel;
+
+		String notifyUrl=servehttp+"/app/user/baimeiyun/asyAttestation";
+		BaimeiYunData account = new BaimeiYunData();
+		try {
+			Map<String, Object> map= Demogroup.userVerifyHttpSyncTest(user, returnUrl, notifyUrl);
+			if(map == null){
+				
+				 account.setCode("500");
+				 return account;
+			}
+			if(!map.get("ResultCode").equals("200")){
+				 
+				 account.setCode("500");
+				 return account;
+			}
+			 String data =(String) map.get("ResultBody");
+			
+			 account = new Gson().fromJson(data,BaimeiYunData.class);
+			
+			
+		} catch (Exception e) {
+			return account;
+		}
+		return account;
+	}
+	
+	
+    public BaimeiYunData getContractSign (String token,User user,String appChannel){
+		
+		String returnUrl = servehttp+"/app/user/baimeiyun/synContract?type=2&token="+token+"&appChannel="+appChannel;
+		String notifyUrl = servehttp+"/app/user/baimeiyun/asyContract";
+		BaimeiYunData account = new BaimeiYunData();
+		try {
+			Map<String, Object> map =  Demogroup.contractSignHttpSyncTest(user,returnUrl,notifyUrl);
+			if(map == null || !map.get("ResultCode").equals("200")){
+				  account.setCode("500"); 
+				  return account;
+			}
+			String data =(String) map.get("ResultBody");
+			account = new Gson().fromJson(data,BaimeiYunData.class);
+			if(account.getCode().equals("0") ){
+				return account;
+			}
+		} catch (Exception e) {
+			return account;
+		}
+		
+		return account;
+		
+	}
+	
+	
+	
+	
+	public BaimeiYunUser getUserInfo(String moblie){
+		BaimeiYunUser req = new BaimeiYunUser();
+		BaimeiYunUser account = null;
+		try {
+	    Map<String, Object> map = Demogroup.userInfoHttpSyncTest(moblie);
+//	    @SuppressWarnings("unchecked")
+//		Map<String, Object> map =  (Map<java.lang.String, Object>) map1.get("data");
+	    
+	    
+	    if(map == null){
+	    	req.setCode("500");
+			return req;
+		}
+		if(!map.get("ResultCode").equals("200")){
+			req.setCode("500");
+			return req;
+		}
+	
+			String data =(String) map.get("ResultBody");
+			
+			account = new Gson().fromJson(data,BaimeiYunUser.class);
+			
+		} catch (Exception e) {
+			req.setCode("500");
+			return req;
+		}
+	
+		return account;
+	}
+
+
+	@Override
+	public CommonResult contract(String token, Integer appId) {
+		
+		User user = getUser(token, appId);
+		if(user == null){
+			 return new CommonResult(ErrorCode.CODE_FAIL_ERROR,"用户有误");
+		}
+		BaiMeiYunReq yunReq = new BaiMeiYunReq();
+		BaimeiYunData yunData = null;
+		try {
+			yunData = getContractSign(token, user, appId+"");
+	        if(yunData.getCode().equals("0")){
+	       	    yunReq.setType(2);
+				yunReq.setUrl(yunData.getData().getUrl());
+				return new CommonResult(ErrorCode.CODE_SUCCESS, "成功", yunReq);
+			}
+	        if(yunData.getCode().equals("100007")){
+	        	yunReq.setType(2);
+	        	yunReq.setUrl(jhtest+"/page/mobilePage/html/protocol/index.html?type=2&status=1&appChannel="+appId+"&token="+token);
+	        	return new CommonResult(ErrorCode.CODE_SUCCESS, "成功", yunReq);
+	        }
+		} catch (Exception e) {
+			return new CommonResult(ErrorCode.CODE_FAIL_ERROR,"操作失败");
+		}
+		
+        return new CommonResult(ErrorCode.CODE_FAIL_ERROR,yunData!=null?yunData.getMsg():"认证失败");
+	}
+	
+	public CommonResult getReg(BaiMeiYunReq yunReq,String token,String appId,User user){
+		
+		yunReq.setUrl(jhtest+"/page/mobilePage/html/protocol/registerInfor.html?token="+token+"&appChannel="+appId+"&phone="+user.getLoginUser());
+		yunReq.setType(0);
+		return new CommonResult(ErrorCode.CODE_SUCCESS, "成功", yunReq);
+	}
+
+	@Override
+	public void getIdCard() {
+	
+		    UserExample example = new UserExample();
+		    example.createCriteria().andIdcardIsNotNull();
+		    List<User> list = userMapper.selectByExample(example);
+		    list.stream().forEach(user->{
+		    	
+		    	BaimeiYunUser baimeiYunUser = getUserInfo(user.getName());
+		    	if(baimeiYunUser.getData() != null){
+		    		user.setIdcard(baimeiYunUser.getData().getIdCard()+"-"+baimeiYunUser.getData().getUserName());
+		    		// 0 未-->认证页面        1已经认证-->签署合同 (status 1:成功)       2 等待-->返回app        3失败 -->继续认证页面 4status=4合同已经归档
+		    		if(baimeiYunUser.getData().getStatus().equals("3")){
+		    			user.setBaiMei("n");
+		    		}
+		    		if(baimeiYunUser.getData().getStatus().equals("1")){
+		    			user.setBaiMei("y");
+		    		}
+		    		if(baimeiYunUser.getData().getStatus().equals("4") || baimeiYunUser.getData().getStatus().equals("2")){
+		    			user.setBaiMei("q");
+		    		}
+		    		if(baimeiYunUser.getData().getStatus().equals("0")){
+		    			user.setBaiMei("n");
+		    		}
+		    		user.setBaiRealName(baimeiYunUser.getData().getUserName());
+		    		userMapper.updateByPrimaryKeySelective(user);
+		    	}
+		    });
+    	
+		
+	}
+
+
+ 
+
+
+
+}

@@ -1,0 +1,10 @@
+#appId
+ant_appId=201812251159481205954
+#RSA 公钥
+ant_RSA=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwKnF14MS41q7wltQ2LoGOkZoUMQY4bceiitQxVCG3Ubp78UqqUPhuUDgpQ7CFw0TRbTaT/P63tTZFRGl0A07QqQrZVm2mdZV8qOxO2GchPnmRF4mTeefvEFDd7JLTOut1Cg5D6YNTV+9BdkIGlxwAcCWW0EcVPoD1d9rQDlmmd9oekfAtCV4QDrGXQ2s9cj5hRfx4RYBsuYtRTKOUeJk57DWTEdAAfTQtmxSDnnXynngiR/LB+hem4g5i402SCBedYUH8RXBSRJ4QlkyFWRYBpK42hck2hRy9W7wUks4kWUcQ1eaN0Cjbt6XvPrgr8HtpLNk8/E0tl/qIPpAqgWhPwIDAQAB
+#测试环境  http://duchong-api.ngrok.zanclick.cn/gateway.do
+ant_ceshi= http://duchong-api.ngrok.zanclick.cn/gateway.do
+#秘钥格式  RSA2
+ant_RSA2=RSA2
+#签名算法	 SHA256WithRSA
+ant_sign=SHA256WithRSA

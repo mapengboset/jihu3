@@ -1,0 +1,20 @@
+package com.yqbing.servicebing.service;
+
+public interface HomePageService {
+    
+	/**
+	 * 
+	
+	 * @Title: homePage
+	
+	 * @Description: TODO
+	
+	 * @param token
+	 * @param device
+	 * @return
+	
+	 * @return: String
+	 */
+	String homePage(String token, String device);
+
+}

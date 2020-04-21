@@ -1,0 +1,46 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 健身馆设备状态
+ * 
+ * @author yinjy
+ *
+ */
+public class DeviceStatus {
+	/** 未占用 */
+	public static final short FREE = 0;
+	/** 占用 */
+	public static final short OCCUPY = 1;
+	/** 故障 */
+	public static final short FAULT = 2;
+	/** 已拆除 */
+	public static final short DISMANTLE = 3;
+	/** 电量低 */
+	public static final short VOLTAGE = 4; 
+
+	/**
+	 * 获取设备状态描述
+	 * 
+	 * @param deviceStatus 设备状态值
+	 * @return 设备状态描述
+	 */
+	public static String getDescription(short deviceStatus) {
+		if (deviceStatus == FREE) {
+			return "未占用";
+		}
+		if (deviceStatus == OCCUPY) {
+			return "占用";
+		}
+		if (deviceStatus == FAULT) {
+			return "故障";
+		}
+		if (deviceStatus == DISMANTLE) {
+			return "已拆除";
+		}
+		if (deviceStatus == VOLTAGE) {
+			return "电量低";
+		}
+		return "";
+	}
+
+}

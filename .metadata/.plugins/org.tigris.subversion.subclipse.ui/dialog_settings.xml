@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<item value="702" key="ExportRemoteFolderDialog.location.x"/>
+	<item value="313" key="ExportRemoteFolderDialog.location.y"/>
+	<item value="0" key="CommitDialog.location.y"/>
+	<item value="0" key="CommitDialog.location.x"/>
+	<item value="294" key="HistoryTableProvider.SVNHistoryPage.作者"/>
+	<item value="500" key="CommitDialog.weights.0"/>
+	<item value="736" key="HistoryTableProvider.SVNHistoryPage.注释"/>
+	<item value="654" key="RevertDialog.location.x"/>
+	<item value="500" key="CommitDialog.weights.1"/>
+	<item value="234" key="RevertDialog.location.y"/>
+	<item value="1030" key="CommitDialog.size.y"/>
+	<item value="1920" key="CommitDialog.size.x"/>
+	<item value="422" key="RevertDialog.size.y"/>
+	<item value="368" key="HistoryTableProvider.SVNHistoryPage.日期"/>
+	<item value="" key="DirectorySelectionPage.lastParent_svn://47.94.143.156"/>
+	<item value="" key="DirectorySelectionPage.lastParent_svn://47.94.143.156/yqbing/code/yqby-jinrong"/>
+	<item value="613" key="RevertDialog.size.x"/>
+	<item value="516" key="ExportRemoteFolderDialog.size.x"/>
+	<item value="304" key="ExportRemoteFolderDialog.size.y"/>
+	<item value="svn://47.94.143.156/yqbing/code/yqby-jinrong" key="RepositorySelectionPage.lastRepository"/>
+	<item value="148" key="HistoryTableProvider.SVNHistoryPage.修订"/>
+	<section name="CommitWizard">
+		<item value="500" key="VWeight2"/>
+		<item value="500" key="VWeight1"/>
+		<item value="false" key="ShowCompare"/>
+	</section>
+	<section name="NewLocationWizard">
+	</section>
+</section>

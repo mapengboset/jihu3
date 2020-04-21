@@ -1,0 +1,21 @@
+package com.hiko.gym.common.service.thirdLogin;
+
+import com.hiko.gym.common.exception.*;
+
+/**
+ * 微信登陆验证服务接口
+ * 
+ * @author yinjy
+ *
+ */
+public interface WeixinUserCheckService {
+	/**
+	 * 微信登陆验证
+	 * 
+	 * @param uid 微信号
+	 * @param accessToken 访问授权凭证
+	 * @return 是否有效
+	 * @throws GymException 健身馆异常
+	 */
+	public Boolean checkUserValid(String uid, String accessToken) throws GymException;
+}

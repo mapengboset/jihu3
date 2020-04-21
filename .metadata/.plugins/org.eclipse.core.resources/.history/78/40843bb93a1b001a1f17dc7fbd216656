@@ -1,0 +1,35 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 健身场馆数据处理方式类(处理运动次使用)
+ * 
+ * @author yinjy
+ *
+ */
+public class VenderDataOperationMethod {
+	/** 忽略 */
+	public static final short IGNORE = 0;
+	/** 添加 */
+	/** 修改 */
+	public static final short ADDNEW = 1;
+	public static final short MODIFY = 2;
+
+	/**
+	 * 获取客户日志类型描述
+	 * 
+	 * @param customerLogType 客户日志类型值
+	 * @return 客户日志类型描述
+	 */
+	public static String getDescription(short method) {
+		if (method == IGNORE) {
+			return "忽略";
+		}
+		if (method == ADDNEW) {
+			return "忽略";
+		}
+		if (method == MODIFY) {
+			return "修改";
+		}
+		return "";
+	}
+}

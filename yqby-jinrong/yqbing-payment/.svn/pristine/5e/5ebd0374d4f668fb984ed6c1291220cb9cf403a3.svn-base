@@ -1,0 +1,102 @@
+package com.yqbing.servicebing.webapp.controller.jd;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.jd.jr.pay.gate.signature.util.JdPayUtil;
+import com.yqbing.servicebing.utils.jd.CertUtil;
+import com.yqbing.servicebing.utils.jd.HttpsClientUtil;
+import com.yqbing.servicebing.utils.jd.PropertyUtils;
+import com.yqbing.servicebing.webapp.request.model.BasePayOrderInfo;
+import com.yqbing.servicebing.webapp.request.model.CreateOrderResponse;
+
+public class PayOrderController {
+	
+	
+	
+	
+	private static final Logger logger = Logger.getLogger(PayOrderAction.class);
+	/*
+	 * @Author: jdpay
+	 * @Description: 统一下单接口
+	 * @params: * @param map
+	 * 	       * @param request
+	 * 		   * @param response
+	 * @return: java.lang.String
+	 * @Date: 2019/11/7 17:25
+	 */
+	@RequestMapping(value = "/createOrder.htm")
+	public String unifiedOrder(ModelMap map, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		BasePayOrderInfo basePayOrderInfo = new BasePayOrderInfo();
+
+		String oriUrl = PropertyUtils.getProperty("wepay.server.uniorder.url");
+		String priKey = PropertyUtils.getProperty("wepay.merchant.rsaPrivateKey");
+		String desKey = PropertyUtils.getProperty("wepay.merchant.desKey");
+		String pubKey = PropertyUtils.getProperty("wepay.jd.rsaPublicKey");
+
+		basePayOrderInfo.setVersion(request.getParameter("version"));
+		basePayOrderInfo.setMerchant(request.getParameter("merchant"));
+		basePayOrderInfo.setDevice(request.getParameter("device"));
+		basePayOrderInfo.setTradeNum(request.getParameter("tradeNum"));
+		basePayOrderInfo.setTradeName(request.getParameter("tradeName"));
+		basePayOrderInfo.setTradeDesc(request.getParameter("tradeDesc"));
+		basePayOrderInfo.setTradeTime(request.getParameter("tradeTime"));
+		basePayOrderInfo.setAmount(request.getParameter("amount"));
+		basePayOrderInfo.setCurrency(request.getParameter("currency"));
+		basePayOrderInfo.setNote(request.getParameter("note"));
+		basePayOrderInfo.setNotifyUrl(request.getParameter("notifyUrl"));
+		basePayOrderInfo.setCallbackUrl(request.getParameter("callbackUrl"));
+		basePayOrderInfo.setIp(request.getParameter("ip"));
+		basePayOrderInfo.setUserType(request.getParameter("userType"));
+		basePayOrderInfo.setUserId(request.getParameter("userId"));
+		basePayOrderInfo.setExpireTime(request.getParameter("expireTime"));
+		basePayOrderInfo.setOrderType(request.getParameter("orderType"));
+		basePayOrderInfo.setIndustryCategoryCode(request.getParameter("industryCategoryCode"));
+		basePayOrderInfo.setSpecCardNo(request.getParameter("specCardNo"));
+		basePayOrderInfo.setSpecId(request.getParameter("specId"));
+		basePayOrderInfo.setSpecName(request.getParameter("specName"));
+		basePayOrderInfo.setVendorId(request.getParameter("vendorId"));
+		basePayOrderInfo.setGoodsInfo(request.getParameter("goodsInfo"));
+		basePayOrderInfo.setOrderGoodsNum(request.getParameter("orderGoodsNum"));
+		basePayOrderInfo.setTermInfo(request.getParameter("termInfo"));
+		basePayOrderInfo.setReceiverInfo(request.getParameter("receiverInfo"));
+		basePayOrderInfo.setTradeType(request.getParameter("tradeType"));
+		basePayOrderInfo.setPayMerchant(request.getParameter("payMerchant"));
+		basePayOrderInfo.setRiskInfo(request.getParameter("riskInfo"));
+		basePayOrderInfo.setKjInfo(request.getParameter("kjInfo"));
+		basePayOrderInfo.setSettleCurrency(request.getParameter("settleCurrency"));
+		basePayOrderInfo.setInstallmentNum(request.getParameter("installmentNum"));
+		basePayOrderInfo.setPreProduct(request.getParameter("preProduct"));
+		basePayOrderInfo.setBizTp(request.getParameter("bizTp"));
+		String cert = CertUtil.getCert();
+		// 有证书则证书验证模式、无则配置模式
+		if (cert != null && !cert.equals("")) {
+			basePayOrderInfo.setCert(cert);
+		}
+
+		try{
+			String tradeXml = JdPayUtil.genReqXml(basePayOrderInfo, priKey, desKey);
+			logger.info("request xml:" + tradeXml);
+			String resultJsonData = HttpsClientUtil.sendRequest(oriUrl, tradeXml, "application/xml");
+			logger.info("resultJsonData:" + resultJsonData);
+
+			CreateOrderResponse createOrderResponse = JdPayUtil.parseResp(pubKey, desKey, resultJsonData, CreateOrderResponse.class);
+			logger.info(createOrderResponse);
+	        if("000000".equals(createOrderResponse.getResult().getCode())){
+	    		request.setAttribute("resultData", createOrderResponse);
+	        }else{
+	    		request.setAttribute("errorMsg", createOrderResponse.getResult().getCode()+","+createOrderResponse.getResult().getDesc());
+	        }
+		}catch(Exception e){
+			throw e;
+		}
+		return "createOrderResult";
+	}
+	
+	
+}

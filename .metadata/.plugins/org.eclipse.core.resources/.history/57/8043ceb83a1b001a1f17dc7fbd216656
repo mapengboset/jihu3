@@ -1,0 +1,44 @@
+package com.hiko.gym.common.util;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Random;
+
+/**
+ * 订单号码生成器
+ * @ClassName OrderGenerator
+ * @author SHGU
+ * @Date 2016年10月31日
+ */
+public class OrderGenerator {
+
+	/**
+	 * 精确到毫秒的时间
+	 * @return
+	 */
+	public static String getMillisecond() {
+		return new SimpleDateFormat("yyMMddHHmmssSSS").format(new Date());
+	}
+
+	public static int buildRandom(int length) {
+		int num = 1;
+		double random = Math.random();
+		if (random < 0.1) {
+			random = random + 0.1;
+		}
+		for (int i = 0; i < length; i++) {
+			num = num * 10;
+		}
+		return (int) ((random * num));
+	}
+
+	/**
+	 * 生成订单
+	 * 订单规则：精确到毫秒的时间+4位随机数
+	 * @return
+	 */
+	public static String getOrderNumber(){
+		return getMillisecond()+buildRandom(4);
+	}
+	
+}

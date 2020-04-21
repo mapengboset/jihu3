@@ -1,0 +1,208 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import javax.annotation.Resource;
+
+import io.swagger.annotations.ApiParam;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.service.HomePageService;
+import com.yqbing.servicebing.service.StoreHouseService;
+import com.yqbing.servicebing.service.StoreInfoService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+
+/**
+ * 
+
+ * @ClassName: HomePageController
+
+ * @Description: 主页
+
+ * @author: mpb
+
+ * @date: 2019年4月10日 下午1:24:06
+ */
+@RestController
+@CrossOrigin
+@SuppressWarnings("all")
+public class HomePageController extends BaseController{
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(HomePageController.class);
+	@Resource
+	private StoreHouseService storeHouseService = null;
+	@Resource
+	private HomePageService homePageService = null;
+	 //首页
+	//热门应用
+	//游戏榜单
+	//社交
+	//应用推荐
+	@RequestMapping(value = "/home/homePage",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String homePage(@ApiParam(value = "data") @RequestParam(value = "data", required = true) String data){
+		  String result = StringUtils.EMPTY;
+		  String token = StringUtils.EMPTY;
+		  try {
+	    	  
+	            JSONObject obj = JSONObject.fromObject(data);
+	            token = obj.getString("token");
+	        } catch (Exception e) {
+	        	
+	        	LOGGER.error("转换对象失败" + e.getMessage(), e.getCause());
+	           
+	        }
+		   if(!StringUtils.isNotBlank(token)){
+	        	
+       	   result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"token 信息必须填写");
+   			
+   			return result;
+          }
+		  result = homePageService.homePage(token);
+		return result;
+	}
+	
+	
+     //搜索
+	 @RequestMapping(value = "/home/searchAppName",
+	        	method = {RequestMethod.GET,RequestMethod.POST})
+		public String searchAppName(@ApiParam(value = "data") @RequestParam(value = "data", required = true) String data){
+		 
+		    String result = StringUtils.EMPTY;
+	        String appName = StringUtils.EMPTY;//模糊查询
+	        
+	        try {
+		    	  
+	            JSONObject obj = JSONObject.fromObject(data);
+	            appName = obj.getString("appName");
+	        } catch (Exception e) {
+	        	
+	        	LOGGER.error("转换对象失败" + e.getMessage(), e.getCause());
+	           
+	        }
+	        if(!StringUtils.isNotBlank(appName)){
+	        	
+	        	   result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"APPa名称必须填写");
+	    			
+	    			return result;
+	        }
+	        
+	        result =  storeHouseService.searchAppName(appName);
+		    return result;
+	 }
+	
+	
+
+	//应用详情/评论
+	@RequestMapping(value = "/home/appDatails",
+		        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String appDatails(@ApiParam(value = "data") @RequestParam(value = "data", required = true) String data){
+			 
+			    String result = StringUtils.EMPTY;
+		        String appName = StringUtils.EMPTY;//查询
+		        String id = StringUtils.EMPTY;//id
+		        
+		        try {
+			    	  
+		            JSONObject obj = JSONObject.fromObject(data);
+		            appName = obj.getString("appName");
+		            id = obj.getString("id");
+		        } catch (Exception e) {
+		        	
+		        	LOGGER.error("转换对象失败" + e.getMessage(), e.getCause());
+		           
+		        }
+		        if(!StringUtils.isNotBlank(id)){
+		        	
+		        	    result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"APP的Id必须填写");
+		    			
+		    			return result;
+		        }
+		        
+		        result =  storeHouseService.appDatails(id);
+			    return result;
+		 }
+	
+	//发表评论
+	 @RequestMapping(value = "/home/appraise",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+     public String appraise(@ApiParam(value = "data") @RequestParam(value = "data", required = true) String data){
+	 
+	    String result = StringUtils.EMPTY;
+        String desc = StringUtils.EMPTY;//内容
+        String id = StringUtils.EMPTY;// app 的ID
+        String token = StringUtils.EMPTY;// 用户 的ID
+        
+        try {
+	    	  
+            JSONObject obj = JSONObject.fromObject(data);
+            desc = obj.getString("desc");
+            id = obj.getString("id");
+            token = obj.getString("token");
+        } catch (Exception e) {
+        	
+        	LOGGER.error("转换对象失败" + e.getMessage(), e.getCause());
+           
+        }
+        if(!StringUtils.isNotBlank(id)){
+        	
+        	    result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"APP的Id必须填写");
+    			
+    			return result;
+        }
+        if(!StringUtils.isNotBlank(desc)){
+        	
+        	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"评论内容必须填写");
+        	
+        	return result;
+        }
+        if(!StringUtils.isNotBlank(token)){
+        	
+        	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"请从新登录");
+        	
+        	return result;
+        }
+        
+        result =  storeHouseService.appraise(id,token,desc);
+	    return result;
+ }
+	 
+	//手机服务
+	//福利
+	//淘优惠
+	//游戏
+	
+	//更多应用
+	 @RequestMapping(value = "/home/moreApp",
+	        	method = {RequestMethod.GET,RequestMethod.POST})
+		public String moreApp
+		(@ApiParam(value = "data") @RequestParam(value = "data", required = true) String data){
+			  String result = StringUtils.EMPTY;
+			  String token = StringUtils.EMPTY;
+			  try {
+		    	  
+		            JSONObject obj = JSONObject.fromObject(data);
+		            token = obj.getString("token");
+		        } catch (Exception e) {
+		        	
+		        	LOGGER.error("转换对象失败" + e.getMessage(), e.getCause());
+		           
+		        }
+			   if(!StringUtils.isNotBlank(token)){
+		        	
+	       	   result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"token 信息必须填写");
+	   			
+	   			return result;
+	          }
+			  result = homePageService.moreApp(token);
+			return result;
+		}
+}

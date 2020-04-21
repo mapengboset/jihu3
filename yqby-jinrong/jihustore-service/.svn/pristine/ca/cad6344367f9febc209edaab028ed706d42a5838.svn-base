@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.jihu.dao.UserLuckdrawSignMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.jihu.bean.UserLuckdrawSign" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="sign_in_time" property="signInTime" jdbcType="TIMESTAMP" />
+    <result column="sign_day" property="signDay" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, user_id, sign_in_time, sign_day
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.jihu.dao.UserLuckdrawSignExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from tb_user_luckdraw_sign
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_user_luckdraw_sign
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="queryBykeepDay" resultType="java.lang.Integer" parameterType="java.lang.Integer" >
+   SELECT
+   
+	    count(1)
+        FROM
+	(
+		SELECT
+			date_sub(a.sign_in_time, INTERVAL 1 DAY) signDate,
+			(
+				@i := DATE_ADD(@i, INTERVAL - 1 DAY)
+			) today
+		FROM
+			(
+				SELECT
+					sign_in_time
+				FROM
+					tb_user_luckdraw_sign
+				WHERE
+					user_id =  #{userId,jdbcType=BIGINT}
+				ORDER BY
+					sign_in_time DESC
+			) a
+		INNER JOIN (
+			SELECT
+				@i := max(sign_in_time) AS signMax
+			FROM
+				tb_user_luckdraw_sign
+			WHERE
+				user_id =  #{userId,jdbcType=BIGINT}
+			AND (
+				TO_DAYS(sign_in_time) = TO_DAYS(curdate())
+				OR TO_DAYS(sign_in_time) = TO_DAYS(
+					DATE_ADD(curdate(), INTERVAL - 1 DAY)
+				)
+			)
+		) b
+		WHERE
+		  b.signMax IS NOT NULL
+       AND
+      TO_DAYS(DATE_ADD(@i, INTERVAL - 1 DAY)) = TO_DAYS(
+			date_sub(a.sign_in_time, INTERVAL 1 DAY)
+		)
+	) c
+  </select>
+ 
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tb_user_luckdraw_sign
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.jihu.bean.UserLuckdrawSign" >
+    insert into tb_user_luckdraw_sign (id, user_id, sign_in_time, 
+      sign_day)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=BIGINT}, #{signInTime,jdbcType=TIMESTAMP}, 
+      #{signDay,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.jihu.bean.UserLuckdrawSign" >
+    insert into tb_user_luckdraw_sign
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="signInTime != null" >
+        sign_in_time,
+      </if>
+      <if test="signDay != null" >
+        sign_day,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="signInTime != null" >
+        #{signInTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="signDay != null" >
+        #{signDay,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.jihu.dao.UserLuckdrawSignExample" resultType="java.lang.Integer" >
+    select count(*) from tb_user_luckdraw_sign
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.jihu.bean.UserLuckdrawSign" >
+    update tb_user_luckdraw_sign
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="signInTime != null" >
+        sign_in_time = #{signInTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="signDay != null" >
+        sign_day = #{signDay,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.jihu.bean.UserLuckdrawSign" >
+    update tb_user_luckdraw_sign
+    set user_id = #{userId,jdbcType=BIGINT},
+      sign_in_time = #{signInTime,jdbcType=TIMESTAMP},
+      sign_day = #{signDay,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

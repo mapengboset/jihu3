@@ -1,0 +1,62 @@
+package com.yqbing.servicebing.service;
+
+public interface StoreHouseService {
+    /**
+     * 
+    
+     * @Title: searchAppName
+    
+     * @Description: 模糊搜索app
+    
+     * @param appName
+     * @return
+    
+     * @return: String
+     */
+	String searchAppName(String appName);
+    
+	/**
+	 * 
+	
+	 * @Title: appDatails
+	
+	 * @Description: 应用详情
+	
+	 * @param appName
+	 * @return
+	
+	 * @return: String
+	 */
+	String appDatails(String appPack,String token);
+    
+	/**
+	 * 发布评论
+	
+	 * @Title: appraise
+	
+	 * @Description: TODO
+	
+	 * @param appPack
+	 * @param token
+	 * @param desc
+	 * @return
+	
+	 * @return: String
+	 */
+	String appraise(String idappPack, String token, String desc);
+    /**
+     * 
+    
+     * @Title: recommendApps
+    
+     * @Description: TODO
+    
+     * @param appPack
+     * @param type 
+     * @return
+    
+     * @return: String
+     */
+	String recommendApps(String appPack, Integer type);
+
+}

@@ -1,0 +1,52 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 分享对象类
+ * 
+ * @author cychen
+ *
+ */
+public class ShareTarget {
+
+	/** 微信 */
+	public static final short WECHAT = 1;
+	/** 朋友圈 */
+	public static final short FRIEND_CIRCLE = 2;
+	/** 微博 */
+	public static final short MICRO_BLOG = 3;
+	/** QQ好友 */
+	public static final short QQ_FRIEND = 4;
+	/** QQ空间 */
+	public static final short QZONE = 5;
+	/** 本地 */
+	public static final short LOCAL = 6;
+
+	/**
+	 * 获取分享对象描述
+	 * 
+	 * @param shareTarget 分享对象值
+	 * @return 分享对象描述
+	 */
+	public static String getDescription(short shareTarget) {
+		if (shareTarget == WECHAT) {
+			return "微信";
+		}
+		if (shareTarget == FRIEND_CIRCLE) {
+			return "朋友圈";
+		}
+		if (shareTarget == MICRO_BLOG) {
+			return "微博";
+		}
+		if (shareTarget == QQ_FRIEND) {
+			return "QQ好友";
+		}
+		if (shareTarget == QZONE) {
+			return "QQ空间";
+		}
+		if (shareTarget == LOCAL) {
+			return "本地";
+		}
+		return "";
+	}
+
+}

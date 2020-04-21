@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE configuration PUBLIC "-//www.cychen.org//DTD Shard 1.0//EN"  
+  "http://www.cychen.org/dtd/shard-config.dtd">
+<configuration>
+	<!-- 解析列表 -->
+	<parses>
+		<!-- <value>com.hiko.gym.oxygen.repository.database.business.DPaoBuJiOnceDataDAO.create</value> -->
+	     
+	</parses>
+
+	<!-- 分表策略 -->
+	<!-- <strategy table="t_pao_bu_ji_once_data" class="com.hiko.gym.oxygen.repository.database.business.DPaoBuJiOnceDataShardStrategy" /> -->
+</configuration>
+
+
+
+

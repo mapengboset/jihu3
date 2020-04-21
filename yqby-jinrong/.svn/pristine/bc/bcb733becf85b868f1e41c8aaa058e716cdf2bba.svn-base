@@ -1,0 +1,305 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCode;
+import com.yqbing.servicebing.common.Layui;
+import com.yqbing.servicebing.common.ResultModel;
+import com.yqbing.servicebing.repository.database.bean.HotCityBean;
+import com.yqbing.servicebing.repository.database.bean.OfferInfoBean;
+import com.yqbing.servicebing.repository.database.bean.WeBankBean;
+import com.yqbing.servicebing.service.OfferService;
+import com.yqbing.servicebing.service.WeBankService;
+import com.yqbing.servicebing.utils.CloudUtil;
+import com.yqbing.servicebing.utils.EncryptHelper;
+import com.yqbing.servicebing.utils.StrUtils;
+import com.yqbing.servicebing.utils.TimeHelper;
+
+/**
+ * 
+
+ * @ClassName: OfferController
+
+ * @Description: 报价信息维护
+
+ * @author: mpb
+
+ * @date: 2018年12月3日 上午9:54:31
+ */
+@SuppressWarnings("all")
+@RestController
+public class OfferController extends BaseController{
+
+	private static final Logger LOGGER = LoggerFactory
+            .getLogger(OfferController.class);
+	
+	
+	@Resource(name="offerService")
+	private OfferService offerService = null;
+	
+	
+	   @RequestMapping(value ={"/manageWB/addofferPage"},method=RequestMethod.GET)
+	   public  ModelAndView  addofferPage(){
+		
+		return new ModelAndView("wzBac/html/webank/addoffer");
+	   }
+	
+	    //添加
+		@SuppressWarnings("rawtypes")
+		@RequestMapping(value ={"/manageWB/addoffer"},method=RequestMethod.POST)
+	    public ResultModel addoffer(HttpServletRequest request){
+			
+			
+			ResultModel resultModel = ResultModel.success();
+			OfferInfoBean offerInfoBean = null;
+			try {
+				offerInfoBean = new OfferInfoBean();
+				BeanUtils.populate(offerInfoBean, request.getParameterMap());
+				if(offerInfoBean.getHotid() == null||StrUtils.isNullOrBlank(offerInfoBean.getShopname())||
+						StrUtils.isNullOrBlank(offerInfoBean.getPhone())||StrUtils.isNullOrBlank(offerInfoBean.getAddress())
+						||StrUtils.isNullOrBlank(offerInfoBean.getQuotation())
+						||StrUtils.isNullOrBlank(offerInfoBean.getShopname())){//hotid
+					resultModel = ResultModel.error(ErrorCode.E1020401,
+							ErrorCode.getErrInfo(ErrorCode.E1020401));
+					return resultModel;
+				}
+				
+				LOGGER.info("-----------------------------------------添加报价信息记录"+new Gson().toJson(offerInfoBean));
+				
+				int s = offerService.addoffer(offerInfoBean);
+				if(s < 0){//失败
+					resultModel = ResultModel.error(ErrorCode.OTHERS,
+							ErrorCode.getErrInfo(ErrorCode.OTHERS));
+					return resultModel;
+				}
+				
+				
+				resultModel.setResult("添加成功");
+			} catch (Exception e) {
+				e.printStackTrace();
+				resultModel = ResultModel.error(ErrorCode.BUSINESS_ERROR,
+						ErrorCode.getErrInfo(ErrorCode.BUSINESS_ERROR));
+				return resultModel;
+			}
+			
+			return resultModel;
+		}
+		 //修改
+		@SuppressWarnings("rawtypes")
+		@RequestMapping(value ={"/manageWB/editffer"},method=RequestMethod.POST)
+	    public ResultModel editffer(HttpServletRequest request){
+			
+			
+			ResultModel resultModel = ResultModel.success();
+			OfferInfoBean offerInfoBean = null;
+			try {
+				offerInfoBean = new OfferInfoBean();
+				BeanUtils.populate(offerInfoBean, request.getParameterMap());
+				if(null ==offerInfoBean.getStatus() ){
+					
+				
+			      if(offerInfoBean.getHotid() == null||StrUtils.isNullOrBlank(offerInfoBean.getShopname())||
+						StrUtils.isNullOrBlank(offerInfoBean.getPhone())||StrUtils.isNullOrBlank(offerInfoBean.getAddress())
+						||StrUtils.isNullOrBlank(offerInfoBean.getQuotation())
+						||StrUtils.isNullOrBlank(offerInfoBean.getShopname())){//hotid
+					resultModel = ResultModel.error(ErrorCode.E1020401,
+							ErrorCode.getErrInfo(ErrorCode.E1020401));
+					return resultModel;
+				}
+				}
+				LOGGER.info("-----------------------------------------修改报价信息记录"+new Gson().toJson(offerInfoBean));
+				int s = offerService.editffer(offerInfoBean);
+				if(s < 0){//失败
+					resultModel = ResultModel.error(ErrorCode.OTHERS,
+							ErrorCode.getErrInfo(ErrorCode.OTHERS));
+					return resultModel;
+				}
+				resultModel.setResult("修改成功");
+			} catch (Exception e) {
+				e.printStackTrace();
+				resultModel = ResultModel.error(ErrorCode.BUSINESS_ERROR,
+						ErrorCode.getErrInfo(ErrorCode.BUSINESS_ERROR));
+				return resultModel;
+			}
+			
+			return resultModel;
+		}
+		
+	    @RequestMapping(value ={"/manageWB/queryofferPage"},method=RequestMethod.GET)
+		public  ModelAndView  queryofferPage(){
+			
+			return new ModelAndView("wzBac/html/webank/offerinfo");
+		   }
+	    
+	    
+	    
+	    //查找
+		@RequestMapping(value ={"/manageWB/queryoffer"},method=RequestMethod.GET)
+	    public Layui queryoffer(String shopname,Long hotid,Byte offertype,int page,int limit){
+			Layui data = null;
+			LOGGER.info("-----------------------------------------查找报价信息记录shopname:"+shopname+",hotid:"+hotid+",offertype:"+offertype+",page:"+page+",limit:"+limit);
+			try {
+				PageHelper.startPage(page,limit);//
+				PageInfo<OfferInfoBean> wes = offerService.queryoffer(shopname, hotid, offertype);
+				data = Layui.data(wes.getTotal(),wes.getList());
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			
+			return data;
+		}
+		
+		//查找出来所有的热门城市
+		@RequestMapping(value ={"/manageWB/queryHotcity"},method=RequestMethod.GET)
+	    public List<HotCityBean> queryHotcity(){
+			List<HotCityBean>  data = null;
+			try {
+				
+				data = offerService.queryHotcity();
+				
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			return data;
+		}
+		
+		@RequestMapping(value ={"/manageWB/uploadpic"},method=RequestMethod.POST)
+		public ResultModel uploadpic(@RequestParam(value="file") MultipartFile file,HttpServletRequest requeste) {
+			ResultModel resultModel = ResultModel.success();
+		    try {
+		    	String KEY = "baojiaxitong";
+		    	String file2 = CloudUtil.uploadTencentFile(file.getBytes(), KEY);
+		    	resultModel.setResult(file2);
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+				
+			}
+			
+			
+			return resultModel;
+		}
+		
+		
+		  @RequestMapping(value ={"/manageWB/queryhotcityPage"},method=RequestMethod.GET)
+		  public  ModelAndView  queryhotcityPage(){
+			
+			return new ModelAndView("wzBac/html/webank/hotcity");
+		   }
+		
+		  //查找热门城市
+			@RequestMapping(value ={"/manageWB/queryhotcity"},method=RequestMethod.GET)
+		    public Layui queryhotcity(String city,int page,int limit){
+				Layui data = null;
+				try {
+					PageHelper.startPage(page,limit);//
+					PageInfo<HotCityBean> wes = offerService.queryhotcity(city);
+					data = Layui.data(wes.getTotal(),wes.getList());
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				
+				return data;
+			}
+			//添加热门城市
+			@RequestMapping(value ={"/manageWB/addhotcity"},method=RequestMethod.POST)
+		    public ResultModel addhotcity(HttpServletRequest request){
+				
+				
+				ResultModel resultModel = ResultModel.success();
+				HotCityBean hotCityBean = null;
+				try {
+					hotCityBean = new HotCityBean();
+					BeanUtils.populate(hotCityBean, request.getParameterMap());
+					
+					if(StrUtils.isNullOrBlank(hotCityBean .getHotcityname())){
+						resultModel = ResultModel.error(ErrorCode.PARAM_NULL,
+								ErrorCode.getErrInfo(ErrorCode.PARAM_NULL));
+						return resultModel;
+					}
+					
+					int i = offerService.addhotcity(hotCityBean);
+					if(i < 0){//失败
+						resultModel = ResultModel.error(ErrorCode.OTHERS,
+								ErrorCode.getErrInfo(ErrorCode.OTHERS));
+						return resultModel;
+					}
+					if(i == 2){//失败
+						resultModel = ResultModel.error(ErrorCode.E1020501,
+								ErrorCode.getErrInfo(ErrorCode.E1020501));
+						return resultModel;
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					resultModel = ResultModel.error(ErrorCode.OTHERS,
+							ErrorCode.getErrInfo(ErrorCode.OTHERS));
+					return resultModel;
+				}
+				
+				
+				return resultModel;
+			}
+			//修改热门城市
+			@RequestMapping(value ={"/manageWB/edithotcity"},method=RequestMethod.POST)
+		    public ResultModel edithotcity(HttpServletRequest request){
+				
+				
+				ResultModel resultModel = ResultModel.success();
+				HotCityBean hotCityBean = null;
+				try {
+					hotCityBean = new HotCityBean();
+					BeanUtils.populate(hotCityBean, request.getParameterMap());
+					
+					if(null ==hotCityBean.getStatus() ){
+					if(StrUtils.isNullOrBlank(hotCityBean .getHotcityname())){
+						resultModel = ResultModel.error(ErrorCode.PARAM_NULL,
+								ErrorCode.getErrInfo(ErrorCode.PARAM_NULL));
+						return resultModel;
+					}
+					}
+					int i = offerService.edithotcity(hotCityBean);
+					if(i < 0){//失败
+						resultModel = ResultModel.error(ErrorCode.OTHERS,
+								ErrorCode.getErrInfo(ErrorCode.OTHERS));
+						return resultModel;
+					}
+					if(i == 2){//失败
+						resultModel = ResultModel.error(ErrorCode.E1020501,
+								ErrorCode.getErrInfo(ErrorCode.E1020501));
+						return resultModel;
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					resultModel = ResultModel.error(ErrorCode.OTHERS,
+							ErrorCode.getErrInfo(ErrorCode.OTHERS));
+					return resultModel;
+				}
+				
+				
+				return resultModel;
+			}
+}

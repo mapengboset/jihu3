@@ -1,0 +1,37 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 短消息状态类
+ * 
+ * @author cychen
+ *
+ */
+public class ShortMessageStatus {
+
+	/** 发送中 */
+	public static final short SENDING = 1;
+	/** 发送成功 */
+	public static final short SUCCESS = 2;
+	/** 发送失败 */
+	public static final short FAILURE = 3;
+
+	/**
+	 * 获取短消息状态描述
+	 * 
+	 * @param shortMessageStatus 短消息状态值
+	 * @return 短消息状态描述
+	 */
+	public static String getDescription(short shortMessageStatus) {
+		if (shortMessageStatus == SENDING) {
+			return "发送中";
+		}
+		if (shortMessageStatus == SUCCESS) {
+			return "发送成功";
+		}
+		if (shortMessageStatus == FAILURE) {
+			return "发送失败";
+		}
+		return "";
+	}
+
+}

@@ -1,0 +1,41 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 客户标识累加总步数接口
+ * 
+ * @author yinjy
+ *
+ */
+public interface RCustomerIdStepValue {
+
+	/**
+	 * 设置客户标识总步数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param steps 总步数值
+	 */
+	public void set(Long customerId, Long steps);
+
+	/**
+	 * 获取总步数值
+	 * 
+	 * @param customerId 客户标识
+	 * @return 总步数值
+	 */
+	public Long get(Long customerId);
+
+	/**
+	 * 删除客户标识总步数值
+	 * 
+	 * @param customerId 客户标识
+	 */
+	public void remove(Long customerId);
+
+	/**
+	 * 存在客户标识总步数值
+	 * 
+	 * @param customerId 客户标识
+	 * @return 是否存在
+	 */
+	public boolean exist(Long customerId);
+}

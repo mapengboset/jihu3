@@ -1,0 +1,15 @@
+package com.hiko.gym.common.service.push.umeng.android;
+
+import com.hiko.gym.common.service.push.umeng.*;
+
+public class AndroidUnicast extends AndroidNotification {
+	public AndroidUnicast() {
+		try {
+			this.setPredefinedKeyValue("type", "unicast");
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+			System.exit(1);
+		}
+	}
+}

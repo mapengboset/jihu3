@@ -1,0 +1,95 @@
+# 机呼c端
+# JDBC驱动类名
+base.jdbc.driverClassName=com.mysql.jdbc.Driver
+# JDBC连接地址
+base.jdbc.url=jdbc:mysql://47.94.254.221:3306/jihu_c_1_0_0?useUnicode=true&characterEncoding=utf8
+# JDBC用户名称
+base.jdbc.username=test
+# JDBC用户密码
+base.jdbc.password=Yqbing666-8881
+# DBCP初始化大小
+base.dbcp.initialSize=5
+# DBCP最大激活数
+base.dbcp.maxActive=100
+# DBCP最大空闲数
+base.dbcp.maxIdle=30
+# DBCP最大等待数
+base.dbcp.maxWait=1000
+# DBCP预处理声明
+base.dbcp.poolPreparedStatements=true
+# DBCP默认自动提交
+base.dbcp.defaultAutoCommit=false
+# DBCP自动回收活动连接时间
+base.dbcp.timeBetweenEvictionRunsMillis=3600000
+# DBCP最小回收空闲连接时间
+base.dbcp.minEvictableIdleTimeMillis=3600000
+
+
+
+
+#-----------------------------------商户B端
+# 商户B端基础数据
+# JDBC驱动类名
+business.jdbc.driverClassName=com.mysql.jdbc.Driver
+# JDBC连接地址
+business.jdbc.url=jdbc:mysql://47.94.254.221:3306/easy_money_3_0_0?useUnicode=true&characterEncoding=utf8
+# JDBC用户名称
+business.jdbc.username=test
+# JDBC用户密码
+business.jdbc.password=Yqbing666-8881
+# DBCP初始化大小
+business.dbcp.initialSize=5
+# DBCP最大激活数
+business.dbcp.maxActive=100
+# DBCP最大空闲数
+business.dbcp.maxIdle=30
+# DBCP最大等待数
+business.dbcp.maxWait=1000
+# DBCP预处理声明
+business.dbcp.poolPreparedStatements=true
+# DBCP默认自动提交
+business.dbcp.defaultAutoCommit=false
+# DBCP自动回收活动连接时间
+business.dbcp.timeBetweenEvictionRunsMillis=3600000
+# DBCP最小回收空闲连接时间
+business.dbcp.minEvictableIdleTimeMillis=3600000
+
+#充电宝接口地址
+charg_service=http://netcafe.jihustore.com
+#用户中心地址
+user_service=http://ppt.yqbing.com
+#/app/user/api/reg  注册
+#/app/user/api/submitUserToken 上报用户token
+#z测式环境 本服务器地址
+ali_https=http://jinrongt.jihustore.com/jihu-c
+#支付宝应用appID
+ali_appid=2018120462475299
+private_key=MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCWJA/pKxZzf2S1LJ9NW4bZ0dDP2xdkOXh16HDWMPLOsexquUsTw6TiqfP6fJnI9Wb3gl8uv3nRqUuu/8Fxz4jYJ/yu7EfdUe6jhhUXQRkrTxdf8XmLnysSkaeR/TqA7+BGmpvRPrb8RQsjEVoTBYJjpUPU1GCsy5voclHy2EB0PJlFK5Wdam2Tum5Fb1bbkwibyC2rN43wz+H3UAXT+4ZzBGIDjl8IFokqLE66qqK9+27JmyAkx0Cg+cRrF01sasD76o/YVEPiyh1p+6pk2BMnhCiY7tVV742lJKOck4XEFJIShSFd+jHCBVqI3Qng9kqyup6oXFg8tDefzgh9FNQlAgMBAAECggEACor5uwvVhcK6VaaOgSYeMAl1ukLOP7FxbgYmdkP1qOIBkfT0+qxQVcJNaZd6TQw+cL7s5CF58mkK8XzwHofOOi+EpNveqAHq2fy+WmWt2MazA3+3Y0CIC8PCmpPHmeo+O3b73hOjUc+fWpULWC6Y21ptivJm33tktUvhyUW6MO88rwtp2V8Mc6jkmd+wL5BRQ34SbYBZtDrlhmrReJZolqDQnu2i5poC7OsCUtClxFay9qmblBlE23NrRo2eVyb63p1Ww0jyzgmmo4Uo4CpfZ303fNusNz109E8SZU1xmzLm6z0XldXy28ZwVNwzdViTRdlQZ8YR3yzNMF60oQ1XwQKBgQDdcT2n+FRr17Lz7wZGerw4I7uxnqFxf4i1YbXQ+AqvTpZWU7YsGD2A/Ud32zfZl5gLyxWK4IAwJyb2iYYoBnvDC+D5Bksv+QI/A69WiDvNof/h3jjHf3bGZTJ6t0ekVWneAcpH5WYUFgD/l2tCUy/FMiarZFpou5fV+sS8zVkTaQKBgQCtkkhw4h2U/3ydrJ4hODPjug9+L8+stY5HxN33s4/CgJU/4VbRWihiPbJ7ip4ILV8WJuA+R+bi0iU0WXOAlc+6UQqDiditK0j/0o+6CEO8WcIxB786gwxK/WnU/ORAL8dmn5T6BHQJGt33S/opX325xNtATjd4Ky8NW9XzeVSvXQKBgQCT8B5XxCBqN503OB2CImbyPnUbUbXbhG9JdfConb1NpvvqylwvEzaroQoI+axTMuKCJnfK4vbgtJdkJzY4MTSndp0i4OCEOSAWBxkxfyws0aiINhTKus4X9u2FbEJxeBqVFa8U3x2WF6ktF/SxR6/nVvzcjduUkpb6fmDHHYz/2QKBgQCl3UtSbBG+x6Kq/kCiGBYmATA68q9vKJQNa0h+I142jS+SuuB+8Lv0nWbI/f7ka48ZGQ9jFMzDZfPdoblpYEAAmN8GMh0X5mw841crfChWfiO/PNr1rDN8Gcwfl4b6+21+WPNBNC46YS1J25X0IWeAtWibe+Mv93xgNKkwoHpXlQKBgCSonmypEa/CzBn4ECLuNzlEB46/Qu7wEmcvtO22UvWRIgqEABswDB7g3LLJWBYZH8QXUZEgvh+Tt4uvGzuRkC543s4REJRhhIlYS2JTaP/9k6vKcuxszu8PXmpweeDAhTTPvnoE9ebQ/uOEtQxYs9Fr4E5Sl921yVPfdVQRDexa
+alipay_public_key=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAliQP6SsWc39ktSyfTVuG2dHQz9sXZDl4dehw1jDyzrHsarlLE8Ok4qnz+nyZyPVm94JfLr950alLrv/Bcc+I2Cf8ruxH3VHuo4YVF0EZK08XX/F5i58rEpGnkf06gO/gRpqb0T62/EULIxFaEwWCY6VD1NRgrMub6HJR8thAdDyZRSuVnWptk7puRW9W25MIm8gtqzeN8M/h91AF0/uGcwRiA45fCBaJKixOuqqivftuyZsgJMdAoPnEaxdNbGrA++qP2FRD4sodafuqZNgTJ4QomO7VVe+NpSSjnJOFxBSSEoUhXfoxwgVaiN0J4PZKsrqeqFxYPLQ3n84IfRTUJQIDAQAB
+ali_gateway=https://openapi.alipay.com/gateway.do
+
+# Redis配置
+# Redis主机地址
+redis.host=47.94.211.93
+# Redis服务端口
+redis.port=6379
+#Redis认证密码
+redis.password=yqbing2018
+# Redis数据库选择
+redis.dbIndex=1
+# Redis超时时间
+redis.timeout=1000
+# Redis连接池最大连接数
+redis.pool.maxTotal=200
+# Redis连接池最大等待时间(毫秒)
+redis.pool.maxWaitMillis=300
+# Redis连接池最小空闲连接数
+redis.pool.minIdle=10
+# Redis连接池最大空闲连接数
+redis.pool.maxIdle=50
+# Redis连接池借出时检测
+redis.pool.testOnBorrow=true
+# Redis连接池返还时检测
+redis.pool.testOnReturn=true
+# Redis连接池空闲时检测
+redis.pool.testWhileIdle=true

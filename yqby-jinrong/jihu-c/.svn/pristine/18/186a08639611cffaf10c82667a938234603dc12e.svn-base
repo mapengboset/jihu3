@@ -1,0 +1,28 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * 
+
+ * @ClassName: TainmentController
+
+ * @Description: 娱乐
+
+ * @author: mpb
+
+ * @date: 2019年4月10日 下午1:23:59
+ */
+@RestController
+@CrossOrigin
+@SuppressWarnings("all")
+public class TainmentController extends BaseController{
+	
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(TainmentController.class);
+          //看小说
+          //网页游戏
+}

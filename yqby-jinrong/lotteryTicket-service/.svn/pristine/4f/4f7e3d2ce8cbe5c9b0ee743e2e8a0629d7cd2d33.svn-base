@@ -1,0 +1,275 @@
+package com.yqbing.servicebing.repository.database.bean;
+
+import java.util.Date;
+
+public class WealthLog {
+    private Integer logId;
+
+    private Long userId;
+
+    private String userName;
+
+    private Short loginPlat;
+
+    private Integer adminId;
+
+    private Integer wealthBefore;
+
+    private Integer wealthAfter;
+
+    private Integer wealthCount;
+
+    private Short logType;
+
+    private String orderId;
+
+    private Short typeId;
+
+    private String typeDesc;
+
+    private Integer detailId;
+
+    private Short wealthType;
+
+    private Short wealthState;
+
+    private Short exchangeType;
+
+    private String alipay;
+
+    private String wechat;
+
+    private Short bankId;
+
+    private String cardNo;
+
+    private String bankName;
+
+    private Integer commitTime;
+
+    private Integer exchangeTime;
+
+    private Integer createTime;
+
+    private Date recTime;
+
+    private Short type;
+
+    private String version;
+
+    public Integer getLogId() {
+        return logId;
+    }
+
+    public void setLogId(Integer logId) {
+        this.logId = logId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName == null ? null : userName.trim();
+    }
+
+    public Short getLoginPlat() {
+        return loginPlat;
+    }
+
+    public void setLoginPlat(Short loginPlat) {
+        this.loginPlat = loginPlat;
+    }
+
+    public Integer getAdminId() {
+        return adminId;
+    }
+
+    public void setAdminId(Integer adminId) {
+        this.adminId = adminId;
+    }
+
+    public Integer getWealthBefore() {
+        return wealthBefore;
+    }
+
+    public void setWealthBefore(Integer wealthBefore) {
+        this.wealthBefore = wealthBefore;
+    }
+
+    public Integer getWealthAfter() {
+        return wealthAfter;
+    }
+
+    public void setWealthAfter(Integer wealthAfter) {
+        this.wealthAfter = wealthAfter;
+    }
+
+    public Integer getWealthCount() {
+        return wealthCount;
+    }
+
+    public void setWealthCount(Integer wealthCount) {
+        this.wealthCount = wealthCount;
+    }
+
+    public Short getLogType() {
+        return logType;
+    }
+
+    public void setLogType(Short logType) {
+        this.logType = logType;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId == null ? null : orderId.trim();
+    }
+
+    public Short getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Short typeId) {
+        this.typeId = typeId;
+    }
+
+    public String getTypeDesc() {
+        return typeDesc;
+    }
+
+    public void setTypeDesc(String typeDesc) {
+        this.typeDesc = typeDesc == null ? null : typeDesc.trim();
+    }
+
+    public Integer getDetailId() {
+        return detailId;
+    }
+
+    public void setDetailId(Integer detailId) {
+        this.detailId = detailId;
+    }
+
+    public Short getWealthType() {
+        return wealthType;
+    }
+
+    public void setWealthType(Short wealthType) {
+        this.wealthType = wealthType;
+    }
+
+    public Short getWealthState() {
+        return wealthState;
+    }
+
+    public void setWealthState(Short wealthState) {
+        this.wealthState = wealthState;
+    }
+
+    public Short getExchangeType() {
+        return exchangeType;
+    }
+
+    public void setExchangeType(Short exchangeType) {
+        this.exchangeType = exchangeType;
+    }
+
+    public String getAlipay() {
+        return alipay;
+    }
+
+    public void setAlipay(String alipay) {
+        this.alipay = alipay == null ? null : alipay.trim();
+    }
+
+    public String getWechat() {
+        return wechat;
+    }
+
+    public void setWechat(String wechat) {
+        this.wechat = wechat == null ? null : wechat.trim();
+    }
+
+    public Short getBankId() {
+        return bankId;
+    }
+
+    public void setBankId(Short bankId) {
+        this.bankId = bankId;
+    }
+
+    public String getCardNo() {
+        return cardNo;
+    }
+
+    public void setCardNo(String cardNo) {
+        this.cardNo = cardNo == null ? null : cardNo.trim();
+    }
+
+    public String getBankName() {
+        return bankName;
+    }
+
+    public void setBankName(String bankName) {
+        this.bankName = bankName == null ? null : bankName.trim();
+    }
+
+    public Integer getCommitTime() {
+        return commitTime;
+    }
+
+    public void setCommitTime(Integer commitTime) {
+        this.commitTime = commitTime;
+    }
+
+    public Integer getExchangeTime() {
+        return exchangeTime;
+    }
+
+    public void setExchangeTime(Integer exchangeTime) {
+        this.exchangeTime = exchangeTime;
+    }
+
+    public Integer getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Integer createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getRecTime() {
+        return recTime;
+    }
+
+    public void setRecTime(Date recTime) {
+        this.recTime = recTime;
+    }
+
+    public Short getType() {
+        return type;
+    }
+
+    public void setType(Short type) {
+        this.type = type;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version == null ? null : version.trim();
+    }
+}

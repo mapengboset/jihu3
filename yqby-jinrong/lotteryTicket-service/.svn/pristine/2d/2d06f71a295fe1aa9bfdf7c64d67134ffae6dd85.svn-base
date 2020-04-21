@@ -1,0 +1,683 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.StoreInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.StoreInfo" >
+    <id column="store_id" property="storeId" jdbcType="BIGINT" />
+    <result column="store_name" property="storeName" jdbcType="VARCHAR" />
+    <result column="applyStoreId" property="applystoreid" jdbcType="BIGINT" />
+    <result column="store_code" property="storeCode" jdbcType="VARCHAR" />
+    <result column="owner_id" property="ownerId" jdbcType="BIGINT" />
+    <result column="owner_name" property="ownerName" jdbcType="VARCHAR" />
+    <result column="store_license" property="storeLicense" jdbcType="VARCHAR" />
+    <result column="store_pic" property="storePic" jdbcType="VARCHAR" />
+    <result column="store_state" property="storeState" jdbcType="SMALLINT" />
+    <result column="province_id" property="provinceId" jdbcType="INTEGER" />
+    <result column="province_name" property="provinceName" jdbcType="VARCHAR" />
+    <result column="city_id" property="cityId" jdbcType="INTEGER" />
+    <result column="city_name" property="cityName" jdbcType="VARCHAR" />
+    <result column="area_id" property="areaId" jdbcType="INTEGER" />
+    <result column="area_name" property="areaName" jdbcType="VARCHAR" />
+    <result column="customer_id" property="customerId" jdbcType="INTEGER" />
+    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+    <result column="store_address" property="storeAddress" jdbcType="VARCHAR" />
+    <result column="city_type" property="cityType" jdbcType="VARCHAR" />
+    <result column="type_id" property="typeId" jdbcType="SMALLINT" />
+    <result column="type_name" property="typeName" jdbcType="VARCHAR" />
+    <result column="store_contact1" property="storeContact1" jdbcType="VARCHAR" />
+    <result column="store_contact2" property="storeContact2" jdbcType="VARCHAR" />
+    <result column="store_contact3" property="storeContact3" jdbcType="VARCHAR" />
+    <result column="store_contact4" property="storeContact4" jdbcType="VARCHAR" />
+    <result column="store_organization" property="storeOrganization" jdbcType="VARCHAR" />
+    <result column="store_zone" property="storeZone" jdbcType="VARCHAR" />
+    <result column="longitude" property="longitude" jdbcType="VARCHAR" />
+    <result column="latitude" property="latitude" jdbcType="VARCHAR" />
+    <result column="store_waiter_num" property="storeWaiterNum" jdbcType="INTEGER" />
+    <result column="join_time" property="joinTime" jdbcType="INTEGER" />
+    <result column="store_qcode" property="storeQcode" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="maxLimitWealth" property="maxlimitwealth" jdbcType="INTEGER" />
+    <result column="idCardFaceUrl" property="idcardfaceurl" jdbcType="VARCHAR" />
+    <result column="idCardBackUrl" property="idcardbackurl" jdbcType="VARCHAR" />
+    <result column="idCardCheckStatus" property="idcardcheckstatus" jdbcType="TINYINT" />
+    <result column="licenseCheckStatus" property="licensecheckstatus" jdbcType="TINYINT" />
+    <result column="clerkRate" property="clerkrate" jdbcType="INTEGER" />
+    <result column="importFromId" property="importfromid" jdbcType="BIGINT" />
+    <result column="importFromType" property="importfromtype" jdbcType="TINYINT" />
+    <result column="categoryId" property="categoryid" jdbcType="BIGINT" />
+    <result column="storeLevel" property="storelevel" jdbcType="TINYINT" />
+    <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="idCardCheckTime" property="idcardchecktime" jdbcType="TIMESTAMP" />
+    <result column="licenseCheckTime" property="licensechecktime" jdbcType="TIMESTAMP" />
+    <result column="agentMobile" property="agentmobile" jdbcType="VARCHAR" />
+    <result column="customerServiceWeChat" property="customerservicewechat" jdbcType="VARCHAR" />
+    <result column="storeWeChat" property="storewechat" jdbcType="VARCHAR" />
+    <result column="refuse_reason" property="refuseReason" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    store_id, store_name, applyStoreId, store_code, owner_id, owner_name, store_license, 
+    store_pic, store_state, province_id, province_name, city_id, city_name, area_id, 
+    area_name, customer_id, customer_name, store_address, city_type, type_id, type_name, 
+    store_contact1, store_contact2, store_contact3, store_contact4, store_organization, 
+    store_zone, longitude, latitude, store_waiter_num, join_time, store_qcode, phone, 
+    maxLimitWealth, idCardFaceUrl, idCardBackUrl, idCardCheckStatus, licenseCheckStatus, 
+    clerkRate, importFromId, importFromType, categoryId, storeLevel, createTime, idCardCheckTime, 
+    licenseCheckTime, agentMobile, customerServiceWeChat, storeWeChat, refuse_reason
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.dao.StoreInfoExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from store_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from store_info
+    where store_id = #{storeId,jdbcType=BIGINT}
+  </select>
+  <select id="selectByCode" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from store_info
+    where store_code = #{code,jdbcType=VARCHAR} and store_state = 1
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from store_info
+    where store_id = #{storeId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.StoreInfo" >
+    insert into store_info (store_id, store_name, applyStoreId, 
+      store_code, owner_id, owner_name, 
+      store_license, store_pic, store_state, 
+      province_id, province_name, city_id, 
+      city_name, area_id, area_name, 
+      customer_id, customer_name, store_address, 
+      city_type, type_id, type_name, 
+      store_contact1, store_contact2, store_contact3, 
+      store_contact4, store_organization, store_zone, 
+      longitude, latitude, store_waiter_num, 
+      join_time, store_qcode, phone, 
+      maxLimitWealth, idCardFaceUrl, idCardBackUrl, 
+      idCardCheckStatus, licenseCheckStatus, 
+      clerkRate, importFromId, importFromType, 
+      categoryId, storeLevel, createTime, 
+      idCardCheckTime, licenseCheckTime, 
+      agentMobile, customerServiceWeChat, storeWeChat, 
+      refuse_reason)
+    values (#{storeId,jdbcType=BIGINT}, #{storeName,jdbcType=VARCHAR}, #{applystoreid,jdbcType=BIGINT}, 
+      #{storeCode,jdbcType=VARCHAR}, #{ownerId,jdbcType=BIGINT}, #{ownerName,jdbcType=VARCHAR}, 
+      #{storeLicense,jdbcType=VARCHAR}, #{storePic,jdbcType=VARCHAR}, #{storeState,jdbcType=SMALLINT}, 
+      #{provinceId,jdbcType=INTEGER}, #{provinceName,jdbcType=VARCHAR}, #{cityId,jdbcType=INTEGER}, 
+      #{cityName,jdbcType=VARCHAR}, #{areaId,jdbcType=INTEGER}, #{areaName,jdbcType=VARCHAR}, 
+      #{customerId,jdbcType=INTEGER}, #{customerName,jdbcType=VARCHAR}, #{storeAddress,jdbcType=VARCHAR}, 
+      #{cityType,jdbcType=VARCHAR}, #{typeId,jdbcType=SMALLINT}, #{typeName,jdbcType=VARCHAR}, 
+      #{storeContact1,jdbcType=VARCHAR}, #{storeContact2,jdbcType=VARCHAR}, #{storeContact3,jdbcType=VARCHAR}, 
+      #{storeContact4,jdbcType=VARCHAR}, #{storeOrganization,jdbcType=VARCHAR}, #{storeZone,jdbcType=VARCHAR}, 
+      #{longitude,jdbcType=VARCHAR}, #{latitude,jdbcType=VARCHAR}, #{storeWaiterNum,jdbcType=INTEGER}, 
+      #{joinTime,jdbcType=INTEGER}, #{storeQcode,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, 
+      #{maxlimitwealth,jdbcType=INTEGER}, #{idcardfaceurl,jdbcType=VARCHAR}, #{idcardbackurl,jdbcType=VARCHAR}, 
+      #{idcardcheckstatus,jdbcType=TINYINT}, #{licensecheckstatus,jdbcType=TINYINT}, 
+      #{clerkrate,jdbcType=INTEGER}, #{importfromid,jdbcType=BIGINT}, #{importfromtype,jdbcType=TINYINT}, 
+      #{categoryid,jdbcType=BIGINT}, #{storelevel,jdbcType=TINYINT}, #{createtime,jdbcType=TIMESTAMP}, 
+      #{idcardchecktime,jdbcType=TIMESTAMP}, #{licensechecktime,jdbcType=TIMESTAMP}, 
+      #{agentmobile,jdbcType=VARCHAR}, #{customerservicewechat,jdbcType=VARCHAR}, #{storewechat,jdbcType=VARCHAR}, 
+      #{refuseReason,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.StoreInfo" useGeneratedKeys="true" keyProperty="storeId">
+    insert into store_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="storeId != null" >
+        store_id,
+      </if>
+      <if test="storeName != null" >
+        store_name,
+      </if>
+      <if test="applystoreid != null" >
+        applyStoreId,
+      </if>
+      <if test="storeCode != null" >
+        store_code,
+      </if>
+      <if test="ownerId != null" >
+        owner_id,
+      </if>
+      <if test="ownerName != null" >
+        owner_name,
+      </if>
+      <if test="storeLicense != null" >
+        store_license,
+      </if>
+      <if test="storePic != null" >
+        store_pic,
+      </if>
+      <if test="storeState != null" >
+        store_state,
+      </if>
+      <if test="provinceId != null" >
+        province_id,
+      </if>
+      <if test="provinceName != null" >
+        province_name,
+      </if>
+      <if test="cityId != null" >
+        city_id,
+      </if>
+      <if test="cityName != null" >
+        city_name,
+      </if>
+      <if test="areaId != null" >
+        area_id,
+      </if>
+      <if test="areaName != null" >
+        area_name,
+      </if>
+      <if test="customerId != null" >
+        customer_id,
+      </if>
+      <if test="customerName != null" >
+        customer_name,
+      </if>
+      <if test="storeAddress != null" >
+        store_address,
+      </if>
+      <if test="cityType != null" >
+        city_type,
+      </if>
+      <if test="typeId != null" >
+        type_id,
+      </if>
+      <if test="typeName != null" >
+        type_name,
+      </if>
+      <if test="storeContact1 != null" >
+        store_contact1,
+      </if>
+      <if test="storeContact2 != null" >
+        store_contact2,
+      </if>
+      <if test="storeContact3 != null" >
+        store_contact3,
+      </if>
+      <if test="storeContact4 != null" >
+        store_contact4,
+      </if>
+      <if test="storeOrganization != null" >
+        store_organization,
+      </if>
+      <if test="storeZone != null" >
+        store_zone,
+      </if>
+      <if test="longitude != null" >
+        longitude,
+      </if>
+      <if test="latitude != null" >
+        latitude,
+      </if>
+      <if test="storeWaiterNum != null" >
+        store_waiter_num,
+      </if>
+      <if test="joinTime != null" >
+        join_time,
+      </if>
+      <if test="storeQcode != null" >
+        store_qcode,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="maxlimitwealth != null" >
+        maxLimitWealth,
+      </if>
+      <if test="idcardfaceurl != null" >
+        idCardFaceUrl,
+      </if>
+      <if test="idcardbackurl != null" >
+        idCardBackUrl,
+      </if>
+      <if test="idcardcheckstatus != null" >
+        idCardCheckStatus,
+      </if>
+      <if test="licensecheckstatus != null" >
+        licenseCheckStatus,
+      </if>
+      <if test="clerkrate != null" >
+        clerkRate,
+      </if>
+      <if test="importfromid != null" >
+        importFromId,
+      </if>
+      <if test="importfromtype != null" >
+        importFromType,
+      </if>
+      <if test="categoryid != null" >
+        categoryId,
+      </if>
+      <if test="storelevel != null" >
+        storeLevel,
+      </if>
+      <if test="createtime != null" >
+        createTime,
+      </if>
+      <if test="idcardchecktime != null" >
+        idCardCheckTime,
+      </if>
+      <if test="licensechecktime != null" >
+        licenseCheckTime,
+      </if>
+      <if test="agentmobile != null" >
+        agentMobile,
+      </if>
+      <if test="customerservicewechat != null" >
+        customerServiceWeChat,
+      </if>
+      <if test="storewechat != null" >
+        storeWeChat,
+      </if>
+      <if test="refuseReason != null" >
+        refuse_reason,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="storeId != null" >
+        #{storeId,jdbcType=BIGINT},
+      </if>
+      <if test="storeName != null" >
+        #{storeName,jdbcType=VARCHAR},
+      </if>
+      <if test="applystoreid != null" >
+        #{applystoreid,jdbcType=BIGINT},
+      </if>
+      <if test="storeCode != null" >
+        #{storeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerId != null" >
+        #{ownerId,jdbcType=BIGINT},
+      </if>
+      <if test="ownerName != null" >
+        #{ownerName,jdbcType=VARCHAR},
+      </if>
+      <if test="storeLicense != null" >
+        #{storeLicense,jdbcType=VARCHAR},
+      </if>
+      <if test="storePic != null" >
+        #{storePic,jdbcType=VARCHAR},
+      </if>
+      <if test="storeState != null" >
+        #{storeState,jdbcType=SMALLINT},
+      </if>
+      <if test="provinceId != null" >
+        #{provinceId,jdbcType=INTEGER},
+      </if>
+      <if test="provinceName != null" >
+        #{provinceName,jdbcType=VARCHAR},
+      </if>
+      <if test="cityId != null" >
+        #{cityId,jdbcType=INTEGER},
+      </if>
+      <if test="cityName != null" >
+        #{cityName,jdbcType=VARCHAR},
+      </if>
+      <if test="areaId != null" >
+        #{areaId,jdbcType=INTEGER},
+      </if>
+      <if test="areaName != null" >
+        #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerId != null" >
+        #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="customerName != null" >
+        #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="storeAddress != null" >
+        #{storeAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="cityType != null" >
+        #{cityType,jdbcType=VARCHAR},
+      </if>
+      <if test="typeId != null" >
+        #{typeId,jdbcType=SMALLINT},
+      </if>
+      <if test="typeName != null" >
+        #{typeName,jdbcType=VARCHAR},
+      </if>
+      <if test="storeContact1 != null" >
+        #{storeContact1,jdbcType=VARCHAR},
+      </if>
+      <if test="storeContact2 != null" >
+        #{storeContact2,jdbcType=VARCHAR},
+      </if>
+      <if test="storeContact3 != null" >
+        #{storeContact3,jdbcType=VARCHAR},
+      </if>
+      <if test="storeContact4 != null" >
+        #{storeContact4,jdbcType=VARCHAR},
+      </if>
+      <if test="storeOrganization != null" >
+        #{storeOrganization,jdbcType=VARCHAR},
+      </if>
+      <if test="storeZone != null" >
+        #{storeZone,jdbcType=VARCHAR},
+      </if>
+      <if test="longitude != null" >
+        #{longitude,jdbcType=VARCHAR},
+      </if>
+      <if test="latitude != null" >
+        #{latitude,jdbcType=VARCHAR},
+      </if>
+      <if test="storeWaiterNum != null" >
+        #{storeWaiterNum,jdbcType=INTEGER},
+      </if>
+      <if test="joinTime != null" >
+        #{joinTime,jdbcType=INTEGER},
+      </if>
+      <if test="storeQcode != null" >
+        #{storeQcode,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="maxlimitwealth != null" >
+        #{maxlimitwealth,jdbcType=INTEGER},
+      </if>
+      <if test="idcardfaceurl != null" >
+        #{idcardfaceurl,jdbcType=VARCHAR},
+      </if>
+      <if test="idcardbackurl != null" >
+        #{idcardbackurl,jdbcType=VARCHAR},
+      </if>
+      <if test="idcardcheckstatus != null" >
+        #{idcardcheckstatus,jdbcType=TINYINT},
+      </if>
+      <if test="licensecheckstatus != null" >
+        #{licensecheckstatus,jdbcType=TINYINT},
+      </if>
+      <if test="clerkrate != null" >
+        #{clerkrate,jdbcType=INTEGER},
+      </if>
+      <if test="importfromid != null" >
+        #{importfromid,jdbcType=BIGINT},
+      </if>
+      <if test="importfromtype != null" >
+        #{importfromtype,jdbcType=TINYINT},
+      </if>
+      <if test="categoryid != null" >
+        #{categoryid,jdbcType=BIGINT},
+      </if>
+      <if test="storelevel != null" >
+        #{storelevel,jdbcType=TINYINT},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="idcardchecktime != null" >
+        #{idcardchecktime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="licensechecktime != null" >
+        #{licensechecktime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="agentmobile != null" >
+        #{agentmobile,jdbcType=VARCHAR},
+      </if>
+      <if test="customerservicewechat != null" >
+        #{customerservicewechat,jdbcType=VARCHAR},
+      </if>
+      <if test="storewechat != null" >
+        #{storewechat,jdbcType=VARCHAR},
+      </if>
+      <if test="refuseReason != null" >
+        #{refuseReason,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.dao.StoreInfoExample" resultType="java.lang.Integer" >
+    select count(*) from store_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.StoreInfo" >
+    update store_info
+    <set >
+      <if test="storeName != null" >
+        store_name = #{storeName,jdbcType=VARCHAR},
+      </if>
+      <if test="applystoreid != null" >
+        applyStoreId = #{applystoreid,jdbcType=BIGINT},
+      </if>
+      <if test="storeCode != null" >
+        store_code = #{storeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerId != null" >
+        owner_id = #{ownerId,jdbcType=BIGINT},
+      </if>
+      <if test="ownerName != null" >
+        owner_name = #{ownerName,jdbcType=VARCHAR},
+      </if>
+      <if test="storeLicense != null" >
+        store_license = #{storeLicense,jdbcType=VARCHAR},
+      </if>
+      <if test="storePic != null" >
+        store_pic = #{storePic,jdbcType=VARCHAR},
+      </if>
+      <if test="storeState != null" >
+        store_state = #{storeState,jdbcType=SMALLINT},
+      </if>
+      <if test="provinceId != null" >
+        province_id = #{provinceId,jdbcType=INTEGER},
+      </if>
+      <if test="provinceName != null" >
+        province_name = #{provinceName,jdbcType=VARCHAR},
+      </if>
+      <if test="cityId != null" >
+        city_id = #{cityId,jdbcType=INTEGER},
+      </if>
+      <if test="cityName != null" >
+        city_name = #{cityName,jdbcType=VARCHAR},
+      </if>
+      <if test="areaId != null" >
+        area_id = #{areaId,jdbcType=INTEGER},
+      </if>
+      <if test="areaName != null" >
+        area_name = #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerId != null" >
+        customer_id = #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="customerName != null" >
+        customer_name = #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="storeAddress != null" >
+        store_address = #{storeAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="cityType != null" >
+        city_type = #{cityType,jdbcType=VARCHAR},
+      </if>
+      <if test="typeId != null" >
+        type_id = #{typeId,jdbcType=SMALLINT},
+      </if>
+      <if test="typeName != null" >
+        type_name = #{typeName,jdbcType=VARCHAR},
+      </if>
+      <if test="storeContact1 != null" >
+        store_contact1 = #{storeContact1,jdbcType=VARCHAR},
+      </if>
+      <if test="storeContact2 != null" >
+        store_contact2 = #{storeContact2,jdbcType=VARCHAR},
+      </if>
+      <if test="storeContact3 != null" >
+        store_contact3 = #{storeContact3,jdbcType=VARCHAR},
+      </if>
+      <if test="storeContact4 != null" >
+        store_contact4 = #{storeContact4,jdbcType=VARCHAR},
+      </if>
+      <if test="storeOrganization != null" >
+        store_organization = #{storeOrganization,jdbcType=VARCHAR},
+      </if>
+      <if test="storeZone != null" >
+        store_zone = #{storeZone,jdbcType=VARCHAR},
+      </if>
+      <if test="longitude != null" >
+        longitude = #{longitude,jdbcType=VARCHAR},
+      </if>
+      <if test="latitude != null" >
+        latitude = #{latitude,jdbcType=VARCHAR},
+      </if>
+      <if test="storeWaiterNum != null" >
+        store_waiter_num = #{storeWaiterNum,jdbcType=INTEGER},
+      </if>
+      <if test="joinTime != null" >
+        join_time = #{joinTime,jdbcType=INTEGER},
+      </if>
+      <if test="storeQcode != null" >
+        store_qcode = #{storeQcode,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="maxlimitwealth != null" >
+        maxLimitWealth = #{maxlimitwealth,jdbcType=INTEGER},
+      </if>
+      <if test="idcardfaceurl != null" >
+        idCardFaceUrl = #{idcardfaceurl,jdbcType=VARCHAR},
+      </if>
+      <if test="idcardbackurl != null" >
+        idCardBackUrl = #{idcardbackurl,jdbcType=VARCHAR},
+      </if>
+      <if test="idcardcheckstatus != null" >
+        idCardCheckStatus = #{idcardcheckstatus,jdbcType=TINYINT},
+      </if>
+      <if test="licensecheckstatus != null" >
+        licenseCheckStatus = #{licensecheckstatus,jdbcType=TINYINT},
+      </if>
+      <if test="clerkrate != null" >
+        clerkRate = #{clerkrate,jdbcType=INTEGER},
+      </if>
+      <if test="importfromid != null" >
+        importFromId = #{importfromid,jdbcType=BIGINT},
+      </if>
+      <if test="importfromtype != null" >
+        importFromType = #{importfromtype,jdbcType=TINYINT},
+      </if>
+      <if test="categoryid != null" >
+        categoryId = #{categoryid,jdbcType=BIGINT},
+      </if>
+      <if test="storelevel != null" >
+        storeLevel = #{storelevel,jdbcType=TINYINT},
+      </if>
+      <if test="createtime != null" >
+        createTime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="idcardchecktime != null" >
+        idCardCheckTime = #{idcardchecktime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="licensechecktime != null" >
+        licenseCheckTime = #{licensechecktime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="agentmobile != null" >
+        agentMobile = #{agentmobile,jdbcType=VARCHAR},
+      </if>
+      <if test="customerservicewechat != null" >
+        customerServiceWeChat = #{customerservicewechat,jdbcType=VARCHAR},
+      </if>
+      <if test="storewechat != null" >
+        storeWeChat = #{storewechat,jdbcType=VARCHAR},
+      </if>
+      <if test="refuseReason != null" >
+        refuse_reason = #{refuseReason,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where store_id = #{storeId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.StoreInfo" >
+    update store_info
+    set store_name = #{storeName,jdbcType=VARCHAR},
+      applyStoreId = #{applystoreid,jdbcType=BIGINT},
+      store_code = #{storeCode,jdbcType=VARCHAR},
+      owner_id = #{ownerId,jdbcType=BIGINT},
+      owner_name = #{ownerName,jdbcType=VARCHAR},
+      store_license = #{storeLicense,jdbcType=VARCHAR},
+      store_pic = #{storePic,jdbcType=VARCHAR},
+      store_state = #{storeState,jdbcType=SMALLINT},
+      province_id = #{provinceId,jdbcType=INTEGER},
+      province_name = #{provinceName,jdbcType=VARCHAR},
+      city_id = #{cityId,jdbcType=INTEGER},
+      city_name = #{cityName,jdbcType=VARCHAR},
+      area_id = #{areaId,jdbcType=INTEGER},
+      area_name = #{areaName,jdbcType=VARCHAR},
+      customer_id = #{customerId,jdbcType=INTEGER},
+      customer_name = #{customerName,jdbcType=VARCHAR},
+      store_address = #{storeAddress,jdbcType=VARCHAR},
+      city_type = #{cityType,jdbcType=VARCHAR},
+      type_id = #{typeId,jdbcType=SMALLINT},
+      type_name = #{typeName,jdbcType=VARCHAR},
+      store_contact1 = #{storeContact1,jdbcType=VARCHAR},
+      store_contact2 = #{storeContact2,jdbcType=VARCHAR},
+      store_contact3 = #{storeContact3,jdbcType=VARCHAR},
+      store_contact4 = #{storeContact4,jdbcType=VARCHAR},
+      store_organization = #{storeOrganization,jdbcType=VARCHAR},
+      store_zone = #{storeZone,jdbcType=VARCHAR},
+      longitude = #{longitude,jdbcType=VARCHAR},
+      latitude = #{latitude,jdbcType=VARCHAR},
+      store_waiter_num = #{storeWaiterNum,jdbcType=INTEGER},
+      join_time = #{joinTime,jdbcType=INTEGER},
+      store_qcode = #{storeQcode,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      maxLimitWealth = #{maxlimitwealth,jdbcType=INTEGER},
+      idCardFaceUrl = #{idcardfaceurl,jdbcType=VARCHAR},
+      idCardBackUrl = #{idcardbackurl,jdbcType=VARCHAR},
+      idCardCheckStatus = #{idcardcheckstatus,jdbcType=TINYINT},
+      licenseCheckStatus = #{licensecheckstatus,jdbcType=TINYINT},
+      clerkRate = #{clerkrate,jdbcType=INTEGER},
+      importFromId = #{importfromid,jdbcType=BIGINT},
+      importFromType = #{importfromtype,jdbcType=TINYINT},
+      categoryId = #{categoryid,jdbcType=BIGINT},
+      storeLevel = #{storelevel,jdbcType=TINYINT},
+      createTime = #{createtime,jdbcType=TIMESTAMP},
+      idCardCheckTime = #{idcardchecktime,jdbcType=TIMESTAMP},
+      licenseCheckTime = #{licensechecktime,jdbcType=TIMESTAMP},
+      agentMobile = #{agentmobile,jdbcType=VARCHAR},
+      customerServiceWeChat = #{customerservicewechat,jdbcType=VARCHAR},
+      storeWeChat = #{storewechat,jdbcType=VARCHAR},
+      refuse_reason = #{refuseReason,jdbcType=VARCHAR}
+    where store_id = #{storeId,jdbcType=BIGINT}
+  </update>
+</mapper>

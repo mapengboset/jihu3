@@ -1,0 +1,114 @@
+# 基础数据库
+# JDBC驱动类名
+base.jdbc.driverClassName=com.mysql.jdbc.Driver
+# JDBC连接地址
+base.jdbc.url=jdbc:mysql://47.93.200.213:3306/lottery_ticket?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&autoReconnectForPools=true
+# JDBC用户名称
+base.jdbc.username=root
+# JDBC用户密码
+base.jdbc.password=fwErBAQcKS9ud0SA
+# DBCP初始化大小
+base.dbcp.initialSize=5
+# DBCP最大激活数
+base.dbcp.maxActive=100
+# DBCP最大空闲数
+base.dbcp.maxIdle=30
+# DBCP最大等待数
+base.dbcp.maxWait=1000
+# DBCP预处理声明
+base.dbcp.poolPreparedStatements=true
+# DBCP默认自动提交
+base.dbcp.defaultAutoCommit=false
+# DBCP自动回收活动连接时间
+base.dbcp.timeBetweenEvictionRunsMillis=3600000
+# DBCP最小回收空闲连接时间
+base.dbcp.minEvictableIdleTimeMillis=3600000
+
+# 基础数据库
+# JDBC驱动类名
+business.jdbc.driverClassName=com.mysql.jdbc.Driver
+# JDBC连接地址
+business.jdbc.url=jdbc:mysql://47.93.200.213:3306/jihu_c_1_0_0?useUnicode=true&characterEncoding=utf8
+# JDBC用户名称
+business.jdbc.username=root
+# JDBC用户密码
+business.jdbc.password=fwErBAQcKS9ud0SA
+# DBCP初始化大小
+business.dbcp.initialSize=5
+# DBCP最大激活数
+business.dbcp.maxActive=100
+# DBCP最大空闲数
+business.dbcp.maxIdle=30
+# DBCP最大等待数
+business.dbcp.maxWait=1000
+# DBCP预处理声明
+business.dbcp.poolPreparedStatements=true
+# DBCP默认自动提交
+business.dbcp.defaultAutoCommit=false
+# DBCP自动回收活动连接时间
+business.dbcp.timeBetweenEvictionRunsMillis=3600000
+# DBCP最小回收空闲连接时间
+business.dbcp.minEvictableIdleTimeMillis=3600000
+
+
+
+
+
+
+# Redis配置
+# Redis主机地址
+redis.host=39.105.212.193
+# Redis服务端口
+redis.port=6379
+# Redis认证密码
+redis.password=yqbing2018
+# Redis数据库选择
+redis.dbIndex=1
+# Redis超时时间
+redis.timeout=1000
+# Redis连接池最大连接数
+redis.pool.maxTotal=200
+# Redis连接池最大等待时间(毫秒)
+redis.pool.maxWaitMillis=300
+# Redis连接池最小空闲连接数
+redis.pool.minIdle=10
+# Redis连接池最大空闲连接数
+redis.pool.maxIdle=50
+# Redis连接池借出时检测
+redis.pool.testOnBorrow=true
+# Redis连接池返还时检测
+redis.pool.testOnReturn=true
+# Redis连接池空闲时检测
+redis.pool.testWhileIdle=true
+# ---正式环境------------------------------------------------------------------------------------------------------------------
+#充电宝接口地址
+charg_service=http://netcafe.jihustore.com
+yqbing_Https=http://jihustoreapi.yqbing.com/
+#用户中心地址
+user_service=http://pp.yqbing.com
+#测式环境 本服务器地址
+ali_https=http://jinrong.jihustore.com/jihu-c
+user_https=http://jinrong.jihustore.com/service-bing
+#http://jhapit.yqbing.com//app/user/api/reg  注册
+#/app/user/api/submitUserToken 上报用户token
+ali_appid=2019061465589034
+
+private_key=MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCTvmIbm9MNN8quLOZvsSLgXWhbUFP5zedGwd+8jhWHCqIuVjLX0kcXkLmS87sGo2EhzVLullbiaTAS4+lHTtFgttwqleYOgz7apxzHD7m5mxCP81K+u2SQ+migQoXmo77i8j4RbUeRt3+gWSNtzqq7T45vaeCyGaYvDb/0OFDa9MVqgNhGEINyLBjLZ2noGH2IrzNg011IIIaZm0jbHjbMKVdP9QNIZftJmXl6q3zIY5Gv7J+GA8jz0PGmbU1XnU2jmFkdE0+jJbIO9GLQ8e6QR1hbwHW4dC33RJFe/b71Aq/jCgHyQFFpfo9KtyYZtPROSeiE5rq/l3lQbDwJD1khAgMBAAECggEBAI2+Gmu4bJwCyb2esBm6DObKVqM8hsRjiZ41xEwm2HptdjkUU8UBJVlzbMaSdP0iY77FOOpTa9nd5tRIufbCpFewN7vXghasTfICX7aO3LU4EoS4gcshB5Ob2iLej449zJX4qBmaCQ7AyH3y5u2jV+NKqTE0l/DmcKw1+dH48YGN1CorLLSaAX9OHdPjeqPvm7FYlG2wGNq2hFdZbr+HEwZpqlrTB7rgEXkAKdkfCFp418mUVvmct0S/68NFkHyPf/sm5C8No46uC3aaoNgkDkkwtK1ElVmyz16Q0OlkkCJTkUKPttjDJZUPYlPyvMdwyFV8TkQcrkmgcjF2d/wxTwECgYEA7+XO6Mr7YnIl+4ROMK6PTL48V+5tojapdEXQXv3/1Xn/fKhDUchyW4owkhaABzQWHOgIwqsQlagKe1PUv9nToECQsLmv2Kdiv9M74lxSgj6sdGF716bftEmoHVn3lV2Ozv2cyWiXo1yGXpNgpAPv6MU1w5BSQAWENaHfDcLnXXECgYEAnakU0GdFfZk7AvzR0oN8oJJoDVvx0a2tdJEULlkEbPvolW6qh3o+f7AYEUld+jeApaAwDDU0rQBhlkJejuhiubV1mdxw7U5Z0l7f0KZwVnYp6LiZxqHw4RtTtnA0y8yjAB7cPiaGOprBAbiCoPijsAacWgOvjLWw9gumOiwsnrECgYA2htVwtDJPPgLEGF5tUj/gAZ1VnyvsIuCBPR0PekwcCY64lsY2YIkdpVtE2ThgasZb66GSHa+3VGqNfZBtyuT/F63LfWkqpWEcmLaTzMg0MmqgSUgMzDEsmVFM2pYbrRg4lAx++vb8eptQA8+DeCGflrORr8wCIT7bsd8xEYvlAQKBgD+cWqODJ0x3qJGaA+ZV2tDGgWjycezRkCx55JSWoex+7uZr0i37KoBGQk+nNF2iSyuIKBqk1O4AO19uw8wRAtQ+3IYJpR56AE+aq975aFXaMyqMYK7947xPVEVFnGel1xZTXTVOQdYfXkQdd8cOyqxY3niLCCdTn2SGarkJ3a7hAoGAWqTpCSWGRxHk6f1r09tj7wKjIY7HeRfO/qfiRyyIwjA7117tYfyhwXiwlr4tFJmJ4UDmHd1iegsF3lXXMi7ahPkyiP1cMHnGIYJ3yj+MDM438GgCyXaAIqiaXVGK6o3RGepfL5jBtiCzbABJnxmfWsx3pwYDYIY/pqggMQL6TRk=
+
+alipay_public_key=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwTbbcgXXi26HV4llPwHPcp47otG9gSfzYjwBGiD5YCZ3Jr4KgiA1LuclLttkpuzrhFqTT0sef8yf6qqoigdeVWGdTTC2fmKeEBkE/8GwZRGuEJlRw2wFzcQ8JaK80QZv28z7KDNEc386fhZSZcAu6epXsFSY+rbNL4tcprJsGVy4jb0qqHZLiKo90X1t/pg3BmVyYieFfdAMnFSDq8PmPF/e2EYnTePmJuLq/vocEvSZ7dqX+rRdfS0E8dcyjv6OitWYsGhk0ZA77fItSIgkeAUgavSfNpWMey6e6dEBXYSBb/3GoI3aIE8roFp1VFLtfxqQH4ItMHjaUep6/uyR3QIDAQAB
+
+ali_gateway=https://openapi.alipay.com/gateway.do
+
+erver_url = http://ppt.yqbing.com/app/store/api
+
+#微信
+wx_https=https://api.weixin.qq.com/sns/jscode2session
+
+wx_secret =f71aec2ef3b12728ef20b88cef1d6713
+
+
+#ali_account=jhgj8@yqbing.com
+ali_account=caipiao@yqbing.com
+
+wx_appid=wxa9663f105a4c7c30
+xuniphone=170,171,162,165,167,147

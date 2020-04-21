@@ -1,0 +1,26 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 设备统计标识接口
+ * 
+ * @author cychen
+ *
+ */
+public interface RDeviceStatisticsId {
+
+	/**
+	 * 递增设备统计标识
+	 * 
+	 * @return 设备统计标识
+	 */
+	public Long increment();
+
+	/**
+	 * 递增设备统计标识
+	 * 
+	 * @param time 指定时间(毫秒)
+	 * @return 设备统计标识
+	 */
+	public Long increment(long time);
+
+}

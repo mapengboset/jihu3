@@ -1,0 +1,447 @@
+package com.yqbing.servicebing.webapp.controller.wx;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.yqbing.servicebing.repository.database.bean.PayQrAccountBean;
+import com.yqbing.servicebing.repository.database.bean.TWxNoticeBean;
+import com.yqbing.servicebing.repository.database.bean.TWxPayOrderBean;
+import com.yqbing.servicebing.repository.database.bean.TWxProfitOrderBean;
+import com.yqbing.servicebing.service.IPublicPayService;
+import com.yqbing.servicebing.service.jedis.RedisSub;
+import com.yqbing.servicebing.utils.JedisProducer;
+import com.yqbing.servicebing.webapp.wxpay.pay.WxPayData;
+import com.yqbing.servicebing.webapp.wxpay.util.Configure;
+import com.yqbing.servicebing.webapp.wxpay.util.HttpUtil;
+import com.yqbing.servicebing.webapp.wxpay.util.MapUtils;
+import com.yqbing.servicebing.webapp.wxpay.util.Signature;
+import com.yqbing.servicebing.webapp.wxpay.util.TenpayUtil;
+import com.yqbing.servicebing.webapp.wxpay.util.WeixinUtil;
+import com.yqbing.servicebing.webapp.wxpay.util.XmlUtil;
+@Controller
+public class CommonController {
+
+	private static Logger logger = LoggerFactory.getLogger(CommonController.class);
+	
+	private static String ORDERQUERY_URL = "https://api.mch.weixin.qq.com/pay/orderquery";
+	private static String PROFIT_URL = "https://api.mch.weixin.qq.com/secapi/pay/profitsharing";
+
+	@Resource
+	static IPublicPayService  publicPayService;
+	/**
+	 * 查询订单
+	 * 
+	 * @param out_trade_no
+	 *            微信支付传参的订单号(等同于后台生成的流水号)
+	 *            微信支付生成的微信交易流水号
+	 * @param appChanl 
+	 * @return true：微信支付已完成 false：微信支付未完成
+	 * @throws Exception
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static Map<String, Object> orderquery(String out_trade_no, Integer appChanl) throws Exception {
+		logger.info("-------------------------订单查询---------------------------------------");
+		Map<String, Object> map = new HashMap<>();
+		logger.info("-->out_trade_no:" + out_trade_no);
+		WxPayData wxdata = publicPayService.getWXPayConfig();
+		String appid = wxdata.getWxappid();// 公众帐号
+		String mchId =  wxdata.getWxmchId();// 商户号
+		String partnerkey = wxdata.getWxpartnerkey();// 商户key
+		
+		String nonce_str = TenpayUtil.getNonceStr();
+		Map<String, Object> packageParams = new HashMap<>();
+		packageParams.put("appid", appid);
+		packageParams.put("mch_id", mchId);
+		packageParams.put("out_trade_no", out_trade_no);
+		packageParams.put("nonce_str", nonce_str);
+		// 进行签名
+		Configure.setKey(partnerkey);
+		String sign = Signature.getSign(packageParams);
+
+		String	xml = "<xml>" + "<appid>" + appid + "</appid>" + "<mch_id>" + mchId + "</mch_id>" + "<nonce_str>"
+					+ nonce_str + "</nonce_str>" + "<out_trade_no>" + out_trade_no + "</out_trade_no>" + "<sign>" + sign
+					+ "</sign>" + "</xml>";
+		logger.info(xml);
+		logger.info("------------------查询订单传参------------------");
+		logger.info("[appid]:" + appid);
+		logger.info("[mchId]:" + mchId);
+		logger.info("[nonce_str]:" + nonce_str);
+		logger.info("[out_trade_no]:" + out_trade_no);
+		logger.info("[sign]:" + sign);
+		String result = HttpUtil.sendPost(ORDERQUERY_URL, xml);
+		logger.info("------------------查询订单返回值------------------");
+		logger.info(result);
+		logger.info("-------------------------------------------------");
+		Map map1 = XmlUtil.doXMLParse(result);
+		MapUtils mapUtils = new MapUtils(map1);
+		String trade_state = mapUtils.getString("trade_state");
+		String trade_desc  = mapUtils.getString("trade_state_desc");
+	
+		/*保存到异步回调通知*/
+		TWxNoticeBean notice = saveNotice(mapUtils,out_trade_no,appChanl);
+		if("SUCCESS".equals(trade_state)){
+			
+			TWxPayOrderBean order = publicPayService.getOrder(out_trade_no, 12);
+			if(order != null ){//需要分账数据
+				
+				Map<String, String> profitsharing = profitsharing(order.getPid(),notice);
+				 trade_state = profitsharing.get("result_code");
+				 trade_desc = profitsharing.get("return_msg");
+				if("SUCCESS".equals(trade_state)){
+				  //成功调谁音响接口的接口
+				}
+			}
+		}
+		logger.debug("trade_state:" + trade_state);
+		map.put("trade_state", trade_state);
+		map.put("trade_desc", trade_desc);
+		return map;
+	}
+	//分账接口
+	private static Map<String, String> profitsharing(String PID, TWxNoticeBean notic){
+		
+		Map<String, String> map = new HashMap<>();
+		WxPayData wxdata = publicPayService.getWXPayConfig();
+		String partnerkey = wxdata.getWxpartnerkey();// 商户key
+		String mchId = notic.getMchId();
+		String appid = notic.getAppid();
+		String nonce_str  =WeixinUtil.createNonceStr();
+		Map<String, Object> packageParams = new HashMap<>();
+		packageParams.put("mch_id", mchId);
+		packageParams.put("appid", appid);
+		packageParams.put("nonce_str", nonce_str);
+		packageParams.put("transaction_id", notic.getTransactionId());
+		packageParams.put("out_order_no", notic.getOutTradeNo());
+		JsonArray jsonArray = new JsonArray();
+		JsonObject receiver = new JsonObject();
+		//通过Pid后获取商家微信账号
+		PayQrAccountBean accountData = publicPayService.getwxAccount(PID);
+		if(accountData == null || accountData.getWxAccount() == null){
+			map.put("result_code", "fail");
+			map.put("err_code_des", "没有微信账号");
+			return map;
+		}
+		receiver.addProperty("type", "PERSONAL_WECHATID");
+		receiver.addProperty("account", accountData.getWxAccount());
+		receiver.addProperty("amount", notic.getCashFee());
+		receiver.addProperty("description", "商家收款");
+		jsonArray.add(receiver);
+		packageParams.put("receivers", jsonArray);
+		// 进行签名
+		try {
+			Configure.setKey(partnerkey);
+			String  sign = Signature.paySignDesposit(packageParams,Configure.getKey());
+
+			String	xml = "<xml>" + "<appid>" + appid + "</appid>" + "<mch_id>" + mchId + "</mch_id>"+ "<nonce_str>"
+						+ nonce_str + "</nonce_str>"+ "<out_order_no>"
+						+ notic.getOutTradeNo() + "</out_order_no>"+ "<transaction_id>"
+						+ notic.getTransactionId() + "</transaction_id>" + "<sign>" + sign + "</sign>" + "<receivers>" + jsonArray
+						+ "</receivers>" + "</xml>";
+			logger.info(xml);
+			String result = HttpUtil.sendrefundPost(PROFIT_URL, xml);
+			if(result == null){
+				logger.error("-------------单次分账失败--------------");
+				map.put("result_code", "fail");
+				map.put("err_code_des", "调用微信分账失败");
+				return map;
+			}
+			logger.info("单次分账----result:"+result);
+			Map map1 = null;
+			MapUtils mapUtils = null;
+				
+			map1 = XmlUtil.doXMLParse(result);
+			
+			mapUtils = new MapUtils(map1);
+			String return_code = mapUtils.getString("return_code");
+			String return_msg = mapUtils.getString("return_msg");
+			
+			if(!return_code.equals("SUCCESS")){
+				map.put("result_code", return_code);
+	        	map.put("return_msg", return_msg);
+	        	return map;
+			}
+			String result_code = mapUtils.getString("result_code");
+			String err_code_des = mapUtils.getString("err_code_des");
+	        if(!result_code.equals("SUCCESS")){
+	        	map.put("result_code", result_code);
+	        	map.put("return_msg", err_code_des);
+	        	return map;
+			}
+			//保存到数据库
+	        TWxProfitOrderBean orderBean = new TWxProfitOrderBean();
+	        orderBean.setAmount(notic.getCashFee());
+	        orderBean.setCreateTime(new Date());
+	        orderBean.setOrderId(mapUtils.getString("order_id"));
+	        orderBean.setOutOrderNo(mapUtils.getString("out_order_no"));
+	        orderBean.setPid(Long.valueOf(notic.getAttach()));
+	        orderBean.setResultCode(result_code);
+	        orderBean.setTransactionId(mapUtils.getString("transaction_id"));
+	        publicPayService.saveProfitOrder(orderBean);
+	    	map.put("result_code", result_code);
+	    	map.put("err_code_des", err_code_des);
+		} catch (Exception e) {
+			map.put("result_code", "0012");
+	    	map.put("err_code_des", "失败");
+		}
+	
+    	return map;
+	}
+
+	private static TWxNoticeBean saveNotice(MapUtils mapUtils, String out_trade_no, Integer appChanl) {
+		
+		TWxNoticeBean notic=publicPayService.getNoticePay(out_trade_no,appChanl);
+		
+		if(notic == null){
+			 notic = new TWxNoticeBean();
+		}
+		/** 返回状态码 **/
+		notic.setReturnCode(mapUtils.getString("return_code"));
+		/** 返回信息 **/
+		notic.setReturnMsg(mapUtils.getString("return_msg"));
+		if(mapUtils.getString("return_code").equals("SUCCESS")){
+			
+			/** 公众账号ID **/
+			notic.setAppid(mapUtils.getString("appid"));
+			/** 商户账号 **/
+			notic.setMchId(mapUtils.getString("mch_id"));
+			/** 随机字符串 **/
+			notic.setNonceStr(mapUtils.getString("nonce_str"));
+			/** 签名 **/
+			notic.setSign(mapUtils.getString("sign"));
+			/** 业务结果 **/
+			notic.setResultCode(mapUtils.getString("result_code"));
+			/** 错误代码 **/
+			notic.setErrCode(mapUtils.getString("err_code"));
+			/** 错误代码描述 **/
+			notic.setErrCodeDes(mapUtils.getString("err_code_des"));
+		}
+		/** 商户订单号 **/
+		notic.setOutTradeNo(mapUtils.getString("out_trade_no"));
+		if(mapUtils.getString("result_code").equals("SUCCESS") && mapUtils.getString("trade_state").equals("SUCCESS")){
+			/** 微信支付订单号 **/
+			notic.setTransactionId(mapUtils.getString("transaction_id"));
+			/** 设备账号 **/
+			notic.setDeviceInfo(mapUtils.getString("device_info"));
+			/** 用户标识 **/
+			notic.setOpenid(mapUtils.getString("openid"));
+			/** 是否关注公主账号 **/
+			notic.setIsSubscribe(mapUtils.getString("is_subscribe"));
+			/** 交易类型 **/
+			notic.setTradeType(mapUtils.getString("trade_type"));
+			/** 付款银行 **/
+			notic.setBankType(mapUtils.getString("bank_type"));
+			/** 订单金额 **/
+			notic.setTotalFee(Integer.valueOf(mapUtils.getString("total_fee")));
+			/** 货币种类 **/
+			notic.setFeeType(mapUtils.getString("fee_type"));
+			/** 现金支付金额 **/
+			notic.setCashFee(Integer.valueOf(mapUtils.getString("cash_fee")));
+			/** 现金支付货币类型 **/
+			notic.setCashFeeType(mapUtils.getString("cash_fee_type"));
+			/** 支付完成时间 **/
+			notic.setTimeend(mapUtils.getString("time_end"));
+		}
+		/** 商家数据包 **/
+		notic.setAttach(mapUtils.getString("attach"));
+		/** 创建时间 **/
+		notic.setCreateTime(new Date());
+	/*	*//** 接收状态 **//*
+		notic.setBackCode(backcode);
+		*//** 接收信息 **//*
+		notic.setBackMsg(backMsg);*/
+		publicPayService.saveNotifyResult(notic);
+		return notic;
+		
+	}
+	
+	/**
+	 * 保存微信异步通知消息
+	 * 
+	 * @param notityXml
+	 *            微信异步通知消息
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, String> notifyProcess(String notityXml) throws Exception {
+		Map<String, String> resultMap = new HashMap<>();
+		String code = "";
+		String msg = "";
+		/** 公众号appid **/
+		String appid = "";
+		/** 商户ID **/
+		String mch_id = "";
+		/** 设备号 **/
+		String device_info = "";
+		/** 随机数 **/
+		String nonce_str = "";
+		/** 签名 **/
+		String sign = "";
+		/** 签名类型 **/
+		String sign_type = "";
+		/** 业务结果 **/
+		String result_code = "";
+		/** 错误代码 **/
+		String err_code = "";
+		/** 错误代码描述 **/
+		String err_code_des = "";
+		/** 用户openid **/
+		String openid = "";
+		/** 是否关注公众账号 **/
+		String is_subscribe = "";
+		/** 交易类型 **/
+		String trade_type = "";
+		/** 支付银行 **/
+		String bankType = "";
+		/** 订单金额 **/
+		String total_fee = "0";
+		/** 货币种类 **/
+		String fee_type = "";
+		/** 现金支付金额 **/
+		String cash_fee = "0";
+		/** 现金支付货币类型 **/
+		String cash_fee_type = "";
+		/** 微信支付交易号 **/
+		String transaction_id = "";
+		/** 订单号 **/
+		String out_trade_no = "-1";
+		/** 商家数据包 **/
+		String attach = "";
+		/** 支付完成时间 **/
+		String time_end = "";
+
+		String backcode = "-1";
+		String backMsg = "--";
+		Map map = XmlUtil.doXMLParse(notityXml);
+		MapUtils mapUtils = new MapUtils(map);
+        try {
+        	 String return_code = mapUtils.getString("return_code");
+     		String return_msg = mapUtils.getString("return_msg");
+     		if ("SUCCESS".equals(return_code.toUpperCase())) {
+     			appid = mapUtils.getString("appid");
+     			mch_id = mapUtils.getString("mch_id");
+     			device_info = mapUtils.getString("device_info");
+     			nonce_str = mapUtils.getString("nonce_str");
+     			sign = mapUtils.getString("sign");
+     			sign_type = mapUtils.getString("sign_type");
+     			openid = mapUtils.getString("openid");
+     			is_subscribe = mapUtils.getString("is_subscribe");
+     			trade_type = mapUtils.getString("trade_type");
+     			bankType = mapUtils.getString("bankType");
+     			total_fee = mapUtils.getString("total_fee");
+     			fee_type = mapUtils.getString("fee_type");
+     			cash_fee = mapUtils.getString("cash_fee");
+     			cash_fee_type = mapUtils.getString("cash_fee_type");
+     			transaction_id = mapUtils.getString("transaction_id");
+     			out_trade_no = mapUtils.getString("out_trade_no");
+     			attach = mapUtils.getString("attach");
+     			time_end = mapUtils.getString("time_end");
+     			// 业务结果
+     			result_code = mapUtils.getString("result_code");
+     			err_code = mapUtils.getString("err_code");
+     			err_code_des = mapUtils.getString("err_code_des");
+     		} else {
+     			code = "-1";
+     			msg = "通信失败";
+     		}
+     		TWxNoticeBean notic = new TWxNoticeBean();
+     		/** 返回状态码 **/
+     		notic.setReturnCode(return_code);
+     		/** 返回信息 **/
+     		notic.setReturnMsg(return_msg);
+     		/** 商户订单号 **/
+     		notic.setOutTradeNo(out_trade_no);
+     		/** 微信支付订单号 **/
+     		notic.setTransactionId(transaction_id);
+     		/** 公众账号ID **/
+     		notic.setAppid(appid);
+     		/** 商户账号 **/
+     		notic.setMchId(mch_id);
+     		/** 设备账号 **/
+     		notic.setDeviceInfo(device_info);
+     		/** 随机字符串 **/
+     		notic.setNonceStr(nonce_str);
+     		/** 签名 **/
+     		notic.setSign(sign);
+     		/** 签名类型 **/
+     		notic.setSignType(sign_type);
+     		/** 业务结果 **/
+     		notic.setResultCode(result_code);
+     		/** 错误代码 **/
+     		notic.setErrCode(err_code);
+     		/** 错误代码描述 **/
+     		notic.setErrCodeDes(err_code_des);
+     		/** 用户标识 **/
+     		notic.setOpenid(openid);
+     		/** 是否关注公主账号 **/
+     		notic.setIsSubscribe(is_subscribe);
+     		/** 交易类型 **/
+     		notic.setTradeType(trade_type);
+     		/** 付款银行 **/
+     		notic.setBankType(bankType);
+     		/** 订单金额 **/
+     		notic.setTotalFee(Integer.valueOf(total_fee));
+     		/** 货币种类 **/
+     		notic.setFeeType(fee_type);
+     		/** 现金支付金额 **/
+     		notic.setCashFee(Integer.valueOf(cash_fee));
+     		/** 现金支付货币类型 **/
+     		notic.setCashFeeType(cash_fee_type);
+     		/** 商家数据包 **/
+     		notic.setAttach(attach);
+     		/** 支付完成时间 **/
+     		notic.setTimeend(time_end);
+     		/** 创建时间 **/
+     		notic.setCreateTime(new Date());
+     		/** 接收状态 **/
+     		notic.setBackCode(backcode);
+     		/** 接收信息 **/
+     		notic.setBackMsg(backMsg);
+     		publicPayService.saveNotifyResult(notic);
+
+     		// 业务结果成功表明支付成功
+     		if ("SUCCESS".equals(result_code.toUpperCase())) {
+     			code = "0";
+     			msg = "OK";
+     			
+     		//	JedisProducer.setJedis(out_trade_no);
+     			TWxPayOrderBean order = publicPayService.getOrder(out_trade_no, 12);
+     	     			if(order != null){
+     	     				
+     	     				try {
+     	     					RedisSub.subjava(out_trade_no);
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+     	     			}  	
+     	                
+     			
+     		} else {
+     			// 业务失败
+     			code = err_code;
+     			msg = err_code_des;
+     		}
+     		
+     		
+     		resultMap.put("code", code);
+     		resultMap.put("msg", msg);
+       } catch (Exception e) {
+    	   resultMap.put("code", "0013");
+    		resultMap.put("msg", e.getMessage());
+        }
+		
+		return resultMap;
+	}
+	
+
+	
+}

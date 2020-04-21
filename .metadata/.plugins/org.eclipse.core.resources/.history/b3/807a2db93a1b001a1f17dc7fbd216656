@@ -1,0 +1,42 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 设备日志类型类
+ * 
+ * @author cychen
+ *
+ */
+public class DeviceLogType {
+
+	/** 安装 */
+	public static final short INSTALLED = 1;
+	/** 拆除 */
+	public static final short REMOVED = 2;
+	/** 故障 */
+	public static final short FAULT = 3;
+	/** 恢复 */
+	public static final short RECOVERED = 4;
+
+	/**
+	 * 获取设备日志类型描述
+	 * 
+	 * @param deviceLogType 设备日志类型值
+	 * @return 设备日志类型描述
+	 */
+	public static String getDescription(short deviceLogType) {
+		if (deviceLogType == INSTALLED) {
+			return "安装";
+		}
+		if (deviceLogType == REMOVED) {
+			return "拆除";
+		}
+		if (deviceLogType == FAULT) {
+			return "故障";
+		}
+		if (deviceLogType == RECOVERED) {
+			return "恢复";
+		}
+		return "";
+	}
+
+}

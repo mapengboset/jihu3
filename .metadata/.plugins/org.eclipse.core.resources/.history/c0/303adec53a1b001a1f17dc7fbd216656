@@ -1,0 +1,72 @@
+package com.hiko.gym.common.repository.redis;
+
+import static org.junit.Assert.*;
+
+import javax.annotation.*;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.springframework.test.context.*;
+import org.springframework.test.context.junit4.*;
+
+/**
+ * 设备使用次数值测试类
+ * 
+ * @author cychen
+ *
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:spring-config-test.xml" })
+public class RDeviceUsedTimesValueTest {
+
+	/** 设备使用次数值 */
+	@Resource(name = "rDeviceUsedTimesValue")
+	private RDeviceUsedTimesValue rDeviceUsedTimesValue = null;
+
+	/**
+	 * 测试设置设备使用次数函数
+	 */
+	@Test
+	public void testSet() {
+		Integer deviceId = null; // TODO:
+		Integer usedTimes = null; // TODO:
+		rDeviceUsedTimesValue.set(deviceId, usedTimes);
+		assertEquals(rDeviceUsedTimesValue.get(deviceId), usedTimes);
+	}
+
+	/**
+	 * 测试获取设备使用次数函数
+	 */
+	@Test
+	public void testGet() {
+		Integer deviceId = null; // TODO:
+		Integer usedTimes = null; // TODO:
+		rDeviceUsedTimesValue.set(deviceId, usedTimes);
+		assertEquals(rDeviceUsedTimesValue.get(deviceId), usedTimes);
+	}
+
+	/**
+	 * 测试删除设备使用次数函数
+	 */
+	@Test
+	public void testRemove() {
+		Integer deviceId = null; // TODO:
+		Integer usedTimes = null; // TODO:
+		rDeviceUsedTimesValue.set(deviceId, usedTimes);
+		assertTrue(rDeviceUsedTimesValue.exist(deviceId));
+		rDeviceUsedTimesValue.remove(deviceId);
+		assertFalse(rDeviceUsedTimesValue.exist(deviceId));
+	}
+
+	/**
+	 * 测试存在设备使用次数函数
+	 */
+	@Test
+	public void testExist() {
+		Integer deviceId = null; // TODO:
+		Integer usedTimes = null; // TODO:
+		rDeviceUsedTimesValue.set(deviceId, usedTimes);
+		assertEquals(rDeviceUsedTimesValue.get(deviceId), usedTimes);
+	}
+
+}

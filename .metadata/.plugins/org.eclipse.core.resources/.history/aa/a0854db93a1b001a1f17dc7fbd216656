@@ -1,0 +1,42 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 睡眠质量类
+ * 
+ * @author cychen
+ *
+ */
+public class SleepQuality {
+
+	/** 优质 */
+	public static final short EXCELLENT = 1;
+	/** 良好 */
+	public static final short GOOD = 2;
+	/** 一般 */
+	public static final short GENERAL = 3;
+	/** 较差 */
+	public static final short POOR = 4;
+
+	/**
+	 * 获取睡眠质量描述
+	 * 
+	 * @param sleepQuality 睡眠质量值
+	 * @return 睡眠质量描述
+	 */
+	public static String getDescription(short sleepQuality) {
+		if (sleepQuality == EXCELLENT) {
+			return "优质";
+		}
+		if (sleepQuality == GOOD) {
+			return "良好";
+		}
+		if (sleepQuality == GENERAL) {
+			return "一般";
+		}
+		if (sleepQuality == POOR) {
+			return "较差";
+		}
+		return "";
+	}
+
+}

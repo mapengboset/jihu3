@@ -1,0 +1,23 @@
+package com.yqbing.servicebing.service;
+
+
+import com.yqbing.servicebing.repository.database.bean.TWxApayOrderBean;
+import com.yqbing.servicebing.repository.database.bean.TWxNoticeBean;
+import com.yqbing.servicebing.repository.database.bean.TWxPayOrderBean;
+import com.yqbing.servicebing.webapp.wxpay.pay.WxPayData;
+
+public interface IPublicPayService {
+
+	void saveNotifyResult(TWxNoticeBean notic);
+
+	WxPayData getWXPayConfig();
+
+	void savePayOrderData(TWxPayOrderBean payOrder);
+
+	void savePrepPayResult(TWxApayOrderBean apayRecord);
+
+	TWxApayOrderBean getPrepPayParam(String out)throws Exception;
+
+	TWxPayOrderBean getOrder(String order, Integer appChanl);
+
+}

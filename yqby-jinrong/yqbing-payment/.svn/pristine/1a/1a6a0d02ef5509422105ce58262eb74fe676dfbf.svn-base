@@ -1,0 +1,235 @@
+package com.yqbing.servicebing.webapp.controller.wx;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.yqbing.servicebing.repository.database.bean.TWxNoticeBean;
+import com.yqbing.servicebing.repository.database.bean.TWxPayOrderBean;
+import com.yqbing.servicebing.repository.database.bean.TWxProfitOrderBean;
+import com.yqbing.servicebing.service.IPublicPayService;
+import com.yqbing.servicebing.utils.enums.ErrorCode;
+import com.yqbing.servicebing.utils.web.CommonResult;
+import com.yqbing.servicebing.webapp.wxpay.pay.WxPayData;
+import com.yqbing.servicebing.webapp.wxpay.util.Configure;
+import com.yqbing.servicebing.webapp.wxpay.util.HttpUtil;
+import com.yqbing.servicebing.webapp.wxpay.util.MapUtils;
+import com.yqbing.servicebing.webapp.wxpay.util.Signature;
+import com.yqbing.servicebing.webapp.wxpay.util.TenpayUtil;
+import com.yqbing.servicebing.webapp.wxpay.util.XmlUtil;
+
+
+/**
+ * 微信支付  订单查询
+// * @author m
+ *
+ */
+
+@Controller
+@Api(tags = "微信支付 订单查询")
+@CrossOrigin
+public class OrderqueryContrpoller {
+
+	@Resource
+	IPublicPayService publicPayService;
+	
+	private static String ORDERQUERY_URL = "https://api.mch.weixin.qq.com/pay/orderquery";
+
+
+	private static Logger logger = LoggerFactory.getLogger(OrderqueryContrpoller.class);
+
+	/**
+	 * 查询订单是否完成<br>
+	 * out_trade_no,transaction_id二选一必填
+	 * @param out_trade_no  业务订单号
+	 * @param transaction_id  微信支付生成的微信交易流水号
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/weixin/pay/queryOrder")
+	@ResponseBody
+	@ApiOperation(value = "微信订单查询")
+	public CommonResult queryOrderStatus(@ApiParam(name = "order",value="流水号")String order,@ApiParam(name = "appChanl",value="渠道")Integer appChanl)
+			throws Exception {
+		
+		TWxPayOrderBean payorder = publicPayService.getOrder(order,appChanl);
+		if(payorder == null){
+			return new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误,不存在订单");
+		}
+		Map<String, Object> map = orderquery(payorder.getOutTradeNo(),appChanl);
+		/*
+		 * SUCCESS—支付成功 REFUND—转入退款 NOTPAY—未支付 CLOSED—已关闭 REVOKED—已撤销（刷卡支付）
+		 * USERPAYING--用户支付中 PAYERROR--支付失败(其他原因，如银行返回失败)
+		 */
+		Object trade_state = map.get("trade_state");
+		String desc = (String) map.get("trade_desc");
+		if (!trade_state.equals("SUCCESS")) {
+			return  new CommonResult(ErrorCode.WXPAYERROR, desc);
+		}
+        
+		return  new CommonResult(ErrorCode.CODE_SUCCESS, "交易成功");
+
+	}
+	
+	
+	/**
+	 * 查询订单
+	 * 
+	 * @param out_trade_no
+	 *            微信支付传参的订单号(等同于后台生成的流水号)
+	 *            微信支付生成的微信交易流水号
+	 * @param appChanl 
+	 * @return true：微信支付已完成 false：微信支付未完成
+	 * @throws Exception
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Map<String, Object> orderquery(String out_trade_no, Integer appChanl) throws Exception {
+		logger.info("-------------------------订单查询---------------------------------------");
+		Map<String, Object> map = new HashMap<>();
+		logger.info("-->out_trade_no:" + out_trade_no);
+		WxPayData wxdata = publicPayService.getWXPayConfig();
+		String appid = wxdata.getWxappid();// 公众帐号
+		String mchId =  wxdata.getWxmchId();// 商户号
+		String partnerkey = wxdata.getWxpartnerkey();// 商户key
+		
+		String nonce_str = TenpayUtil.getNonceStr();
+		Map<String, Object> packageParams = new HashMap<>();
+		packageParams.put("appid", appid);
+		packageParams.put("mch_id", mchId);
+		packageParams.put("out_trade_no", out_trade_no);
+		packageParams.put("nonce_str", nonce_str);
+		// 进行签名
+		Configure.setKey(partnerkey);
+		String sign = Signature.getSign(packageParams);
+
+		String	xml = "<xml>" + "<appid>" + appid + "</appid>" + "<mch_id>" + mchId + "</mch_id>" + "<nonce_str>"
+					+ nonce_str + "</nonce_str>" + "<out_trade_no>" + out_trade_no + "</out_trade_no>" + "<sign>" + sign
+					+ "</sign>" + "</xml>";
+		logger.info(xml);
+		logger.info("------------------查询订单传参------------------");
+		logger.info("[appid]:" + appid);
+		logger.info("[mchId]:" + mchId);
+		logger.info("[nonce_str]:" + nonce_str);
+		logger.info("[out_trade_no]:" + out_trade_no);
+		logger.info("[sign]:" + sign);
+		String result = HttpUtil.sendPost(ORDERQUERY_URL, xml);
+		logger.info("------------------查询订单返回值------------------");
+		logger.info(result);
+		logger.info("-------------------------------------------------");
+		Map map1 = XmlUtil.doXMLParse(result);
+		MapUtils mapUtils = new MapUtils(map1);
+		String trade_state = mapUtils.getString("trade_state");
+		String trade_desc = mapUtils.getString("trade_state_desc");
+		map.put("trade_state", trade_state);
+		map.put("trade_desc", trade_desc);
+		/*保存到异步回调通知*/
+		saveNotice(mapUtils,out_trade_no,appChanl);
+		
+		logger.debug("trade_state:" + trade_state);
+		return map;
+	}
+
+
+	private void saveNotice(MapUtils mapUtils, String out_trade_no, Integer appChanl) {
+		TWxNoticeBean notic=publicPayService.getNoticePay(out_trade_no,appChanl);
+		if(notic == null){
+			 notic = new TWxNoticeBean();
+		}
+		/** 返回状态码 **/
+		notic.setReturnCode(mapUtils.getString("return_code"));
+		/** 返回信息 **/
+		notic.setReturnMsg(mapUtils.getString("return_msg"));
+		if(mapUtils.getString("return_code").equals("SUCCESS")){
+			
+			/** 公众账号ID **/
+			notic.setAppid(mapUtils.getString("appid"));
+			/** 商户账号 **/
+			notic.setMchId(mapUtils.getString("mch_id"));
+			/** 随机字符串 **/
+			notic.setNonceStr(mapUtils.getString("nonce_str"));
+			/** 签名 **/
+			notic.setSign(mapUtils.getString("sign"));
+			/** 业务结果 **/
+			notic.setResultCode(mapUtils.getString("result_code"));
+			/** 错误代码 **/
+			notic.setErrCode(mapUtils.getString("err_code"));
+			/** 错误代码描述 **/
+			notic.setErrCodeDes(mapUtils.getString("err_code_des"));
+		}
+		/** 商户订单号 **/
+		notic.setOutTradeNo(mapUtils.getString("out_trade_no"));
+		if(mapUtils.getString("result_code").equals("SUCCESS") && mapUtils.getString("trade_state").equals("SUCCESS")){
+			/** 微信支付订单号 **/
+			notic.setTransactionId(mapUtils.getString("transaction_id"));
+			/** 设备账号 **/
+			notic.setDeviceInfo(mapUtils.getString("device_info"));
+			/** 用户标识 **/
+			notic.setOpenid(mapUtils.getString("openid"));
+			/** 是否关注公主账号 **/
+			notic.setIsSubscribe(mapUtils.getString("is_subscribe"));
+			/** 交易类型 **/
+			notic.setTradeType(mapUtils.getString("trade_type"));
+			/** 付款银行 **/
+			notic.setBankType(mapUtils.getString("bank_type"));
+			/** 订单金额 **/
+			notic.setTotalFee(Integer.valueOf(mapUtils.getString("total_fee")));
+			/** 货币种类 **/
+			notic.setFeeType(mapUtils.getString("fee_type"));
+			/** 现金支付金额 **/
+			notic.setCashFee(Integer.valueOf(mapUtils.getString("cash_fee")));
+			/** 现金支付货币类型 **/
+			notic.setCashFeeType(mapUtils.getString("cash_fee_type"));
+			/** 支付完成时间 **/
+			notic.setTimeend(mapUtils.getString("time_end"));
+		}
+		/** 商家数据包 **/
+		notic.setAttach(mapUtils.getString("attach"));
+		/** 创建时间 **/
+		notic.setCreateTime(new Date());
+	/*	*//** 接收状态 **//*
+		notic.setBackCode(backcode);
+		*//** 接收信息 **//*
+		notic.setBackMsg(backMsg);*/
+		publicPayService.saveNotifyResult(notic);
+		
+	}
+
+	@RequestMapping(value = "/weixin/pay/profitsharingquery")
+	@ResponseBody
+	@ApiOperation(value = "微信查询分账结果")
+	public CommonResult profitsharingquery(@ApiParam(name = "order",value="流水号")String order,@ApiParam(name = "appChanl",value="渠道")Integer appChanl)
+			throws Exception {
+		CommonResult result = null;
+		TWxProfitOrderBean profitorder = publicPayService.getProfitOrder(order);
+		if(profitorder == null){
+			return new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误,不存在订单");
+		}
+		try {
+			
+			result = publicPayService.profitsharingquery(profitorder,appChanl);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new CommonResult(ErrorCode.CODE_FAIL_ERROR, "操作有误");
+		}
+        
+		return  result;
+
+	}
+	
+	
+	
+}

@@ -1,0 +1,55 @@
+# 基础数据库
+# JDBC驱动类名
+base.jdbc.driverClassName=com.mysql.jdbc.Driver
+# JDBC连接地址
+base.jdbc.url=jdbc:mysql://47.94.254.221:3306/easy_money_3_0_0?useUnicode=true&characterEncoding=utf8
+# JDBC用户名称
+base.jdbc.username=test
+# JDBC用户密码
+base.jdbc.password=Yqbing666-8881
+# DBCP初始化大小
+base.dbcp.initialSize=5
+# DBCP最大激活数
+base.dbcp.maxActive=100
+# DBCP最大空闲数
+base.dbcp.maxIdle=30
+# DBCP最大等待数
+base.dbcp.maxWait=1000
+# DBCP预处理声明
+base.dbcp.poolPreparedStatements=true
+# DBCP默认自动提交
+base.dbcp.defaultAutoCommit=false
+# DBCP自动回收活动连接时间
+base.dbcp.timeBetweenEvictionRunsMillis=3600000
+# DBCP最小回收空闲连接时间
+base.dbcp.minEvictableIdleTimeMillis=3600000
+
+
+
+# Redis配置
+# Redis主机地址
+redis.host=47.94.211.93
+# Redis服务端口
+redis.port=6379
+#Redis认证密码
+#redis.password=cG7k2B6i52a1Zq0c9E4w
+# Redis数据库选择
+redis.dbIndex=1
+# Redis超时时间
+redis.timeout=1000
+# Redis连接池最大连接数
+redis.pool.maxTotal=200
+# Redis连接池最大等待时间(毫秒)
+redis.pool.maxWaitMillis=300
+# Redis连接池最小空闲连接数
+redis.pool.minIdle=10
+# Redis连接池最大空闲连接数
+redis.pool.maxIdle=50
+# Redis连接池借出时检测
+redis.pool.testOnBorrow=true
+# Redis连接池返还时检测
+redis.pool.testOnReturn=true
+# Redis连接池空闲时检测
+redis.pool.testWhileIdle=true
+
+

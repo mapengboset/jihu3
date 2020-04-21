@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 短消息信息映射 -->
+<mapper namespace="com.hiko.gym.common.repository.database.base.DShortMessageDAO">
+
+	<!-- 所有字段 -->
+	<sql id="allColumns">
+		id,
+		status,
+		type,
+		phone,
+		content,
+		cause,
+		created_time,
+		modified_time
+	</sql>
+
+	<!-- 获取语句 -->
+	<select id="get" resultType="com.hiko.gym.common.repository.database.base.DShortMessage">
+		select
+		<include refid="allColumns" />
+		from t_short_message
+		where id = #{id}
+	</select>
+
+	<!-- 统计语句 -->
+	<select id="count" resultType="java.lang.Integer">
+		select
+		count(id)
+		from t_short_message
+		<where>
+			<if test="query.id != null">
+				and id = #{query.id}
+			</if>
+			<if test="query.status != null">
+				and status = #{query.status}
+			</if>
+			<if test="query.beginStatus != null">
+				<![CDATA[and status >= #{query.beginStatus}]]>
+			</if>
+			<if test="query.endStatus != null">
+				<![CDATA[and status <= #{query.endStatus}]]>
+			</if>
+			<if test="query.type != null">
+				and type = #{query.type}
+			</if>
+			<if test="query.beginType != null">
+				<![CDATA[and type >= #{query.beginType}]]>
+			</if>
+			<if test="query.endType != null">
+				<![CDATA[and type <= #{query.endType}]]>
+			</if>
+			<if test="query.phone != null">
+				<choose>
+					<when test="query.phone != ''">
+						and phone like concat('%', #{query.phone}, '%')
+					</when>
+					<otherwise>
+						and phone is null
+					</otherwise>
+				</choose>
+			</if>
+			<if test="query.content != null">
+				<choose>
+					<when test="query.content != ''">
+						and content like concat('%', #{query.content}, '%')
+					</when>
+					<otherwise>
+						and content is null
+					</otherwise>
+				</choose>
+			</if>
+			<if test="query.cause != null">
+				<choose>
+					<when test="query.cause != ''">
+						and cause like concat('%', #{query.cause}, '%')
+					</when>
+					<otherwise>
+						and cause is null
+					</otherwise>
+				</choose>
+			</if>
+			<if test="query.createdTime != null">
+				and created_time = #{query.createdTime}
+			</if>
+			<if test="query.beginCreatedTime != null">
+				<![CDATA[and created_time >= #{query.beginCreatedTime}]]>
+			</if>
+			<if test="query.endCreatedTime != null">
+				<![CDATA[and created_time <= #{query.endCreatedTime}]]>
+			</if>
+			<if test="query.modifiedTime != null">
+				and modified_time = #{query.modifiedTime}
+			</if>
+			<if test="query.beginModifiedTime != null">
+				<![CDATA[and modified_time >= #{query.beginModifiedTime}]]>
+			</if>
+			<if test="query.endModifiedTime != null">
+				<![CDATA[and modified_time <= #{query.endModifiedTime}]]>
+			</if>
+		</where>
+	</select>
+
+	<!-- 查询语句 -->
+	<select id="query" resultType="com.hiko.gym.common.repository.database.base.DShortMessage">
+		select
+		<include refid="allColumns" />
+		from t_short_message
+		<where>
+			<if test="query.id != null">
+				and id = #{query.id}
+			</if>
+			<if test="query.status != null">
+				and status = #{query.status}
+			</if>
+			<if test="query.beginStatus != null">
+				<![CDATA[and status >= #{query.beginStatus}]]>
+			</if>
+			<if test="query.endStatus != null">
+				<![CDATA[and status <= #{query.endStatus}]]>
+			</if>
+			<if test="query.type != null">
+				and type = #{query.type}
+			</if>
+			<if test="query.beginType != null">
+				<![CDATA[and type >= #{query.beginType}]]>
+			</if>
+			<if test="query.endType != null">
+				<![CDATA[and type <= #{query.endType}]]>
+			</if>
+			<if test="query.phone != null">
+				<choose>
+					<when test="query.phone != ''">
+						and phone like concat('%', #{query.phone}, '%')
+					</when>
+					<otherwise>
+						and phone is null
+					</otherwise>
+				</choose>
+			</if>
+			<if test="query.content != null">
+				<choose>
+					<when test="query.content != ''">
+						and content like concat('%', #{query.content}, '%')
+					</when>
+					<otherwise>
+						and content is null
+					</otherwise>
+				</choose>
+			</if>
+			<if test="query.cause != null">
+				<choose>
+					<when test="query.cause != ''">
+						and cause like concat('%', #{query.cause}, '%')
+					</when>
+					<otherwise>
+						and cause is null
+					</otherwise>
+				</choose>
+			</if>
+			<if test="query.createdTime != null">
+				and created_time = #{query.createdTime}
+			</if>
+			<if test="query.beginCreatedTime != null">
+				<![CDATA[and created_time >= #{query.beginCreatedTime}]]>
+			</if>
+			<if test="query.endCreatedTime != null">
+				<![CDATA[and created_time <= #{query.endCreatedTime}]]>
+			</if>
+			<if test="query.modifiedTime != null">
+				and modified_time = #{query.modifiedTime}
+			</if>
+			<if test="query.beginModifiedTime != null">
+				<![CDATA[and modified_time >= #{query.beginModifiedTime}]]>
+			</if>
+			<if test="query.endModifiedTime != null">
+				<![CDATA[and modified_time <= #{query.endModifiedTime}]]>
+			</if>
+		</where>
+		<if test="orderBy != null and orderBy != ''">
+			order by ${orderBy}
+		</if>
+		<choose>
+			<when test="startIndex != null">
+				limit #{startIndex}
+			</when>
+			<otherwise>
+				limit 0
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="pageSize != null">
+				, #{pageSize}
+			</when>
+			<otherwise>
+				, 10000
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 创建语句 -->
+	<insert id="create">
+		insert into t_short_message(
+		id
+		, status
+		, type
+		, phone
+		, content
+		<if test="create.cause != null">
+			, cause
+		</if>
+		, created_time
+		) values(
+		#{id}
+		, #{create.status}
+		, #{create.type}
+		, #{create.phone}
+		, #{create.content}
+		<if test="create.cause != null">
+			, #{create.cause}
+		</if>
+		, current_timestamp
+		)
+	</insert>
+
+	<!-- 修改语句 -->
+	<update id="modify">
+		update t_short_message
+		set modified_time=current_timestamp
+		<if test="modify.status != null">
+			, status = #{modify.status}
+		</if>
+		<if test="modify.type != null">
+			, type = #{modify.type}
+		</if>
+		<if test="modify.phone != null">
+			, phone = #{modify.phone}
+		</if>
+		<if test="modify.content != null">
+			, content = #{modify.content}
+		</if>
+		<if test="modify.cause != null">
+			, cause = #{modify.cause}
+		</if>
+		where id = #{modify.id}
+	</update>
+
+	<!-- 获取今日发送条数语句 -->
+	<select id="getTodaySendCount" resultType="java.lang.Integer">
+		select
+		count(id)
+		from t_short_message
+		where date(created_time) = current_date
+		and phone = #{phone}
+	</select>
+
+</mapper>

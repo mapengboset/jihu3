@@ -1,0 +1,214 @@
+package com.yqbing.servicebing.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.yqbing.servicebing.repository.database.bean.AppRecommend;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+import com.yqbing.servicebing.repository.database.bean.UserAppTask;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.dao.AppRecommendMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseMapper;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskExample;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskMapper;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.UserLocalAppMapper;
+import com.yqbing.servicebing.repository.redis.RStoreHouseData;
+import com.yqbing.servicebing.repository.redis.RUserAppTaskData;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.webapp.response.StoreAppRes;
+
+
+public class CommonService {
+	
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(CommonService.class);
+	
+	 @Resource
+	 private AppRecommendMapper appRecommendMapper= null;
+	 @Resource
+	 private UserInfoBeanMapper userInfoBeanMapper = null;
+	 @Resource
+	 private StoreHouseMapper storeHouseMapper = null;
+	 
+	 @Resource
+	 private RUserLogBean rUserLogBean = null;
+	 @Resource
+	 private RUserAppTaskData rUserAppTaskData = null;
+	 @Resource
+	 private RStoreHouseData rStoreHouseData = null;
+	 @Resource
+	 private UserLocalAppMapper userLocalAppMapper = null;
+	 @Resource
+	 private UserAppTaskMapper userAppTaskMapper = null;
+	
+	
+	public UserInfoBean queryTokenByUser(String token){
+		 UserInfoBean infoBean = rUserLogBean.getRaw(token);
+			if(infoBean == null){
+				
+				infoBean = userInfoBeanMapper.queryToken(token);
+			}
+		return infoBean;
+	}
+	public  List<StoreAppRes> getTypeByApps(String type,UserInfoBean infoBean){
+		LOGGER.info("---------------------------------------返回自定义列表+类型:"+type+"用户信息"+infoBean);
+		List<AppRecommend> ares =  appRecommendMapper.queryTagId(type);
+		List<StoreAppRes> apps = new ArrayList<StoreAppRes>();
+		for (AppRecommend a : ares) {
+			StoreAppRes appRes = new StoreAppRes();
+			StoreHouse sh = rStoreHouseData.getAppPack(a.getAppId());//a.getAppId() == 包名
+			if(sh ==  null){
+				 sh = storeHouseMapper.getByAppPack(a.getAppId());
+				 
+			}
+			if(sh == null){
+				continue;
+			//	return NotifyUtil.error(ErrorCodeEnum.NULLOBJECT, "app信息不存在");
+			}
+			//在我的下载列表 存在不在展示
+			if(getIsTrue( infoBean, sh)){
+				continue;
+			}
+				LOGGER.info("-----------------------------------app信息"+new Gson().toJson(sh));
+				appRes.setAppName(sh.getAppName());
+				appRes.setAppPake(sh.getAppPack());
+				appRes.setAppType(getAppType(sh.getAppType()));
+				appRes.setImg(sh.getAppUrlImg());
+				appRes.setUrl(sh.getAppUrl());
+				appRes.setId(sh.getId());
+				if(type.equals("free_charge_tag")){
+					appRes.setType(2);
+				}
+				apps.add(appRes);
+		}
+		LOGGER.info("-----------------------------------所有apps"+new Gson().toJson(apps));
+		return apps;
+	}
+	public String getAppType(short s){
+		@SuppressWarnings("unused")
+		String appType =  null;
+		 switch (s) {
+			case 1:
+				appType =  "系统工具";
+				break;
+			case 2:
+				appType =  "主题壁纸";
+				break;
+			case 3:
+				appType =  "社交通讯";
+				break;
+			case 4:
+				appType =  "拍摄美化";
+				break;
+			case 5:
+				appType =  "影音播放";
+				break;
+			case 6:
+				appType =  "生活实用";
+				break;
+			case 7:
+				appType =  "理财购物";
+				break;
+			case 8:
+				appType =  "办公学习";
+				break;
+			case 9:
+				appType =  "资讯阅读";
+				break;
+			case 10:
+				appType =  "旅游出行";
+				break;
+			case 11:
+				appType =  "休闲益智";
+				break;
+			case 12:
+				appType =  "动作射击";
+				break;
+			case 13:
+				appType =  "体育竞技";
+				break;
+			case 14:
+				appType =  "经营养成";
+				break;
+			case 15:
+				appType =  "角色扮演";
+				break;
+			case 16:
+				appType =  "赛车竞速";
+				break;
+			case 17:
+				appType =  "模拟辅助";
+				break;
+			case 18:
+				appType =  "棋牌桌游";
+				break;
+			case 19:
+				appType =  "网络游戏";
+				break;
+			default:
+				appType =  "系统工具";
+				break;
+			}
+		return appType;
+	}
+	public Boolean getIsTrue(UserInfoBean infoBean,StoreHouse sh){
+		
+		List<UserAppTask> taskList = rUserAppTaskData.getUserAppTaskList(infoBean.getId()+"");
+		if(null == taskList || taskList.size() < 0){
+			UserAppTaskExample appTaskExample = new UserAppTaskExample();
+			appTaskExample.createCriteria().andUserIdEqualTo(infoBean.getId());
+			taskList = userAppTaskMapper.selectByExample(appTaskExample);
+			
+		}
+		if(null != taskList && taskList.size() > 0){//
+			Map<String, Object> map1 = new HashMap<String, Object>();
+		    for (UserAppTask userAppTask : taskList) {
+		    	map1.put(userAppTask.getAppPack(), userAppTask);
+			}
+		    
+		    if(map1.containsKey(sh.getAppPack())){//存在
+		    	return true;
+		    }
+		}
+		
+		
+		return false;
+	}
+	
+	public List<String> getAppsType(Integer type){
+		List<String> list2 = new ArrayList<String>();
+		if(type == 1){
+			
+		
+		list2.add("1");
+		list2.add("2");
+		list2.add("3");
+		list2.add("4");
+		list2.add("5");
+		list2.add("6");
+		list2.add("7");
+		list2.add("8");
+		list2.add("9");
+		list2.add("10");
+		}else{
+		list2.add("11");
+		list2.add("12");
+		list2.add("13");
+		list2.add("14");
+		list2.add("15");
+		list2.add("16");
+		list2.add("17");
+		list2.add("18");
+		}
+		return list2;
+	}
+}

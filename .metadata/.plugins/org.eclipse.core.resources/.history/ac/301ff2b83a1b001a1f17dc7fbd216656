@@ -1,0 +1,42 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 设备使用时间值接口
+ * 
+ * @author cychen
+ *
+ */
+public interface RDeviceUsedDurationValue {
+
+	/**
+	 * 设置设备使用时间
+	 * 
+	 * @param deviceId 设备标识
+	 * @param usedDuration 使用时间(分钟)
+	 */
+	public void set(Integer deviceId, Long usedDuration);
+
+	/**
+	 * 获取设备使用时间
+	 * 
+	 * @param deviceId 设备标识
+	 * @return 使用时间(分钟)
+	 */
+	public Long get(Integer deviceId);
+
+	/**
+	 * 删除设备使用时间
+	 * 
+	 * @param deviceId 设备标识
+	 */
+	public void remove(Integer deviceId);
+
+	/**
+	 * 存在设备使用时间
+	 * 
+	 * @param deviceId 设备标识
+	 * @return 是否存在
+	 */
+	public boolean exist(Integer deviceId);
+
+}

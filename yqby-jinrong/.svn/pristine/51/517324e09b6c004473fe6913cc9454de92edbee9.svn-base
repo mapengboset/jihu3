@@ -1,0 +1,42 @@
+package com.yqbing.servicebing.service;
+
+import com.yqbing.servicebing.common.ResultModel;
+
+public interface AntCreditService {
+
+	/**
+	 * 
+	
+	 * @Title: refund
+	
+	 * @Description: TODO
+	
+	 * @param out_trade_no  订单支付时传入的外部订单号,不能和 trade_no同时为空
+	 * @param trade_no  点赞交易号，和商户订单号不能同时为空
+	 * @param ali_trade_no  支付宝交易号，和商户订单号不能同时为空
+	 * @return
+	
+	 * @return: ResultModel
+	 */
+	 ResultModel refund(Integer StoreId,String out_trade_no, String trade_no, String ali_trade_no)throws Exception;
+    
+	 /**
+	  * 
+	 
+	  * @Title: refundList
+	 
+	  * @Description: TODO
+	 
+	  * @param storeId 店铺ID
+	  * @return
+	 
+	  * @return: ResultModel
+	  */
+	ResultModel refundList(Integer storeId);
+
+	ResultModel zanClickLogDatail(Integer storeId, String out_trade_no,
+			String trade_no);
+
+	ResultModel zanClickLog(Integer storeId);
+
+}

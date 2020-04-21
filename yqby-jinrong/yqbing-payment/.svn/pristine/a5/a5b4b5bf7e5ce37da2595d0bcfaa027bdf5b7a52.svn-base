@@ -1,0 +1,153 @@
+package com.yqbing.servicebing.webapp.controller.wx;
+
+import io.swagger.annotations.Api;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.helper.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.google.gson.Gson;
+import com.yqbing.servicebing.constants.store.ParamConstant;
+import com.yqbing.servicebing.repository.database.bean.TWxApayOrderBean;
+import com.yqbing.servicebing.repository.database.bean.TWxPayOrderBean;
+import com.yqbing.servicebing.service.IPublicPayService;
+import com.yqbing.servicebing.utils.enums.ErrorCode;
+import com.yqbing.servicebing.utils.json.JSONObject;
+import com.yqbing.servicebing.utils.json.JSONUtil;
+import com.yqbing.servicebing.utils.web.CommonResult;
+import com.yqbing.servicebing.webapp.wxpay.pay.WxPayData;
+import com.yqbing.servicebing.webapp.wxpay.util.Configure;
+import com.yqbing.servicebing.webapp.wxpay.util.HttpUtil;
+import com.yqbing.servicebing.webapp.wxpay.util.MapUtils;
+import com.yqbing.servicebing.webapp.wxpay.util.Signature;
+import com.yqbing.servicebing.webapp.wxpay.util.TenpayUtil;
+import com.yqbing.servicebing.webapp.wxpay.util.XmlUtil;
+
+
+/**
+ * 微信支付  订单查询
+// * @author m
+ *
+ */
+
+@Controller
+@Api(tags = "微信支付 订单查询")
+@CrossOrigin
+public class OrderqueryContrpoller {
+
+	@Resource
+	IPublicPayService publicPayService;
+	
+	private static String ORDERQUERY_URL = "https://api.mch.weixin.qq.com/pay/orderquery";
+
+
+	private static Logger logger = LoggerFactory.getLogger(OrderqueryContrpoller.class);
+
+	/**
+	 * 查询订单是否完成<br>
+	 * out_trade_no,transaction_id二选一必填
+	 * @param out_trade_no  业务订单号
+	 * @param transaction_id  微信支付生成的微信交易流水号
+	 * @return 成功/失败 状态码以及描述 eg：{code:"0",msg:"OK"}
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/weixin/pay/queryOrder")
+	@ResponseBody
+	public CommonResult queryOrderStatus(String order)
+			throws Exception {
+		
+		TWxPayOrderBean payorder = publicPayService.getOrder(order);
+		if(payorder == null){
+			return new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误,不存在订单");
+		}
+		Map<String, Object> map = orderquery(payorder.getOutTradeNo());
+		/*
+		 * SUCCESS—支付成功 REFUND—转入退款 NOTPAY—未支付 CLOSED—已关闭 REVOKED—已撤销（刷卡支付）
+		 * USERPAYING--用户支付中 PAYERROR--支付失败(其他原因，如银行返回失败)
+		 */
+		Object trade_state = map.get("trade_state");
+		String desc = (String) map.get("trade_desc");
+		if (!trade_state.equals("SUCCESS")) {
+			return  new CommonResult(ErrorCode.WXPAYERROR, desc);
+		}
+        
+		return  new CommonResult(ErrorCode.CODE_SUCCESS, "交易成功");
+
+	}
+	
+	
+	/**
+	 * 查询订单
+	 * 
+	 * @param out_trade_no
+	 *            微信支付传参的订单号(等同于后台生成的流水号)
+	 * @param transaction_id
+	 *            微信支付生成的微信交易流水号
+	 * @return true：微信支付已完成 false：微信支付未完成
+	 * @throws Exception
+	 */
+	public Map<String, Object> orderquery(String out_trade_no) throws Exception {
+		logger.info("-------------------------订单查询---------------------------------------");
+		Map<String, Object> map = new HashMap<>();
+		logger.info("-->out_trade_no:" + out_trade_no);
+		WxPayData wxdata = publicPayService.getWXPayConfig();
+		String appid = wxdata.getWxappid();// 公众帐号
+		String mchId =  wxdata.getWxmchId();// 商户号
+		String partnerkey = wxdata.getWxpartnerkey();// 商户key
+		TWxApayOrderBean apayOrder = publicPayService.getPrepPayParam(out_trade_no);
+		if (apayOrder == null) {
+			map.put("trade_state", "error");
+			map.put("trade_desc", "不存在订单号");
+			return map;
+		}
+		
+		
+		String nonce_str = TenpayUtil.getNonceStr();
+		Map<String, Object> packageParams = new HashMap<>();
+		packageParams.put("appid", appid);
+		packageParams.put("mch_id", mchId);
+		packageParams.put("out_trade_no", out_trade_no);
+		packageParams.put("nonce_str", nonce_str);
+		// 进行签名
+		Configure.setKey(partnerkey);
+		String sign = Signature.getSign(packageParams);
+
+		String	xml = "<xml>" + "<appid>" + appid + "</appid>" + "<mch_id>" + mchId + "</mch_id>" + "<nonce_str>"
+					+ nonce_str + "</nonce_str>" + "<out_trade_no>" + out_trade_no + "</out_trade_no>" + "<sign>" + sign
+					+ "</sign>" + "</xml>";
+		logger.info(xml);
+		logger.info("------------------查询订单传参------------------");
+		logger.info("[appid]:" + appid);
+		logger.info("[mchId]:" + mchId);
+		logger.info("[nonce_str]:" + nonce_str);
+		logger.info("[out_trade_no]:" + out_trade_no);
+		logger.info("[sign]:" + sign);
+		String result = HttpUtil.sendPost(ORDERQUERY_URL, xml);
+		logger.info("------------------查询订单返回值------------------");
+		logger.info(result);
+		logger.info("-------------------------------------------------");
+		Map map1 = XmlUtil.doXMLParse(result);
+		MapUtils mapUtils = new MapUtils(map1);
+		String trade_state = mapUtils.getString("trade_state");
+		String trade_desc = mapUtils.getString("trade_state_desc");
+		map.put("trade_state", trade_state);
+		map.put("trade_desc", trade_desc);
+		logger.debug("trade_state:" + trade_state);
+		return map;
+	}
+
+}

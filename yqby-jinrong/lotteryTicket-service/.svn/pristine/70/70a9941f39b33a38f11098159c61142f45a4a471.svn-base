@@ -1,0 +1,110 @@
+package com.yqbing.servicebing.service;
+
+public interface AccountService {
+    
+	
+	/**
+	 * 
+	
+	 * @Title: cashout
+	
+	 * @Description: TODO
+	
+	 * @param token
+	 * @param money
+	 * @param device
+	 * @param plat
+	 * @return
+	
+	 * @return: String
+	 */
+	String cashOut(String token, String money, String device, Integer plat);
+    
+	/**
+	 * 
+	
+	 * @Title: myStoreInfo
+	
+	 * @Description: TODO
+	
+	 * @param token
+	 * @return
+	
+	 * @return: String
+	 */
+	String myStoreInfo(String token);
+    
+	/**
+	 * 
+	
+	 * @Title: cashoutRegister
+	
+	 * @Description: TODO
+	
+	 * @param token
+	 * @param aliaccount
+	 * @param name
+	 * @param card
+	 * @param password
+	 * @return
+	
+	 * @return: String
+	 */
+	String cashoutRegister(String token, String aliaccount, String name,
+			String card, String password);
+    /**
+     * 
+    
+     * @Title: resPassword
+    
+     * @Description: TODO
+    
+     * @param token
+     * @param password
+     * @return
+    
+     * @return: String
+     */
+	String resPassword(String token, String password);
+    /**
+     * 
+    
+     * @Title: resPasswordPage
+    
+     * @Description: TODO
+    
+     * @param token
+     * @return
+    
+     * @return: String
+     */
+	String resPasswordPage(String token);
+    /**
+     * 
+    
+     * @Title: PasswordCODE
+    
+     * @Description: TODO
+    
+     * @param code
+     * @param phone 
+     * @return
+    
+     * @return: String
+     */
+	String PasswordCODE(String code, String phone);
+    /**
+     * 
+    
+     * @Title: ifcashout
+    
+     * @Description: TODO
+    
+     * @param token
+     * @return
+    
+     * @return: String
+     */
+	String ifcashout(String token);
+
+}

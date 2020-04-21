@@ -1,0 +1,47 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 客户标识累加分享次数值接口
+ * 
+ * @author yinjy
+ *
+ */
+public interface RCustomerIdShareCountValue {
+	/**
+	 * 设置客户标识分享次数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param shareCount 分享次数值
+	 */
+	public void set(Long customerId, Long shareCount);
+
+	/**
+	 * 递增客户标识分享次数
+	 * 
+	 * @return 推送客户标识分享次数
+	 */
+	public Long increment(Long customerId);
+
+	/**
+	 * 获取分享次数值
+	 * 
+	 * @param customerId 客户标识
+	 * @return 分享次数值
+	 */
+	public Long get(Long customerId);
+
+	/**
+	 * 删除客户标识分享次数值
+	 * 
+	 * @param customerId 客户标识
+	 */
+	public void remove(Long customerId);
+
+	/**
+	 * 存在客户标识分享次数值
+	 * 
+	 * @param customerId 客户标识
+	 * @return 是否存在
+	 */
+	public boolean exist(Long customerId);
+}

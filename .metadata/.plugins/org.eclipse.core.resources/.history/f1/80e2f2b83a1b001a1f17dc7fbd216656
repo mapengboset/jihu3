@@ -1,0 +1,71 @@
+package com.hiko.gym.common.repository.redis;
+
+import java.util.*;
+
+/**
+ * 客户场馆列表接口
+ * 
+ * @author cychen
+ *
+ */
+public interface RCustomerVenueList {
+
+	/**
+	 * 添加场馆标识
+	 * 
+	 * @param customerId 客户标识
+	 * @param venueId 场馆标识
+	 */
+	public void add(Long customerId, Integer venueId);
+
+	/**
+	 * 删除场馆标识
+	 * 
+	 * @param customerId 客户标识
+	 * @param venueId 场馆标识
+	 */
+	public void remove(Long customerId, Integer venueId);
+
+	/**
+	 * 存在场馆标识
+	 * 
+	 * @param customerId 客户标识
+	 * @param venueId 场馆标识
+	 * @return 是否存在
+	 */
+	public Boolean exist(Long customerId, Integer venueId);
+
+	/**
+	 * 获取列表大小
+	 * 
+	 * @param customerId 客户标识
+	 * @return 列表大小
+	 */
+	public Long size(Long customerId);
+
+	/**
+	 * 最后场馆标识
+	 * 
+	 * @param customerId 客户标识
+	 * @return 场馆标识
+	 */
+	public Integer last(Long customerId);
+
+	/**
+	 * 清除列表内容
+	 * 
+	 * @param customerId 客户标识
+	 */
+	public void clear(Long customerId);
+
+	/**
+	 * 获取场馆标识
+	 * 
+	 * @param customerId 客户标识
+	 * @param startIndex 开始序号
+	 * @param endIndex 结束序号
+	 * @return 场馆标识列表
+	 */
+	public List<Integer> range(Long customerId, Long startIndex, Long endIndex);
+
+}

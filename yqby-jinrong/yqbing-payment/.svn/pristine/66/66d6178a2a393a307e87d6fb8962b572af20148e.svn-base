@@ -1,0 +1,486 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.test.context.web.WebAppConfiguration;
+
+import com.yqbing.servicebing.repository.database.bean.PayConfigData;
+import com.yqbing.servicebing.repository.database.bean.TWxApayOrderBean;
+import com.yqbing.servicebing.repository.database.bean.TWxNoticeBean;
+import com.yqbing.servicebing.repository.database.bean.TWxPayOrderBean;
+import com.yqbing.servicebing.repository.database.bean.TWxProfitOrderBean;
+import com.yqbing.servicebing.repository.database.bean.TWxProfitOrderQueryBean;
+import com.yqbing.servicebing.repository.database.bean.TWxRefundBean;
+import com.yqbing.servicebing.repository.database.bean.TWxRefundQueryBean;
+import com.yqbing.servicebing.repository.database.dao.PayConfigDataMapper;
+import com.yqbing.servicebing.repository.database.dao.TWxApayOrderBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TWxNoticeBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TWxPayOrderBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TWxProfitOrderBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TWxProfitOrderQueryBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TWxRefundBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TWxRefundQueryBeanMapper;
+import com.yqbing.servicebing.service.IPublicPayService;
+import com.yqbing.servicebing.utils.enums.ErrorCode;
+import com.yqbing.servicebing.utils.http.SendUtils;
+import com.yqbing.servicebing.utils.web.CommonResult;
+import com.yqbing.servicebing.webapp.wxpay.pay.WxPayData;
+import com.yqbing.servicebing.webapp.wxpay.util.Configure;
+import com.yqbing.servicebing.webapp.wxpay.util.HttpUtil;
+import com.yqbing.servicebing.webapp.wxpay.util.MapUtils;
+import com.yqbing.servicebing.webapp.wxpay.util.SerialNumber;
+import com.yqbing.servicebing.webapp.wxpay.util.Signature;
+import com.yqbing.servicebing.webapp.wxpay.util.TenpayUtil;
+import com.yqbing.servicebing.webapp.wxpay.util.XmlUtil;
+
+@Service("publicPayService")
+@WebAppConfiguration("all")
+public class PublicPayServiceImpl<V> implements IPublicPayService{
+
+	
+	private static String refund_URL = "https://api.mch.weixin.qq.com/secapi/pay/refund";
+	private static String refundquery_URL = "https://api.mch.weixin.qq.com/pay/refundquery";
+	private static String PROFITQUERY_URL = "https://api.mch.weixin.qq.com/pay/profitsharingquery";
+	private static final Logger LOGGER = LoggerFactory.getLogger(PublicPayServiceImpl.class);
+	@Value("${wxappid}")
+    private String wxappid;
+	@Value("${wxsecret}")
+	private String wxsecret;
+	@Value("${wxmchId}")
+	private String wxmchId;
+	@Value("${wxpartnerkey}")
+	private String wxpartnerkey;
+	@Value("${wxtrade_type}")
+	private String wxtrade_type;
+	@Value("${wxbody}")
+	private String wxbody;
+	@Value("${servetickenthttp}")
+	private String servetickenthttp;
+	@Value("${servehttp}")
+	private String servehttp;
+	@Value("${jhtest}")
+	private String jhtest;
+	
+	@Resource
+	TWxRefundBeanMapper wxRefundBeanMapper;
+	@Resource
+	TWxRefundQueryBeanMapper wxRefundQueryBeanMapper;
+	@Resource
+	TWxNoticeBeanMapper wxNoticeBeanMapper;
+	@Resource
+	TWxPayOrderBeanMapper wxPayOrderBeanMapper;
+	@Resource
+	TWxApayOrderBeanMapper wxApayOrderBeanMapper;
+	@Resource
+	PayConfigDataMapper payConfigDataMapper;
+	@Resource
+	TWxProfitOrderBeanMapper wxProfitOrderBeanMapper;
+	@Resource
+	TWxProfitOrderQueryBeanMapper wxProfitOrderQueryBeanMapper;
+	@Override
+	public void saveNotifyResult(TWxNoticeBean notic) {
+		try {
+			if(notic.getNoticeId() == null){
+				
+				wxNoticeBeanMapper.insertSelective(notic);
+			}else{
+				wxNoticeBeanMapper.updateByPrimaryKeySelective(notic);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	@Override
+	public WxPayData getWXPayConfig() {
+		WxPayData payData = new WxPayData();
+		payData.setWxappid(wxappid);
+		payData.setWxbody(wxbody);
+		payData.setWxmchId(wxmchId);
+		payData.setWxpartnerkey(wxpartnerkey);
+		payData.setWxsecret(wxsecret);
+		payData.setWxtrade_type(wxtrade_type);
+		payData.setUrl(servehttp);
+		payData.setH5url(jhtest);
+		
+		return payData;
+	}
+	@Override
+	public void savePayOrderData(TWxPayOrderBean payOrder) {
+		
+		try {
+			
+			wxPayOrderBeanMapper.insertSelective(payOrder);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("保存失败");
+		}
+		
+		
+	}
+	@Override
+	public void savePrepPayResult(TWxApayOrderBean apayRecord) {
+      
+		try {
+			
+        	wxApayOrderBeanMapper.insertSelective(apayRecord);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("保存失败");
+		}
+	    }
+	
+	
+	@Override
+		public TWxApayOrderBean getPrepPayParam(String out) throws Exception {
+			// TODO 根据交易流水获取之前传进来的参数
+			if (out== null) {
+				return null;
+			}
+			return wxApayOrderBeanMapper.selectOuttrade(out);
+	}
+	@Override
+	public TWxPayOrderBean getOrder(String order,Integer appChanl) {
+		// TODO Auto-generated method stub
+		return wxPayOrderBeanMapper.getOrder(order,appChanl);
+	}
+	@Override
+	public long getTotalFee(String order) {
+		Map<String,String> map = new HashMap<String, String>();
+		map.put("orderNo", order);
+		String sendGet = SendUtils.doGet(servetickenthttp+"/lottery/ticket/orderInfo", map);
+		long amount = 0;
+		LOGGER.info("---------------------------------------------------"+sendGet);
+		try {
+			
+			JSONObject json = new JSONObject(sendGet);
+			int code = json.getInt("code");
+			if(code != 0){
+				return 0;
+			}
+			 amount = json.getLong("body");
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return amount;
+	}
+	@Override
+	public TWxNoticeBean getNoticePay(String out_trade_no, Integer appChanl) {
+		TWxNoticeBean bean = wxNoticeBeanMapper.selectByoutTradeNo(out_trade_no,appChanl);
+		return bean;
+	}
+	
+	
+	
+	@Override
+	public CommonResult refund(String out_trade_no, Integer appChanl) throws Exception{
+		
+		LOGGER.info("-------------------------退款申请---------------------------------------");
+		LOGGER.info("-->out_trade_no:" + out_trade_no);
+		TWxNoticeBean noticePay = getNoticePay(out_trade_no,appChanl);
+		if(noticePay == null){
+			return new CommonResult(ErrorCode.CODE_PARAM_ERROR,"订单号不存在" );
+		}
+		WxPayData wxdata = getWXPayConfig();
+		String appid = wxdata.getWxappid();// 公众帐号
+		String mchId =  wxdata.getWxmchId();// 商户号
+		String partnerkey = wxdata.getWxpartnerkey();// 商户key
+		String out_refund_no =  SerialNumber.newInstance(new Date()).toString();
+		String nonce_str = TenpayUtil.getNonceStr();
+		Map<String, Object> packageParams = new HashMap<>();
+		packageParams.put("appid", appid);
+		packageParams.put("mch_id", mchId);
+		packageParams.put("nonce_str", nonce_str);
+		packageParams.put("transaction_id", noticePay.getTransactionId());
+		packageParams.put("out_refund_no", out_refund_no);
+		packageParams.put("total_fee", noticePay.getTotalFee());
+		packageParams.put("refund_fee", noticePay.getCashFee());
+		///String notify_url = servehttp+"/weixin/pay/refund_notify";
+		//packageParams.put("notify_url",notify_url);
+		// 进行签名
+		Configure.setKey(partnerkey);
+		String sign = Signature.getSign(packageParams);
+
+		String	xml = "<xml>" + "<appid>" + appid + "</appid>" + "<mch_id>" + mchId + "</mch_id>" + "<nonce_str>"
+					+ nonce_str + "</nonce_str>" +"<out_refund_no>"+out_refund_no+"</out_refund_no>" + "<refund_fee>"+noticePay.getCashFee()+"</refund_fee>"+"<total_fee>"+noticePay.getTotalFee()+"</total_fee>"+ "<transaction_id>" + noticePay.getTransactionId()+"</transaction_id>"+ "<sign>" + sign
+					+ "</sign>" + "</xml>";
+		LOGGER.info(xml);
+		LOGGER.info("------------------退款申请传参------------------");
+		LOGGER.info("[appid]:" + appid);
+		LOGGER.info("[mchId]:" + mchId);
+		LOGGER.info("[nonce_str]:" + nonce_str);
+		LOGGER.info("[out_trade_no]:" + out_trade_no);
+		LOGGER.info("[sign]:" + sign);
+		String result = HttpUtil.sendrefundPost(refund_URL, xml);
+		LOGGER.info("------------------退款申请返回值------------------");
+		LOGGER.info(result);
+		LOGGER.info("-------------------------------------------------");
+		try {
+			MapUtils mapUtils = new MapUtils(XmlUtil.doXMLParse(result));
+			TWxRefundBean refundBean = new TWxRefundBean();
+			refundBean.setReturnCode(mapUtils.getString("return_code"));
+			refundBean.setReturnMsg(mapUtils.getString("return_msg"));
+			if(mapUtils.getString("return_code").equals("SUCCESS")){
+				refundBean.setResultCode(mapUtils.getString("result_code"));
+				if(mapUtils.getString("result_code").equals("SUCCESS")){
+					refundBean.setAppId(mapUtils.getString("appid"));
+					refundBean.setCashFee(Integer.valueOf(mapUtils.getString("cash_fee")));
+					refundBean.setMchId(mapUtils.getString("mch_id"));
+					refundBean.setNonceStr(mapUtils.getString("nonce_str"));
+					refundBean.setOutRefundNo(mapUtils.getString("out_refund_no"));
+					refundBean.setOutTradeNo(mapUtils.getString("out_trade_no"));
+					refundBean.setRefundId(mapUtils.getString("refund_id"));
+					refundBean.setRefundFee(Integer.valueOf(mapUtils.getString("refund_fee")));
+					refundBean.setSign(mapUtils.getString("sign"));
+					refundBean.setTotalFee(Integer.valueOf(mapUtils.getString("total_fee")));
+					refundBean.setTransactionId(mapUtils.getString("transaction_id"));
+					}
+				refundBean.setErrCodeDes(mapUtils.getString("err_code_des"));
+			}
+			refundBean.setCreateTime(new Date());
+			wxRefundBeanMapper.insertSelective(refundBean);
+			if(!mapUtils.getString("result_code").equals("SUCCESS")){
+				return new CommonResult(ErrorCode.CODE_PARAM_ERROR, mapUtils.getString("err_code_des"));
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return new CommonResult(ErrorCode.CODE_PARAM_ERROR,"申请有误" );
+		}
+		return new CommonResult(ErrorCode.CODE_SUCCESS,"成功" );
+	}
+	
+	
+	
+	
+	@Override
+	public CommonResult refundquery(String out_trade_no, Integer appChanl) {
+		LOGGER.info("-------------------------退款查询---------------------------------------");
+		LOGGER.info("-->out_trade_no:" + out_trade_no);
+		TWxNoticeBean noticePay = getNoticePay(out_trade_no,appChanl);
+		if(noticePay == null){
+			return new CommonResult(ErrorCode.CODE_PARAM_ERROR,"订单号不存在" );
+		}
+		WxPayData wxdata = getWXPayConfig();
+		String appid = wxdata.getWxappid();// 公众帐号
+		String mchId =  wxdata.getWxmchId();// 商户号
+		String partnerkey = wxdata.getWxpartnerkey();// 商户key
+		String nonce_str = TenpayUtil.getNonceStr();
+		Map<String, Object> packageParams = new HashMap<>();
+		
+		//获取商户退款信息
+		TWxRefundBean tr = wxRefundBeanMapper.selectByout(noticePay.getOutTradeNo());
+		if(tr == null){
+			return new CommonResult(ErrorCode.CODE_PARAM_ERROR,"退款不存在" );
+		}
+		packageParams.put("appid", appid);
+		packageParams.put("mch_id", mchId);
+		packageParams.put("nonce_str", nonce_str);
+		packageParams.put("out_refund_no", tr.getOutRefundNo());
+		packageParams.put("out_trade_no", tr.getOutTradeNo());
+		packageParams.put("refund_id", tr.getRefundId());
+		packageParams.put("transaction_id", tr.getTransactionId());
+		// 进行签名
+		Configure.setKey(partnerkey);
+		String sign = Signature.getSign(packageParams);
+
+		String	xml = "<xml>" + "<appid>" + appid + "</appid>" + "<mch_id>" + mchId + "</mch_id>" + "<nonce_str>"
+					+ nonce_str + "</nonce_str>"  + "<out_refund_no>"+tr.getOutRefundNo()+"</out_refund_no>"+"<out_trade_no>"+tr.getOutTradeNo()+"</out_trade_no>"+"<refund_id>"+tr.getRefundId()+"</refund_id>"+"<transaction_id>"+tr.getTransactionId()+"</transaction_id>"+ "<sign>" + sign
+					+ "</sign>" + "</xml>";
+		LOGGER.info(xml);
+		LOGGER.info("------------------查询传参------------------");
+		LOGGER.info("[appid]:" + appid);
+		LOGGER.info("[mchId]:" + mchId);
+		LOGGER.info("[nonce_str]:" + nonce_str);
+		LOGGER.info("[out_trade_no]:" + out_trade_no);
+		LOGGER.info("[sign]:" + sign);
+		String result = HttpUtil.sendPost(refundquery_URL, xml);
+		LOGGER.info("------------------退款查询返回值------------------");
+		LOGGER.info(result);
+		LOGGER.info("-------------------------------------------------");
+		String refund_no = null;
+		String error = null;
+		try {
+			MapUtils mapUtils = new MapUtils(XmlUtil.doXMLParse(result));
+			TWxRefundQueryBean refundBean = wxRefundQueryBeanMapper.selectByoutTradeNo(tr.getOutRefundNo());
+			if(refundBean == null){
+				refundBean = new TWxRefundQueryBean();
+			}
+			
+			refundBean.setReturnCode(mapUtils.getString("return_code"));
+			refundBean.setReturnMsg(mapUtils.getString("return_msg"));
+			if(mapUtils.getString("return_code").equals("SUCCESS")){
+				
+				refundBean.setResultCode(mapUtils.getString("result_code"));
+				if(mapUtils.getString("result_code").equals("SUCCESS")){
+					refundBean.setAppId(mapUtils.getString("appid"));
+					refundBean.setCashFee(Integer.valueOf(mapUtils.getString("cash_fee")));
+					refundBean.setMchId(mapUtils.getString("mch_id"));
+					refundBean.setNonceStr(mapUtils.getString("nonce_str"));
+					refundBean.setOutRefundNo(mapUtils.getString("out_refund_no_0"));
+					 refund_no = mapUtils.getString("out_refund_no_0");
+					refundBean.setOutRefundNo(mapUtils.getString("refund_id_0"));
+					refundBean.setOutTradeNo(mapUtils.getString("out_trade_no"));
+					refundBean.setSign(mapUtils.getString("sign"));
+					refundBean.setTotalRefundCount(Integer.valueOf(mapUtils.getString("total_fee")));
+					refundBean.setCashFee(Integer.valueOf(mapUtils.getString("cash_fee")));
+					refundBean.setRefundCount(Integer.valueOf(mapUtils.getString("refund_count")));
+					refundBean.setRefundFeeN(mapUtils.getString("refund_fee_0"));
+					refundBean.setRefundStatusN(mapUtils.getString("refund_status_0"));   
+					refundBean.setRefundRecvAccoutN(mapUtils.getString("refund_recv_accout_0"));   
+					refundBean.setTransactionId(mapUtils.getString("transaction_id"));
+				}else{
+					error = mapUtils.getString("err_code_des");
+					refundBean.setErrCode(mapUtils.getString("err_code"));
+					refundBean.setErrCodeDes(mapUtils.getString("err_code_des"));
+					if(refundBean.getId() == null){
+						wxRefundQueryBeanMapper.insertSelective(refundBean);
+					}else{
+						wxRefundQueryBeanMapper.updateByPrimaryKeySelective(refundBean);
+					}
+					return new CommonResult(ErrorCode.CODE_PARAM_ERROR,error);
+				}
+				
+			}else{
+				error = mapUtils.getString("err_code_des");
+				if(refundBean.getId() == null){
+					wxRefundQueryBeanMapper.insertSelective(refundBean);
+				}else{
+					wxRefundQueryBeanMapper.updateByPrimaryKeySelective(refundBean);
+				}
+				return new CommonResult(ErrorCode.CODE_PARAM_ERROR,error);
+		}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return new CommonResult(ErrorCode.CODE_PARAM_ERROR,"查询有误" );
+		}
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("refund_id", refund_no);
+		return new CommonResult(ErrorCode.CODE_SUCCESS,"成功",map);
+	}
+	
+	
+	@Override
+	public CommonResult refundNotify() {
+		
+		
+		
+		
+		return null;
+	}
+	@Override
+	public void saveRefundQuery(TWxRefundQueryBean refundBean) {
+		wxRefundQueryBeanMapper.insertSelective(refundBean);
+		
+	}
+	@Override
+	public String getConfigData(int i) {
+		PayConfigData data = payConfigDataMapper.selectByType(i);
+		if(data == null){
+			return null;
+		}
+		return data.getH5url();
+	}
+	@Override
+	public void saveProfitOrder(TWxProfitOrderBean orderBean) {
+		// TODO Auto-generated method stub
+		wxProfitOrderBeanMapper.insert(orderBean);
+	}
+	@Override
+	public TWxProfitOrderBean getProfitOrder(String order) {
+		// TODO Auto-generated method stub
+		return wxProfitOrderBeanMapper.getOutOrderNo(order);
+	}
+	@SuppressWarnings("unused")
+	@Override
+	public CommonResult profitsharingquery(TWxProfitOrderBean profitorder,
+			Integer appChanl) throws Exception {
+		Map<String, Object> map = new HashMap<>();
+		String out_trade_no = profitorder.getOutOrderNo();
+		WxPayData wxdata = getWXPayConfig();
+		String appid = wxdata.getWxappid();// 公众帐号
+		String mchId =  wxdata.getWxmchId();// 商户号
+		String partnerkey = wxdata.getWxpartnerkey();// 商户key
+		
+		String nonce_str = TenpayUtil.getNonceStr();
+		Map<String, Object> packageParams = new HashMap<>();
+		packageParams.put("mch_id", mchId);
+		packageParams.put("transaction_id", profitorder.getTransactionId());
+		packageParams.put("out_trade_no", out_trade_no);
+		packageParams.put("nonce_str", nonce_str);
+		// 进行签名
+		Configure.setKey(partnerkey);
+		String sign = Signature.getSign(packageParams);
+
+		String	xml = "<xml>" + "<mch_id>" + mchId + "</mch_id>" + "<transaction_id>" + profitorder.getTransactionId() + "</transaction_id>" + "<out_trade_no>"
+					+ out_trade_no + "</out_trade_no>" + "<nonce_str>" + nonce_str + "</nonce_str>" + "<sign>" + sign
+					+ "</sign>" + "</xml>";
+		LOGGER.info(xml);
+		LOGGER.info("------------------分账查询订单传参------------------");
+		LOGGER.info("[out_trade_no]:" + out_trade_no);
+		String result = HttpUtil.sendPost(PROFITQUERY_URL, xml);
+		LOGGER.info(result);
+		Map map1 = XmlUtil.doXMLParse(result);
+		MapUtils mapUtils = new MapUtils(map1);
+		String return_code = mapUtils.getString("return_code");
+		String return_msg = mapUtils.getString("return_msg");
+		if(!return_code.equals("SUCCESS")){
+			return new CommonResult(ErrorCode.CODE_PARAM_ERROR,return_msg );
+		}
+		return_code = mapUtils.getString("result_code");
+		 return_msg = mapUtils.getString("err_code_des");
+		if(!return_code.equals("SUCCESS")){
+			return new CommonResult(ErrorCode.CODE_PARAM_ERROR,return_msg);
+		}
+		
+		map.put("return_code", return_code);
+		map.put("return_msg", return_msg);
+		String transaction_id = mapUtils.getString("transaction_id");
+		String out_order_no = mapUtils.getString("out_order_no");
+		String order_id = mapUtils.getString("order_id");
+		String status = mapUtils.getString("status");
+		String receivers = mapUtils.getString("receivers");
+		String amount = mapUtils.getString("amount");
+		String description = mapUtils.getString("description");
+		
+		TWxProfitOrderQueryBean profitOrderQueryBean = wxProfitOrderQueryBeanMapper.selectByOutOrderNo(out_order_no);
+		if(profitOrderQueryBean == null){
+			 profitOrderQueryBean = new  TWxProfitOrderQueryBean();
+			
+		}
+		profitOrderQueryBean.setAmount(Integer.valueOf(amount));
+		profitOrderQueryBean.setCreateTime(new Date());
+		profitOrderQueryBean.setDescription(description);
+		profitOrderQueryBean.setErrCode(return_code);
+		profitOrderQueryBean.setErrCodeDes(return_msg);
+		profitOrderQueryBean.setMchId(mchId);
+		profitOrderQueryBean.setOrderId(order_id);
+		profitOrderQueryBean.setOutOrderNo(out_order_no);
+		profitOrderQueryBean.setPid(profitorder.getPid());
+		profitOrderQueryBean.setReceivers(receivers);
+		profitOrderQueryBean.setResultCode(return_code);
+		profitOrderQueryBean.setSign(sign);
+		profitOrderQueryBean.setStatus(status);
+		profitOrderQueryBean.setTransactionId(transaction_id);
+		if(profitOrderQueryBean == null){
+			wxProfitOrderQueryBeanMapper.insert(profitOrderQueryBean);
+			
+		}else{
+			wxProfitOrderQueryBeanMapper.updateByPrimaryKeySelective(profitOrderQueryBean);
+		}
+		if(status.equals("SUCCESS")){//分账成功
+			return new CommonResult(ErrorCode.CODE_SUCCESS,"成功");
+		}
+		return new CommonResult(ErrorCode.PROFIT_QUERY,status);
+	}
+
+}

@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.UserDownDataDayDetailMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.UserDownDataDayDetail" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="order_id" property="orderId" jdbcType="VARCHAR" />
+    <result column="uid" property="uid" jdbcType="BIGINT" />
+    <result column="app_pack" property="appPack" jdbcType="VARCHAR" />
+    <result column="app_name" property="appName" jdbcType="VARCHAR" />
+    <result column="invite_code" property="inviteCode" jdbcType="VARCHAR" />
+    <result column="store_name" property="storeName" jdbcType="VARCHAR" />
+    <result column="down_count" property="downCount" jdbcType="DECIMAL" />
+    <result column="business_time" property="businessTime" jdbcType="TIMESTAMP" />
+    <result column="opdesc" property="opdesc" jdbcType="VARCHAR" />
+    <result column="settle_time" property="settleTime" jdbcType="TIMESTAMP" />
+    <result column="settle_amount" property="settleAmount" jdbcType="DECIMAL" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="divide_type" property="divideType" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="batch_id" property="batchId" jdbcType="VARCHAR" />
+    <result column="price" property="price" jdbcType="DECIMAL" />
+    <result column="keyword" property="keyword" jdbcType="VARCHAR" />
+    <result column="total" property="total" jdbcType="DECIMAL" />
+    <result column="pack" property="pack" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="img" property="img" jdbcType="VARCHAR" />
+    <result column="self" property="self" jdbcType="INTEGER" />
+    <result column="send_count" property="sendCount" jdbcType="INTEGER" />
+    <result column="reason" property="reason" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, order_id, uid, app_pack, app_name, invite_code, store_name, down_count, business_time, 
+    opdesc, settle_time, settle_amount, status, divide_type, create_time, batch_id, price, 
+    keyword,total,pack,name,img,self, send_count, reason
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.dao.UserDownDataDayDetailExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from user_down_data_day_detail
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_down_data_day_detail
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="queryInvite" resultMap="BaseResultMap">
+    select 
+    COUNT(ud.down_count) as total, 
+    sh.app_pack as pack,
+    sh.app_Name as name,
+    sh.is_self as self,
+    sh.app_Url_Img as img 
+    from 
+    
+    user_down_data_day_detail ud 
+
+    LEFT JOIN store_house sh on sh.app_pack = ud.app_pack  and sh.is_self !=0
+    
+    where 
+    
+    
+    ud.invite_code in 
+    <foreach collection="code" item="cid" index="index" open="(" close=")" separator=",">
+	  #{cid}
+	</foreach>
+    
+    and 
+    
+    ud.create_time &gt;= #{stime}
+    
+    and
+    
+    ud.create_time &lt;= #{etime}
+    
+    and    
+
+    ud.status = "success"
+    
+    
+    GROUP BY ud.app_pack
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from user_down_data_day_detail
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.UserDownDataDayDetail" >
+    insert into user_down_data_day_detail (id, order_id, uid, 
+      app_pack, app_name, invite_code, 
+      store_name, down_count, business_time, 
+      opdesc, settle_time, settle_amount, 
+      status, divide_type, create_time, 
+      batch_id, price, keyword, 
+      send_count, reason)
+    values (#{id,jdbcType=BIGINT}, #{orderId,jdbcType=VARCHAR}, #{uid,jdbcType=BIGINT}, 
+      #{appPack,jdbcType=VARCHAR}, #{appName,jdbcType=VARCHAR}, #{inviteCode,jdbcType=VARCHAR}, 
+      #{storeName,jdbcType=VARCHAR}, #{downCount,jdbcType=DECIMAL}, #{businessTime,jdbcType=TIMESTAMP}, 
+      #{opdesc,jdbcType=VARCHAR}, #{settleTime,jdbcType=TIMESTAMP}, #{settleAmount,jdbcType=DECIMAL}, 
+      #{status,jdbcType=VARCHAR}, #{divideType,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{batchId,jdbcType=VARCHAR}, #{price,jdbcType=DECIMAL}, #{keyword,jdbcType=VARCHAR}, 
+      #{sendCount,jdbcType=INTEGER}, #{reason,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.UserDownDataDayDetail" >
+    insert into user_down_data_day_detail
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="orderId != null" >
+        order_id,
+      </if>
+      <if test="uid != null" >
+        uid,
+      </if>
+      <if test="appPack != null" >
+        app_pack,
+      </if>
+      <if test="appName != null" >
+        app_name,
+      </if>
+      <if test="inviteCode != null" >
+        invite_code,
+      </if>
+      <if test="storeName != null" >
+        store_name,
+      </if>
+      <if test="downCount != null" >
+        down_count,
+      </if>
+      <if test="businessTime != null" >
+        business_time,
+      </if>
+      <if test="opdesc != null" >
+        opdesc,
+      </if>
+      <if test="settleTime != null" >
+        settle_time,
+      </if>
+      <if test="settleAmount != null" >
+        settle_amount,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="divideType != null" >
+        divide_type,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="batchId != null" >
+        batch_id,
+      </if>
+      <if test="price != null" >
+        price,
+      </if>
+      <if test="keyword != null" >
+        keyword,
+      </if>
+      <if test="sendCount != null" >
+        send_count,
+      </if>
+      <if test="reason != null" >
+        reason,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="uid != null" >
+        #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="appPack != null" >
+        #{appPack,jdbcType=VARCHAR},
+      </if>
+      <if test="appName != null" >
+        #{appName,jdbcType=VARCHAR},
+      </if>
+      <if test="inviteCode != null" >
+        #{inviteCode,jdbcType=VARCHAR},
+      </if>
+      <if test="storeName != null" >
+        #{storeName,jdbcType=VARCHAR},
+      </if>
+      <if test="downCount != null" >
+        #{downCount,jdbcType=DECIMAL},
+      </if>
+      <if test="businessTime != null" >
+        #{businessTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="opdesc != null" >
+        #{opdesc,jdbcType=VARCHAR},
+      </if>
+      <if test="settleTime != null" >
+        #{settleTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="settleAmount != null" >
+        #{settleAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="divideType != null" >
+        #{divideType,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="batchId != null" >
+        #{batchId,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="keyword != null" >
+        #{keyword,jdbcType=VARCHAR},
+      </if>
+      <if test="sendCount != null" >
+        #{sendCount,jdbcType=INTEGER},
+      </if>
+      <if test="reason != null" >
+        #{reason,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.dao.UserDownDataDayDetailExample" resultType="java.lang.Integer" >
+    select count(*) from user_down_data_day_detail
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.UserDownDataDayDetail" >
+    update user_down_data_day_detail
+    <set >
+      <if test="orderId != null" >
+        order_id = #{orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="uid != null" >
+        uid = #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="appPack != null" >
+        app_pack = #{appPack,jdbcType=VARCHAR},
+      </if>
+      <if test="appName != null" >
+        app_name = #{appName,jdbcType=VARCHAR},
+      </if>
+      <if test="inviteCode != null" >
+        invite_code = #{inviteCode,jdbcType=VARCHAR},
+      </if>
+      <if test="storeName != null" >
+        store_name = #{storeName,jdbcType=VARCHAR},
+      </if>
+      <if test="downCount != null" >
+        down_count = #{downCount,jdbcType=DECIMAL},
+      </if>
+      <if test="businessTime != null" >
+        business_time = #{businessTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="opdesc != null" >
+        opdesc = #{opdesc,jdbcType=VARCHAR},
+      </if>
+      <if test="settleTime != null" >
+        settle_time = #{settleTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="settleAmount != null" >
+        settle_amount = #{settleAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="divideType != null" >
+        divide_type = #{divideType,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="batchId != null" >
+        batch_id = #{batchId,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        price = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="keyword != null" >
+        keyword = #{keyword,jdbcType=VARCHAR},
+      </if>
+      <if test="sendCount != null" >
+        send_count = #{sendCount,jdbcType=INTEGER},
+      </if>
+      <if test="reason != null" >
+        reason = #{reason,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.UserDownDataDayDetail" >
+    update user_down_data_day_detail
+    set order_id = #{orderId,jdbcType=VARCHAR},
+      uid = #{uid,jdbcType=BIGINT},
+      app_pack = #{appPack,jdbcType=VARCHAR},
+      app_name = #{appName,jdbcType=VARCHAR},
+      invite_code = #{inviteCode,jdbcType=VARCHAR},
+      store_name = #{storeName,jdbcType=VARCHAR},
+      down_count = #{downCount,jdbcType=DECIMAL},
+      business_time = #{businessTime,jdbcType=TIMESTAMP},
+      opdesc = #{opdesc,jdbcType=VARCHAR},
+      settle_time = #{settleTime,jdbcType=TIMESTAMP},
+      settle_amount = #{settleAmount,jdbcType=DECIMAL},
+      status = #{status,jdbcType=VARCHAR},
+      divide_type = #{divideType,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      batch_id = #{batchId,jdbcType=VARCHAR},
+      price = #{price,jdbcType=DECIMAL},
+      keyword = #{keyword,jdbcType=VARCHAR},
+      send_count = #{sendCount,jdbcType=INTEGER},
+      reason = #{reason,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

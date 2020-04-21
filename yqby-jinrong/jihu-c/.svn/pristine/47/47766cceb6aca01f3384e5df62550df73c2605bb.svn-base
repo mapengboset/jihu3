@@ -1,0 +1,115 @@
+package com.yqbing.servicebing.repository.database.bean;
+
+import java.util.Date;
+
+public class AppCoupon {
+    private Integer id;
+
+    private String title;
+
+    private String imgUrl;
+
+    private String source;
+
+    private String linkUrl;
+
+    private Byte isDisplayQrcode;
+
+    private Byte status;
+
+    private Date createtime;
+
+    private Date publishtime;
+
+    private String categoryId;
+
+    private String content;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title == null ? null : title.trim();
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl == null ? null : imgUrl.trim();
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source == null ? null : source.trim();
+    }
+
+    public String getLinkUrl() {
+        return linkUrl;
+    }
+
+    public void setLinkUrl(String linkUrl) {
+        this.linkUrl = linkUrl == null ? null : linkUrl.trim();
+    }
+
+    public Byte getIsDisplayQrcode() {
+        return isDisplayQrcode;
+    }
+
+    public void setIsDisplayQrcode(Byte isDisplayQrcode) {
+        this.isDisplayQrcode = isDisplayQrcode;
+    }
+
+    public Byte getStatus() {
+        return status;
+    }
+
+    public void setStatus(Byte status) {
+        this.status = status;
+    }
+
+    public Date getCreatetime() {
+        return createtime;
+    }
+
+    public void setCreatetime(Date createtime) {
+        this.createtime = createtime;
+    }
+
+    public Date getPublishtime() {
+        return publishtime;
+    }
+
+    public void setPublishtime(Date publishtime) {
+        this.publishtime = publishtime;
+    }
+
+    public String getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId == null ? null : categoryId.trim();
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content == null ? null : content.trim();
+    }
+}

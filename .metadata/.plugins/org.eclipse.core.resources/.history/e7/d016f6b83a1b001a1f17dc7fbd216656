@@ -1,0 +1,79 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 客户推送令牌类
+ * 
+ * @author cychen
+ *
+ */
+public class RCustomerPushToken {
+
+	/** 属性相关 */
+	/** 客户标识 */
+	private Long customerId = null;
+	/** 系统类型(1:IOS;2:安卓) */
+	private Short osType = null;
+	/** 推送令牌 */
+	private String pushToken = null;
+
+	/** 常量相关 */
+	/** 系统类型(1:IOS;2:安卓) */
+	public static final String OSTYPE = "osType";
+	/** 推送令牌 */
+	public static final String PUSHTOKEN = "pushToken";
+
+	/**
+	 * 获取客户标识
+	 * 
+	 * @return 客户标识
+	 */
+	public Long getCustomerId() {
+		return customerId;
+	}
+
+	/**
+	 * 设置客户标识
+	 * 
+	 * @param customerId 客户标识
+	 */
+	public void setCustomerId(Long customerId) {
+		this.customerId = customerId;
+	}
+
+	/**
+	 * 获取系统类型(1:IOS;2:安卓)
+	 * 
+	 * @return 系统类型(1:IOS;2:安卓)
+	 */
+	public Short getOsType() {
+		return osType;
+	}
+
+	/**
+	 * 设备系统类型(1:IOS;2:安卓)
+	 * 
+	 * @param osType 系统类型(1:IOS;2:安卓)
+	 */
+	public void setOsType(Short osType) {
+		this.osType = osType;
+	}
+
+	/**
+	 * 获取推送令牌
+	 * 
+	 * @return 推送令牌
+	 */
+	public String getPushToken() {
+		return pushToken;
+	}
+
+	/**
+	 * 设备推送令牌
+	 * 
+	 * @param pushToken 推送令牌
+	 */
+	public void setPushToken(String pushToken) {
+		this.pushToken = pushToken;
+	}
+
+}

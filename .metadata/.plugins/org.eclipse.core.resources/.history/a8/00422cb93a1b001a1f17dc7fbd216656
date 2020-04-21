@@ -1,0 +1,37 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 肌肉率评级类
+ * 
+ * @author cychen
+ *
+ */
+public class JiroulvGrade {
+
+	/** 偏低 */
+	public static final short LOWER = -1;
+	/** 标准 */
+	public static final short STANDARD = 0;
+	/** 优秀 */
+	public static final short EXCELLENT = 1;
+
+	/**
+	 * 获取肌肉率评级描述
+	 * 
+	 * @param jiroulvGrade 肌肉率评级值
+	 * @return 肌肉率评级描述
+	 */
+	public static String getDescription(short jiroulvGrade) {
+		if (jiroulvGrade == LOWER) {
+			return "偏低";
+		}
+		if (jiroulvGrade == STANDARD) {
+			return "标准";
+		}
+		if (jiroulvGrade == EXCELLENT) {
+			return "优秀";
+		}
+		return "";
+	}
+
+}

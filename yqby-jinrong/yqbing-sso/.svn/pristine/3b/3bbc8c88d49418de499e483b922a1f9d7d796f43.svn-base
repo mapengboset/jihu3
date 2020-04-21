@@ -1,0 +1,16 @@
+package com.yqbing.servicebing.service;
+
+import java.util.List;
+
+import com.yqbing.servicebing.repository.store.bean.StoreUser;
+import com.yqbing.servicebing.repository.store.bean.UserExt;
+
+public interface IStoreService {
+
+	void recordUserBusinessInfo(UserExt userExt);
+
+	UserExt queryUserExtInfoByUserId(int i, Long id);
+
+	List<StoreUser> queryStoreUserByUserId(Long id);
+
+}

@@ -1,0 +1,259 @@
+package com.hiko.gym.common.service.push;
+
+import java.util.*;
+
+import javax.annotation.*;
+
+import org.slf4j.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.stereotype.*;
+
+import com.alibaba.fastjson.*;
+import com.hiko.gym.common.constant.*;
+import com.hiko.gym.common.exception.*;
+import com.hiko.gym.common.repository.database.base.*;
+import com.hiko.gym.common.repository.redis.*;
+import com.hiko.gym.common.service.push.umeng.android.*;
+import com.hiko.gym.common.service.push.umeng.ios.*;
+
+/**
+ * 推送服务实现类
+ * 
+ * @author yinjy
+ *
+ */
+@Service("pushService")
+public class PushServiceImpl implements PushService {
+
+	/** 标识相关 */
+	/** 推送消息标识 */
+	@Resource(name = "rPushMessageId")
+	private RPushMessageId rPushMessageId = null;
+
+	/** 对象相关 */
+	/** 客户推送令牌对象 */
+	@Resource(name = "rCustomerPushTokenObject")
+	private RCustomerPushTokenObject rCustomerPushTokenObject = null;
+
+	/** DAO相关 */
+	/** 推送消息DAO */
+	@Resource(name = "dPushMessageDAO")
+	private DPushMessageDAO dPushMessageDAO = null;
+
+	/** 配置相关 */
+	/** 运行模式 */
+	@Value("${mode}")
+	private String mode = null;
+	/** 推送模式 */
+	@Value("${push.productionMode}")
+	private String productionMode = null;
+	/** ios应用键值 */
+	@Value("${push.ios.appkey}")
+	private String iosAppkey = null;
+	/** ios应用主密码 */
+	@Value("${push.ios.appMasterSecret}")
+	private String iosAppMasterSecret = null;
+	/** android应用键值 */
+	@Value("${push.android.appkey}")
+	private String androidAppkey = null;
+	/** android应用主密码 */
+	@Value("${push.android.appMasterSecret}")
+	private String androidAppMasterSecret = null;
+
+	/** 日志相关 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(PushServiceImpl.class);
+
+	/**
+	 * 推送消息
+	 * 
+	 * @param customerId 客户标识
+	 * @param type 消息类型
+	 * @param title 消息标题
+	 * @param parameterMap 参数映射
+	 * @throws GymException 健身馆异常
+	 */
+	@Override
+	public void pushMessage(Long customerId, Integer type, String title, Map<String, Object> parameterMap)
+			throws GymException {
+		// 获取令牌
+		RCustomerPushToken rCustomerPushToken = rCustomerPushTokenObject.get(customerId);
+		if (rCustomerPushToken == null || rCustomerPushToken.getOsType() == null) {
+			LOGGER.warn("客户(" + customerId + ")推送令牌不存在.");
+			return;
+		}
+
+		// 推送消息
+		// 调用接口: 推送IOS消息
+		if (rCustomerPushToken.getOsType() == OsType.IOS) {
+			pushIosMessage(customerId, rCustomerPushToken.getPushToken(), type, title, parameterMap);
+		}
+		// 调用接口: 推送安卓消息
+		if (rCustomerPushToken.getOsType() == OsType.ANDROID) {
+			pushAndroidMessage(customerId, rCustomerPushToken.getPushToken(), type, title, parameterMap);
+		}
+	}
+
+	/**
+	 * 推送IOS消息
+	 * 
+	 * @param customerId 客户标识
+	 * @param token 推送令牌
+	 * @param type 消息类型
+	 * @param title 消息标题
+	 * @param parameterMap 参数映射
+	 * @throws GymException 健身馆异常
+	 */
+	private void pushIosMessage(Long customerId, String token, Integer type, String title,
+			Map<String, Object> parameterMap) throws GymException {
+		// 打印日志
+		LOGGER.debug("推送IOS消息[customerId=" + customerId + ", token=" + token + ", type=" + type + ", title=" + title
+				+ "]...");
+		
+		// 保存消息
+		Long messageId = rPushMessageId.increment();
+		DPushMessageCreate dPushMessageCreate = new DPushMessageCreate();
+		dPushMessageCreate.setCustomerId(customerId);
+		dPushMessageCreate.setOsType(OsType.IOS);
+		dPushMessageCreate.setToken(token);
+		dPushMessageCreate.setStatus(PushMessageStatus.SENDING);
+		dPushMessageCreate.setType(type);
+		dPushMessageCreate.setTitle(title);
+		dPushMessageCreate.setContent(JSON.toJSONString(parameterMap));
+		dPushMessageCreate.setCause(null);
+		dPushMessageDAO.create(messageId, dPushMessageCreate);
+
+		// 发送消息
+		try {
+			// 初始化
+			IOSUnicast unicast = new IOSUnicast();
+
+			// 组装参数
+			unicast.setAppMasterSecret(iosAppMasterSecret);
+			unicast.setPredefinedKeyValue("appkey", iosAppkey);
+			unicast.setPredefinedKeyValue("timestamp", System.currentTimeMillis());
+			unicast.setPredefinedKeyValue("device_tokens", token);
+			unicast.setPredefinedKeyValue("alert", title);
+			unicast.setPredefinedKeyValue("badge", 0);
+			unicast.setPredefinedKeyValue("sound", "chime");
+			unicast.setPredefinedKeyValue("production_mode", productionMode);
+			unicast.setPredefinedKeyValue("description", parameterMap.get("content"));
+			if (parameterMap != null) {
+				for (Map.Entry<String, Object> parameterEntry : parameterMap.entrySet()) {
+					unicast.setCustomizedField(parameterEntry.getKey(), parameterEntry.getValue()==null?"":parameterEntry.getValue().toString());
+				}
+			}
+
+			// 调用发送
+			boolean result = unicast.send();
+
+			// 修改状态
+			DPushMessageModify dPushMessageModify = new DPushMessageModify();
+			dPushMessageModify.setId(messageId);
+			if (result) {
+				dPushMessageModify.setStatus(PushMessageStatus.SUCCESS);
+			}
+			else {
+				dPushMessageModify.setStatus(PushMessageStatus.FAILURE);
+				dPushMessageModify.setCause("接口返回异常");
+			}
+			dPushMessageDAO.modify(dPushMessageModify);
+		}
+		catch (Exception e) {
+			// 修改状态
+			DPushMessageModify dPushMessageModify = new DPushMessageModify();
+			dPushMessageModify.setId(messageId);
+			dPushMessageModify.setStatus(PushMessageStatus.FAILURE);
+			dPushMessageModify.setCause(e.getMessage());
+			dPushMessageDAO.modify(dPushMessageModify);
+
+			// 抛出异常
+			throw new GymException(e);
+		}
+	}
+
+	/**
+	 * 推送安卓消息
+	 * 
+	 * @param customerId 客户标识
+	 * @param token 推送令牌
+	 * @param type 消息类型
+	 * @param title 消息标题
+	 * @param parameterMap 参数映射
+	 * @throws GymException 健身馆异常
+	 */
+	private void pushAndroidMessage(Long customerId, String token, Integer type, String title,
+			Map<String, Object> parameterMap) throws GymException {
+		// 打印日志
+		LOGGER.debug("推送android消息[customerId=" + customerId + ", token=" + token + ", type=" + type + ", title=" + title
+				+ "]...");
+
+		// 保存消息
+		Long messageId = rPushMessageId.increment();
+		DPushMessageCreate dPushMessageCreate = new DPushMessageCreate();
+		dPushMessageCreate.setCustomerId(customerId);
+		dPushMessageCreate.setOsType(OsType.ANDROID);
+		dPushMessageCreate.setToken(token);
+		dPushMessageCreate.setStatus(PushMessageStatus.SENDING);
+		dPushMessageCreate.setType(type);
+		dPushMessageCreate.setTitle(title);
+		dPushMessageCreate.setContent(JSON.toJSONString(parameterMap));
+		dPushMessageCreate.setCause(null);
+		dPushMessageDAO.create(messageId, dPushMessageCreate);
+
+		// 发送消息
+		try {
+			// 初始化
+			AndroidUnicast unicast = new AndroidUnicast();
+
+			unicast.setAppMasterSecret(androidAppMasterSecret);
+			unicast.setPredefinedKeyValue("appkey", androidAppkey);
+			unicast.setPredefinedKeyValue("timestamp", System.currentTimeMillis());
+			unicast.setPredefinedKeyValue("device_tokens", token);
+			unicast.setPredefinedKeyValue("ticker", title);
+			unicast.setPredefinedKeyValue("title", title);
+			unicast.setPredefinedKeyValue("text", title);
+			//unicast.setPredefinedKeyValue("custom", "自定义");//当display_type=message, 或者display_type=notification且"after_open"为"go_custom"时，该字段必填
+			
+			unicast.setPredefinedKeyValue("after_open", "go_app");
+//			if (type == MessageType.SYSTEM_NOTICE) {
+				unicast.setPredefinedKeyValue("display_type", "notification");
+//			}
+//			else {
+//				unicast.setPredefinedKeyValue("display_type", "message");
+//			}
+			unicast.setPredefinedKeyValue("production_mode", productionMode);
+			if (parameterMap != null) {
+				for (Map.Entry<String, Object> parameterEntry : parameterMap.entrySet()) {
+					unicast.setExtraField(parameterEntry.getKey(), parameterEntry.getValue()==null?"":parameterEntry.getValue().toString());
+				}
+			}
+
+			// 调用发送
+			boolean result = unicast.send();
+
+			// 修改状态
+			DPushMessageModify dPushMessageModify = new DPushMessageModify();
+			dPushMessageModify.setId(messageId);
+			if (result) {
+				dPushMessageModify.setStatus(PushMessageStatus.SUCCESS);
+			}
+			else {
+				dPushMessageModify.setStatus(PushMessageStatus.FAILURE);
+				dPushMessageModify.setCause("接口返回异常");
+			}
+			dPushMessageDAO.modify(dPushMessageModify);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			// 修改状态
+			DPushMessageModify dPushMessageModify = new DPushMessageModify();
+			dPushMessageModify.setId(messageId);
+			dPushMessageModify.setStatus(PushMessageStatus.FAILURE);
+			dPushMessageModify.setCause(e.getMessage());
+			dPushMessageDAO.modify(dPushMessageModify);
+
+			// 抛出异常
+			throw new GymException(e);
+		}
+	}
+}

@@ -1,0 +1,57 @@
+package com.hiko.gym.common.repository.redis;
+
+import static org.junit.Assert.*;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.test.context.*;
+import org.springframework.test.context.junit4.*;
+
+/**
+ * 短消息标识测试类
+ * 
+ * @author cychen
+ *
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:spring-config-test.xml" })
+public class RShortMessageIdTest {
+
+	/** 短消息标识 */
+	@Autowired
+	private RShortMessageId rShortMessageId = null;
+
+	/**
+	 * 测试递增短消息标识
+	 */
+	@Test
+	public void testIncrement() {
+		// 调用接口
+		Long id = rShortMessageId.increment();
+
+		// 打印结果
+		System.out.println("testIncrement:");
+		System.out.println(id);
+
+		// 判断结果
+		assertTrue(id != null);
+	}
+
+	/**
+	 * 测试递增短消息标识
+	 */
+	@Test
+	public void testIncrementWithTime() {
+		// 调用接口
+		Long id = rShortMessageId.increment(System.currentTimeMillis());
+
+		// 打印结果
+		System.out.println("testIncrementWithTime:");
+		System.out.println(id);
+
+		// 判断结果
+		assertTrue(id != null);
+	}
+
+}

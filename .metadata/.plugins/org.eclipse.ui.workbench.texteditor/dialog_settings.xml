@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.GotoLineAction$GotoLineDialog_dialogBounds">
+		<item value="692" key="DIALOG_X_ORIGIN"/>
+		<item value="362" key="DIALOG_Y_ORIGIN"/>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item value="false" key="isRegEx"/>
+		<item value="ifcashout" key="selection"/>
+		<item value="false" key="casesensitive"/>
+		<item value="false" key="incremental"/>
+		<item value="true" key="wrap"/>
+		<item value="false" key="wholeword"/>
+		<list key="findhistory">
+			<item value="ifcashout"/>
+			<item value="filterCharProcess"/>
+			<item value="md5LowerCase"/>
+			<item value="insertSelective"/>
+			<item value="ratio"/>
+			<item value="stream"/>
+			<item value="Collectors"/>
+			<item value="collect"/>
+		</list>
+		<list key="replacehistory">
+			<item value=""/>
+			<item value="com.yqbing.servicebing.repository.jihuc.dao.SysDictExample"/>
+			<item value="com.yqbing.servicebing.repository.jihuc.bean.SysDict"/>
+			<item value="com.yqbing.servicebing.repository.jihu.dao.UserLuckdrawSignExample"/>
+			<item value="com.yqbing.servicebing.repository.jihu.bean.UserLuckdrawSign"/>
+			<item value="com.yqbing.servicebing.repository.database.dao.WealthLogExample"/>
+			<item value="com.yqbing.servicebing.repository.database.dao.UserExtExample"/>
+			<item value="com.yqbing.servicebing.repository.database.dao.UserInfoBeanExample"/>
+		</list>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item value="325" key="DIALOG_WIDTH"/>
+		<item value="1|Microsoft YaHei UI|9.0|0|WINDOWS|1|-15|0|0|0|400|0|0|0|1|0|0|0|0|Microsoft YaHei UI" key="DIALOG_FONT_NAME"/>
+		<item value="444" key="DIALOG_HEIGHT"/>
+		<item value="1359" key="DIALOG_X_ORIGIN"/>
+		<item value="308" key="DIALOG_Y_ORIGIN"/>
+	</section>
+</section>

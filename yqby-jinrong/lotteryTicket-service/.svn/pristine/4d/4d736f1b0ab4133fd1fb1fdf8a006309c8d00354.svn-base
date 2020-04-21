@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.GoodsOrderMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.GoodsOrder" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="address_phone" property="addressPhone" jdbcType="VARCHAR" />
+    <result column="address_name" property="addressName" jdbcType="VARCHAR" />
+    <result column="googs_num" property="googsNum" jdbcType="INTEGER" />
+    <result column="goods_img" property="goodsImg" jdbcType="VARCHAR" />
+    <result column="goods_name" property="goodsName" jdbcType="VARCHAR" />
+    <result column="goods_id" property="goodsId" jdbcType="INTEGER" />
+    <result column="price" property="price" jdbcType="DECIMAL" />
+    <result column="express" property="express" jdbcType="DECIMAL" />
+    <result column="totalamount" property="totalamount" jdbcType="DECIMAL" />
+    <result column="amount" property="amount" jdbcType="DECIMAL" />
+    <result column="reason" property="reason" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="SMALLINT" />
+    <result column="order_id" property="orderId" jdbcType="VARCHAR" />
+    <result column="order_time" property="orderTime" jdbcType="TIMESTAMP" />
+    <result column="pay_type" property="payType" jdbcType="SMALLINT" />
+    <result column="pay_time" property="payTime" jdbcType="TIMESTAMP" />
+    <result column="done_time" property="doneTime" jdbcType="TIMESTAMP" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="standard" property="standard" jdbcType="VARCHAR" />
+    <result column="express_company" property="expressCompany" jdbcType="VARCHAR" />
+    <result column="express_number" property="expressNumber" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <resultMap id="BaseResultMapRes" type="com.yqbing.servicebing.repository.database.bean.GoodsOrderRes" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="googs_num" property="googsNum" jdbcType="INTEGER" />
+    <result column="goods_img" property="goodsImg" jdbcType="VARCHAR" />
+    <result column="goods_name" property="goodsName" jdbcType="VARCHAR" />
+    <result column="goods_id" property="goodsId" jdbcType="INTEGER" />
+    <result column="express" property="express" jdbcType="DECIMAL" />
+    <result column="amount" property="amount" jdbcType="DECIMAL" />
+    <result column="totalamount" property="totalamount" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, user_id, address, address_phone, address_name, googs_num, goods_img, goods_name, 
+    goods_id, price, express, totalamount, amount, reason, status, order_id, order_time, 
+    pay_type, pay_time, done_time, create_time, update_time, standard, express_company, 
+    express_number
+  </sql>
+  <sql id="Base_Column_List_res" >
+    id, googs_num, goods_img, goods_name, 
+    goods_id, express, totalamount, amount
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.dao.GoodsOrderExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from goods_order
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from goods_order
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+   <select id="queryList" resultMap="BaseResultMapRes"  >
+    select 
+    <include refid="Base_Column_List_res" />
+    from goods_order
+    
+    where user_id = #{userId,jdbcType=INTEGER}
+    
+    and status = #{type,jdbcType=SMALLINT}
+     <choose>
+	<when test="startIndex != null">
+		limit #{page}
+	</when>
+	<otherwise>
+		limit 0
+	</otherwise>
+    </choose>
+     <choose>
+	<when test="pageSize != null">
+		, #{size}
+	</when>
+	<otherwise>
+		, 100
+	</otherwise>
+    </choose>
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from goods_order
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.GoodsOrder" >
+    insert into goods_order (id, user_id, address, 
+      address_phone, address_name, googs_num, 
+      goods_img, goods_name, goods_id, 
+      price, express, totalamount, 
+      amount, reason, status, 
+      order_id, order_time, pay_type, 
+      pay_time, done_time, create_time, 
+      update_time, standard, express_company, 
+      express_number)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=BIGINT}, #{address,jdbcType=VARCHAR}, 
+      #{addressPhone,jdbcType=VARCHAR}, #{addressName,jdbcType=VARCHAR}, #{googsNum,jdbcType=INTEGER}, 
+      #{goodsImg,jdbcType=VARCHAR}, #{goodsName,jdbcType=VARCHAR}, #{goodsId,jdbcType=INTEGER}, 
+      #{price,jdbcType=DECIMAL}, #{express,jdbcType=DECIMAL}, #{totalamount,jdbcType=DECIMAL}, 
+      #{amount,jdbcType=DECIMAL}, #{reason,jdbcType=VARCHAR}, #{status,jdbcType=SMALLINT}, 
+      #{orderId,jdbcType=VARCHAR}, #{orderTime,jdbcType=TIMESTAMP}, #{payType,jdbcType=SMALLINT}, 
+      #{payTime,jdbcType=TIMESTAMP}, #{doneTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{standard,jdbcType=VARCHAR}, #{expressCompany,jdbcType=VARCHAR}, 
+      #{expressNumber,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.GoodsOrder" >
+    insert into goods_order
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="addressPhone != null" >
+        address_phone,
+      </if>
+      <if test="addressName != null" >
+        address_name,
+      </if>
+      <if test="googsNum != null" >
+        googs_num,
+      </if>
+      <if test="goodsImg != null" >
+        goods_img,
+      </if>
+      <if test="goodsName != null" >
+        goods_name,
+      </if>
+      <if test="goodsId != null" >
+        goods_id,
+      </if>
+      <if test="price != null" >
+        price,
+      </if>
+      <if test="express != null" >
+        express,
+      </if>
+      <if test="totalamount != null" >
+        totalamount,
+      </if>
+      <if test="amount != null" >
+        amount,
+      </if>
+      <if test="reason != null" >
+        reason,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="orderId != null" >
+        order_id,
+      </if>
+      <if test="orderTime != null" >
+        order_time,
+      </if>
+      <if test="payType != null" >
+        pay_type,
+      </if>
+      <if test="payTime != null" >
+        pay_time,
+      </if>
+      <if test="doneTime != null" >
+        done_time,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="standard != null" >
+        standard,
+      </if>
+      <if test="expressCompany != null" >
+        express_company,
+      </if>
+      <if test="expressNumber != null" >
+        express_number,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="addressPhone != null" >
+        #{addressPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="addressName != null" >
+        #{addressName,jdbcType=VARCHAR},
+      </if>
+      <if test="googsNum != null" >
+        #{googsNum,jdbcType=INTEGER},
+      </if>
+      <if test="goodsImg != null" >
+        #{goodsImg,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsName != null" >
+        #{goodsName,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsId != null" >
+        #{goodsId,jdbcType=INTEGER},
+      </if>
+      <if test="price != null" >
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="express != null" >
+        #{express,jdbcType=DECIMAL},
+      </if>
+      <if test="totalamount != null" >
+        #{totalamount,jdbcType=DECIMAL},
+      </if>
+      <if test="amount != null" >
+        #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="reason != null" >
+        #{reason,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="orderTime != null" >
+        #{orderTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="payType != null" >
+        #{payType,jdbcType=SMALLINT},
+      </if>
+      <if test="payTime != null" >
+        #{payTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="doneTime != null" >
+        #{doneTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="standard != null" >
+        #{standard,jdbcType=VARCHAR},
+      </if>
+      <if test="expressCompany != null" >
+        #{expressCompany,jdbcType=VARCHAR},
+      </if>
+      <if test="expressNumber != null" >
+        #{expressNumber,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.dao.GoodsOrderExample" resultType="java.lang.Integer" >
+    select count(*) from goods_order
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.GoodsOrder" >
+    update goods_order
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="addressPhone != null" >
+        address_phone = #{addressPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="addressName != null" >
+        address_name = #{addressName,jdbcType=VARCHAR},
+      </if>
+      <if test="googsNum != null" >
+        googs_num = #{googsNum,jdbcType=INTEGER},
+      </if>
+      <if test="goodsImg != null" >
+        goods_img = #{goodsImg,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsName != null" >
+        goods_name = #{goodsName,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsId != null" >
+        goods_id = #{goodsId,jdbcType=INTEGER},
+      </if>
+      <if test="price != null" >
+        price = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="express != null" >
+        express = #{express,jdbcType=DECIMAL},
+      </if>
+      <if test="totalamount != null" >
+        totalamount = #{totalamount,jdbcType=DECIMAL},
+      </if>
+      <if test="amount != null" >
+        amount = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="reason != null" >
+        reason = #{reason,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="orderId != null" >
+        order_id = #{orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="orderTime != null" >
+        order_time = #{orderTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="payType != null" >
+        pay_type = #{payType,jdbcType=SMALLINT},
+      </if>
+      <if test="payTime != null" >
+        pay_time = #{payTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="doneTime != null" >
+        done_time = #{doneTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="standard != null" >
+        standard = #{standard,jdbcType=VARCHAR},
+      </if>
+      <if test="expressCompany != null" >
+        express_company = #{expressCompany,jdbcType=VARCHAR},
+      </if>
+      <if test="expressNumber != null" >
+        express_number = #{expressNumber,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.GoodsOrder" >
+    update goods_order
+    set user_id = #{userId,jdbcType=BIGINT},
+      address = #{address,jdbcType=VARCHAR},
+      address_phone = #{addressPhone,jdbcType=VARCHAR},
+      address_name = #{addressName,jdbcType=VARCHAR},
+      googs_num = #{googsNum,jdbcType=INTEGER},
+      goods_img = #{goodsImg,jdbcType=VARCHAR},
+      goods_name = #{goodsName,jdbcType=VARCHAR},
+      goods_id = #{goodsId,jdbcType=INTEGER},
+      price = #{price,jdbcType=DECIMAL},
+      express = #{express,jdbcType=DECIMAL},
+      totalamount = #{totalamount,jdbcType=DECIMAL},
+      amount = #{amount,jdbcType=DECIMAL},
+      reason = #{reason,jdbcType=VARCHAR},
+      status = #{status,jdbcType=SMALLINT},
+      order_id = #{orderId,jdbcType=VARCHAR},
+      order_time = #{orderTime,jdbcType=TIMESTAMP},
+      pay_type = #{payType,jdbcType=SMALLINT},
+      pay_time = #{payTime,jdbcType=TIMESTAMP},
+      done_time = #{doneTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      standard = #{standard,jdbcType=VARCHAR},
+      express_company = #{expressCompany,jdbcType=VARCHAR},
+      express_number = #{expressNumber,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

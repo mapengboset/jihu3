@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;manage-bing/src/main/resources/db/service-bing-ceshi.properties&apos; to &apos;manage-bing-ceshi.properties&apos;" description="Rename resource &apos;service-bing-ceshi.properties&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/main/resources/db/service-bing-ceshi.properties" name="manage-bing-ceshi.properties" stamp="1548319454769" updateReferences="true"/>
+</session>

@@ -1,0 +1,244 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.abstracts.StoreHouseAbs;
+import com.yqbing.servicebing.repository.database.bean.AppAppraise;
+import com.yqbing.servicebing.repository.database.bean.AppRecommend;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+import com.yqbing.servicebing.repository.database.bean.UserAppTask;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.UserLocalApp;
+import com.yqbing.servicebing.repository.database.dao.AppAppraiseExample;
+import com.yqbing.servicebing.repository.database.dao.AppAppraiseMapper;
+import com.yqbing.servicebing.repository.database.dao.AppRecommendMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseExample;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.UserLocalAppMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseExample.Criteria;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseMapper;
+import com.yqbing.servicebing.repository.redis.RAppraiseData;
+import com.yqbing.servicebing.repository.redis.RStoreHouseData;
+import com.yqbing.servicebing.repository.redis.RUserAppTaskData;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.service.CommonService;
+import com.yqbing.servicebing.service.StoreHouseService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.webapp.response.HomeAppRes;
+import com.yqbing.servicebing.webapp.response.StoreAppRes;
+
+
+@Service("storeHouseService")
+@SuppressWarnings("all")
+public class StoreHouseServiceImpl extends CommonService implements StoreHouseService{
+     
+	
+	 private static final Logger LOGGER = LoggerFactory.getLogger(StoreHouseServiceImpl.class);
+	 @Resource
+	 private AppRecommendMapper appRecommendMapper= null;
+	 @Autowired
+	 private StoreHouseMapper storeHouseMapper= null;
+	 @Autowired
+	 private AppAppraiseMapper appAppraiseMapper= null;
+	 @Resource
+	 private RUserLogBean rUserLogBean = null;
+	 @Resource
+	 private RAppraiseData rAppraiseData = null;
+	 @Resource
+	 private UserInfoBeanMapper userInfoBeanMapper = null;
+	 @Resource
+	 private AppAppraiseMapper appraiseMapper = null;
+	 @Resource
+	 private RStoreHouseData rStoreHouseData = null;
+	 @Resource
+	 private RUserAppTaskData rUserAppTaskData = null;
+	 
+	 @Resource
+	 private UserLocalAppMapper userLocalAppMapper = null;
+	
+	public  void add(StoreHouse s){
+		storeHouseMapper.insertSelective(s);
+	}
+
+	@Override
+	public String searchAppName(String appName,String token) {
+		// TODO Auto-generated method stub
+		 Map<String,Object> map = new HashMap<String,Object>();
+		 ArrayList<StoreAppRes> list2 = new ArrayList<StoreAppRes>();
+		StoreHouseExample example = new StoreHouseExample();
+		 Criteria criteria = example.createCriteria();
+		 UserInfoBean userInfo = queryTokenByUser(token);
+		 if(userInfo == null){
+			 return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+		 }
+		 criteria.andAppNameLike(appName).andStatusEqualTo(0);
+		 example.setOrderByClause(" REPLACE(app_Name,'${appName}','')");
+		 List<StoreHouse> list = storeHouseMapper.selectByExample(example);
+	//	 List<StoreHouse> list =  storeHouseMapper.selectByLikeAppName(appName);
+		 //log,名字 ,分类,地址,id,包名 
+			if(null == list || list.size()<= 0){
+				return NotifyUtil.error(ErrorCodeEnum.STOREISEMPTY,"APP不存在");
+			}
+			Long id = userInfo.getId();
+			for (StoreHouse storeHouse : list) {
+				
+				StoreAppRes storeAppRes = new StoreAppRes();
+				storeAppRes.setAppName(storeHouse.getAppName());
+				storeAppRes.setAppPake(storeHouse.getAppPack());
+				storeAppRes.setId(storeHouse.getId());
+				
+				
+				boolean localApp = getLocalApp(id, storeHouse.getAppPack());
+			//	UserLocalApp uapp= userLocalAppMapper.UserLocalApp(storeHouse.getAppPack(), id+"");
+				if(localApp){
+						
+					storeAppRes.setLocalstatus(1);//1打开
+				}else{
+					storeAppRes.setLocalstatus(0);
+				}
+				storeAppRes.setType(storeHouse.getIsSelf());
+				storeAppRes.setImg(storeHouse.getAppUrlImg());
+				storeAppRes.setAppType(getAppType(storeHouse.getAppType()));
+				storeAppRes.setUrl(storeHouse.getAppUrl());
+				list2.add(storeAppRes);
+			}
+	    //map.put("body", list2);
+		
+		return NotifyUtil.success(list2);
+	}
+
+	@Override
+	public String appDatails(String appPack,String token) {
+		
+		 
+		 Map<String,Object> map = new HashMap<String,Object>();
+		 List<AppAppraise> list =null;
+	//	 StoreHouse storeHouse = rStoreHouseData.getAppPack(appPack);
+		 StoreHouseAbs storeHouse = storeHouseMapper.selectByPack(appPack);
+		 if(storeHouse == null){//不存在
+			 return NotifyUtil.error(ErrorCodeEnum.STOREISEMPTY,"APP不存在");
+		 }
+		 try {
+			 list = rAppraiseData.getAppraise(appPack);
+			 if(null == list || list.size()<= 0){
+			 AppAppraiseExample example = new AppAppraiseExample();
+			 com.yqbing.servicebing.repository.database.dao.AppAppraiseExample.Criteria criteria = example.createCriteria();
+			 criteria.andAppPackEqualTo(appPack);
+			 list = appAppraiseMapper.selectByExampleWithBLOBs(example);
+			 for (AppAppraise appAppraise : list) {
+				 rAppraiseData.setAppraise(appPack, appAppraise);
+			}
+			 }
+			 UserInfoBean infoBean = rUserLogBean.getRaw(token);
+				
+				if(infoBean == null){
+					
+					infoBean = userInfoBeanMapper.queryToken(token);
+				}
+				if(infoBean == null){
+					return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+					
+				}
+				storeHouse.setType(storeHouse.getIsSelf());
+				storeHouse.setApptype(getAppType(storeHouse.getAppType()));
+			    storeHouse.setAs(list);
+			    if(getLocalApp(infoBean.getId(), storeHouse.getAppPack())){
+			    	storeHouse.setLocalstatus(1);
+			    }else{
+			    	storeHouse.setLocalstatus(0);
+			    }
+			    //应用推荐类型列表.
+				List<StoreAppRes> apps = getTypeByApps("local_app_recommend", infoBean,0,6);
+				storeHouse.setApps(apps);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "系统异常");
+		}
+		
+		/* StoreHouseExample houseExample = new StoreHouseExample();
+		 Criteria criteria = houseExample.createCriteria();
+		 criteria.andAppTypeEqualTo(storeHouse);
+		 storeHouse.setApps(apps);*/
+		// map.put("body", storeHouse);
+		
+		 return NotifyUtil.success(storeHouse);
+	}
+
+	@Override
+	public String appraise(String appPack, String token, String desc) {
+		StoreHouse sh =null;
+		try {
+		//	Integer aid = Integer.valueOf(id);
+			UserInfoBean infoBean = queryTokenByUser(token);
+			if(infoBean == null){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+			}
+			 sh = rStoreHouseData.getAppPack(appPack);
+			if(sh ==  null){
+				 sh = storeHouseMapper.getByAppPack(appPack);
+			}else{
+				return NotifyUtil.error(ErrorCodeEnum.NULLOBJECT, "app信息不能为空");
+			}
+				AppAppraise appraise = new AppAppraise();
+				appraise.setCreateTime(new Date());
+				appraise.setContent(desc);
+				appraise.setAppId(sh.getId());
+				appraise.setAppPack(appPack);
+				appraise.setUserId(Integer.valueOf(infoBean.getId()+""));
+				
+				appraise.setUserimg(infoBean.getImage() != null ? infoBean.getImage():"");
+				appraise.setUsername(infoBean.getName() != null ? infoBean.getName():"");
+				appraiseMapper.insertSelective(appraise);
+				//缓存评论
+				rAppraiseData.setAppraise(appPack, appraise);
+				
+				return NotifyUtil.success();
+			
+		  } catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "系统异常");
+		  }
+		
+	}
+		@Override
+		public String recommendApps(String token,Integer type) {
+			//应用推荐类型列表.
+			UserInfoBean infoBean = queryTokenByUser(token);
+			if(infoBean == null){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+			}
+			 int page = 0;
+			 int size =10;
+			if(type == null){
+				type = 1;
+			}
+			
+			String status = "one_click_download";
+			if(type == 1 ){
+				 status = "local_app_recommend";
+			}else if(type == 2) {
+				 status = "home_search_apps";
+			}
+		//	List<AppRecommend> ares =  appRecommendMapper.queryTagId(status);
+			List<StoreAppRes> apps = getTypeByApps(status, infoBean,page,size);
+			
+			return NotifyUtil.success(apps);
+		}
+	
+	
+}

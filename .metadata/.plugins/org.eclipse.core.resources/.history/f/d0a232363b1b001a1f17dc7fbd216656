@@ -1,0 +1,28 @@
+package com.yqbing.commons.utils.es.index;
+
+import java.util.Map;
+
+/**
+ * @version 创建时间:2017年5月16日
+ * 
+ */
+public class Analysis {
+
+	private Map<String, Analyzer> analyzer;
+
+
+	public Map<String, Analyzer> getAnalyzer() {
+		return analyzer;
+	}
+
+	public void setAnalyzer(Map<String, Analyzer> analyzer) {
+		this.analyzer = analyzer;
+	}
+
+	@Override
+	public String toString() {
+		return "Analysis [analyzer=" + analyzer + "]";
+	}
+	
+	
+}

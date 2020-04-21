@@ -1,0 +1,195 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.internal.util.AlipaySignature;
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCode;
+import com.yqbing.servicebing.common.ResultModel;
+import com.yqbing.servicebing.repository.database.dao.WeBankBeanMapper;
+import com.yqbing.servicebing.repository.redis.RAntCredit;
+import com.yqbing.servicebing.service.AntCreditService;
+import com.yqbing.servicebing.utils.DateUtil;
+import com.yqbing.servicebing.utils.PropertiesUtil;
+import com.yqbing.servicebing.utils.ZanClickHttps;
+import com.yqbing.servicebing.webapp.response.AntResponse;
+import com.yqbing.servicebing.webapp.response.TradeFundBill;
+
+@Service("antCreditService")
+@SuppressWarnings("all")
+public  class AntCreditServiceImpl implements AntCreditService{
+
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(AntCreditServiceImpl.class);
+	
+	private static final String privatekey ="MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCDOb1dG+6bsHkGRrun6FcIbZ3DhYEg/M370uIkUx+VYAbFnALxnVADcfatwWvTUXwNUvJVegwz19QRJM+qPbEkFedSMGeiuiQGCNj2hGoBH75dhyTRf8DsUr3eLhRPpiDxUcZn9XwCLGTSPEb1Vq7KHdbWgVBUDuJ+jCYbhWf88u7dZlDa54XMd4Ayq5goXKs9ap8yrr7NCi6r+5pXZoiN0J1agSJsfyx5G/C6HztlK1AOX/pOxz4RMWqHp4bvSaSH71Ef2LoF7rOmQshdokvbWclV3+jdF7xZijeokK0wdwp8WrOTBkE89N7DnKpu2lLw7CvaHOjcwv2BT81D/MD1AgMBAAECggEARUYk7lNBilUF/sc2Z3RjBaMAZuhCe8yZXPg9w5lSEgQobwdmEnDOfZMa+y0ho+PfThVcsr0EVhX48LfzHNcGfZtGi3/cJe6H99uR1cmfQEqmry8Zw7LigJ9JdlHzDP0RZPObfuP7/BW9f7KsbvW8vhw0fvazFjzpWo7Xyy2I8OH4lFlzDjcti/0vTQNTtuX89lt0/Vw9qcrk3Mm91pdYfmfxiEat1p3TJdj9NMAVcA6Ak3EuOdx+LG+rriymwoZObq/29xY8mhOz0Cn14Va87DdyQ2k2HgfKKKcPCgPqETEZUvVZ+HcQ/omZfseCVbLRIpUb3Sl4BZua3mCg7aHi4QKBgQC9LJfx9TyuBbnDYvmLeJXfMWkbG0Bf0DPv1ASxSo+63TXW7NtAadcp0cA9Dmr1WEbP3qIF9Tzl+X6Ebg/PHgllSXk0HbVFzlLjDgvOd6bmroDLZb9lQi8darzFBVIedr4/Gj4hn5YmFu1GI+eC6rXfihDpc/SfiiO3iS8zkkFOTQKBgQCxlLt2RkumdwVmQCuh7NjBsyoi95yUpgHYhp/4GwtzP28B8rnlyhFI2ubqVShc3ozP6LGmz2x2+J1fc+LYcqQB2bqv2cuFUpAOz3nM86EmLwcaG+BsWMPuys1rpQVFJOq+nH72K8FP33ELx3y7gR1oX6PivnArynPCxOO+pxuhSQKBgDf5ufweVJYpm430+2IJjE8+j5s1tRakxLlyQvEy3tSsIAI4k6e7qa72IavvWDbAqDNZ7RdWOW7TJFyLNKJUgPM3imWhZMIDCwOkZFnzja80c2e786ZCry5FJxYlPOdGu4Rwf3Hzhro+jnbyqM5UJPzAHcD2TqvmdCsarJzV6f0BAoGAf4MwFN6nJbIjQ2firNQYVQZkxFUOr0KA4szQg2RQFYJAIKL9T36IaMsesrdRU1ZOwF/zaLdayBb/UfIxuoCfOeDxB6KZXHOLk8bxS/TJC1ULgXjw7nvSvV4MoTYOkbbPhO100SlcFxF36CBndXBiAHdkg8WBYEBwXTPp4RW3ZlkCgYEAqtpAu75US47Hqv2R+gIDiI0nW5azJhx5UJ+63CagMyi5CinzGwTh0uyuXpoyb8WwO1GdahYQCLSmuDB6ySnSDnfZjaZprRaaCOO+gy11ThFxIYimEh1pVX31VeOy9Wx/lIF3o8+GUAhwWz6P6fLLWhmV++xMa2uzEQ9+zfxVvjE=";
+	@Autowired
+	private RAntCredit rAntCredit = null;
+	
+	@SuppressWarnings("rawtypes")
+	@Override
+	public ResultModel refund(Integer StoreId,String out_trade_no, String trade_no,
+			String ali_trade_no) throws Exception{
+		
+		PropertiesUtil.loadFile("antcredit.properties");
+	
+		ResultModel resultModel = ResultModel.success();
+		// TODO Auto-generated method stub
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("out_trade_no", out_trade_no);
+		map.put("trade_no", trade_no);
+		map.put("ali_trade_no", ali_trade_no);
+		//---------------------------------------------------------------------------------------------------------
+		Map<String,String> params = new HashMap<String, String>();
+		params.put("format","JSON");
+		params.put("version","1.0");
+		params.put("charset","utf-8");
+		params.put("app_id",PropertiesUtil.getValue("ant_appId", null));
+		params.put("method","alipay.trade.refund");
+		String dateTimePattern = DateUtil.formatDateTime(new Date());
+		params.put("timestamp",dateTimePattern);
+		
+		params.put("biz_content",new Gson().toJson(map));
+	//	map.put("notify_url","");
+		String str =null;
+		    String content = AlipaySignature.getSignCheckContentV1(params);
+		    try {
+		    	params.put("sign", AlipaySignature.rsa256Sign(content,PropertiesUtil.getValue("ant_privatekey", privatekey),params.get("charset")));
+		    	params.put("sign_type","RSA2");
+		    	str = ZanClickHttps.sendPost(PropertiesUtil.getValue("ant_ceshi", null), map, params);
+			} catch (AlipayApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return resultModel.error(ErrorCode.OTHERS, "获取退款失败");
+			}
+		
+		if(str == null){
+			return resultModel.error(ErrorCode.OTHERS, "获取退款失败");
+		}
+		    JSONObject JSONObject = new JSONObject(str);
+		
+			JSONObject jsonObject3 = JSONObject.getJSONObject("Response");
+			if(jsonObject3.getString("code").equals("10000")) {
+			//	AntResponse antResponse = new AntResponse();
+				
+				rAntCredit.setlist(StoreId, jsonObject3);
+				
+			}else{
+				return resultModel.error(ErrorCode.OTHERS, str);
+			}
+		return resultModel;
+	}
+
+	@Override
+	public ResultModel refundList(Integer storeId) {
+		// TODO Auto-generated method stub
+		ResultModel resultModel = ResultModel.success();
+//		  public String out_trade_no;//	String	是	64	外部订单号	6823789339978248
+//		  public String trade_no;//	String	是	64	点赞交易号	153663098602677101801
+//		  public String ali_trade_no;//	String	是	64	支付宝交易号	2018091122001484291004183978
+//		  public String buyer_logon_id;//	String	是	100	用户的登录id	1771971
+//		  public String fund_change	;//String	是	1	本次退款是否发生了资金变化	Y
+//		  public String refund_fee	;//Price	是	11	退款总金额	88.88
+//		  public String refund_currency;//	String	是	8	退款币种信息	USD
+//		  public String gmt_refund_pay;//	Date	是	32	退款支付时间	2019-09-11 11:45:57
+//		  public String refund_detail_item_list;//	TradeFundBill	否		退款使用的资金渠道	
+//		  public TradeFundBill  tfb;
+//		  public String store_name;//	String	否	512	交易在支付时候的门店名称	望湘园联洋店
+//		  public String buyer_user_id	;//String	是	28	买家在支付宝的用户id	2088101117955611
+//		  public String present_refund_buyer_amount;//buyer_amount	String	否	11	本次退款金额中买家退款金额	88.88
+//		  public String present_refund_discount_amount;//discount_amount	String	否	11	本次退款金额中平台优惠退款金额	88.88
+//		  public String present_refund_mdiscount_amount;/
+		 List<Object> getlist = rAntCredit.getlist(storeId);
+		 List<AntResponse> as = new ArrayList<AntResponse>();
+		 try {
+			 for (Object json : getlist) {
+				 AntResponse antResponse = new AntResponse();
+					
+				 JSONObject jsonObject = new JSONObject(json);
+				 
+				 String out_trade_no = jsonObject.getString("out_trade_no");
+				 
+				 String trade_no = jsonObject.getString("trade_no");
+				 String ali_trade_no = jsonObject.getString("ali_trade_no");
+				 String buyer_logon_id = jsonObject.getString("buyer_logon_id");
+				 String fund_change = jsonObject.getString("fund_change");
+				 antResponse.setOut_trade_no(out_trade_no);
+				 antResponse.setTrade_no(ali_trade_no);
+				 antResponse.setAli_trade_no(ali_trade_no);
+				 antResponse.setBuyer_logon_id(buyer_logon_id);
+				 antResponse.setFund_change(fund_change);
+				 
+				 
+				 
+				 Object refund_fee = jsonObject.get("refund_fee");
+				 antResponse.setRefund_fee(refund_fee);
+				 
+				 String refund_currency = jsonObject.getString("refund_currency");
+				 antResponse.setRefund_currency(refund_currency);
+				 
+				 Object gmt_refund_pay = jsonObject.get("gmt_refund_pay");
+				 antResponse.setGmt_refund_pay(gmt_refund_pay);
+			//	 String refund_detail_item_list = jsonObject.getString("refund_detail_item_list");
+				 String store_name = jsonObject.getString("store_name");
+				 String present_refund_buyer_amount = jsonObject.getString("present_refund_buyer_amount");
+				 String present_refund_discount_amount = jsonObject.getString("present_refund_discount_amount");
+				 String present_refund_mdiscount_amount = jsonObject.getString("present_refund_mdiscount_amount");
+				 
+				 antResponse.setStore_name(store_name);
+				 antResponse.setPresent_refund_buyer_amount(present_refund_buyer_amount);
+				 antResponse.setPresent_refund_discount_amount(present_refund_discount_amount);
+				 antResponse.setPresent_refund_mdiscount_amount(present_refund_mdiscount_amount);
+				 
+				 
+			//	 String refund_currency = jsonObject.getString("tfb");
+				 JSONObject item = jsonObject.getJSONObject("refund_detail_item_list");
+				 TradeFundBill tradeFundBill = new TradeFundBill();
+				 String fund_channel = item.getString("fund_channel");
+				 String  fund_type = item.getString(" fund_type");
+				 Object amount = item.get("amount");
+				 Object real_amount = item.get("real_amount");
+				 tradeFundBill.setFund_channel(fund_channel);
+				 tradeFundBill.setFund_type(fund_type);
+				 tradeFundBill.setAmount(amount);
+				 tradeFundBill.setReal_amount(real_amount);
+				 antResponse.setTfb(tradeFundBill);
+				 as.add(antResponse);
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			resultModel.error(ErrorCode.OTHERS, "参数转换失败");
+			
+		}
+		 resultModel.setResult(as);
+		
+		return resultModel;
+	}
+
+	@Override
+	public ResultModel zanClickLogDatail(Integer storeId, String out_trade_no,
+			String trade_no) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ResultModel zanClickLog(Integer storeId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

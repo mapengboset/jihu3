@@ -1,0 +1,58 @@
+package com.hiko.gym.common.util;
+
+
+import com.alibaba.fastjson.JSON;
+
+public class CoachDesc {
+   private String desc;//介绍
+   private String goods;//善长
+   private String tag;//一句话
+   private String otherDesc;//其他描述
+   public String getOtherDesc() {
+	return otherDesc;
+   }
+
+   public void setOtherDesc(String otherDesc) {
+	this.otherDesc = otherDesc;
+   }
+
+	public String getDesc() {
+	return desc;
+	}
+	
+	public void setDesc(String desc) {
+		this.desc = desc;
+	}
+	
+	public String getGoods() {
+		return goods;
+	}
+	
+	public void setGoods(String goods) {
+		this.goods = goods;
+	}
+	
+	public String getTag() {
+		return tag;
+	}
+	
+	public void setTag(String tag) {
+		this.tag = tag;
+	}
+	
+	public static String  getCoachDesc(String desc,String goods,String tag,String otherDesc){
+			
+			CoachDesc cDesc=new CoachDesc();
+			cDesc.setDesc(StringUtils.isNullOrEmpty(desc)?"":desc);
+			cDesc.setGoods(StringUtils.isNullOrEmpty(goods)?"":goods);
+			cDesc.setTag(StringUtils.isNullOrEmpty(tag)?"":tag);
+			cDesc.setTag(StringUtils.isNullOrEmpty(otherDesc)?"":otherDesc);
+			
+			return JSON.toJSONString(cDesc);
+		}
+	
+	 public static void main(String[] args) {
+		 
+		    System.out.println(getCoachDesc("私教介绍","主要善长的领域","一句话描述我",""));
+	}
+	}

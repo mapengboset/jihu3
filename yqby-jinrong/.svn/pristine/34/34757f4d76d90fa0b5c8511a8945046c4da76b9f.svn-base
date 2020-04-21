@@ -1,0 +1,315 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import javax.annotation.Resource;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
+import net.sf.json.JSONObject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.yqbing.servicebing.common.ErrorCode;
+import com.yqbing.servicebing.common.ResultModel;
+import com.yqbing.servicebing.repository.database.bean.TUserInfoBean;
+import com.yqbing.servicebing.service.AntCreditService;
+import com.yqbing.servicebing.service.TUserInfoBeanService;
+
+@RestController
+@Api(tags = "花呗支付对接接口")
+@CrossOrigin
+@SuppressWarnings("all")
+public class AntCreditController extends BaseController{
+	
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AntCreditController.class);
+	
+	@Resource(name = "userInfoBeanService")
+	private TUserInfoBeanService userInfoBeanService;
+	
+	@Resource(name = "antCreditService")
+	private AntCreditService antCreditService;
+	
+	//创建商铺
+    @RequestMapping(value = "/antcredit/createGroup",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public ResultModel QueryStoreNameOnly(@ApiParam(value = "token") @RequestParam(value = "token", required = true) String token,
+			@RequestParam(value = "storeName", required = true) String storeName,
+			@RequestParam(value = "storeAddress", required = true) String storeAddress,
+			@RequestParam(value = "phone", required = true) String phone,
+			@RequestParam(value = "seller_no", required = true) String seller_no,
+			@RequestParam(value = "result", required = true) String result){
+    	
+    	    ResultModel resultModel = ResultModel.success();
+    	    
+    	    try {
+    	    	
+    		TUserInfoBean validToken = userInfoBeanService.getValidToken(token);
+    		
+    		if (null == validToken) {
+    			LOGGER.error("/laxin/webank{}----------------------------------token 失效"+ token);
+    			
+    			
+    			resultModel = ResultModel.error(ErrorCode.E1020201,ErrorCode.getErrInfo(ErrorCode.E1020201));
+    			
+    			return resultModel;
+    		}
+    		//
+    		LOGGER.info("/antcredit/createGroup--------------------------------------参数集合"+storeName,storeAddress,phone,seller_no,result);
+    		resultModel = antCreditService.createGroup(validToken.getUserId(),storeName,storeAddress,phone,seller_no,result);
+    		
+    		
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.getStackTrace();
+		}
+    	
+    	
+    	
+		return resultModel;
+	} 
+    //判断商户是否已经开过户
+    @RequestMapping(value = "/antcredit/ifCreate",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+    public ResultModel ifCreate(@ApiParam(value = "token") @RequestParam(value = "token", required = true) String token,
+    		@RequestParam(value = "platformId", required = true) Integer platformId){
+    	 ResultModel resultModel = ResultModel.success();
+      	 try {
+  	    	
+ 			TUserInfoBean validToken = userInfoBeanService.getValidToken(token);
+ 			if (null == validToken) {
+ 				LOGGER.error("/laxin/webank{}----------------------------------token 失效"+ token);
+ 				
+ 				resultModel = ResultModel.error(ErrorCode.E1020201,ErrorCode.getErrInfo(ErrorCode.E1020201));
+ 				
+ 				return resultModel;
+ 			}
+ 			    resultModel = antCreditService.ifCreate(validToken.getUserId(),platformId);
+ 			
+ 			
+      	 }catch(Exception e){
+      		 e.getStackTrace();
+      	 }
+    	 
+    	 return  resultModel;
+    }
+    
+	//获取支付宝的UID
+    @RequestMapping(value = "/antcredit/getUid",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+    public void getUid(String store_id,Integer platformId,String data){
+    	 ResultModel resultModel = ResultModel.success();
+    	 try {
+ 	    	
+    		 resultModel =  antCreditService.getUid(store_id, platformId,data);
+    			//
+    			/*String URL = "https://openapi.alipay.com/gateway.do";
+    			String APP_ID = "2018120462475299";
+    			String APP_PRIVATE_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq1bwwrtKHflrtQz2SLXtHKAW5Zlc6nXdlbYSF+8M5HyTiFiKSXjwEXVAhK3XRuMP24a/1YAST7b6ZKTY6JwpBz5jePm6I+h81oBFP8LBsrI1qFEkF4azGLHAnZeYz93KwBhSPqYMzNa/Id9GdovsQSucnSRDv9ez1y1uYIWxJR/uzXTHGJCdnEaIXFCfS63LakH7bBpTOaJ+TU+TBGgZ+b2VyEcW0CxXwodsWk1TYP55l6ab+AUF7nxfv5IhjDR//X0j6SF+8GbyAqDkox1uyfVWtXBsU74StyIDo7IJIJUrrrw6fh+338rRCdDrcP7R7GK+uGmx5ip2XyBaI+aWIQIDAQAB";
+    			String FORMAT = "json";
+    			String CHARSET = "UTF-8";
+    			String ALIPAY_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhc3222v9Ks7NH9ZwzmDEZrzWFoyOrOtrSuI9bdjtIfY8v1DVii9BocVfqMQfNXz1cZQaaVIws3aAmC86gFWEweNayiS+XMEEjGnWk0+XJOt0YArCSx7vUeiGlK1F8zlpu5mMQMByKoDQDy34FtVC3loVGHpfE+imjZr9v4VvM8JhIKrYeCb5P8qsgFujTffh5reGlG5cBJzs82cdS2jTuugijwUxxNTnA0ORRDAui0g6P+iGBbLQcYBsMEDvcqEru5zcfOsgPHyCHt0p6IO/d3sIL4NHV8o1vtoSKqGqk2oS4FgyKxghbabXl5mmf8FrWHuWtGYESobAaAJ9qNjRUwIDAQAB";
+    			String SIGN_TYPE = "RSA2";*/
+    			
+    		//	String apiname = "com.alipay.account.auth";
+    		//	String method = "alipay.open.auth.sdk.code.get";
+    			
+    		//	String auth_type = "AUTHACCOUNT";
+    		//	String sign_type = "RSA2";
+    		//	String sign = "com.alipay.account.auth";
+    			
+    		//	AlipayClient alipayClient = new DefaultAlipayClient(URL, APP_ID, APP_PRIVATE_KEY, FORMAT, CHARSET, ALIPAY_PUBLIC_KEY, SIGN_TYPE);
+    			
+    			
+    			
+    			
+    		} catch (Exception e) {
+    			// TODO: handle exception
+    			e.getStackTrace();
+    		}
+    	
+    }
+  
+    
+    //商户创建的时候回调地址
+    @RequestMapping(value = "/antcredit/notifyCreateOrderNo",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public void notifyCreateOrderNo(String data){
+    	 ResultModel resultModel = ResultModel.success();
+    	try {
+    		resultModel = antCreditService.notifyCreateOrderNo(data);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.getStackTrace();
+		}
+    	
+     
+    }
+    
+	//商户创建结果查询接口(在将资料提交至赞呗后，可通过返回的订单号进行入驻结果查询)
+    @RequestMapping(value = "/antcredit/queryOrderNo",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public ResultModel queryOrderNo(@ApiParam(value = "token") @RequestParam(value = "token", required = true) String token,
+			@RequestParam(value = "store_Id", required = true) Integer store_Id
+		){
+        ResultModel resultModel = ResultModel.success();
+	    
+	    try {
+	    	
+		TUserInfoBean validToken = userInfoBeanService.getValidToken(token);
+		
+		if (null == validToken) {
+			LOGGER.error("/laxin/webank{}----------------------------------token 失效"+ token);
+			
+			
+			resultModel = ResultModel.error(ErrorCode.E1020201,ErrorCode.getErrInfo(ErrorCode.E1020201));
+			
+			return resultModel;
+		}
+		//
+		LOGGER.info("/antcredit/createGroup--------------------------------------参数集合{store_Id:}"+store_Id);
+		resultModel = antCreditService.queryOrderNo(validToken.getUserId(),store_Id);
+		
+		
+	} catch (Exception e) {
+		// TODO: handle exception
+		e.getStackTrace();
+	}
+    	
+    	return resultModel;
+    }
+    
+    
+	// 商户修改接口(审核通过后的商户资料可通过商户修改接口修改商户资料，目前仅开放修改收款账号(修改成功后并不会马上生效))
+    @RequestMapping(value = "/antcredit/editOrderNo",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public ResultModel editOrderNo(@ApiParam(value = "token") @RequestParam(value = "token", required = true) String token,
+			@RequestParam(value = "seller_no", required = true) String seller_no,
+			
+			@RequestParam(value = "result", required = true) String result){
+    	 ResultModel resultModel = ResultModel.success();
+ 	    
+    	 try {
+ 	    	
+    			TUserInfoBean validToken = userInfoBeanService.getValidToken(token);
+    			
+    			if (null == validToken) {
+    				LOGGER.error("/laxin/webank{}----------------------------------token 失效"+ token);
+    				
+    				
+    				resultModel = ResultModel.error(ErrorCode.E1020201,ErrorCode.getErrInfo(ErrorCode.E1020201));
+    				
+    				return resultModel;
+    			}
+    			//
+    			LOGGER.info("/antcredit/createGroup--------------------------------------参数集合{seller_no:}"+seller_no);
+    			resultModel = antCreditService.editOrderNo(seller_no,validToken.getUserId(),result);
+    			
+    		} catch (Exception e) {
+    			// TODO: handle exception
+    			e.getStackTrace();
+    		}
+    
+        return resultModel;
+    
+    }
+	//商户新增回调(审核通过或审核失败时会触发回调，如调用商户创建接口时未传入回调地址，或因商户原因未接受到回调通知可通过商户新增查询结果进行商户审核状态查询)
+    
+    
+    
+    //交易回调(在主扫、被扫交易创建后，交易成功时将交易结果通过创建订单时传入的notify_url推送通知)
+    @RequestMapping(value = "/antcredit/notifyOrderNo",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public ResultModel notifyOrderNo(String data){
+    	
+    	 ResultModel resultModel = ResultModel.success();
+    	 
+    	 try {
+    	//	 JSONObject para = JSONObject.fromObject(data);
+    		 resultModel = antCreditService.notifyOrderNo(data);
+    		 
+		} catch (Exception e) {
+			
+			// TODO: handle exception
+			resultModel.setErrorMessage(e.getLocalizedMessage());
+		}
+    	
+    	return resultModel;
+    }
+    
+    
+	// 订单详情查询接口(创建订单之后可通过该接口查询订单详情)
+    
+    @RequestMapping(value = "/antcredit/queryOrderNoDatil",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public ResultModel queryOrderNoDatil(String data){
+    	 ResultModel resultModel = ResultModel.success();
+    	try {
+    		resultModel = antCreditService.queryOrderNoDatil(data);
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.getStackTrace();
+		}
+    	
+    	return resultModel;
+    }
+    
+  //跳转到付款页面
+    
+    @RequestMapping(value = "/antcredit/payHtml",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public ResultModel payHtml(@ApiParam(value = "token") @RequestParam(value = "token", required = true) String token,
+			@RequestParam(value = "store_Id", required = true) Integer store_Id,
+			@RequestParam(value = "totalAmount", required = true) String totalAmount){
+    	 ResultModel resultModel = ResultModel.success();
+    	 
+ 	    try {
+	    	
+ 			TUserInfoBean validToken = userInfoBeanService.getValidToken(token);
+ 			
+ 			if (null == validToken) {
+ 				LOGGER.error("/laxin/webank{}----------------------------------token 失效"+ token);
+ 				
+ 				
+ 				resultModel = ResultModel.error(ErrorCode.E1020201,ErrorCode.getErrInfo(ErrorCode.E1020201));
+ 				
+ 				return resultModel;
+ 			}
+ 			//
+ 			LOGGER.info("/antcredit/createGroup--------------------------------------参数集合{store_Id:}"+store_Id);
+ 			resultModel = antCreditService.payHtml(validToken.getUserId(),totalAmount);
+ 			
+ 			
+ 		} catch (Exception e) {
+ 			// TODO: handle exception
+ 			e.getStackTrace();
+ 		}
+    	 
+    	try {
+//    		totalAmount
+//    		body
+//    		payType
+//    		merchantId	
+//    		notifyUrl
+//    		signType
+//    		sign
+//    		outTradeNo
+    		resultModel = antCreditService.payHtml(store_Id,totalAmount);
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.getStackTrace();
+		}
+    	
+    	return resultModel;
+    }
+	
+}

@@ -1,0 +1,9 @@
+package com.yqbing.servicebing.repository.redis;
+
+public interface RAntClickDatailLog {
+
+	
+	 void set(String trade_no,String uid);
+	 String  get(String trade_no);
+}
+

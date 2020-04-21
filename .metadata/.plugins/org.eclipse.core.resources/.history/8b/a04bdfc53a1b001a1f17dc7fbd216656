@@ -1,0 +1,176 @@
+package com.hiko.gym.common.repository.redis;
+
+import static org.junit.Assert.*;
+
+import java.util.*;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.test.context.*;
+import org.springframework.test.context.junit4.*;
+
+import com.alibaba.fastjson.*;
+
+/**
+ * 场馆客户运动日期列表测试类
+ * 
+ * @author cychen
+ *
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:spring-config-test.xml" })
+public class RVenueCustomerSportDateListTest {
+
+	/** 场馆客户运动日期列表 */
+	@Autowired
+	private RVenueCustomerSportDateList rVenueCustomerSportDateList = null;
+
+	/**
+	 * 测试添加运动日期
+	 */
+	@Test
+	public void testAdd() {
+		// 初始化
+		String venueCustomerId = null;
+		String sportDate = null;
+
+		// 调用接口
+		rVenueCustomerSportDateList.add(venueCustomerId, sportDate);
+		String last = rVenueCustomerSportDateList.last(venueCustomerId);
+
+		// 打印日志
+		System.out.println("testAdd:");
+		System.out.println(last);
+
+		// 检查结果
+		assertEquals(last, sportDate);
+	}
+
+	/**
+	 * 测试删除运动日期
+	 */
+	@Test
+	public void testRemove() {
+		// 初始化
+		String venueCustomerId = null;
+		String sportDate = null;
+
+		// 调用接口
+		rVenueCustomerSportDateList.add(venueCustomerId, sportDate);
+		Long size = rVenueCustomerSportDateList.size(venueCustomerId) - 1;
+		rVenueCustomerSportDateList.remove(venueCustomerId, sportDate);
+
+		// 打印日志
+		System.out.println("testRemove:");
+		System.out.println(rVenueCustomerSportDateList.size(venueCustomerId));
+
+		// 检查结果
+		assertEquals(rVenueCustomerSportDateList.size(venueCustomerId), size);
+	}
+
+	/**
+	 * 测试存在运动日期
+	 */
+	@Test
+	public void testExist() {
+		// 初始化
+		String venueCustomerId = null;
+		String sportDate = null;
+
+		// 调用接口
+		rVenueCustomerSportDateList.add(venueCustomerId, sportDate);
+		Boolean exist = rVenueCustomerSportDateList.exist(venueCustomerId, sportDate);
+
+		// 打印日志
+		System.out.println("testExist:");
+		System.out.println(exist);
+
+		// 检查结果
+		assertTrue(exist);
+	}
+
+	/**
+	 * 测试递获取列表大小
+	 */
+	@Test
+	public void testSize() {
+		// 初始化
+		String venueCustomerId = null;
+		String sportDate = null;
+
+		// 调用接口
+		rVenueCustomerSportDateList.add(venueCustomerId, sportDate);
+		Long size = rVenueCustomerSportDateList.size(venueCustomerId);
+
+		// 打印日志
+		System.out.println("testSize:");
+		System.out.println(size);
+
+		// 检查结果
+		assertTrue(size > 0);
+	}
+
+	/**
+	 * 测试最后运动日期
+	 */
+	@Test
+	public void testLast() {
+		// 初始化
+		String venueCustomerId = null;
+		String sportDate = null;
+
+		// 调用接口
+		rVenueCustomerSportDateList.add(venueCustomerId, sportDate);
+		String last = rVenueCustomerSportDateList.last(venueCustomerId);
+
+		// 打印日志
+		System.out.println("testLast:");
+		System.out.println(last);
+
+		// 检查结果
+		assertEquals(last, sportDate);
+	}
+
+	/**
+	 * 测试清除列表内容
+	 */
+	@Test
+	public void testClear() {
+		// 初始化
+		String venueCustomerId = null;
+
+		// 调用接口
+		rVenueCustomerSportDateList.clear(venueCustomerId);
+		Long size = rVenueCustomerSportDateList.size(venueCustomerId);
+
+		// 打印日志
+		System.out.println("testClear:");
+		System.out.println(size);
+
+		// 检查结果
+		assertTrue(size == 0l);
+	}
+
+	/**
+	 * 测试获取运动日期
+	 */
+	@Test
+	public void testRange() {
+		// 初始化
+		String venueCustomerId = null;
+		String sportDate = null;
+
+		// 调用接口
+		rVenueCustomerSportDateList.add(venueCustomerId, sportDate);
+		List<String> valueList = rVenueCustomerSportDateList.range(venueCustomerId, 0l, -1l);
+
+		// 打印日志
+		System.out.println("testClear:");
+		System.out.println(JSON.toJSONString(valueList));
+
+		// 检查结果
+		assertTrue(valueList.size() > 0);
+	}
+
+}

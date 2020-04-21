@@ -1,0 +1,40 @@
+package com.yqbing.servicebing.service;
+
+public interface HomePageService {
+    
+	/**
+	 * 
+	
+	 * @Title: homePage
+	
+	 * @Description: TODO
+	
+	 * @param token
+	 * @param device
+	 * @return
+	
+	 * @return: String
+	 */
+	String homePage(String token, String device);
+    
+	/**
+	 * 
+	
+	 * @Title: queryDate
+	
+	 * @Description: TODO
+	
+	 * @param token
+	 * @param type
+	 * @param stime
+	 * @param etime
+	 * @param page
+	 * @param size
+	 * @return
+	
+	 * @return: String
+	 */
+	String queryDate(String token, Integer type, String stime, String etime,
+			Integer page, Integer size);
+
+}

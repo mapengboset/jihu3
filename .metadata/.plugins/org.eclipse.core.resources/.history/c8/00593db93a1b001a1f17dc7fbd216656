@@ -1,0 +1,37 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 睡眠状态类
+ * 
+ * @author cychen
+ *
+ */
+public class SleepStatus {
+
+	/** 清醒 */
+	public static final short SOBER = 2;
+	/** 浅层 */
+	public static final short LIGHT = 0;
+	/** 深层 */
+	public static final short DEEP = 3;
+
+	/**
+	 * 获取睡眠状态描述
+	 * 
+	 * @param sleepStatus 睡眠状态值
+	 * @return 睡眠状态描述
+	 */
+	public static String getDescription(short sleepStatus) {
+		if (sleepStatus == SOBER) {
+			return "清醒";
+		}
+		if (sleepStatus == LIGHT) {
+			return "浅层";
+		}
+		if (sleepStatus == DEEP) {
+			return "深层";
+		}
+		return "";
+	}
+
+}

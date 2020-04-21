@@ -1,0 +1,37 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 蛋白质评级类
+ * 
+ * @author cychen
+ *
+ */
+public class DanbaizhiGrade {
+
+	/** 偏低 */
+	public static final short LOWER = -1;
+	/** 标准 */
+	public static final short STANDARD = 0;
+	/** 偏高 */
+	public static final short HIGHER = 1;
+
+	/**
+	 * 获取蛋白质评级描述
+	 * 
+	 * @param danbaizhiGrade 蛋白质评级值
+	 * @return 蛋白质评级描述
+	 */
+	public static String getDescription(short danbaizhiGrade) {
+		if (danbaizhiGrade == LOWER) {
+			return "偏低";
+		}
+		if (danbaizhiGrade == STANDARD) {
+			return "标准";
+		}
+		if (danbaizhiGrade == HIGHER) {
+			return "偏高";
+		}
+		return "";
+	}
+
+}

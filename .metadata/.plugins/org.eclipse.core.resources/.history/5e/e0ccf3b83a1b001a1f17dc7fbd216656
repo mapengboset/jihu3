@@ -1,0 +1,150 @@
+package com.hiko.gym.common.repository.redis;
+
+import java.io.Serializable;
+import java.sql.Timestamp;
+
+import com.hiko.gym.common.util.TimeHelper;
+
+public class RPaoBuJiRaw implements Serializable,Comparable<RPaoBuJiRaw> {
+	/** 相关属性*/
+	/** 客户标识 */
+	private Long customerId = null;
+	/** 设备序号 */
+	private String deviceNo = null;
+	/** 数据时间 */
+	private Timestamp time = null;
+	/** 距离(米) */
+	private Integer distance = null;
+	/** 坡度(度) */
+	private Integer gradient = null;
+	/** 总时长(秒) */
+	private Integer duration = null;
+	/** 平均速度(公里/小时) */
+	private Double avelocity = null;
+	/** 实时速度(公里/小时) */
+	private Double rvelocity = null;
+	/** 卡路里(千卡) */
+	private Double kaluli = null;
+	/** 电压 */
+	private String voltage = null;
+	/** 数据时间临时字段 */
+	private String timeTemp = null;
+	
+	/**是否小于当前时间**/
+	private Integer isLowNow = 0;
+	
+	/**重量**/
+	private Double weight;
+	/** 常量相关 */
+	/** 运动类型 */
+	public static final String CUSTOMERID = "customerId";
+	/** 运动持续时间 */
+	public static final String DEVICENO = "deviceNo";
+	/** 运动消耗卡路里 */
+	public static final String DISTANCE = "distance";
+	/** 最近运动时刻 */
+	public static final String DURATION = "duration";
+	/** 运动次标识 */
+	public static final String AVELOCITY = "avelocity";
+	/** 运动设备编码 */
+	public static final String RVELOCITY = "rvelocity";
+	/** 运动类型 */
+	public static final String KALULI = "kaluli";
+	/** 运动持续时间 */
+	public static final String VOLTAGE = "voltage";
+	/** 数据时间 */
+	public static final String TIME = "time";
+	/**  坡度(度) */
+	public static final String GRADIENT = "gradient";
+	/** 阻力(磅) */
+	public static final String RESISTANCE = "resistance";
+	/** 次数 */
+	public static final String TIMES = "times";
+	/** 重量 */
+	public static final String WEIGHT = "weight";
+	
+	
+	
+	public Long getCustomerId() {
+		return customerId;
+	}
+	public void setCustomerId(Long customerId) {
+		this.customerId = customerId;
+	}
+	public String getDeviceNo() {
+		return deviceNo;
+	}
+	public void setDeviceNo(String deviceNo) {
+		this.deviceNo = deviceNo;
+	}
+	public Timestamp getTime() {
+		return time;
+	}
+	public void setTime(Timestamp time) {
+		this.time = time;
+		this.timeTemp = TimeHelper.getTimestamp(time);
+	}
+	public Integer getDistance() {
+		return distance;
+	}
+	public void setDistance(Integer distance) {
+		this.distance = distance;
+	}
+	public Integer getGradient() {
+		return gradient;
+	}
+	public void setGradient(Integer gradient) {
+		this.gradient = gradient;
+	}
+	public Integer getDuration() {
+		return duration;
+	}
+	public void setDuration(Integer duration) {
+		this.duration = duration;
+	}
+	public Double getAvelocity() {
+		return avelocity;
+	}
+	public void setAvelocity(Double avelocity) {
+		this.avelocity = avelocity;
+	}
+	public Double getRvelocity() {
+		return rvelocity;
+	}
+	public void setRvelocity(Double rvelocity) {
+		this.rvelocity = rvelocity;
+	}
+	public Double getKaluli() {
+		return kaluli;
+	}
+	public void setKaluli(Double kaluli) {
+		this.kaluli = kaluli;
+	}
+	public String getVoltage() {
+		return voltage;
+	}
+	public void setVoltage(String voltage) {
+		this.voltage = voltage;
+	}
+	public String getTimeTemp() {
+		return timeTemp;
+	}
+	
+	@Override
+	public int compareTo(RPaoBuJiRaw raw) {
+		return this.deviceNo.compareTo(raw.getDeviceNo());
+	}
+	public Integer getIsLowNow() {
+		return isLowNow;
+	}
+	public void setIsLowNow(Integer isLowNow) {
+		this.isLowNow = isLowNow;
+	}
+	public Double getWeight() {
+		return weight;
+	}
+	public void setWeight(Double weight) {
+		this.weight = weight;
+	}
+	
+}

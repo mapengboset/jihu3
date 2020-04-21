@@ -1,0 +1,260 @@
+package com.yqbing.servicebing.utils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.qiniu.common.QiniuException;
+import com.qiniu.http.Response;
+import com.qiniu.storage.BucketManager;
+import com.qiniu.storage.UploadManager;
+import com.qiniu.util.Auth;
+
+public class CloudUtil {
+	
+
+	private static final Logger log = LoggerFactory
+			.getLogger(CloudUtil.class);
+	private static String ACCESS_KEY = "FpfKXdU8KoWjdl2wBeYsV8z762jOFrzapr8eiCeM";
+	private static String SECRET_KEY = "fBLA2PwubAMXzMper9R-4VxG1fYuo-ruhSvmelb3";
+	private static String BUCKET = "yqbing";		//在云存储创建的空间名称
+	private static String TENCENT_BUCKET = "tencent";
+	private static String DOMAIN = "http://p2a60yqmm.bkt.clouddn.com/";
+	private static String TENCENT_DOMAIN = "http://qntencent.yqbing.com/";
+	
+	private static Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
+	private static UploadManager uploadManager = new UploadManager(null);
+	
+	/**
+	 * 获取上传令牌
+	 * @return
+	 */
+	public static String getUploadToken() {
+		return auth.uploadToken(BUCKET);
+	}
+	
+	// 覆盖上传
+	public static String getUpToken1(String key){
+		String str = auth.uploadToken(BUCKET, key);
+	    return str;
+	}
+	
+	public static String getTencentUpToken1(String key){
+		String str = auth.uploadToken(TENCENT_BUCKET, key);
+	    return str;
+	}
+	
+	/**
+	 * 
+	 * @param data	上传文件转换的byte[]
+	 * @param key	上传文件的访问名称，可以采用类似images/headImg/default.png的方式，进行类目录划分
+	 * @return
+	 */
+	public static String uploadFile(byte[] data, String key) {
+		String url = "";
+		try {
+			String auth = getUpToken1(key);
+			Response res = uploadManager.put(data, key, auth, null, null, true);
+			log.info("上传返回内容：" + res.bodyString());
+			url = DOMAIN + URLEncoder.encode(key, "UTF8");
+		} catch(QiniuException e) {
+			Response r = e.response;
+	        // 请求失败时简单状态信息
+	        log.error(r.toString());
+	        e.printStackTrace();
+	        try {
+	            // 响应的文本信息
+	            log.error(r.bodyString());
+	        } catch (QiniuException e1) {
+	            //ignore
+	        }
+		} catch(UnsupportedEncodingException ue) {
+			ue.printStackTrace();
+		}
+		
+		return url;
+	}
+	
+	/**
+	 * 
+	 * @param data	上传文件转换的byte[]
+	 * @param key	上传文件的访问名称，可以采用类似images/headImg/default.png的方式，进行类目录划分
+	 * @return
+	 */
+	public static String uploadFileNoCover(byte[] data) {
+		String url = "";
+		String key = StringUtils.EMPTY;
+		try {
+			String auth = getUploadToken();
+			Response res = uploadManager.put(data, null, auth, null, null, true);
+			log.info("上传返回内容：" + res.bodyString());
+			JSONObject obj = JSONObject.fromObject(res.bodyString());
+			if(StringUtils.isNotBlank(obj.get("key").toString())){
+				key = obj.get("key").toString();
+			}
+			url = DOMAIN + URLEncoder.encode(key, "UTF8");
+		} catch(QiniuException e) {
+			Response r = e.response;
+	        // 请求失败时简单状态信息
+	        log.error(r.toString());
+	        e.printStackTrace();
+	        try {
+	            // 响应的文本信息
+	            log.error(r.bodyString());
+	        } catch (QiniuException e1) {
+	            //ignore
+	        }
+		} catch(UnsupportedEncodingException ue) {
+			ue.printStackTrace();
+		}
+		
+		return url;
+	}
+	
+	/**
+	 * 指定高宽上传图片
+	 * @param data	 上传文件转换的byte[]
+	 * @param key	 上传文件的访问名称，可以采用类似images/headImg/default.png的方式，进行类目录划分
+	 * @param width  图片宽度
+	 * @param height 图片高度
+	 * @return
+	 */
+	public static String uploadImage(byte[] data, String key, int width, int height) {
+		String url = "";
+		try {
+			Response res = uploadManager.put(data, key, getUploadToken(), null, null, true);
+			log.info("上传返回内容：" + res.bodyString());
+			url = DOMAIN + URLEncoder.encode(key, "UTF8");
+		} catch(QiniuException e) {
+			Response r = e.response;
+	        // 请求失败时简单状态信息
+	        log.error(r.toString());
+	        e.printStackTrace();
+	        try {
+	            // 响应的文本信息
+	            log.error(r.bodyString());
+	        } catch (QiniuException e1) {
+	            //ignore
+	        }
+		} catch(UnsupportedEncodingException ue) {
+			ue.printStackTrace();
+		}
+		
+		return url;
+	}
+	
+	/**
+	 * 
+	 * @Title: deleteImage 
+	 * @Description: TODO(单个图片删除) 
+	 * @param: @param key 图片访问路径
+	 * @param: @return    
+	 * @return: boolean    
+	 * @throws 
+	 */
+	public static boolean deleteImage(String key){
+		// 实例化一个BucketManager对象
+		BucketManager bucketManager = new BucketManager(auth, null);
+		boolean flag = false;
+		try {
+			// 调用delete方法移动文件
+			bucketManager.delete(BUCKET, key);
+			flag = true;
+		} catch (QiniuException e) {
+			// 捕获异常信息
+			Response r = e.response;
+			log.info(r.toString());
+		}
+		return flag;
+	}
+	
+	
+	
+	/**
+	 * 本方法用做測試用
+	 * @param filePath
+	 * @return
+	 */
+	public static byte[] getBytes(String filePath) {
+		byte[] buffer = null;  
+        try {  
+            File file = new File(filePath);  
+            FileInputStream fis = new FileInputStream(file);  
+            ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);  
+            byte[] b = new byte[1000];  
+            int n;  
+            while ((n = fis.read(b)) != -1) {  
+                bos.write(b, 0, n);  
+            }  
+            fis.close();  
+            bos.close();  
+            buffer = bos.toByteArray();  
+        } catch (FileNotFoundException e) {  
+            e.printStackTrace();  
+        } catch (IOException e) {  
+            e.printStackTrace();  
+        }  
+        return buffer;  
+	}
+	
+	public static String uploadTencentFile(byte[] data, String key) {
+		String url = "";
+		try {
+			String auth = getTencentUpToken1(key);
+			Response res = uploadManager.put(data, key, auth, null, null, true);
+			log.info("上传返回内容：" + res.bodyString());
+			url = TENCENT_DOMAIN + URLEncoder.encode(key, "UTF8");
+		} catch(QiniuException e) {
+			Response r = e.response;
+	        // 请求失败时简单状态信息
+	        log.error(r.toString());
+	        e.printStackTrace();
+	        try {
+	            // 响应的文本信息
+	            log.error(r.bodyString());
+	        } catch (QiniuException e1) {
+	            //ignore
+	        }
+		} catch(UnsupportedEncodingException ue) {
+			ue.printStackTrace();
+		}
+		
+		return url;
+	}
+	
+	
+	public static void main(String[] args) {
+//		byte[] bytes = getBytes("D:\\test.png");
+		byte[] bytes = getBytes("/Users/18630/Desktop/微信截图_20181203112557.png");
+//		
+		//String url = uploadFile(bytes, "index-icon-201810311126");
+		String url = uploadTencentFile(bytes, "yqby-tencent-SN");
+		System.out.println("url:  " + url);
+//		byte[] bytes = getBytes("D:\\byte.png");
+//		
+//		String url = uploadFile(bytes, ImageConstant.QRCODE_USER_IMAGE);
+//		System.out.println("url:  " + url);
+		
+		//String url = uploadFile(bytes, ImageConstant.QRCODE_USER_IMAGE);
+		//System.out.println("url:  " + url);
+		
+//		try {
+//			byte[] bytess = QRCodeUtil.geneQRCode("5215", "5215");
+//			String url = uploadFile(bytess, ImageConstant.QRCODE_USER_IMAGE);
+//			System.out.println("url:  " + url);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
+	}
+	
+}

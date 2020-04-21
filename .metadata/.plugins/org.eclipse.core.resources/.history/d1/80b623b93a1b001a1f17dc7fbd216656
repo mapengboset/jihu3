@@ -1,0 +1,37 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 管理员状态类
+ * 
+ * @author cychen
+ *
+ */
+public class ManagerStatus {
+
+	/** 正常 */
+	public static final short NORMAL = 1;
+	/** 冻结 */
+	public static final short FROZEN = 2;
+	/** 删除 */
+	public static final short DELETED = 3;
+
+	/**
+	 * 获取管理员状态描述
+	 * 
+	 * @param managerStatus 管理员状态值
+	 * @return 管理员状态描述
+	 */
+	public static String getDescription(short managerStatus) {
+		if (managerStatus == NORMAL) {
+			return "正常";
+		}
+		if (managerStatus == FROZEN) {
+			return "冻结";
+		}
+		if (managerStatus == DELETED) {
+			return "删除";
+		}
+		return "";
+	}
+
+}

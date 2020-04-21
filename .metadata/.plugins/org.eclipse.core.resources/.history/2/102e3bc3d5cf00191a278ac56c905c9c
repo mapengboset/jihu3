@@ -1,0 +1,168 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.docx4j.model.datastorage.XPathEnhancerParser.main_return;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.WealthLog;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.WealthLogMapper;
+import com.yqbing.servicebing.repository.jihuc.bean.AppBanner;
+import com.yqbing.servicebing.repository.jihuc.dao.AppBannerExample;
+import com.yqbing.servicebing.repository.jihuc.dao.AppBannerExample.Criteria;
+import com.yqbing.servicebing.repository.jihuc.dao.AppBannerMapper;
+import com.yqbing.servicebing.service.CommonService;
+import com.yqbing.servicebing.service.HomePageService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.webapp.response.HomeRes;
+import com.yqbing.servicebing.webapp.response.WorkRes;
+
+@Service("homePageService")
+@SuppressWarnings("all")
+public class HomePageServiceImpl  extends CommonService implements HomePageService{
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(HomePageServiceImpl.class);
+    
+	@Resource
+	public AppBannerMapper appBannerMapper;
+	@Resource
+	public WealthLogMapper wealthLogMapper;
+	
+	@Override
+	public String homePage(String token, String device) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+		
+		HomeRes home = new HomeRes();
+		List<WorkRes> works = new ArrayList<WorkRes>();
+		WorkRes res1 = new WorkRes();
+		WorkRes res2 = new WorkRes();
+		WorkRes res3 = new WorkRes();
+		WorkRes res4 = new WorkRes();
+		WorkRes res5 = new WorkRes();
+		WorkRes res6 = new WorkRes();
+		Byte s = 0;
+		//获取首页图片
+		AppBannerExample picex = new AppBannerExample();
+ 		Criteria criteria = picex.createCriteria();
+ 		criteria.andAppCategoryIdEqualTo("ticket_banner").andStatusEqualTo(s);
+ 		picex.setOrderByClause(" sort");
+ 		List<AppBanner> pic = appBannerMapper.selectByExample(picex);
+ 		home.setPic(pic);
+ 		
+ 		//支付宝拉新
+		
+ 		//淘宝拉新
+		
+ 		//ETC拉新
+ 
+ 		
+ 		
+		//获取业务收益
+ 		Integer money1 = wealthLogMapper.queryByWealth(1,infoBean.getId());
+ 		res1.setType(1);//支付宝
+ 		BigDecimal decimal = new BigDecimal(100);
+ 		if(money1 != null){
+ 			res1.setMongey(new BigDecimal(money1).divide(decimal));
+ 			
+ 		}
+ 		works.add(res1);
+ 		Integer money2 = wealthLogMapper.queryByWealth(2,infoBean.getId());
+ 		res2.setType(2);//淘宝
+ 		if(money2 != null){
+ 			res2.setMongey(new BigDecimal(money2/100));
+ 			
+ 		}
+ 		works.add(res2);
+ 		Integer money3 = wealthLogMapper.queryByWealth(3,infoBean.getId());
+ 		res3.setType(3);//ETC
+ 		if(money3 != null){
+ 			res3.setMongey(new BigDecimal(money3/100));
+ 			
+ 		}
+ 		works.add(res3);
+		//彩票收益
+ 		Integer money4 = wealthLogMapper.queryByWealthDate(0,infoBean.getId());
+ 		res4.setType(4);//今天
+ 		if(money4 != null){
+ 			res4.setMongey(new BigDecimal(money4/100)); 
+ 			
+ 		}
+ 		works.add(res4);
+ 		
+ 		Integer money5 = wealthLogMapper.queryByWealthDateWeek(0,infoBean.getId());
+ 		res5.setType(5);//这周
+ 		if(money5 != null){
+ 			res5.setMongey(new BigDecimal(money5/100));
+ 			
+ 		}
+ 		works.add(res5);
+ 		
+ 		Integer money6 = wealthLogMapper.queryByWealthDateMoth(0,infoBean.getId());
+ 		res6.setType(6);//本月
+ 		if(money6 != null){
+ 			res6.setMongey(new BigDecimal(money6/100));
+ 			
+ 		}
+ 		works.add(res6);
+
+ 		home.setWorks(works);
+		return NotifyUtil.success(home);
+	}
+
+	
+	@Override
+	public String queryDate(String token, Integer type, String stime,
+			                    String etime, Integer page, Integer size) {
+		    //page*size,size
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		} 
+		
+		List<WealthLog> weas = null;
+		if(type == 0){
+			
+			if(!StringUtils.isBlank(stime)&&!StringUtils.isBlank(etime)){
+				stime = stime+" :00:00:00";
+				etime = etime+" :23:59:59";
+				 weas = wealthLogMapper.queryDateStime(infoBean.getId(),stime,etime,page*size,size,type);
+			}else{
+				
+				weas = wealthLogMapper.queryDateStime(infoBean.getId(),null,null,page*size,size,0);
+			}
+			
+			
+			
+		}else{
+			if(!StringUtils.isBlank(stime)&&!StringUtils.isBlank(etime)){
+				stime = stime+" :00:00:00";
+				etime = etime+" :23:59:59";
+				weas = wealthLogMapper.queryDateWeksStime(infoBean.getId(),stime,etime,page*size,size,0);
+			}else{
+				
+				weas = wealthLogMapper.queryDateWeksStime(infoBean.getId(),null,null,page*size,size,0);
+			}
+		}
+		
+		
+		return NotifyUtil.success(weas);
+	}
+	
+}

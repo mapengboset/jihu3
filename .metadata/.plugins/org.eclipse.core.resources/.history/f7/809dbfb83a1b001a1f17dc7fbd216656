@@ -1,0 +1,224 @@
+package com.hiko.gym.common.util;
+
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.security.*;
+
+import org.slf4j.*;
+
+import com.owtelse.codec.Base64;
+
+/**
+ * 加密辅助类
+ * 
+ * @author cychen
+ *
+ */
+public class EncryptHelper {
+
+	/** 日志相关 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(EncryptHelper.class);
+
+	/**
+	 * 转化MD5编码
+	 * 
+	 * @param value 字符串值
+	 * @return MD5编码
+	 */
+	public static String toMD5(String value) {
+		try {
+			MessageDigest digest = MessageDigest.getInstance("MD5");
+			digest.update(value.getBytes());
+			return HexHelper.toHexFromBytes(digest.digest());
+		}
+		catch (NoSuchAlgorithmException e) {
+			LOGGER.warn("转化MD5编码异常", e);
+		}
+		return "";
+	}
+
+	/**
+	 * 加密车牌号码
+	 * 
+	 * @param plateNumber 车牌号码
+	 * @return 加密车牌号码
+	 */
+	public static String encryptPlateNumber(String plateNumber) {
+		// 检查空
+		if (plateNumber == null || "".equals(plateNumber)) {
+			return plateNumber;
+		}
+
+		// 初始化
+		StringBuilder sb = new StringBuilder();
+
+		// 加密数据
+		if (plateNumber != null && plateNumber.length() > 4) {
+			sb.append(plateNumber.substring(0, 1));
+			int length = plateNumber.length() - 4;
+			for (int i = 0; i < length; i++) {
+				sb.append("*");
+			}
+			sb.append(plateNumber.substring(plateNumber.length() - 3));
+		}
+		else {
+			sb.append(plateNumber);
+		}
+
+		// 返回数据
+		return sb.toString();
+	}
+
+	/**
+	 * 加密电话号码
+	 * 
+	 * @param phoneNumber 电话号码
+	 * @return 加密电话号码
+	 */
+	public static String encryptPhoneNumber(String phoneNumber) {
+		// 检查空
+		if (phoneNumber == null || "".equals(phoneNumber)) {
+			return phoneNumber;
+		}
+
+		// 初始化
+		StringBuilder sb = new StringBuilder();
+
+		// 加密数据
+		if (phoneNumber != null && phoneNumber.length() > 7) {
+			sb.append(phoneNumber.substring(0, 3));
+			int length = phoneNumber.length() - 7;
+			for (int i = 0; i < length; i++) {
+				sb.append("*");
+			}
+			sb.append(phoneNumber.substring(phoneNumber.length() - 4));
+		}
+		else {
+			sb.append(phoneNumber);
+		}
+
+		// 返回数据
+		return sb.toString();
+	}
+
+	/**
+	 * 加密银行卡号
+	 * 
+	 * @param cardno 银行卡号
+	 * @return 加密银行卡号
+	 */
+	public static String encryptCardno(String cardno) {
+		// 检查空
+		if (cardno == null || "".equals(cardno)) {
+			return cardno;
+		}
+
+		// 初始化
+		StringBuilder sb = new StringBuilder();
+
+		// 加密数据
+		int index = cardno.indexOf("@");
+		// 加密数据: 邮箱
+		if (index != -1) {
+			if (index > 3) {
+				sb.append(cardno.substring(0, 3));
+				for (int i = 0; i < index - 3; i++) {
+					sb.append("*");
+				}
+			}
+			else {
+				sb.append(cardno.substring(0, index));
+			}
+			sb.append(cardno.substring(index));
+		}
+		// 加密数据: 卡号
+		else {
+			if (cardno.length() > 4) {
+				sb.append("尾号");
+				sb.append(cardno.substring(cardno.length() - 4));
+			}
+			else {
+				sb.append(cardno);
+			}
+		}
+
+		// 返回数据
+		return sb.toString();
+	}
+
+	/**
+	 * 加密账户户名
+	 * 
+	 * @param holder 账户户名
+	 * @return 加密账户户名
+	 */
+	public static String encryptHolder(String holder) {
+		// 检查空
+		if (holder == null || "".equals(holder)) {
+			return holder;
+		}
+
+		// 初始化
+		StringBuilder sb = new StringBuilder();
+
+		// 加密数据
+
+		if (holder.length() > 1) {
+			sb.append(holder.substring(0, 1));
+			int length = holder.length() - 1;
+			for (int i = 0; i < length; i++) {
+				sb.append("*");
+			}
+		}
+		else {
+			sb.append(holder);
+		}
+
+		// 返回数据
+		return sb.toString();
+	}
+	/**
+	 * base64加密
+	 * @param arg 加密内容
+	 * @return 加密后的内容
+	 * @throws Exception
+	 */
+	public static String encodeBase64URL(String arg) throws Exception{	
+		if(StringUtils.isNullOrBlank(arg))return "";
+		String content = new String(Base64.encode(URLEncoder.encode(arg,"UTF-8").getBytes()));
+		return content;
+	}
+	/**
+	 * base64解密
+	 * @param arg 解密内容
+	 * @return 解密后的内容
+	 * @throws Exception
+	 */
+	public static String decodeBase64URL(String arg)throws Exception{
+		String content = URLDecoder.decode(new String(Base64.decode(arg.getBytes())),"UTF-8");
+		return content;
+	}
+	/**
+	 * url加密
+	 * @param arg 加密内容
+	 * @return 加密后的内容
+	 * @throws Exception
+	 */
+	public static String encodeURL(String arg) throws Exception{		
+		String content = URLEncoder.encode(arg,"UTF-8");
+		return content;
+	}
+	/**
+	 * 解密
+	 * @param arg 解密内容
+	 * @return 解密后的内容
+	 * @throws Exception
+	 */
+	public static String decodeURL(String arg)throws Exception{
+		String content = URLDecoder.decode(arg,"UTF-8");
+		return content;
+	}
+	public static void main(String[] args) {
+		System.out.println(toMD5("77777777"));
+	}
+}

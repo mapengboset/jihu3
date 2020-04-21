@@ -1,0 +1,68 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import java.io.IOException;
+
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+
+/**
+ * 支付宝sdk接口调用公共类
+ * @author gavin
+ *
+ */
+public class AlipayClientUtils {
+	
+	
+	private static final String PARAM_FORMAT = "json";
+	private static final String APP_ID = "2018120462475299";
+	private static final String CHARSET_UTF8 = "utf-8";
+
+	// TOP服务地址，正式环境需要设置为http://gw.api.taobao.com/router/rest
+	private static final String sign_type = "RSA2";
+	private static final String serverUrl = "https://openapi.alipay.com/gateway.do";
+	private static final String appKey = "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCjF6v3g5/+rcRGyFpJIblk6jZCYasLBDLqq/Cro9Y/Vu46bmIFBPfm7CQKxvIEn8g534PLI7ClZd8l1sw3jbIdQenKoeDay//YgaID88/agvFaLN9VnnGl0V1lGn9DvnOlomihofN+QIMsl+qgrUXOIiGIM2MEfxDmh8Q+gsmt0QNbeMmOB+O8qsr1gnFp8ZyodqtSW2qhdBMnaYvQtIMkS4BfsKHr7XSDZEm8Ap5kZyaS9hv+3dzVssIv7quh4Cskwfx5LuLhwaTOYLahYFKtlfr1mHiaZ0aywWmPzX+7UqEVG62922FdWLDPBZ/YRPV+bnPvw2EQJfoVfOTQCrblAgMBAAECggEAWp+Mrrw06w8jQTGS+ZADtE9wVvJuWHC82ikwUi93nTpwpYcwcBmSpn4QiOyDDo66c23/jaEHRuCUXjI8x6G0lw1JG49Xojw4rdVacVfI52JbOgA1GR4xiDIN82AF1168ZA0alrWm10CBowXHGgEuCJxuhYAIRTdV7MMECLgj2LCnXxm07x2N18rHP/YyNoHcZkSmwOwSeEeEtzTY98Efp7xyqsUoMC+MkFM+64FXlrIoVB+RrYOaGmfqlWJxRjXka3hzAWTLExyHk1syvGGmicszPdOBoIgZTfpN2wuRaYFhlbVI0qDQmtq8Tk26csLKSzhtI3/LHiWUP0nn/YboAQKBgQDgJvhrBsNC3z+1zJ7Zpw6E76INFhsZubGue7yDxTfPIneNYFYNuEK9XzURrAUOzWCgKNH3i7x2VmLeKGthnR0huZFW/QdtbKu0eafeSTaXR1nQbZGNe8t9E48+veE2XtF/eKQUHlhnILTdT6MjT2gUgk/DwFQrEz6tLpX6hDhJjQKBgQC6Q8p2wvn2336pGvWvvgWaXUQa0mO5B4U58BuYmmAxsf70hXwwZXCzF9AuLFVFoqeZt3h1yra3uG/MpyPcZ3eaDk4gWrF+gzRYX7mzvFmgjJPreu6ghKuT7VfDo9ptbl5o/CNAfCAy9Mya+FctWL3bCZkeN6q4s6zoT/gvh8fQuQKBgA/xFZffCkIWSJywadfG9tRjip3tpY3F1Co5qKWigB6eL+yBHn2pTi3TuJ2CI3XzC104qf42FPhBmpR8QW7W0ryUSw7pvf59TRTv1g2MHXLS40Ncl459cHJ70qM+s+a/BZ1QQjMgGV90Rwi6YjrfqeJThkLAyfuqSbndZ1NC1hH9AoGBAKJszRflDE6QNAZIwSfgP0iNvf7ZqiZGfZG5ZIcdT3bmbZpS8KnPO4ig4mPxOua/YQF1cTDedZkd1zgSI/5lp3EKumwSSic1SKcrymcGfu22yKKWj5IgPvJ/DIJI1weIMAHCpQbtdrKYr/cPSg38DYr9Aq3MAy6PV985JQZllAPZAoGAdXCu5vMt9HmOoznTA+8ewLe3venf+B6AjaS1kRjTHteUrcMt03K0tVQWrlhcLGhAmo3wsfmHBasxR1n4gndIIVzF+9uUOOxNhnFr+9n5IdLc1e/i7hgXtboW8rZRcGtgWH+KWpVvacTEBgwqkSg5OYP3Wm/6/B3uhFNLPH34i5A=";
+	private static final String alipay_public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoxer94Of/q3ERshaSSG5ZOo2QmGrCwQy6qvwq6PWP1buOm5iBQT35uwkCsbyBJ/IOd+DyyOwpWXfJdbMN42yHUHpyqHg2sv/2IGiA/PP2oLxWizfVZ5xpdFdZRp/Q75zpaJooaHzfkCDLJfqoK1FziIhiDNjBH8Q5ofEPoLJrdEDW3jJjgfjvKrK9YJxafGcqHarUltqoXQTJ2mL0LSDJEuAX7Ch6+10g2RJvAKeZGcmkvYb/t3c1bLCL+6roeArJMH8eS7i4cGkzmC2oWBSrZX69Zh4mmdGssFpj81/u1KhFRutvdthXViwzwWf2ET1fm5z78NhECX6FXzk0Aq25QIDAQAB";
+	/**
+	 * 调用淘宝客新用户订单API--导购
+	 * @param pageSize 页大小
+	 * @param pageNo 页码
+	 * @param pid 广告位Id
+	 * @param activityId 活动Id
+	 * @param startTime 查询开始日期
+	 * @param endTime 查询结束日期
+	 */
+	public static void getOrderbyCallDgApi(String pid, String reportDate, String partnerId) throws IOException {
+		
+		AlipayClient alipayClient =
+			new DefaultAlipayClient(serverUrl, APP_ID, appKey, PARAM_FORMAT, CHARSET_UTF8, alipay_public_key , sign_type);
+		AlipayUserInviteOfflinesummaryQueryRequest request = new AlipayUserInviteOfflinesummaryQueryRequest();
+		request.setBizContent("{" +
+		"\"pid\":\"2088332563861483\"," +
+		"\"report_date\":\"20181212\"," +
+		"\"partner_id\":\"m_qvdao1_qvdao2\"" +
+		" }");
+		AlipayUserInviteOfflinesummaryQueryResponse response = null;
+		try {
+			response = alipayClient.execute(request);
+		} catch (AlipayApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(response.isSuccess()){
+			System.out.println("调用成功");
+		} else {
+			System.out.println("调用失败");
+		}
+		return response;
+	}
+
+
+	public static void main(String[] args) {
+		try {
+			System.out.println(getOrderbyCallDgApi("","",""));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+}

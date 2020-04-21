@@ -1,0 +1,37 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 客户关注关系类
+ * 
+ * @author cychen
+ *
+ */
+public class CustomerAttentionRelation {
+
+	/** 未关注 */
+	public static final short NONE = 0;
+	/** 已关注 */
+	public static final short ATTENTIONED = 1;
+	/** 相互关注 */
+	public static final short BOTH = 2;
+
+	/**
+	 * 获取客户关注关系描述
+	 * 
+	 * @param customerAttentionRelation 客户关注关系值
+	 * @return 客户关注关系描述
+	 */
+	public static String getDescription(short customerAttentionRelation) {
+		if (customerAttentionRelation == NONE) {
+			return "未关注";
+		}
+		if (customerAttentionRelation == ATTENTIONED) {
+			return "已关注";
+		}
+		if (customerAttentionRelation == BOTH) {
+			return "相互关注";
+		}
+		return "";
+	}
+
+}

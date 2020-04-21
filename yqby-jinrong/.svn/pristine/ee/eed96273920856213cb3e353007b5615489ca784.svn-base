@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+
+
+    <!-- 基础数据源相关  定义数据源的Bean ，数据库的sessionFactory-->
+	<bean id="dataDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${base.jdbc.driverClassName}" />
+		<property name="url" value="${base.jdbc.url}" />
+		<property name="username" value="${base.jdbc.username}" />
+		<property name="password" value="${base.jdbc.password}" />
+		<property name="initialSize" value="${base.dbcp.initialSize}" />
+		<property name="maxActive" value="${base.dbcp.maxActive}" />
+		<property name="maxIdle" value="${base.dbcp.maxIdle}" />
+		<property name="maxWait" value="${base.dbcp.maxWait}" />
+		<property name="poolPreparedStatements" value="${base.dbcp.poolPreparedStatements}" />
+		<property name="defaultAutoCommit" value="${base.dbcp.defaultAutoCommit}" />
+		<property name="timeBetweenEvictionRunsMillis" value="${base.dbcp.timeBetweenEvictionRunsMillis}" />
+		<property name="minEvictableIdleTimeMillis" value="${base.dbcp.minEvictableIdleTimeMillis}" />
+	</bean>
+
+	<!-- 创建SqlSessionFactory -->
+	<bean id="dataSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:mybatis/mybatis-config-data.xml"/>
+		<property name="dataSource" ref="dataDataSource"/>
+		<property name="plugins">
+			<array><!--pagehelper 分页查询控件 -->
+				<bean class="com.github.pagehelper.PageInterceptor">
+					<property name="properties">
+						<value>
+							helperDialect=oracle
+						</value>
+					</property>
+				</bean>
+			</array>
+		</property>
+	</bean>
+	<bean id="dataSqlSession" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+		<constructor-arg index="0" ref="dataSqlSessionFactory"/>
+	</bean>
+
+
+	<aop:config proxy-target-class="true">
+		<aop:advisor advice-ref="druid-stat-interceptor" pointcut-ref="druid-stat-pointcut"/>
+	</aop:config>
+
+
+	<bean id="druid-stat-interceptor" class="com.alibaba.druid.support.spring.stat.DruidStatInterceptor"/>
+	<bean id="druid-stat-pointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut" scope="prototype">
+		<property name="patterns">
+			<list>
+				<value>ccom.yqbing.servicebing.service.*</value>
+				<value>com.yqbing.servicebing.repository.database.dao.*</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 自动扫描映射器 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.yqbing.servicebing.repository.database.dao"/>
+		<property name="sqlSessionTemplateBeanName" value="dataSqlSession"/>
+	</bean>
+
+
+
+	
+</beans>

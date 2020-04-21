@@ -1,0 +1,112 @@
+package com.hiko.gym.common.repository.redis;
+
+import static org.junit.Assert.*;
+
+import javax.annotation.*;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.springframework.test.context.*;
+import org.springframework.test.context.junit4.*;
+
+/**
+ * 客户推送令牌对象测试类
+ * 
+ * @author cychen
+ *
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:spring-config-test.xml" })
+public class RCustomerPushTokenObjectTest {
+
+	/** 客户推送令牌对象 */
+	@Resource(name = "rCustomerPushTokenObject")
+	private RCustomerPushTokenObject rCustomerPushTokenObject = null;
+
+	/**
+	 * 测试设置客户推送令牌对象函数
+	 */
+	@Test
+	public void testSet() {
+		// 初始化
+		Long customerId = null;
+		RCustomerPushToken rCustomerPushToken = new RCustomerPushToken();
+
+		// 赋值参数
+		customerId = null; // TODO:
+		rCustomerPushToken.setOsType(null); // TODO:
+		rCustomerPushToken.setPushToken(null); // TODO:
+
+		// 调用接口
+		rCustomerPushTokenObject.set(customerId, rCustomerPushToken);
+
+		// 检查存在
+		assertTrue(rCustomerPushTokenObject.get(customerId) != null);
+	}
+
+	/**
+	 * 测试获取客户推送令牌对象函数
+	 */
+	@Test
+	public void testGet() {
+		// 初始化
+		Long customerId = null;
+		RCustomerPushToken rCustomerPushToken = new RCustomerPushToken();
+
+		// 赋值参数
+		customerId = null; // TODO:
+		rCustomerPushToken.setOsType(null); // TODO:
+		rCustomerPushToken.setPushToken(null); // TODO:
+
+		// 调用接口
+		rCustomerPushTokenObject.set(customerId, rCustomerPushToken);
+
+		// 检查存在
+		assertTrue(rCustomerPushTokenObject.get(customerId) != null);
+	}
+
+	/**
+	 * 测试删除客户推送令牌对象函数
+	 */
+	@Test
+	public void testRemove() {
+		// 初始化
+		Long customerId = null;
+		RCustomerPushToken rCustomerPushToken = new RCustomerPushToken();
+
+		// 赋值参数
+		customerId = null; // TODO:
+		rCustomerPushToken.setOsType(null); // TODO:
+		rCustomerPushToken.setPushToken(null); // TODO:
+
+		// 保存对象
+		rCustomerPushTokenObject.set(customerId, rCustomerPushToken);
+		assertTrue(rCustomerPushTokenObject.get(customerId) != null);
+
+		// 删除对象
+		rCustomerPushTokenObject.remove(customerId);
+		assertTrue(rCustomerPushTokenObject.get(customerId) == null);
+	}
+
+	/**
+	 * 测试存在客户推送令牌对象函数
+	 */
+	@Test
+	public void testExist() {
+		// 初始化
+		Long customerId = null;
+		RCustomerPushToken rCustomerPushToken = new RCustomerPushToken();
+
+		// 赋值参数
+		customerId = null; // TODO:
+		rCustomerPushToken.setOsType(null); // TODO:
+		rCustomerPushToken.setPushToken(null); // TODO:
+
+		// 保存对象
+		rCustomerPushTokenObject.set(customerId, rCustomerPushToken);
+
+		// 检查存在
+		assertTrue(rCustomerPushTokenObject.exist(customerId));
+	}
+
+}

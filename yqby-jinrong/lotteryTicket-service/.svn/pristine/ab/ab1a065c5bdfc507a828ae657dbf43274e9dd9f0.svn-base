@@ -1,0 +1,8 @@
+package com.yqbing.servicebing.repository.redis;
+
+public interface GoodsOrderLog {
+
+	
+	public Long increment(long time);
+	
+}

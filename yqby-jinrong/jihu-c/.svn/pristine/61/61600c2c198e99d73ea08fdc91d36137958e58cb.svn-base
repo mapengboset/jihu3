@@ -1,0 +1,962 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.AppBanner;
+import com.yqbing.servicebing.repository.database.bean.AppCoupon;
+import com.yqbing.servicebing.repository.database.bean.AppModule;
+import com.yqbing.servicebing.repository.database.bean.AppRecommend;
+import com.yqbing.servicebing.repository.database.bean.ScreenService;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+import com.yqbing.servicebing.repository.database.bean.SysDict;
+import com.yqbing.servicebing.repository.database.bean.UserAddress;
+import com.yqbing.servicebing.repository.database.bean.UserAppTask;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.dao.AppBannerExample;
+import com.yqbing.servicebing.repository.database.dao.AppBannerExample.Criteria;
+import com.yqbing.servicebing.repository.database.dao.AppBannerMapper;
+import com.yqbing.servicebing.repository.database.dao.AppCouponExample;
+import com.yqbing.servicebing.repository.database.dao.AppCouponMapper;
+import com.yqbing.servicebing.repository.database.dao.AppModuleExample;
+import com.yqbing.servicebing.repository.database.dao.AppModuleMapper;
+import com.yqbing.servicebing.repository.database.dao.AppRecommendMapper;
+import com.yqbing.servicebing.repository.database.dao.ScreenServiceExample;
+import com.yqbing.servicebing.repository.database.dao.ScreenServiceMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseMapper;
+import com.yqbing.servicebing.repository.database.dao.SysDictExample;
+import com.yqbing.servicebing.repository.database.dao.SysDictMapper;
+import com.yqbing.servicebing.repository.database.dao.UserAddressExample;
+import com.yqbing.servicebing.repository.database.dao.UserAddressMapper;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskExample;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskMapper;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.redis.RScreenServiceData;
+import com.yqbing.servicebing.repository.redis.RStoreHouseData;
+import com.yqbing.servicebing.repository.redis.RUserAddressData;
+import com.yqbing.servicebing.repository.redis.RUserAppTaskData;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.service.CommonService;
+import com.yqbing.servicebing.service.HomePageService;
+import com.yqbing.servicebing.utils.DateUtil;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.utils.SendUtils;
+import com.yqbing.servicebing.webapp.response.AppCouponRes;
+import com.yqbing.servicebing.webapp.response.HomeAppRes;
+import com.yqbing.servicebing.webapp.response.HomeModel;
+import com.yqbing.servicebing.webapp.response.HomeNewRes;
+import com.yqbing.servicebing.webapp.response.ScreenRes;
+import com.yqbing.servicebing.webapp.response.StoreAppRes;
+import com.yqbing.servicebing.webapp.response.StoreTypeRes;
+import com.yqbing.servicebing.webapp.response.homePageRes;
+
+
+@Service("homePageService")
+@SuppressWarnings("all")
+public class HomePageServiceImpl extends CommonService implements HomePageService{
+	
+     @Resource
+	 private AppBannerMapper appBannerMapper= null;
+     @Resource
+     private SysDictMapper sysDictMapper= null;
+     @Resource
+	 private StoreHouseMapper storeHouseMapper= null;
+     @Resource
+     private UserAddressMapper userAddressMapper= null;
+     @Resource
+     private ScreenServiceMapper screenServiceMapper= null;
+     @Value("${charg_service}")
+	 private   String  chargHttps;
+     @Resource
+	 private AppRecommendMapper appRecommendMapper= null;
+     @Resource
+	 private AppCouponMapper appCouponMapper= null;
+     @Resource
+	 private RStoreHouseData rStoreHouseData = null;
+     @Resource
+     private RScreenServiceData rScreenServiceData = null;
+     @Resource
+     private RUserAddressData rUserAddressData = null;
+     @Resource
+	 private RUserAppTaskData rUserAppTaskData = null;
+     @Resource
+	 private UserAppTaskMapper userAppTaskMapper = null;
+     @Resource
+	 private UserInfoBeanMapper userInfoBeanMapper = null;
+     @Resource
+     private AppModuleMapper appModuleMapper = null;
+     @Resource
+	 private RUserLogBean rUserLogBean = null;
+	 private static final Logger LOGGER = LoggerFactory.getLogger(HomePageServiceImpl.class);
+	 
+	 
+	 @Override
+		public String homeNew(String token, String device) {
+			UserInfoBean infoBean = queryTokenByUser(token);
+			if(infoBean == null){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+			}
+			Byte s = 0;
+			short y= 3;
+			HomeNewRes res = null;	        	 
+			try {
+				res = new HomeNewRes();
+	        	addUserActionLog(infoBean.getId(), "活动首页", "", device, y);
+	        	 
+	        	AppBannerExample picex = new AppBannerExample();
+	     		Criteria criteria = picex.createCriteria();
+	     		criteria.andAppCategoryIdEqualTo("home_banner").andStatusEqualTo(s);
+	     		picex.setOrderByClause(" sort");
+	     		List<AppBanner> pic = appBannerMapper.selectByExample(picex);
+	     		res.setPic(pic);//图片
+	        	 
+	        	 AppModuleExample example = new AppModuleExample();
+	        	 //example.createCriteria().and
+	        	 AppModule am =  appModuleMapper.selectByCode("top_page_module");
+	        	 example.createCriteria().andParentIdEqualTo(am.getId()).andStatusEqualTo(0);
+	        	 example.setOrderByClause(" sort");
+	        	 List<AppModule> list = appModuleMapper.selectByExample(example);
+	        	 List<HomeModel> models = new ArrayList<HomeModel>();
+	        	 for (AppModule ad : list) {
+	        		 
+	        		 HomeModel model = new HomeModel();
+	        		 model.setName(ad.getName());
+	        		 model.setPid(ad.getId());
+	        		 model.setStyle(ad.getStyle());
+	        		 model.setIsMore(ad.getIsMore());
+	        		 model.setIsMark(ad.getIsMark());
+	        		 List<AppRecommend> ares =  appRecommendMapper.queryTagId(ad.getId()+"",infoBean.getId(),0,10);
+	        		 List<HomeAppRes> apps = new ArrayList<HomeAppRes>();
+	        		 for (AppRecommend a : ares) {
+	        			 
+	        			 HomeAppRes appRes = new HomeAppRes();
+	        					StoreHouse	 sh = storeHouseMapper.getByAppPack(a.getAppId());
+	        					if(sh == null){
+	        						continue;
+	        					}
+	        						appRes.setSort(a.getSort());
+	        						LOGGER.info("-----------------------------------首页信息"+new Gson().toJson(sh));
+	        						appRes.setAppName(sh.getAppName());
+	        						appRes.setAppPake(sh.getAppPack());
+	        						appRes.setAppType(getAppType(sh.getAppType()));
+	        						appRes.setImg(sh.getAppUrlImg());
+	        						appRes.setUrl(sh.getAppUrl());
+	        						appRes.setId(sh.getId());
+	        						appRes.setTAGID(a.getTagId());
+	        						appRes.setType(sh.getIsSelf());
+	        						appRes.setIsHot(a.getIsHot());
+	        						appRes.setLocalstatus(0);
+	        						apps.add(appRes);
+	        						model.setApps(apps);
+					}
+	        		 models.add(model);
+				 }
+	        	 res.setModels(models);
+	        	 
+	        	 
+			} catch (Exception e) {
+				e.printStackTrace();
+				new RuntimeException();
+			}
+			
+			
+			return NotifyUtil.success(res);
+		}
+	 
+	@Override
+	public String homePage(String token,String device) {
+		// TODO Auto-generated method stub
+		//或者首页大图
+		
+		
+		
+		Byte s = 0;
+		String typeapp = "home_tag";
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		short y= 3;
+		try {
+			
+			
+        	 addUserActionLog(infoBean.getId(), "活动首页", "", device, y);
+		} catch (Exception e) {
+			e.printStackTrace();
+			new RuntimeException();
+		}
+		homePageRes res = new homePageRes();
+		/*if(StringUtils.isNotBlank(type)){
+			if(Integer.valueOf(type) == 2){
+				typeapp = "game_type";
+			}
+		}*/
+		Map<String,List<HomeAppRes>> map = new HashMap<String, List<HomeAppRes>>();
+		AppBannerExample example = new AppBannerExample();
+		Criteria criteria = example.createCriteria();
+		criteria.andAppCategoryIdEqualTo("home_banner").andStatusEqualTo(s);
+		example.setOrderByClause(" sort");
+		List<AppBanner> pic = appBannerMapper.selectByExample(example);
+		res.setPic(pic);//图片
+		SysDictExample example2 = new SysDictExample();
+		example2.createCriteria().andParentKeyEqualTo(typeapp);
+		List<SysDict> list = sysDictMapper.selectByExample(example2);
+		for (SysDict sysDict : list) {
+			List<HomeAppRes> apps = new ArrayList<HomeAppRes>();
+			String fldkey = sysDict.getFldkey();
+			List<AppRecommend> ares =  appRecommendMapper.queryTagId(fldkey,infoBean.getId(),0,10);
+			for (AppRecommend a : ares) {
+				HomeAppRes appRes = new HomeAppRes();
+			//	StoreHouse sh = rStoreHouseData.getAppPack(a.getAppId());
+			//	if(sh ==  null){
+				StoreHouse	 sh = storeHouseMapper.getByAppPack(a.getAppId());
+					 
+			//	}
+				if(sh == null){
+					continue;
+				//	return NotifyUtil.error(ErrorCodeEnum.NULLOBJECT, "app信息不存在");
+				}
+				//在我的下载列表 存在不在展示
+				/*if(getIsTrue( infoBean, sh)){
+					continue;
+				}*/
+			/*	if(userAppTask != null){
+					continue;
+				}*/
+					
+					appRes.setSort(a.getSort());
+					LOGGER.info("-----------------------------------首页信息"+new Gson().toJson(sh));
+					appRes.setAppName(sh.getAppName());
+					appRes.setAppPake(sh.getAppPack());
+					appRes.setAppType(getAppType(sh.getAppType()));
+					appRes.setImg(sh.getAppUrlImg());
+					appRes.setUrl(sh.getAppUrl());
+					appRes.setId(sh.getId());
+					appRes.setTAGID(a.getTagId());
+					appRes.setType(sh.getIsSelf());
+					appRes.setIsHot(a.getIsHot());
+                   // if(getLocalApp(infoBean.getId(), sh.getAppPack())){
+                   // 	 appRes.setLocalstatus(1);
+                   // 	 continue;
+				//	}else{
+						appRes.setLocalstatus(0);
+				//	}
+					appRes.setTngIDName(sysDict.getName());
+					apps.add(appRes);
+			}
+           /* if(apps != null && apps.size() > 6){
+				
+				List<HomeAppRes> subList = apps.subList(0, 6);
+				map.put(fldkey, subList);
+			}else{*/
+				
+				map.put(fldkey, apps);
+		//	}
+			res.setApps(map);
+		}
+		
+//		Map<String,Object> map = new HashMap<String,Object>();
+//		map.put("body",res);
+		 
+		return NotifyUtil.success(res);
+	}
+	
+	@Override
+	public String moreApp(String token,Integer type ,String page, String size) {
+		// TODO Auto-generated method stub
+	//	Integer type1 = 1;
+		Integer startIndex = 0;
+		Integer pageSize = 15;
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		Map<String,Object> map = new HashMap<String,Object>();
+		List<StoreTypeRes> sts = new ArrayList<StoreTypeRes>();
+		try {
+			
+			
+			if(StringUtils.isNotBlank(page)){
+				
+				startIndex =  Integer.valueOf(page);
+			}
+			if(StringUtils.isNotBlank(size)){
+				pageSize =  Integer.valueOf(size);
+			}
+			SysDictExample example = new SysDictExample();
+			
+			example.createCriteria().andParentKeyEqualTo("app_type").andBaseValueIn(getAppsType(type));
+			List<SysDict> list = sysDictMapper.selectByExample(example);
+			for (SysDict s : list) {
+				StoreTypeRes res = new StoreTypeRes();
+				res.setName(s.getName());
+				res.setSeq(s.getSeq());
+				res.setImg(s.getExtraValue());
+				res.setValue(s.getBaseValue());
+				/*List<StoreAppRes> sas = new ArrayList<StoreAppRes>();
+					
+				List<StoreHouse> stores =	storeHouseMapper.queryByType(startIndex*pageSize,pageSize,Integer.valueOf(s.getBaseValue()));
+		
+				for (StoreHouse storeHouse : stores) {
+					
+					if(getIsTrue(infoBean, storeHouse)){
+						continue;
+					}
+						StoreAppRes storeAppRes = new StoreAppRes();
+						storeAppRes.setAppName(storeHouse.getAppName());
+						storeAppRes.setAppPake(storeHouse.getAppPack());
+						storeAppRes.setId(storeHouse.getId());
+						storeAppRes.setImg(storeHouse.getAppUrlImg());
+					//	storeAppRes.setStatus(); //已经下载的任务查询是否已经下载
+						storeAppRes.setUrl(storeHouse.getAppUrl());
+						storeAppRes.setModel(s.getBaseValue());
+						if(getLocalApp(infoBean.getId(), storeHouse.getAppPack())){
+							
+							storeAppRes.setLocalstatus(1);
+						}else{
+							storeAppRes.setLocalstatus(0);
+						}
+						sas.add(storeAppRes);
+				}
+				
+					res.setStores(sas);
+				*/
+				
+				sts.add(res);
+				
+			}
+		//	map.put("body",sts);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "获取失败请重新尝试");
+		}
+		
+	//	sysDictMapper.queryType(startIndex,pageSize,type1);
+		
+		return NotifyUtil.success(sts);
+	}
+
+	@Override
+	public String moreTypeApp(String token, String page, String size,
+			String type) {
+		Integer type1 = 1;
+		Integer startIndex = 1;
+		Integer pageSize = 15;
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		Map<String,Object> map = new HashMap<String,Object>();
+		try {
+			
+			if(StringUtils.isNotBlank(type)){
+				type1 = Integer.valueOf(type);
+			}
+			if(StringUtils.isNotBlank(page)){
+				
+				startIndex =  Integer.valueOf(page);
+			}
+			if(StringUtils.isNotBlank(size)){
+				pageSize =  Integer.valueOf(size);
+			}
+		
+			List<StoreAppRes> sas = new ArrayList<StoreAppRes>();
+			List<StoreHouse> stores =	storeHouseMapper.queryByType(startIndex*pageSize,pageSize,type1);
+			for (StoreHouse storeHouse : stores) {
+				/*if(getIsTrue(infoBean, storeHouse)){
+					continue;
+				}*/
+				StoreAppRes storeAppRes = new StoreAppRes();
+				storeAppRes.setAppName(storeHouse.getAppName());
+				storeAppRes.setAppPake(storeHouse.getAppPack());
+				storeAppRes.setId(storeHouse.getId());
+				storeAppRes.setImg(storeHouse.getAppUrlImg());
+			//	storeAppRes.setStatus(); //已经下载的任务查询是否已经下载
+				storeAppRes.setUrl(storeHouse.getAppUrl());
+				storeAppRes.setAppType(getAppType(storeHouse.getAppType()));
+				if(getLocalApp(infoBean.getId(), storeHouse.getAppPack())){
+					
+					storeAppRes.setLocalstatus(1);
+				}else{
+					storeAppRes.setLocalstatus(0);
+				}
+				storeAppRes.setType(1);
+				sas.add(storeAppRes);
+			}
+		
+		//	map.put("body",sas);
+			
+			return NotifyUtil.success(sas);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "获取失败请重新尝试");
+		}
+		
+	//	sysDictMapper.queryType(startIndex,pageSize,type1);
+		
+		
+		
+			
+	}
+   
+
+   
+	@Override
+	public String welfarePage(String token,Integer page, Integer size,Integer plat,Integer type ) {
+		// TODO Auto-generated method stub
+		
+		String  apptype = "";
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		byte s = 0;
+		List<String> pl = getPlat(plat);
+		if(null == type){
+			apptype = "app_coupon_type";
+			
+		}else if(type == 2){
+			apptype ="internet_bar_type";
+		}else if(type == 3){
+			apptype ="web_game_type";
+		}else{
+			apptype = "app_coupon_type";
+		}
+	
+		 List<AppCoupon> list = null;
+		 List<AppCouponRes> apps = null;
+		try {
+			 AppCouponExample example = new AppCouponExample();
+			 com.yqbing.servicebing.repository.database.dao.AppCouponExample.Criteria criteria = example.createCriteria();
+			/* if(plat == 2){//只展示ios
+				 criteria.andIsShowIosEqualTo("1");
+			 }*/
+			 criteria.andCategoryIdEqualTo(apptype).andStatusEqualTo(s).andIsShowIosIn(pl);
+			 example.setOrderByClause(" sort ");
+			// example.setPage(" limt "+page+","+size);
+			 list = appCouponMapper.selectByExampleWithBLOBs(example);
+			 apps  = new ArrayList<AppCouponRes>();
+			 for (AppCoupon a : list) {
+				AppCouponRes res = new  AppCouponRes();
+				res.setCategoryId(a.getCategoryId());
+				res.setContent(a.getContent());
+				res.setId(a.getId());
+				res.setImgUrl(a.getImgUrl());
+				res.setIsDisplayQrcode(a.getIsDisplayQrcode());// 0.显示 -1.不显示
+		
+              //  if(a.getLinkUrl().startsWith("htt")){//链接
+                	//a
+                	//a.getQrcodeType()//1:支付宝，2：淘宝 3:京东'
+                	if(StringUtils.isNotBlank(a.getQrcodeType())){
+                		if(a.getQrcodeType().equals("3")){
+                			
+                			res.setLinkUrl(a.getLinkUrl());
+                		}else{
+                			
+                			//店铺邀请码
+                			res.setLinkUrl(getQCode(a.getQrcodeType(),infoBean.getInviteCode()));
+                		}
+                	} else if(a.getLinkUrl().startsWith("htt")){
+                		
+                		res.setLinkUrl(a.getLinkUrl());
+                	
+                	res.setSte(0);//0.链接 1.下载 
+                }else{
+                	StoreHouse house = storeHouseMapper.getByAppPack(a.getLinkUrl());
+                	if(house != null){
+                		res.setLinkUrl(house.getAppUrl());
+                		res.setSte(1);//0.链接 1.下载 res
+                		res.setImg(house.getAppUrlImg());
+                		if(getLocalApp(infoBean.getId(), house.getAppPack())){
+                		res.setLocalstatus(1);
+                		res.setAppPake(house.getAppPack());
+                	    }else{
+                	    	res.setAppPake(house.getAppPack());
+                	    	res.setLocalstatus(0);
+                	    	
+                	    }
+                	    }else{
+                	    	res.setLinkUrl(a.getLinkUrl());
+                	    	res.setSte(0);
+                	    }
+                }
+				
+               //res.setSte(0);
+				res.setPublishtime(a.getPublishtime());
+				res.setSource(a.getSource());
+				res.setTitle(a.getTitle());
+				apps.add(res);
+			}
+			 
+			 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+			return NotifyUtil.success(apps);
+	 }
+
+	@Override
+	public String phoneService(String token, String insureName,
+			String insurePhone, String insureCare, String phoneModel,
+			String phoneBrand, String phoneImei) {
+		
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		ScreenService screenService = rScreenServiceData.get(infoBean.getId()+"");
+        if(screenService != null){
+        	if(screenService.getStatus() != -1)
+        	return NotifyUtil.error(ErrorCodeEnum.NOTSCREEN, "保障中");
+        }
+		screenService = new ScreenService();
+		screenService.setCreateTime(new Date());
+		screenService.setInsureCare(insureCare);
+		screenService.setInsureName(insureName);
+		screenService.setInsurePhone(insurePhone);
+		screenService.setMoney(0.00);
+		screenService.setMonth(1);
+		screenService.setPhoneBrand(phoneBrand);
+		screenService.setPhoneImei(phoneImei);
+		screenService.setPhoneModel(phoneModel);
+		screenService.setStatus(1);//0.正常 -1.失效 1,保障中
+		screenService.setType(0);// '0.免费 1,收费 ',
+		screenService.setUserId(infoBean.getId());
+		try {
+			
+			screenServiceMapper.insertSelective(screenService);		
+			
+			rScreenServiceData.set(infoBean.getId()+"",1, screenService);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "系统错误");
+		}
+		
+		
+		return NotifyUtil.success();
+	}
+
+	@Override
+	public String phoneServiceAddress(String token, String name, String phone,String address) {
+		// TODO Auto-generated method stub
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		UserAddress useraddress = new UserAddress();
+		useraddress.setUserId(infoBean.getId());
+		useraddress.setPhone(phone);
+		useraddress.setName(name);
+		useraddress.setType(0);//0,全部  1.碎屏险 
+		//address.sets(0);//0.默认地址  1.失效
+		
+		if(StringUtils.isNotBlank(address)){
+			String[] adds = address.split(",");
+			if(adds.length == 1){
+				useraddress.setAddress(address);
+			}else{
+				useraddress.setProvinceId(Integer.valueOf(adds[3]));
+				useraddress.setProvinceName(adds[0]);
+				useraddress.setCityId(Integer.valueOf(adds[4]));
+				useraddress.setCityName(adds[1]);
+			
+				useraddress.setAreaId(Integer.valueOf(adds[5]));
+				useraddress.setAreaName(adds[2]);
+				if(adds.length> 6){
+					
+					useraddress.setAddress(adds[6]);
+				}
+			}
+			
+			
+		}
+		
+		try {
+			
+			userAddressMapper.insertSelective(useraddress);
+			
+			rUserAddressData.set(infoBean.getId()+"", useraddress);
+			
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "系统错误");
+		}
+		
+		return NotifyUtil.success();
+	}
+
+	
+	
+	@Override
+	public String queryScreen(String token) {
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		ScreenRes res = new ScreenRes ();
+	//	UserAddress userAddress = rUserAddressData.get(infoBean.getId()+"");
+			UserAddress userAddress = null;
+		if(null == userAddress){
+			UserAddressExample userAddressExample = new UserAddressExample();
+			userAddressExample.createCriteria().andStatusEqualTo(0).andUserIdEqualTo(infoBean.getId());
+			List<UserAddress> list2 = userAddressMapper.selectByExample(userAddressExample);
+			if(list2 != null && list2.size() > 0){
+				userAddress = list2.get(0);
+				if(userAddress != null){
+					
+					rUserAddressData.set(infoBean.getId()+"", userAddress);
+				}
+			}
+		}
+	//	ScreenService screenService = rScreenServiceData.get(infoBean.getId()+"");
+		ScreenService screenService =null;
+        if(null == screenService){
+        	ScreenServiceExample serviceExample = new ScreenServiceExample();
+        	serviceExample.createCriteria().andUserIdEqualTo(infoBean.getId()).andStatusNotEqualTo(-1);
+        	List<ScreenService> list = screenServiceMapper.selectByExample(serviceExample);
+            if(list != null && list.size() > 0){
+            	 screenService = list.get(0);
+            	 rScreenServiceData.set(infoBean.getId()+"",1, screenService);
+			}
+		}
+        if(null == screenService){
+        	res.setIsSuccess(2);
+        	return NotifyUtil.success(res);
+        }
+        res.setIsSuccess(1);
+    	res.setAddname(userAddress != null ?userAddress.getName():"");
+    	res.setAddphone(userAddress != null ?userAddress.getPhone():"");
+    	res.setAddress(userAddress != null ?userAddress.getProvinceName()+"-"+userAddress.getCityName()+"-"+userAddress.getAreaName()+"-"+userAddress.getAddress():"");
+       
+    //	res.setContent("");
+    	res.setInsureCare(screenService.getInsureCare());
+    	res.setInsureName(screenService.getInsureName());
+    	res.setInsurePhone(screenService.getInsurePhone());
+    	res.setOrderTime(DateUtil.formatDateTime(screenService.getCreateTime()));
+    	res.setPhoneBrand(screenService.getPhoneBrand());
+    	res.setPhoneImei(screenService.getPhoneImei());
+    	res.setPhoneModel(screenService.getPhoneModel());
+   // 	ScreenService service = rScreenServiceData.get(infoBean.getId()+"");
+    	
+    	
+    	
+    	Date date = DateUtil.addMonth(screenService.getCreateTime(), screenService.getMonth());
+    	
+    	res.setSEtime(DateUtil.format(screenService.getCreateTime())+"-"+DateUtil.format(date));//开始结束
+
+    		
+    	int monthes = DateUtil.getBetweenMonthes(date, screenService.getCreateTime());
+    	if(monthes > screenService.getMonth()){//0 失效
+    			
+    			res.setStatus(-1);//0 失效
+    		//	screenService.setStatus(-1);
+    	//		screenServiceMapper.updateByPrimaryKey(screenService);
+    		}else{
+    			res.setStatus(screenService.getStatus());//1 baozhong
+    		}
+    
+    	
+    	res.setTime(screenService.getMonth());
+    	
+		return NotifyUtil.success(res);
+	}
+
+	//f返回二维码连接
+	public String getQCode(String s,String invite){
+		//获取连接
+		
+		  Map<String,String> map = new HashMap<String, String>();
+			 map.put("invitationCode", invite);
+			 String ideas = null;
+			 try {
+				 if(s.equals("1")){
+						
+					 ideas = SendUtils.doPost(chargHttps+"/kxzs/aliPayLink", map);
+				}else if(s.equals("2")){
+					 ideas = SendUtils.doPost(chargHttps+"/kxzs/taobaoLink", map);
+					
+				} 
+				 
+				 JSONObject JSONOb = new JSONObject(ideas);
+				 
+				 int code = JSONOb.getInt("code");
+				 
+				 if(code != 0){
+					 
+					 return "";
+				 }
+				 return JSONOb.getString("body");
+				 
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			 return null;
+		
+	}
+
+	
+	
+	@Override
+	public String ioswelfarePage(String token, Integer page, Integer size,
+			Integer plat, Integer type) {
+		Byte s = 0;
+		List<String> p1 = getPlat(plat);
+		
+		// TODO Auto-generated method stub
+			//	Byte s = 0;
+				String  apptype = "";
+				UserInfoBean infoBean = queryTokenByUser(token);
+				if(infoBean == null){
+					return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+					
+				}
+				if(plat == null){
+					plat = 2;
+					
+				}
+			
+				if(plat == 2){
+					apptype = "app_article_type_ios";
+					
+				}
+				 List<AppCoupon> list = null;
+				 List<AppCouponRes> apps = null;
+				try {
+					 AppCouponExample example = new AppCouponExample();
+					 example.createCriteria().andCategoryIdEqualTo(apptype).andStatusEqualTo(s).andIsShowIosIn(p1);
+					 example.setOrderByClause(" sort desc");
+					// example.setPage(" limt "+page+","+size);
+					 list = appCouponMapper.selectByExampleWithBLOBs(example);
+					 apps  = new ArrayList<AppCouponRes>();
+					 for (AppCoupon a : list) {
+						AppCouponRes res = new  AppCouponRes();
+						res.setCategoryId(a.getCategoryId());
+						res.setContent(a.getContent());
+						res.setId(a.getId());
+						res.setImgUrl(a.getImgUrl());
+						res.setIsDisplayQrcode(a.getIsDisplayQrcode());// 0.显示 -1.不显示
+				
+		                if(a.getLinkUrl().startsWith("htt")){//链接
+		                	//a
+		                	//a.getQrcodeType()//1:支付宝，2：淘宝 3:京东'
+		                	if(StringUtils.isNotBlank(a.getQrcodeType())){
+		                		
+		                		//店铺邀请码
+		                		res.setLinkUrl(getQCode(a.getQrcodeType(),infoBean.getInviteCode()));
+		                	}else{
+		                		
+		                		res.setLinkUrl(a.getLinkUrl());
+		                	}
+		                	res.setSte(0);//0.链接 1.下载 
+		                }
+						
+		               //res.setSte(0);
+						res.setPublishtime(a.getPublishtime());
+						res.setSource(a.getSource());
+						res.setTitle(a.getTitle());
+						apps.add(res);
+					}
+					 
+					 
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+					return NotifyUtil.success(apps);
+			 }
+
+	
+	@Override
+	public String readingPage(String token, Integer type) {
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		String apptype = "";
+		if(null == type){
+			apptype = "app_article_type_android";
+			
+		}else if(type == 1){//小说
+			apptype ="app_article_type_android";
+		}else if(type == 2){
+			apptype = "mobile_recovery_type";
+		}else if(type == 3){
+			apptype = "mobile_repair_type";
+		}
+		byte s = 0;
+		 AppCouponExample example = new AppCouponExample();
+		 example.createCriteria().andCategoryIdEqualTo(apptype).andStatusEqualTo(s);
+	
+		 List<AppCoupon> list = appCouponMapper.selectByExampleWithBLOBs(example);
+		 if(null == list || list.size() == 0){
+			 return NotifyUtil.success();
+		 }
+		 return NotifyUtil.success(list.get(0));
+	}
+	public List<String> getPlat(Integer plat){
+		String i = "0";
+		String i1 = "1";
+		String i2 = "2";
+		List<String> pl = new ArrayList<String>();
+		pl.add(i2);
+		if(plat == null){
+			plat =1;
+		}
+		if(plat == 1){//android
+			pl.add(i);
+		}else{//ios
+			pl.add(i1);
+		}
+		return pl;
+	}
+
+	
+	
+	@Override
+	public String moreModelApp(String token, Integer page, Integer size,
+			Integer id) {
+		
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		 List<AppRecommend> ares =  appRecommendMapper.queryTagId(id+"",infoBean.getId(),page*size,size);
+		 List<HomeAppRes> apps = new ArrayList<HomeAppRes>();
+		 for (AppRecommend a : ares) {
+			 
+			 HomeAppRes appRes = new HomeAppRes();
+					StoreHouse	 sh = storeHouseMapper.getByAppPack(a.getAppId());
+					if(sh == null){
+						continue;
+					}
+						appRes.setSort(a.getSort());
+						LOGGER.info("-----------------------------------首页信息"+new Gson().toJson(sh));
+						appRes.setAppName(sh.getAppName());
+						appRes.setAppPake(sh.getAppPack());
+						appRes.setAppType(getAppType(sh.getAppType()));
+						appRes.setImg(sh.getAppUrlImg());
+						appRes.setUrl(sh.getAppUrl());
+						appRes.setId(sh.getId());
+						appRes.setTAGID(a.getTagId());
+						appRes.setType(sh.getIsSelf());
+						appRes.setIsHot(a.getIsHot());
+						appRes.setLocalstatus(0);
+						
+						apps.add(appRes);
+		}
+		return NotifyUtil.success(apps);
+	}
+
+	
+	
+	@Override
+	public String gameRank(String token, Integer page, Integer size, String type) {
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		
+		 AppModuleExample example = new AppModuleExample();
+   	      //example.createCriteria().and
+   	  
+   	     example.createCriteria().andCodeEqualTo(type).andStatusEqualTo(0).andIsMoreEqualTo(0);
+   	     example.setOrderByClause(" sort");
+   	     List<AppModule> list = appModuleMapper.selectByExample(example);
+		 List<AppRecommend> ares =  appRecommendMapper.queryTagRankId(list.get(0).getId()+"",infoBean.getId(),page*size,size);
+		 
+		 List<HomeAppRes> apps = new ArrayList<HomeAppRes>();
+		 for (AppRecommend a : ares) {
+			 
+			 HomeAppRes appRes = new HomeAppRes();
+					StoreHouse	 sh = storeHouseMapper.getByAppPack(a.getAppId());
+					if(sh == null){
+						continue;
+					}
+						appRes.setSort(a.getSort());
+						LOGGER.info("-----------------------------------首页信息"+new Gson().toJson(sh));
+						appRes.setAppName(sh.getAppName());
+						appRes.setAppPake(sh.getAppPack());
+						appRes.setAppType(getAppType(sh.getAppType()));
+						appRes.setImg(sh.getAppUrlImg());
+						appRes.setUrl(sh.getAppUrl());
+						appRes.setId(sh.getId());
+						appRes.setTAGID(a.getTagId());
+						appRes.setType(sh.getIsSelf());
+						appRes.setIsHot(a.getIsHot());
+						if(getLocalApp(infoBean.getId(), sh.getAppPack())){
+							
+							appRes.setLocalstatus(1);
+						}else{
+							appRes.setLocalstatus(0);
+						}
+						
+						apps.add(appRes);
+		}
+		return NotifyUtil.success(apps);
+	}
+
+	
+	
+	@Override
+	public String recommendNewApps(String token, Integer type) {
+		
+		//应用推荐类型列表.
+		UserInfoBean infoBean = queryTokenByUser(token);
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		 int page = 0;
+		 int size =10;
+		if(type == null){
+			type = 1;
+		}
+		String status = "one_click_download";
+		if(type == 1 ){
+			 status = "local_app_recommend";
+		}else if(type == 2) {
+			 status = "home_search_apps";
+		}
+	
+		List<StoreAppRes> apps = getTypeByApps(status, infoBean,page,size);
+		
+		return NotifyUtil.success(apps);
+	}
+
+	
+	
+	
+}
+	
+
+

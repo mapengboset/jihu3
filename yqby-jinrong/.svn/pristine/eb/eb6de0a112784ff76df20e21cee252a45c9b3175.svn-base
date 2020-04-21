@@ -1,0 +1,35 @@
+package com.yqbing.servicebing.repository.redis;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.annotation.Resource;
+
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Repository;
+
+
+@Repository("rAntClickDatailLog")
+public class RAntClickDatailLogImpl implements RAntClickDatailLog{
+   
+	/** Redis模板 */
+	@Resource(name = "redisTemplate")
+	private RedisTemplate<String, String> redisTemplate = null;
+
+	/** 键值格式 */
+	private static final String KEY = "Id:AntClickDatailLog";
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyMMdd");
+	
+	@Override
+	public void set(String trade_no, String datail) {
+		// TODO Auto-generated method stub
+	   redisTemplate.opsForValue().set(trade_no,datail);
+	}
+	@Override
+	public String get(String trade_no) {
+		// TODO Auto-generated method stub
+		return redisTemplate.opsForValue().get(trade_no);
+	}
+	
+	
+}

@@ -1,0 +1,37 @@
+package com.yqbing.servicebing.webapp.controller.jd;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.jd.jr.pay.gate.signature.util.MD5Util;
+import com.yqbing.servicebing.utils.jd.PropertyUtils;
+
+
+@Controller
+public class AppMD5Action {
+
+	@RequestMapping(value = "/sdkMd5Sign.htm")
+	public String showPayPage(HttpServletRequest httpServletRequest) {
+		String merchantNum = PropertyUtils.getProperty("wepay.merchant.num");
+		httpServletRequest.setAttribute("merchant", merchantNum);
+		return "showSdkMD5";
+	}
+
+	@RequestMapping(value = "/sdkMD5.htm")
+	public String pay(ModelMap map, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String merchantNo = request.getParameter("merchant");
+		String orderId = request.getParameter("orderId");
+		String key = request.getParameter("key");
+
+		String signDataSource = "merchant=" + merchantNo + "&orderId=" + orderId + "&key=" + key;
+		String signData = MD5Util.md5LowerCase(signDataSource,"");
+		request.setAttribute("signData", signData);
+
+		return "sdkMD5";
+	}
+
+}

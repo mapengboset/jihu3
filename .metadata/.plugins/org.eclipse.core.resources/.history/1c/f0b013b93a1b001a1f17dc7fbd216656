@@ -1,0 +1,40 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 客户标识累加消耗卡路里总数接口
+ * 
+ * @author yinjy
+ *
+ */
+public interface RCustomerIdCalorieValue {
+	/**
+	 * 设置客户标识消耗卡路里总数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param shareCount 消耗卡路里总数值
+	 */
+	public void set(Long customerId, Long calorie);
+
+	/**
+	 * 获取消耗卡路里总数值
+	 * 
+	 * @param customerId 客户标识
+	 * @return 消耗卡路里总数值
+	 */
+	public Long get(Long customerId);
+
+	/**
+	 * 删除客户标识消耗卡路里总数值
+	 * 
+	 * @param customerId 客户标识
+	 */
+	public void remove(Long customerId);
+
+	/**
+	 * 存在客户标识消耗卡路里总数值
+	 * 
+	 * @param customerId 客户标识
+	 * @return 是否存在
+	 */
+	public boolean exist(Long customerId);
+}

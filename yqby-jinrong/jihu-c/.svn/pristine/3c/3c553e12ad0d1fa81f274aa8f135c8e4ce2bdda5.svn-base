@@ -1,0 +1,22 @@
+package com.yqbing.servicebing.service;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+
+
+@Service("commonService")
+public class CommonService {
+
+	
+	@Resource
+	private UserInfoBeanMapper userInfoBeanMapper = null;
+	
+	public UserInfoBean queryToken(String token){
+		UserInfoBean user = userInfoBeanMapper.queryToken(token);
+		return user;
+	}
+}

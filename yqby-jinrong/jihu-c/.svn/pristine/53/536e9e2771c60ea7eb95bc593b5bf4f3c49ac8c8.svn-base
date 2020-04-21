@@ -1,0 +1,266 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.docx4j.model.datastorage.XPathEnhancerParser.main_return;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Service;
+
+import us.codecraft.webmagic.Page;
+import us.codecraft.webmagic.Site;
+import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.processor.PageProcessor;
+import us.codecraft.webmagic.selector.Selectable;
+
+import com.google.gson.Gson;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseMapper;
+import com.yqbing.servicebing.repository.redis.RStoreHouseData;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.service.WebmagicService;
+import com.yqbing.servicebing.webapp.controller.WebmagicController;
+
+
+
+@Service("webmagicService")
+@SuppressWarnings("all")
+public class WebmagicServiceImpl implements WebmagicService,PageProcessor{
+	
+	
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(WebmagicServiceImpl.class);
+	
+	
+	private StoreHouseMapper storeHouseMapper= null;
+    
+	
+	 private RStoreHouseData rStoreHouseData = null;
+	
+	
+	
+	 //页面URL的正则表达式
+    //.是匹配所有的字符，//.表示只匹配一个，//.?同理
+      //  private static String REGEX_PAGE_URL = "http://www\\.521609\\.com/daxuexiaohua/list\\w+.html";
+  //      private static String REGEX_PAGE_URL = "https://shouji\\.baidu\\.com/game/40\\w+/list_\\w+.html";
+	      private static String REGEX_PAGE_URL = "https://shouji\\.baidu\\.com/software/\\w+/list_\\w+.html";
+      //    private static String REGEX_PAGE_URL = "http://zhushou.360.cn/list/index/cid/\\w+/";
+    
+    //爬取的页数
+    public static int PAGE_SIZE = 511;
+    //下载张数
+    public static int INDEX_PHOTO =0; 
+ 
+    //配置s
+    @Override
+    public Site getSite() {
+        return Site.me().setRetryTimes(3).setSleepTime(3000);
+    }
+ 
+    @Override
+    public void process(Page page) {
+        List<String> targetURL = new ArrayList<String>();
+        String appName = null;//app名字
+	    String appSize = null;//大小
+	    String appVersion = null;//版本
+	    String downTimes = null;//下载次数
+	    String appDesc = null;//应用介绍
+	    String appUrlImg = null;//微信头像
+	    String appsizeLong = null;//应用大小LONG
+	    Short appType = null;//分类
+	    String appUrl = null;//
+	    String appPack = null;//
+	    String Type = null;//
+	    for (int i = 501; i < PAGE_SIZE; i++){
+	    		//添加到目标url中
+	    		for (int j = 1; j < 8; j++) {
+	    	
+	    				
+	    				targetURL.add("https://shouji.baidu.com/software/"+i+"/list_"+j+".html");
+	    			}
+	    		//	targetURL.add("https://shouji.baidu.com/game/40"+i+"/list_"+j+".html");
+	    		}
+	 //   int i = 10;
+	//    targetURL.add("https://shouji.baidu.com/software/5"+i+"/list_"+3+".html");
+        //添加url到请求中
+        page.addTargetRequests(targetURL);
+ 
+        //是图片列表页面
+        Selectable url = page.getUrl();
+     //   LOGGER.info(url);
+        if (page.getUrl().regex(REGEX_PAGE_URL).match()) {
+            //获得所有详情页的连接
+            List<String> detailURL = page.getHtml().xpath("//a[@class=\"app-box\"]").links().all();
+            LOGGER.info("size:"+detailURL.size());
+         /*   for (String str:detailURL){
+                //输出所有连接
+                LOGGER.info(str);
+            }*/
+            page.addTargetRequests(detailURL);
+            //如果是详情页
+        } else {
+        	   try {
+                 //要按条件筛选//*[@id="doc"]/div[2]/div/div[1]/div/div[2]/h1/span
+                 appName = page.getHtml().xpath("//div[@class='area-one-setup']").css("span","data_name").toString();//app名字
+                 if(!StringUtils.isNotBlank(appName)){
+					   
+ 					return;
+ 					
+ 				}
+        	     appSize = page.getHtml().xpath("//span[@class='size']/text()").toString();//大小MB
+        	     downTimes = page.getHtml().xpath("//span[@class='download-num']/text()").toString();//下载次数
+        	     appDesc = page.getHtml().xpath("//p[@class='content']/text()").toString();//应用介绍
+        	     
+        	     appUrlImg = page.getHtml().xpath("//div[@class='area-one-setup']").css("span", "data_icon").toString();//微信头像
+        	     
+        	     appsizeLong = page.getHtml().xpath("//div[@class='area-one-setup']").css("span", "data_size").toString();//应用大小Long
+        	     appUrl = page.getHtml().xpath("//div[@class='area-one-setup']").css("span","data_url").toString();//下载链接
+        	     appVersion = page.getHtml().xpath("//div[@class='area-one-setup']").css("span","data_versionname").toString();//版本
+        	     appPack = page.getHtml().xpath("//div[@class='area-one-setup']").css("span","data_package").toString();//包名
+        	     if(!StringUtils.isNotBlank(appPack)){
+					   
+  					return;
+  					
+  				}
+        	    
+        	     Type = page.getHtml().xpath("//div[@class=\"nav\"]/span[5]/a/text()").toString();//分类
+        	     List<String> all = page.getHtml().xpath("//div[@class=\"section-body\"]/div/ul/li").css("img", "src").all();//详情照片
+        	     StoreHouse storeHouse = new StoreHouse();//*[@id="doc"]/div[1]/div/span[5]/a //*[@id="doc"]/div[2]/div/div[2]/div[2]/div/div/ul/li[1]/img
+        	     storeHouse.setAppName(appName);
+        	     storeHouse.setAppPack(appPack);
+        	     LOGGER.info("app名字:"+appName);
+        	     if(StringUtils.isNotBlank(appSize)){
+        	    	 storeHouse.setAppSize(appSize.split(":")[1]);//大小
+        	    	 
+        	     }
+        	     storeHouse.setAppDetailsPng(new Gson().toJson(all));
+        	     storeHouse.setAppUrl(appUrl);
+        	     storeHouse.setAppDesc(appDesc);
+        	     storeHouse.setAppUrlImg(appUrlImg);
+        	     if(StringUtils.isNotBlank(appsizeLong)){
+        	    	 
+        	    	 storeHouse.setAppSizeLong(Double.valueOf(appsizeLong));
+        	     }
+                 
+                	 storeHouse.setAppVersion(appVersion);//版本
+        	    	 
+        	     
+                 if(StringUtils.isNotBlank(downTimes)){
+                	 storeHouse.setDownTimes(downTimes.split(":")[1]);//次数
+        	    	 
+        	     }
+        	     storeHouse.setCreateTime(new Date());
+        	     if(StringUtils.isNotBlank(Type)){
+        	    	 //1系统工具 2主题壁纸 3社交通讯 4拍摄美化 5影音播放  6生活实用 7理财购物 8办公学习 9资讯阅读   10旅游出行
+        	     switch (Type) {
+					case "系统工具":
+						appType =  1;
+						break;
+					case "主题壁纸":
+						appType =  2;
+						break;
+					case "社交通讯":
+						appType =  3;
+						break;
+					case "拍摄美化":
+						appType =  4;
+						break;
+					case "影音播放":
+						appType =  5;
+						break;
+					case "生活实用":
+						appType =  6;
+						break;
+					case "理财购物":
+						appType =  7;
+						break;
+					case "办公学习":
+						appType =  8;
+						break;
+					case "资讯阅读":
+						appType =  9;
+						break;
+					case "旅游出行":
+						appType =  10;
+						break;
+
+					default:
+						appType =  1;
+						break;
+					}
+        	    	 storeHouse.setAppType(appType);	 
+        	     }
+        	
+				   if(StringUtils.isNotBlank(appPack)){ 
+					   StoreHouse  sh =  storeHouseMapper.getByAppPack(appPack);
+					if(sh != null){
+						if(storeHouse.getAppPack().equals(sh.getAppPack()) && !sh.getAppVersion().equals(storeHouse.getAppVersion())){
+						        if(Double.valueOf(sh.getAppSize().split("MB")[0]) < Double.valueOf(storeHouse.getAppSize().split("MB")[0])){//容量大小做对比,取大的一方
+							    sh.setAppName(appName);
+				        	     LOGGER.info("已经存库-----------------版本对比新:"+storeHouse.getAppVersion()+"||"+sh.getAppVersion());
+				        	     LOGGER.info("已经存库-----------------大小对比:"+storeHouse.getAppSize()+"||"+sh.getAppSize());
+				        	    	 sh.setAppSize(storeHouse.getAppSize());//大小
+				        	    	 sh.setAppSizeLong(storeHouse.getAppSizeLong());//大小
+				        	    	 
+				        	     sh.setAppDetailsPng(new Gson().toJson(all));
+				        	     sh.setAppUrl(appUrl);
+				        	     sh.setAppDesc(appDesc);
+				        	     sh.setAppUrlImg(appUrlImg);
+				                	 sh.setAppVersion(storeHouse.getAppVersion());//版本
+				        	    	 
+				                	 sh.setDownTimes(storeHouse.getDownTimes());//次数
+				        	    	 
+				        	     sh.setUpdateTime(new Date());
+				        	    
+							     storeHouseMapper.updateByPrimaryKeySelective(sh);
+								 rStoreHouseData.setAppPack(sh);
+						        }
+						}else if(storeHouse.getAppPack().equals(sh.getAppPack()) && !sh.getDownTimes().equals(storeHouse.getDownTimes())){
+							     sh.setDownTimes(downTimes);
+							     storeHouseMapper.updateByPrimaryKeySelective(sh);
+								 rStoreHouseData.setAppPack(sh);
+						}
+					}else{
+						
+								storeHouseMapper.insertSelective(storeHouse);
+								rStoreHouseData.setAppPack(storeHouse);
+					}   
+					
+				}
+        		   LOGGER.info("第"+(INDEX_PHOTO++)+"个");
+			   } catch (Exception e) {
+				   e.printStackTrace();
+				new RuntimeException();
+			  }
+        	 
+        }
+        }
+//    }
+    
+    public WebmagicServiceImpl(StoreHouseMapper storeHouseMapper,RStoreHouseData  rStoreHouseData){
+    	this.storeHouseMapper = storeHouseMapper;
+    	this. rStoreHouseData =  rStoreHouseData;
+    }
+    @Override
+    public   void downUrl(StoreHouseMapper storeHouseMapper,RStoreHouseData  rStoreHouseData){
+        //起始URL，开启的线程数为10个
+    	Spider.create(new WebmagicServiceImpl(storeHouseMapper,rStoreHouseData)).addUrl("https://shouji.baidu.com/software/").thread(10).run();
+    //	Spider.create(new WebmagicServiceImpl(storeHouseMapper)).addUrl("https://shouji.baidu.com/game/405/list_4.html").run();
+    	
+    	
+    	
+     //Spider.create(new WebmagicController()).addUrl("http://www.521609.com/daxuexiaohua/list310.html").thread(10).run();
+     //Spider.create(new WebmagicController()).addUrl("http://zhushou.360.cn/list/index/cid/14/").thread(10).run();
+ 
+    }
+
+	
+}

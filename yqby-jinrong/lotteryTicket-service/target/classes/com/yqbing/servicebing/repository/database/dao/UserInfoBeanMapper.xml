@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.UserInfoBean" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="open_id" property="openId" jdbcType="VARCHAR" />
+    <result column="token" property="token" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="adress" property="adress" jdbcType="VARCHAR" />
+    <result column="ral" property="ral" jdbcType="INTEGER" />
+    <result column="sex" property="sex" jdbcType="SMALLINT" />
+    <result column="age" property="age" jdbcType="INTEGER" />
+    <result column="image" property="image" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="brith" property="brith" jdbcType="VARCHAR" />
+    <result column="first_invite_code" property="firstInviteCode" jdbcType="VARCHAR" />
+    <result column="first_store_name" property="firstStoreName" jdbcType="VARCHAR" />
+    <result column="first_store_id" property="firstStoreId" jdbcType="INTEGER" />
+    <result column="first_store_user_id" property="firstStoreUserId" jdbcType="INTEGER" />
+    <result column="store_id" property="storeId" jdbcType="INTEGER" />
+    <result column="store_name" property="storeName" jdbcType="VARCHAR" />
+    <result column="store_user_id" property="storeUserId" jdbcType="INTEGER" />
+    <result column="invite_code" property="inviteCode" jdbcType="VARCHAR" />
+    <result column="province_name" property="provinceName" jdbcType="VARCHAR" />
+    <result column="province_id" property="provinceId" jdbcType="INTEGER" />
+    <result column="city_name" property="cityName" jdbcType="VARCHAR" />
+    <result column="city_id" property="cityId" jdbcType="INTEGER" />
+    <result column="area_name" property="areaName" jdbcType="VARCHAR" />
+    <result column="area_id" property="areaId" jdbcType="INTEGER" />
+    <result column="push_key" property="pushKey" jdbcType="VARCHAR" />
+    <result column="device" property="device" jdbcType="VARCHAR" />
+    <result column="get_wealth" property="getWealth" jdbcType="INTEGER" />
+    <result column="wealth" property="wealth" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, open_id,token, name, phone, adress, ral, sex, age, image, type, password, brith, first_invite_code, 
+    first_store_name, first_store_id, first_store_user_id, store_id, store_name, store_user_id, 
+    invite_code, province_name, province_id, city_name, city_id, area_name, area_id, 
+    push_key, device, get_wealth, wealth, status, create_time, update_time
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.dao.UserInfoBeanExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from user_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from user_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.UserInfoBean" >
+    insert into user_info (id,open_id, token, name, 
+      phone, adress, ral, 
+      sex, age, image, type, 
+      password, brith, first_invite_code, 
+      first_store_name, first_store_id, first_store_user_id, 
+      store_id, store_name, store_user_id, 
+      invite_code, province_name, province_id, 
+      city_name, city_id, area_name, 
+      area_id, push_key, device, 
+      get_wealth, wealth, status, 
+      create_time, update_time)
+    values (#{id,jdbcType=BIGINT}, #{openId,jdbcType=VARCHAR},#{token,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{phone,jdbcType=VARCHAR}, #{adress,jdbcType=VARCHAR}, #{ral,jdbcType=INTEGER}, 
+      #{sex,jdbcType=SMALLINT}, #{age,jdbcType=INTEGER}, #{image,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
+      #{password,jdbcType=VARCHAR}, #{brith,jdbcType=VARCHAR}, #{firstInviteCode,jdbcType=VARCHAR}, 
+      #{firstStoreName,jdbcType=VARCHAR}, #{firstStoreId,jdbcType=INTEGER}, #{firstStoreUserId,jdbcType=INTEGER}, 
+      #{storeId,jdbcType=INTEGER}, #{storeName,jdbcType=VARCHAR}, #{storeUserId,jdbcType=INTEGER}, 
+      #{inviteCode,jdbcType=VARCHAR}, #{provinceName,jdbcType=VARCHAR}, #{provinceId,jdbcType=INTEGER}, 
+      #{cityName,jdbcType=VARCHAR}, #{cityId,jdbcType=INTEGER}, #{areaName,jdbcType=VARCHAR}, 
+      #{areaId,jdbcType=INTEGER}, #{pushKey,jdbcType=VARCHAR}, #{device,jdbcType=VARCHAR}, 
+      #{getWealth,jdbcType=INTEGER}, #{wealth,jdbcType=INTEGER}, #{status,jdbcType=TINYINT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.UserInfoBean" >
+    insert into user_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+       <if test="openId != null" >
+        open_id,
+      </if>
+      <if test="token != null" >
+        token,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="adress != null" >
+        adress,
+      </if>
+      <if test="ral != null" >
+        ral,
+      </if>
+      <if test="sex != null" >
+        sex,
+      </if>
+      <if test="age != null" >
+        age,
+      </if>
+      <if test="image != null" >
+        image,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="password != null" >
+        password,
+      </if>
+      <if test="brith != null" >
+        brith,
+      </if>
+      <if test="firstInviteCode != null" >
+        first_invite_code,
+      </if>
+      <if test="firstStoreName != null" >
+        first_store_name,
+      </if>
+      <if test="firstStoreId != null" >
+        first_store_id,
+      </if>
+      <if test="firstStoreUserId != null" >
+        first_store_user_id,
+      </if>
+      <if test="storeId != null" >
+        store_id,
+      </if>
+      <if test="storeName != null" >
+        store_name,
+      </if>
+      <if test="storeUserId != null" >
+        store_user_id,
+      </if>
+      <if test="inviteCode != null" >
+        invite_code,
+      </if>
+      <if test="provinceName != null" >
+        province_name,
+      </if>
+      <if test="provinceId != null" >
+        province_id,
+      </if>
+      <if test="cityName != null" >
+        city_name,
+      </if>
+      <if test="cityId != null" >
+        city_id,
+      </if>
+      <if test="areaName != null" >
+        area_name,
+      </if>
+      <if test="areaId != null" >
+        area_id,
+      </if>
+      <if test="pushKey != null" >
+        push_key,
+      </if>
+      <if test="device != null" >
+        device,
+      </if>
+      <if test="getWealth != null" >
+        get_wealth,
+      </if>
+      <if test="wealth != null" >
+        wealth,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+       <if test="openId != null" >
+        #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="token != null" >
+        #{token,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="adress != null" >
+        #{adress,jdbcType=VARCHAR},
+      </if>
+      <if test="ral != null" >
+        #{ral,jdbcType=INTEGER},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=SMALLINT},
+      </if>
+      <if test="age != null" >
+        #{age,jdbcType=INTEGER},
+      </if>
+      <if test="image != null" >
+        #{image,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="brith != null" >
+        #{brith,jdbcType=VARCHAR},
+      </if>
+      <if test="firstInviteCode != null" >
+        #{firstInviteCode,jdbcType=VARCHAR},
+      </if>
+      <if test="firstStoreName != null" >
+        #{firstStoreName,jdbcType=VARCHAR},
+      </if>
+      <if test="firstStoreId != null" >
+        #{firstStoreId,jdbcType=INTEGER},
+      </if>
+      <if test="firstStoreUserId != null" >
+        #{firstStoreUserId,jdbcType=INTEGER},
+      </if>
+      <if test="storeId != null" >
+        #{storeId,jdbcType=INTEGER},
+      </if>
+      <if test="storeName != null" >
+        #{storeName,jdbcType=VARCHAR},
+      </if>
+      <if test="storeUserId != null" >
+        #{storeUserId,jdbcType=INTEGER},
+      </if>
+      <if test="inviteCode != null" >
+        #{inviteCode,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceName != null" >
+        #{provinceName,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceId != null" >
+        #{provinceId,jdbcType=INTEGER},
+      </if>
+      <if test="cityName != null" >
+        #{cityName,jdbcType=VARCHAR},
+      </if>
+      <if test="cityId != null" >
+        #{cityId,jdbcType=INTEGER},
+      </if>
+      <if test="areaName != null" >
+        #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="areaId != null" >
+        #{areaId,jdbcType=INTEGER},
+      </if>
+      <if test="pushKey != null" >
+        #{pushKey,jdbcType=VARCHAR},
+      </if>
+      <if test="device != null" >
+        #{device,jdbcType=VARCHAR},
+      </if>
+      <if test="getWealth != null" >
+        #{getWealth,jdbcType=INTEGER},
+      </if>
+      <if test="wealth != null" >
+        #{wealth,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.dao.UserInfoBeanExample" resultType="java.lang.Integer" >
+    select count(*) from user_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+    <select id="queryAndPhone" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_info
+    where phone = #{phone,jdbcType=VARCHAR}
+  </select>
+  <select id="queryToken" resultMap="BaseResultMap" parameterType="java.lang.String" >
+   
+    select 
+   
+    <include refid="Base_Column_List" />
+   
+    from user_info
+   
+    where token = #{token,jdbcType=VARCHAR}
+  
+  </select>
+  <select id="queryAndOpenId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+   
+    select 
+   
+    <include refid="Base_Column_List" />
+   
+    from user_info
+   
+    where open_id = #{openId,jdbcType=VARCHAR}
+  
+  </select>
+  <select id="queryPhoneAndpassword" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_info
+    where phone = #{phone,jdbcType=VARCHAR}
+    and password = #{password,jdbcType=VARCHAR}
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.UserInfoBean" >
+    update user_info
+    <set >
+      <if test="openId != null" >
+        open_id = #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="token != null" >
+        token = #{token,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="adress != null" >
+        adress = #{adress,jdbcType=VARCHAR},
+      </if>
+      <if test="ral != null" >
+        ral = #{ral,jdbcType=INTEGER},
+      </if>
+      <if test="sex != null" >
+        sex = #{sex,jdbcType=SMALLINT},
+      </if>
+      <if test="age != null" >
+        age = #{age,jdbcType=INTEGER},
+      </if>
+      <if test="image != null" >
+        image = #{image,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="brith != null" >
+        brith = #{brith,jdbcType=VARCHAR},
+      </if>
+      <if test="firstInviteCode != null" >
+        first_invite_code = #{firstInviteCode,jdbcType=VARCHAR},
+      </if>
+      <if test="firstStoreName != null" >
+        first_store_name = #{firstStoreName,jdbcType=VARCHAR},
+      </if>
+      <if test="firstStoreId != null" >
+        first_store_id = #{firstStoreId,jdbcType=INTEGER},
+      </if>
+      <if test="firstStoreUserId != null" >
+        first_store_user_id = #{firstStoreUserId,jdbcType=INTEGER},
+      </if>
+      <if test="storeId != null" >
+        store_id = #{storeId,jdbcType=INTEGER},
+      </if>
+      <if test="storeName != null" >
+        store_name = #{storeName,jdbcType=VARCHAR},
+      </if>
+      <if test="storeUserId != null" >
+        store_user_id = #{storeUserId,jdbcType=INTEGER},
+      </if>
+      <if test="inviteCode != null" >
+        invite_code = #{inviteCode,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceName != null" >
+        province_name = #{provinceName,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceId != null" >
+        province_id = #{provinceId,jdbcType=INTEGER},
+      </if>
+      <if test="cityName != null" >
+        city_name = #{cityName,jdbcType=VARCHAR},
+      </if>
+      <if test="cityId != null" >
+        city_id = #{cityId,jdbcType=INTEGER},
+      </if>
+      <if test="areaName != null" >
+        area_name = #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="areaId != null" >
+        area_id = #{areaId,jdbcType=INTEGER},
+      </if>
+      <if test="pushKey != null" >
+        push_key = #{pushKey,jdbcType=VARCHAR},
+      </if>
+      <if test="device != null" >
+        device = #{device,jdbcType=VARCHAR},
+      </if>
+      <if test="getWealth != null" >
+        get_wealth = #{getWealth,jdbcType=INTEGER},
+      </if>
+      <if test="wealth != null" >
+        wealth = #{wealth,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.UserInfoBean" >
+    update user_info
+    set open_id = #{openId,jdbcType=VARCHAR}, 
+      token = #{token,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      adress = #{adress,jdbcType=VARCHAR},
+      ral = #{ral,jdbcType=INTEGER},
+      sex = #{sex,jdbcType=SMALLINT},
+      age = #{age,jdbcType=INTEGER},
+      image = #{image,jdbcType=VARCHAR},
+      type = #{type,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      brith = #{brith,jdbcType=VARCHAR},
+      first_invite_code = #{firstInviteCode,jdbcType=VARCHAR},
+      first_store_name = #{firstStoreName,jdbcType=VARCHAR},
+      first_store_id = #{firstStoreId,jdbcType=INTEGER},
+      first_store_user_id = #{firstStoreUserId,jdbcType=INTEGER},
+      store_id = #{storeId,jdbcType=INTEGER},
+      store_name = #{storeName,jdbcType=VARCHAR},
+      store_user_id = #{storeUserId,jdbcType=INTEGER},
+      invite_code = #{inviteCode,jdbcType=VARCHAR},
+      province_name = #{provinceName,jdbcType=VARCHAR},
+      province_id = #{provinceId,jdbcType=INTEGER},
+      city_name = #{cityName,jdbcType=VARCHAR},
+      city_id = #{cityId,jdbcType=INTEGER},
+      area_name = #{areaName,jdbcType=VARCHAR},
+      area_id = #{areaId,jdbcType=INTEGER},
+      push_key = #{pushKey,jdbcType=VARCHAR},
+      device = #{device,jdbcType=VARCHAR},
+      get_wealth = #{getWealth,jdbcType=INTEGER},
+      wealth = #{wealth,jdbcType=INTEGER},
+      status = #{status,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.AppWealthRuleMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.AppWealthRule" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="app_pack" property="appPack" jdbcType="VARCHAR" />
+    <result column="is_open" property="isOpen" jdbcType="CHAR" />
+    <result column="reward_is_open" property="rewardIsOpen" jdbcType="CHAR" />
+    <result column="jihu_rate" property="jihuRate" jdbcType="INTEGER" />
+    <result column="channel_rate" property="channelRate" jdbcType="INTEGER" />
+    <result column="channel_agent_rate" property="channelAgentRate" jdbcType="INTEGER" />
+    <result column="channel_store_rate" property="channelStoreRate" jdbcType="INTEGER" />
+    <result column="agent_city_rate" property="agentCityRate" jdbcType="INTEGER" />
+    <result column="agent_county_rate" property="agentCountyRate" jdbcType="INTEGER" />
+    <result column="store_shopkeeper_rate" property="storeShopkeeperRate" jdbcType="INTEGER" />
+    <result column="store_shopassistant_rate" property="storeShopassistantRate" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="store_type" property="storeType" jdbcType="CHAR" />
+    <result column="store_sub_type" property="storeSubType" jdbcType="CHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, app_pack, is_open, reward_is_open, jihu_rate, channel_rate, channel_agent_rate, 
+    channel_store_rate, agent_city_rate, agent_county_rate, store_shopkeeper_rate, store_shopassistant_rate, 
+    create_time, status, store_type, store_sub_type
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.dao.AppWealthRuleExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from app_wealth_rule
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from app_wealth_rule
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from app_wealth_rule
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.AppWealthRule" >
+    insert into app_wealth_rule (id, app_pack, is_open, 
+      reward_is_open, jihu_rate, channel_rate, 
+      channel_agent_rate, channel_store_rate, agent_city_rate, 
+      agent_county_rate, store_shopkeeper_rate, store_shopassistant_rate, 
+      create_time, status, store_type, 
+      store_sub_type)
+    values (#{id,jdbcType=INTEGER}, #{appPack,jdbcType=VARCHAR}, #{isOpen,jdbcType=CHAR}, 
+      #{rewardIsOpen,jdbcType=CHAR}, #{jihuRate,jdbcType=INTEGER}, #{channelRate,jdbcType=INTEGER}, 
+      #{channelAgentRate,jdbcType=INTEGER}, #{channelStoreRate,jdbcType=INTEGER}, #{agentCityRate,jdbcType=INTEGER}, 
+      #{agentCountyRate,jdbcType=INTEGER}, #{storeShopkeeperRate,jdbcType=INTEGER}, #{storeShopassistantRate,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}, #{storeType,jdbcType=CHAR}, 
+      #{storeSubType,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.AppWealthRule" >
+    insert into app_wealth_rule
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="appPack != null" >
+        app_pack,
+      </if>
+      <if test="isOpen != null" >
+        is_open,
+      </if>
+      <if test="rewardIsOpen != null" >
+        reward_is_open,
+      </if>
+      <if test="jihuRate != null" >
+        jihu_rate,
+      </if>
+      <if test="channelRate != null" >
+        channel_rate,
+      </if>
+      <if test="channelAgentRate != null" >
+        channel_agent_rate,
+      </if>
+      <if test="channelStoreRate != null" >
+        channel_store_rate,
+      </if>
+      <if test="agentCityRate != null" >
+        agent_city_rate,
+      </if>
+      <if test="agentCountyRate != null" >
+        agent_county_rate,
+      </if>
+      <if test="storeShopkeeperRate != null" >
+        store_shopkeeper_rate,
+      </if>
+      <if test="storeShopassistantRate != null" >
+        store_shopassistant_rate,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="storeType != null" >
+        store_type,
+      </if>
+      <if test="storeSubType != null" >
+        store_sub_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="appPack != null" >
+        #{appPack,jdbcType=VARCHAR},
+      </if>
+      <if test="isOpen != null" >
+        #{isOpen,jdbcType=CHAR},
+      </if>
+      <if test="rewardIsOpen != null" >
+        #{rewardIsOpen,jdbcType=CHAR},
+      </if>
+      <if test="jihuRate != null" >
+        #{jihuRate,jdbcType=INTEGER},
+      </if>
+      <if test="channelRate != null" >
+        #{channelRate,jdbcType=INTEGER},
+      </if>
+      <if test="channelAgentRate != null" >
+        #{channelAgentRate,jdbcType=INTEGER},
+      </if>
+      <if test="channelStoreRate != null" >
+        #{channelStoreRate,jdbcType=INTEGER},
+      </if>
+      <if test="agentCityRate != null" >
+        #{agentCityRate,jdbcType=INTEGER},
+      </if>
+      <if test="agentCountyRate != null" >
+        #{agentCountyRate,jdbcType=INTEGER},
+      </if>
+      <if test="storeShopkeeperRate != null" >
+        #{storeShopkeeperRate,jdbcType=INTEGER},
+      </if>
+      <if test="storeShopassistantRate != null" >
+        #{storeShopassistantRate,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="storeType != null" >
+        #{storeType,jdbcType=CHAR},
+      </if>
+      <if test="storeSubType != null" >
+        #{storeSubType,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.dao.AppWealthRuleExample" resultType="java.lang.Integer" >
+    select count(*) from app_wealth_rule
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.AppWealthRule" >
+    update app_wealth_rule
+    <set >
+      <if test="appPack != null" >
+        app_pack = #{appPack,jdbcType=VARCHAR},
+      </if>
+      <if test="isOpen != null" >
+        is_open = #{isOpen,jdbcType=CHAR},
+      </if>
+      <if test="rewardIsOpen != null" >
+        reward_is_open = #{rewardIsOpen,jdbcType=CHAR},
+      </if>
+      <if test="jihuRate != null" >
+        jihu_rate = #{jihuRate,jdbcType=INTEGER},
+      </if>
+      <if test="channelRate != null" >
+        channel_rate = #{channelRate,jdbcType=INTEGER},
+      </if>
+      <if test="channelAgentRate != null" >
+        channel_agent_rate = #{channelAgentRate,jdbcType=INTEGER},
+      </if>
+      <if test="channelStoreRate != null" >
+        channel_store_rate = #{channelStoreRate,jdbcType=INTEGER},
+      </if>
+      <if test="agentCityRate != null" >
+        agent_city_rate = #{agentCityRate,jdbcType=INTEGER},
+      </if>
+      <if test="agentCountyRate != null" >
+        agent_county_rate = #{agentCountyRate,jdbcType=INTEGER},
+      </if>
+      <if test="storeShopkeeperRate != null" >
+        store_shopkeeper_rate = #{storeShopkeeperRate,jdbcType=INTEGER},
+      </if>
+      <if test="storeShopassistantRate != null" >
+        store_shopassistant_rate = #{storeShopassistantRate,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="storeType != null" >
+        store_type = #{storeType,jdbcType=CHAR},
+      </if>
+      <if test="storeSubType != null" >
+        store_sub_type = #{storeSubType,jdbcType=CHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.AppWealthRule" >
+    update app_wealth_rule
+    set app_pack = #{appPack,jdbcType=VARCHAR},
+      is_open = #{isOpen,jdbcType=CHAR},
+      reward_is_open = #{rewardIsOpen,jdbcType=CHAR},
+      jihu_rate = #{jihuRate,jdbcType=INTEGER},
+      channel_rate = #{channelRate,jdbcType=INTEGER},
+      channel_agent_rate = #{channelAgentRate,jdbcType=INTEGER},
+      channel_store_rate = #{channelStoreRate,jdbcType=INTEGER},
+      agent_city_rate = #{agentCityRate,jdbcType=INTEGER},
+      agent_county_rate = #{agentCountyRate,jdbcType=INTEGER},
+      store_shopkeeper_rate = #{storeShopkeeperRate,jdbcType=INTEGER},
+      store_shopassistant_rate = #{storeShopassistantRate,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=TINYINT},
+      store_type = #{storeType,jdbcType=CHAR},
+      store_sub_type = #{storeSubType,jdbcType=CHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

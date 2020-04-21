@@ -1,0 +1,96 @@
+package com.yqbing.servicebing.common;
+
+public enum ErrorCodeEnum {
+	/** 成功 */
+	SUCCESS("0", "success"),
+	/** 数据为空成功 */
+	NULLSUCCESS("-1", "success"),
+	/** 数据不一致 */
+	DISACCORD("-2", "对象不能为空"),
+	/** 用户不存在 */
+	NULLUSER("-3", "用户不存在，请重新登录"),
+	/** 加入黑名单 */
+	BLACKLIST("-5", "您已被拉入黑名单。"),
+	/** 空对象 */
+	NULLOBJECT("100000", "对象为空"),
+	/** 非空对象 */
+	OBJECT("100001", "对象已经存在"),
+	/** 空对象 */
+	SYSTEMERROR("110000", "系统异常"),
+	/** 空参数 */
+	NULLPARAM("200000", "参数不能为空"),
+	/** 版本不正确 */
+	VERSIONRROR("200001", "版本不正确"),
+	/** JSON转换错误 */
+	PARAMFORMATERROE("201000", "JSON格式错误"),
+	/** 参数错误 */
+	PARAMERROE("202000", "参数错误"),
+	/** 操作失败 */
+	OPERATERROE("300000", "操作失败"),
+	NOLOGIN("400000","用户未登录"),
+	AUTHERROE("430000","请先授权"),
+	/** 短信验证码有误 */
+	USERCODEERROR("410000", "短信验证码有误"),
+	DELETE("500000","删除失败"),
+	ADD("600000","添加失败"),
+	UPDATE("700000","修改失败"),
+	NOTACCESS("800000","没有权限"),
+	NOTENOUGH("800001","兑换数量不足"),
+	OVERSTEP("800002","兑换数量超了"),
+	EXISTPHONE("100001","请获取验证码"),
+	ERRORCODE("100002","验证码错误"),
+	NOTGROUPID("900000","群组ID不存在"),
+	NOTGROUP("920000","没有数据"),
+	ZANBASHENHE("940000","审核失败"),
+	NOTSRORENAMElicense("950000","请先认证营业执照"),
+	NOTSRORE("960000","店铺不存在"),
+	SRORE("961000","店铺存在"),
+	ASSISTANTSRORE("962000","店员不能开店"),
+	NOTALIPAY("963000","没有绑定支付宝"),
+	NOTMONEY("964000","提现金额大于实际金额"),
+	PRICE("964100","单价为空"),
+	MONEYSEND("965000","支付宝财富已经发送,禁止重复申请"),
+	GENERAL("966000","普通用户不支持提现"),
+	STOREERROR("967000","店铺异常"),
+	STOROWEN("968000","请掌柜前去认证"),
+	XUPHONE("968100","请使用正常手机号"),
+	STOROLACK("968000","门店额度不足,请明日再来吧"),
+	BALANCE("968100","余额不足"),
+	DAYLACK("969000","日提现额不足,请明日再来吧"),
+	OUTERROR("970000","提现时间不对或者提现已关闭,请明日再来"),
+	SHOUQUAN("971000","请先授权"),
+	EXISTUSER("972100","请先注册"),
+	EXISTADDRESS("932000","不存在地址"),
+	EXISTORDER("932100","禁止重复下单"),
+	SIGNERROR("932200","验签错误"),
+
+	LOTTERY_TICKET_DEVICE_NULL_ERROR("110000","彩票设备号为空"),
+	LOTTERY_TICKET_OPENID_NULL_ERROR("110001","用户openID为空"),
+	LOTTERY_TICKET_BUILD_ORDER_ERROR("110002","用户下单失败"),
+	LOTTERY_TICKET_QUERY_INFO_ERROR("110003","获取彩票信息失败"),
+	LOTTERY_TICKET_DEVICE_BINDING_ERROR("110004","彩票设备绑定关系为空"),
+	LOTTERY_TICKET_ORDER_NO_ERROR("110005","订单编号为空"),
+	LOTTERY_TICKET_THIRD_BUILD_ORDER_ERROR("110006","第三方下单失败"),
+
+
+	BANK360LAXIN("830000","申请拉新");
+
+
+	
+	private String code;
+	private String msg;
+
+	private ErrorCodeEnum(String code, String msg) {
+		this.code = code;
+		this.msg = msg;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public String getMsg() {
+		return msg;
+	}
+     
+}

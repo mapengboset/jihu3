@@ -1,0 +1,80 @@
+package com.yqbing.servicebing.repository.redis;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import net.sf.json.JSONObject;
+
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Repository;
+
+import com.google.gson.Gson;
+import com.yqbing.servicebing.repository.database.bean.AppAppraise;
+import com.yqbing.servicebing.repository.database.bean.UserAppTask;
+import com.yqbing.servicebing.repository.jihuc.StoreInfoBean;
+
+
+@Repository("rUserAppTaskData")
+public class RUserAppTaskDataImpl implements RUserAppTaskData{
+    
+	/** Redis模板 */
+	@Resource(name = "redisTemplate")
+	private RedisTemplate<String, Object> redisTemplate = null;
+	
+	
+	/** 键值格式 */
+	private static final MessageFormat KEY_FORMAT = new MessageFormat("Object:jihu_c_user_app_task{0}");
+	
+	@Override
+	public void setUserAppTask(String userId, UserAppTask info) {
+		String key = KEY_FORMAT.format(new Object[] {userId});
+		Map<String,Object> map = new HashMap<String,Object>();
+		map.put("app"+info.getAppPack()+"",new Gson().toJson(info));  
+		redisTemplate.opsForHash().putAll(key, map);
+		
+	}
+
+	@Override
+	public List<UserAppTask> getUserAppTaskList(String userId) {
+		List<UserAppTask> apps = new ArrayList<UserAppTask>();
+		String key = KEY_FORMAT.format(new Object[] {userId});
+		try {
+			
+			List<Object> reslutMapList=redisTemplate.opsForHash().values(key);
+			for (Object object : reslutMapList) {
+				JSONObject jsonobject = JSONObject.fromObject(object);
+				
+				UserAppTask app = (UserAppTask)JSONObject.toBean(jsonobject,UserAppTask.class);
+				apps.add(app);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
+		return apps;
+	}
+
+	@Override
+	public UserAppTask getUserAppTask(String userId,String appPaek) {
+		String key = KEY_FORMAT.format(new Object[] {userId});
+		UserAppTask app = null;
+		try {
+			
+			Object object = redisTemplate.opsForHash().get(key, appPaek);
+			JSONObject jsonobject = JSONObject.fromObject(object);
+			 app = (UserAppTask)JSONObject.toBean(jsonobject,UserAppTask.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
+		return app;
+	}
+	
+	
+
+}

@@ -1,0 +1,814 @@
+2018-11-27 17:55:28.724 INFO  [NettyHttpClient.java:48] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 17:55:28.742 DEBUG [Slf4JLogger.java:71] - Using SLF4J as the default logging framework
+2018-11-27 17:55:28.770 DEBUG [Slf4JLogger.java:71] - netty-tcnative not in the classpath; OpenSslEngine will be unavailable.
+2018-11-27 17:55:29.068 DEBUG [Slf4JLogger.java:76] - Default protocols (JDK): [TLSv1.2, TLSv1.1, TLSv1] 
+2018-11-27 17:55:29.069 DEBUG [Slf4JLogger.java:76] - Default cipher suites (JDK): [TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_GCM_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA]
+2018-11-27 17:55:29.088 DEBUG [Slf4JLogger.java:71] - java.nio.Buffer.address: available
+2018-11-27 17:55:29.089 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.theUnsafe: available
+2018-11-27 17:55:29.089 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.copyMemory: available
+2018-11-27 17:55:29.090 DEBUG [Slf4JLogger.java:71] - direct buffer constructor: available
+2018-11-27 17:55:29.091 DEBUG [Slf4JLogger.java:76] - java.nio.Bits.unaligned: available, true
+2018-11-27 17:55:29.091 DEBUG [Slf4JLogger.java:76] - java.nio.DirectByteBuffer.<init>(long, int): available
+2018-11-27 17:55:29.091 DEBUG [Slf4JLogger.java:76] - java.nio.ByteBuffer.cleaner(): available
+2018-11-27 17:55:29.092 DEBUG [Slf4JLogger.java:71] - Platform: Windows
+2018-11-27 17:55:29.092 DEBUG [Slf4JLogger.java:76] - Java version: 8
+2018-11-27 17:55:29.093 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noUnsafe: false
+2018-11-27 17:55:29.093 DEBUG [Slf4JLogger.java:76] - sun.misc.Unsafe: available
+2018-11-27 17:55:29.093 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noJavassist: false
+2018-11-27 17:55:29.206 DEBUG [Slf4JLogger.java:71] - Javassist: available
+2018-11-27 17:55:29.207 DEBUG [Slf4JLogger.java:76] - -Dio.netty.tmpdir: C:\Users\18630\AppData\Local\Temp (java.io.tmpdir)
+2018-11-27 17:55:29.207 DEBUG [Slf4JLogger.java:76] - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+2018-11-27 17:55:29.207 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noPreferDirect: false
+2018-11-27 17:55:29.207 DEBUG [Slf4JLogger.java:76] - io.netty.maxDirectMemory: 1866465280 bytes
+2018-11-27 17:55:29.219 DEBUG [Slf4JLogger.java:76] - -Dio.netty.eventLoopThreads: 16
+2018-11-27 17:55:29.259 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noKeySetOptimization: false
+2018-11-27 17:55:29.259 DEBUG [Slf4JLogger.java:76] - -Dio.netty.selectorAutoRebuildThreshold: 512
+2018-11-27 17:55:29.261 DEBUG [Slf4JLogger.java:71] - org.jctools-core.MpscChunkedArrayQueue: available
+2018-11-27 17:55:29.306 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 17:55:29.308 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 17:55:29.309 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 17:55:29.338 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-27 17:55:29.339 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-27 17:55:29.413 DEBUG [Slf4JLogger.java:76] - -Dio.netty.processId: 2004 (auto-detected)
+2018-11-27 17:55:29.415 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv4Stack: false
+2018-11-27 17:55:29.415 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv6Addresses: false
+2018-11-27 17:55:29.497 DEBUG [Slf4JLogger.java:86] - Loopback interface: lo (Software Loopback Interface 1, 127.0.0.1)
+2018-11-27 17:55:29.498 DEBUG [Slf4JLogger.java:81] - \proc\sys\net\core\somaxconn: 200 (non-existent)
+2018-11-27 17:55:29.584 DEBUG [Slf4JLogger.java:76] - -Dio.netty.machineId: 54:48:10:ff:fe:d9:21:5e (auto-detected)
+2018-11-27 17:55:29.585 DEBUG [Slf4JLogger.java:71] - -Dio.netty.initialSeedUniquifier: 0x4ed49991316d5161
+2018-11-27 17:55:29.596 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.level: simple
+2018-11-27 17:55:29.597 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.maxRecords: 4
+2018-11-27 17:55:29.623 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numHeapArenas: 16
+2018-11-27 17:55:29.623 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numDirectArenas: 16
+2018-11-27 17:55:29.624 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.pageSize: 8192
+2018-11-27 17:55:29.624 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxOrder: 11
+2018-11-27 17:55:29.624 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.chunkSize: 16777216
+2018-11-27 17:55:29.624 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.tinyCacheSize: 512
+2018-11-27 17:55:29.625 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.smallCacheSize: 256
+2018-11-27 17:55:29.625 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.normalCacheSize: 64
+2018-11-27 17:55:29.625 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxCachedBufferCapacity: 32768
+2018-11-27 17:55:29.625 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.cacheTrimInterval: 8192
+2018-11-27 17:55:29.633 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.type: pooled
+2018-11-27 17:55:29.633 DEBUG [Slf4JLogger.java:76] - -Dio.netty.threadLocalDirectBufferSize: 65536
+2018-11-27 17:55:29.634 DEBUG [Slf4JLogger.java:76] - -Dio.netty.maxThreadLocalCharBufferSize: 16384
+2018-11-27 17:55:29.645 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.io.netty.handler.codec.http.HttpObjectMatcher
+2018-11-27 17:55:29.681 DEBUG [Slf4JLogger.java:81] - -Dio.netty.buffer.bytebuf.checkAccessible: true
+2018-11-27 17:55:29.682 DEBUG [Slf4JLogger.java:76] - Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@6718a10f
+2018-11-27 17:55:29.719 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.java.net.InetSocketAddressMatcher
+2018-11-27 17:55:29.737 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxCapacityPerThread: 32768
+2018-11-27 17:55:29.738 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxSharedCapacityFactor: 2
+2018-11-27 17:55:29.738 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.linkCapacity: 16
+2018-11-27 17:55:29.738 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.ratio: 8
+2018-11-27 17:55:29.764 INFO  [NettyHttpClient.java:190] - Sending request. DefaultFullHttpRequest(decodeResult: success, version: HTTP/1.1, content: UnpooledHeapByteBuf(ridx: 0, widx: 374, cap: 374/374))
+POST /v3/push HTTP/1.1
+content-length: 374
+host: api.jpush.cn
+authorization: Basic MmE1NmIxMWQ5Zjk1NjYzMTA1NTdhMjdlOjkyZWYxNDI2ZmJmZGJhNTRiNmVlNjU0NA==
+Content-Type: application/json;charset=utf-8
+2018-11-27 17:55:29.765 INFO  [NettyHttpClient.java:191] - Send body: {"platform":"all","audience":{"registration_id":["1507bfd3f7ccd09e9b3"]},"notification":{"android":{"alert":"测试推送消息","title":"测试推送消息"},"ios":{"alert":"测试推送消息","badge":"+1","sound":"sound.caf"}},"message":{"title":"测试推送消息","msg_content":"测试推送消息"},"options":{"sendno":1,"time_to_live":86400,"apns_production":false}}
+2018-11-27 17:55:29.772 DEBUG [Slf4JLogger.java:71] - Accepting a server certificate: CN=*.jpush.cn, O=Shenzhen HeXunHuaGu Information Technologies Co.Ltd, L=Shenzhen, ST=GuangDong, C=CN
+2018-11-27 17:55:29.827 DEBUG [Slf4JLogger.java:81] - [id: 0x2dc31f97, L:/10.0.50.46:50773 - R:api.jpush.cn/113.31.136.105:443] HANDSHAKEN: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+2018-11-27 17:55:29.863 INFO  [HttpResponseHandler.java:36] - PooledSlicedByteBuf(ridx: 0, widx: 43, cap: 43/43, unwrapped: PooledUnsafeDirectByteBuf(ridx: 335, widx: 335, cap: 364))
+2018-11-27 17:55:29.864 INFO  [HttpResponseHandler.java:38] - closing connection
+2018-11-27 17:56:06.692 INFO  [NettyHttpClient.java:48] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 17:56:06.700 DEBUG [Slf4JLogger.java:71] - Using SLF4J as the default logging framework
+2018-11-27 17:56:06.715 DEBUG [Slf4JLogger.java:71] - netty-tcnative not in the classpath; OpenSslEngine will be unavailable.
+2018-11-27 17:56:07.009 DEBUG [Slf4JLogger.java:76] - Default protocols (JDK): [TLSv1.2, TLSv1.1, TLSv1] 
+2018-11-27 17:56:07.011 DEBUG [Slf4JLogger.java:76] - Default cipher suites (JDK): [TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_GCM_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA]
+2018-11-27 17:56:07.022 DEBUG [Slf4JLogger.java:71] - java.nio.Buffer.address: available
+2018-11-27 17:56:07.022 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.theUnsafe: available
+2018-11-27 17:56:07.023 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.copyMemory: available
+2018-11-27 17:56:07.023 DEBUG [Slf4JLogger.java:71] - direct buffer constructor: available
+2018-11-27 17:56:07.024 DEBUG [Slf4JLogger.java:76] - java.nio.Bits.unaligned: available, true
+2018-11-27 17:56:07.024 DEBUG [Slf4JLogger.java:76] - java.nio.DirectByteBuffer.<init>(long, int): available
+2018-11-27 17:56:07.024 DEBUG [Slf4JLogger.java:76] - java.nio.ByteBuffer.cleaner(): available
+2018-11-27 17:56:07.025 DEBUG [Slf4JLogger.java:71] - Platform: Windows
+2018-11-27 17:56:07.025 DEBUG [Slf4JLogger.java:76] - Java version: 8
+2018-11-27 17:56:07.025 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noUnsafe: false
+2018-11-27 17:56:07.025 DEBUG [Slf4JLogger.java:76] - sun.misc.Unsafe: available
+2018-11-27 17:56:07.026 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noJavassist: false
+2018-11-27 17:56:07.071 DEBUG [Slf4JLogger.java:71] - Javassist: available
+2018-11-27 17:56:07.072 DEBUG [Slf4JLogger.java:76] - -Dio.netty.tmpdir: C:\Users\18630\AppData\Local\Temp (java.io.tmpdir)
+2018-11-27 17:56:07.072 DEBUG [Slf4JLogger.java:76] - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+2018-11-27 17:56:07.072 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noPreferDirect: false
+2018-11-27 17:56:07.072 DEBUG [Slf4JLogger.java:76] - io.netty.maxDirectMemory: 1866465280 bytes
+2018-11-27 17:56:07.076 DEBUG [Slf4JLogger.java:76] - -Dio.netty.eventLoopThreads: 16
+2018-11-27 17:56:07.089 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noKeySetOptimization: false
+2018-11-27 17:56:07.089 DEBUG [Slf4JLogger.java:76] - -Dio.netty.selectorAutoRebuildThreshold: 512
+2018-11-27 17:56:07.090 DEBUG [Slf4JLogger.java:71] - org.jctools-core.MpscChunkedArrayQueue: available
+2018-11-27 17:56:07.125 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 17:56:07.129 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 17:56:07.130 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 17:56:07.155 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-27 17:56:07.156 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-27 17:56:07.176 DEBUG [Slf4JLogger.java:76] - -Dio.netty.processId: 3100 (auto-detected)
+2018-11-27 17:56:07.178 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv4Stack: false
+2018-11-27 17:56:07.178 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv6Addresses: false
+2018-11-27 17:56:07.256 DEBUG [Slf4JLogger.java:86] - Loopback interface: lo (Software Loopback Interface 1, 127.0.0.1)
+2018-11-27 17:56:07.257 DEBUG [Slf4JLogger.java:81] - \proc\sys\net\core\somaxconn: 200 (non-existent)
+2018-11-27 17:56:07.344 DEBUG [Slf4JLogger.java:76] - -Dio.netty.machineId: 54:48:10:ff:fe:d9:21:5e (auto-detected)
+2018-11-27 17:56:07.344 DEBUG [Slf4JLogger.java:71] - -Dio.netty.initialSeedUniquifier: 0x8be32c5226efb5e1
+2018-11-27 17:56:07.355 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.level: simple
+2018-11-27 17:56:07.355 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.maxRecords: 4
+2018-11-27 17:56:07.376 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numHeapArenas: 16
+2018-11-27 17:56:07.377 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numDirectArenas: 16
+2018-11-27 17:56:07.378 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.pageSize: 8192
+2018-11-27 17:56:07.379 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxOrder: 11
+2018-11-27 17:56:07.380 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.chunkSize: 16777216
+2018-11-27 17:56:07.380 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.tinyCacheSize: 512
+2018-11-27 17:56:07.380 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.smallCacheSize: 256
+2018-11-27 17:56:07.381 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.normalCacheSize: 64
+2018-11-27 17:56:07.381 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxCachedBufferCapacity: 32768
+2018-11-27 17:56:07.381 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.cacheTrimInterval: 8192
+2018-11-27 17:56:07.394 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.type: pooled
+2018-11-27 17:56:07.394 DEBUG [Slf4JLogger.java:76] - -Dio.netty.threadLocalDirectBufferSize: 65536
+2018-11-27 17:56:07.395 DEBUG [Slf4JLogger.java:76] - -Dio.netty.maxThreadLocalCharBufferSize: 16384
+2018-11-27 17:56:07.411 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.io.netty.handler.codec.http.HttpObjectMatcher
+2018-11-27 17:56:07.447 DEBUG [Slf4JLogger.java:81] - -Dio.netty.buffer.bytebuf.checkAccessible: true
+2018-11-27 17:56:07.449 DEBUG [Slf4JLogger.java:76] - Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@6718a10f
+2018-11-27 17:56:07.456 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.java.net.InetSocketAddressMatcher
+2018-11-27 17:56:07.471 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxCapacityPerThread: 32768
+2018-11-27 17:56:07.471 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxSharedCapacityFactor: 2
+2018-11-27 17:56:07.471 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.linkCapacity: 16
+2018-11-27 17:56:07.472 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.ratio: 8
+2018-11-27 17:56:07.478 INFO  [NettyHttpClient.java:190] - Sending request. DefaultFullHttpRequest(decodeResult: success, version: HTTP/1.1, content: UnpooledHeapByteBuf(ridx: 0, widx: 374, cap: 374/374))
+POST /v3/push HTTP/1.1
+content-length: 374
+host: api.jpush.cn
+authorization: Basic MmE1NmIxMWQ5Zjk1NjYzMTA1NTdhMjdlOjkyZWYxNDI2ZmJmZGJhNTRiNmVlNjU0NA==
+Content-Type: application/json;charset=utf-8
+2018-11-27 17:56:07.479 INFO  [NettyHttpClient.java:191] - Send body: {"platform":"all","audience":{"registration_id":["1507bfd3f7ccd09e9b3"]},"notification":{"android":{"alert":"测试推送消息","title":"测试推送消息"},"ios":{"alert":"测试推送消息","badge":"+1","sound":"sound.caf"}},"message":{"title":"测试推送消息","msg_content":"测试推送消息"},"options":{"sendno":1,"time_to_live":86400,"apns_production":false}}
+2018-11-27 17:56:07.488 DEBUG [Slf4JLogger.java:71] - Accepting a server certificate: CN=*.jpush.cn, O=Shenzhen HeXunHuaGu Information Technologies Co.Ltd, L=Shenzhen, ST=GuangDong, C=CN
+2018-11-27 17:56:07.550 DEBUG [Slf4JLogger.java:81] - [id: 0x763e6cdd, L:/10.0.50.46:50879 - R:api.jpush.cn/113.31.136.105:443] HANDSHAKEN: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+2018-11-27 17:56:07.577 INFO  [HttpResponseHandler.java:36] - PooledSlicedByteBuf(ridx: 0, widx: 43, cap: 43/43, unwrapped: PooledUnsafeDirectByteBuf(ridx: 336, widx: 336, cap: 365))
+2018-11-27 17:56:07.577 INFO  [HttpResponseHandler.java:38] - closing connection
+2018-11-27 17:56:26.981 INFO  [NettyHttpClient.java:48] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 17:56:26.989 DEBUG [Slf4JLogger.java:71] - Using SLF4J as the default logging framework
+2018-11-27 17:56:27.002 DEBUG [Slf4JLogger.java:71] - netty-tcnative not in the classpath; OpenSslEngine will be unavailable.
+2018-11-27 17:56:27.289 DEBUG [Slf4JLogger.java:76] - Default protocols (JDK): [TLSv1.2, TLSv1.1, TLSv1] 
+2018-11-27 17:56:27.291 DEBUG [Slf4JLogger.java:76] - Default cipher suites (JDK): [TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_GCM_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA]
+2018-11-27 17:56:27.299 DEBUG [Slf4JLogger.java:71] - java.nio.Buffer.address: available
+2018-11-27 17:56:27.299 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.theUnsafe: available
+2018-11-27 17:56:27.300 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.copyMemory: available
+2018-11-27 17:56:27.300 DEBUG [Slf4JLogger.java:71] - direct buffer constructor: available
+2018-11-27 17:56:27.301 DEBUG [Slf4JLogger.java:76] - java.nio.Bits.unaligned: available, true
+2018-11-27 17:56:27.301 DEBUG [Slf4JLogger.java:76] - java.nio.DirectByteBuffer.<init>(long, int): available
+2018-11-27 17:56:27.301 DEBUG [Slf4JLogger.java:76] - java.nio.ByteBuffer.cleaner(): available
+2018-11-27 17:56:27.302 DEBUG [Slf4JLogger.java:71] - Platform: Windows
+2018-11-27 17:56:27.302 DEBUG [Slf4JLogger.java:76] - Java version: 8
+2018-11-27 17:56:27.302 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noUnsafe: false
+2018-11-27 17:56:27.303 DEBUG [Slf4JLogger.java:76] - sun.misc.Unsafe: available
+2018-11-27 17:56:27.303 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noJavassist: false
+2018-11-27 17:56:27.348 DEBUG [Slf4JLogger.java:71] - Javassist: available
+2018-11-27 17:56:27.348 DEBUG [Slf4JLogger.java:76] - -Dio.netty.tmpdir: C:\Users\18630\AppData\Local\Temp (java.io.tmpdir)
+2018-11-27 17:56:27.348 DEBUG [Slf4JLogger.java:76] - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+2018-11-27 17:56:27.348 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noPreferDirect: false
+2018-11-27 17:56:27.349 DEBUG [Slf4JLogger.java:76] - io.netty.maxDirectMemory: 1866465280 bytes
+2018-11-27 17:56:27.353 DEBUG [Slf4JLogger.java:76] - -Dio.netty.eventLoopThreads: 16
+2018-11-27 17:56:27.365 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noKeySetOptimization: false
+2018-11-27 17:56:27.366 DEBUG [Slf4JLogger.java:76] - -Dio.netty.selectorAutoRebuildThreshold: 512
+2018-11-27 17:56:27.367 DEBUG [Slf4JLogger.java:71] - org.jctools-core.MpscChunkedArrayQueue: available
+2018-11-27 17:56:27.399 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 17:56:27.401 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 17:56:27.402 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 17:56:27.429 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-27 17:56:27.430 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-27 17:56:27.449 DEBUG [Slf4JLogger.java:76] - -Dio.netty.processId: 18412 (auto-detected)
+2018-11-27 17:56:27.451 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv4Stack: false
+2018-11-27 17:56:27.451 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv6Addresses: false
+2018-11-27 17:56:27.530 DEBUG [Slf4JLogger.java:86] - Loopback interface: lo (Software Loopback Interface 1, 127.0.0.1)
+2018-11-27 17:56:27.531 DEBUG [Slf4JLogger.java:81] - \proc\sys\net\core\somaxconn: 200 (non-existent)
+2018-11-27 17:56:27.620 DEBUG [Slf4JLogger.java:76] - -Dio.netty.machineId: 54:48:10:ff:fe:d9:21:5e (auto-detected)
+2018-11-27 17:56:27.621 DEBUG [Slf4JLogger.java:71] - -Dio.netty.initialSeedUniquifier: 0x0601869762029316
+2018-11-27 17:56:27.630 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.level: simple
+2018-11-27 17:56:27.631 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.maxRecords: 4
+2018-11-27 17:56:27.648 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numHeapArenas: 16
+2018-11-27 17:56:27.648 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numDirectArenas: 16
+2018-11-27 17:56:27.648 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.pageSize: 8192
+2018-11-27 17:56:27.648 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxOrder: 11
+2018-11-27 17:56:27.648 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.chunkSize: 16777216
+2018-11-27 17:56:27.648 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.tinyCacheSize: 512
+2018-11-27 17:56:27.648 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.smallCacheSize: 256
+2018-11-27 17:56:27.648 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.normalCacheSize: 64
+2018-11-27 17:56:27.648 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxCachedBufferCapacity: 32768
+2018-11-27 17:56:27.648 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.cacheTrimInterval: 8192
+2018-11-27 17:56:27.656 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.type: pooled
+2018-11-27 17:56:27.657 DEBUG [Slf4JLogger.java:76] - -Dio.netty.threadLocalDirectBufferSize: 65536
+2018-11-27 17:56:27.657 DEBUG [Slf4JLogger.java:76] - -Dio.netty.maxThreadLocalCharBufferSize: 16384
+2018-11-27 17:56:27.670 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.io.netty.handler.codec.http.HttpObjectMatcher
+2018-11-27 17:56:27.698 DEBUG [Slf4JLogger.java:81] - -Dio.netty.buffer.bytebuf.checkAccessible: true
+2018-11-27 17:56:27.700 DEBUG [Slf4JLogger.java:76] - Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@771a5bf
+2018-11-27 17:56:27.707 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.java.net.InetSocketAddressMatcher
+2018-11-27 17:56:27.724 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxCapacityPerThread: 32768
+2018-11-27 17:56:27.724 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxSharedCapacityFactor: 2
+2018-11-27 17:56:27.724 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.linkCapacity: 16
+2018-11-27 17:56:27.725 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.ratio: 8
+2018-11-27 17:56:27.732 INFO  [NettyHttpClient.java:190] - Sending request. DefaultFullHttpRequest(decodeResult: success, version: HTTP/1.1, content: UnpooledHeapByteBuf(ridx: 0, widx: 374, cap: 374/374))
+POST /v3/push HTTP/1.1
+content-length: 374
+host: api.jpush.cn
+authorization: Basic MmE1NmIxMWQ5Zjk1NjYzMTA1NTdhMjdlOjkyZWYxNDI2ZmJmZGJhNTRiNmVlNjU0NA==
+Content-Type: application/json;charset=utf-8
+2018-11-27 17:56:27.733 INFO  [NettyHttpClient.java:191] - Send body: {"platform":"all","audience":{"registration_id":["1507bfd3f7ccd09e9b3"]},"notification":{"android":{"alert":"测试推送消息","title":"测试推送消息"},"ios":{"alert":"测试推送消息","badge":"+1","sound":"sound.caf"}},"message":{"title":"测试推送消息","msg_content":"测试推送消息"},"options":{"sendno":1,"time_to_live":86400,"apns_production":false}}
+2018-11-27 17:56:27.746 DEBUG [Slf4JLogger.java:71] - Accepting a server certificate: CN=*.jpush.cn, O=Shenzhen HeXunHuaGu Information Technologies Co.Ltd, L=Shenzhen, ST=GuangDong, C=CN
+2018-11-27 17:56:27.806 DEBUG [Slf4JLogger.java:81] - [id: 0x74887324, L:/10.0.50.46:50941 - R:api.jpush.cn/113.31.136.105:443] HANDSHAKEN: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+2018-11-27 17:56:27.833 INFO  [HttpResponseHandler.java:36] - PooledSlicedByteBuf(ridx: 0, widx: 43, cap: 43/43, unwrapped: PooledUnsafeDirectByteBuf(ridx: 335, widx: 335, cap: 364))
+2018-11-27 17:56:27.834 INFO  [HttpResponseHandler.java:38] - closing connection
+2018-11-27 17:57:30.243 INFO  [NettyHttpClient.java:48] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 17:57:30.250 DEBUG [Slf4JLogger.java:71] - Using SLF4J as the default logging framework
+2018-11-27 17:57:30.263 DEBUG [Slf4JLogger.java:71] - netty-tcnative not in the classpath; OpenSslEngine will be unavailable.
+2018-11-27 17:57:30.575 DEBUG [Slf4JLogger.java:76] - Default protocols (JDK): [TLSv1.2, TLSv1.1, TLSv1] 
+2018-11-27 17:57:30.576 DEBUG [Slf4JLogger.java:76] - Default cipher suites (JDK): [TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_GCM_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA]
+2018-11-27 17:57:30.585 DEBUG [Slf4JLogger.java:71] - java.nio.Buffer.address: available
+2018-11-27 17:57:30.586 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.theUnsafe: available
+2018-11-27 17:57:30.586 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.copyMemory: available
+2018-11-27 17:57:30.586 DEBUG [Slf4JLogger.java:71] - direct buffer constructor: available
+2018-11-27 17:57:30.587 DEBUG [Slf4JLogger.java:76] - java.nio.Bits.unaligned: available, true
+2018-11-27 17:57:30.587 DEBUG [Slf4JLogger.java:76] - java.nio.DirectByteBuffer.<init>(long, int): available
+2018-11-27 17:57:30.588 DEBUG [Slf4JLogger.java:76] - java.nio.ByteBuffer.cleaner(): available
+2018-11-27 17:57:30.588 DEBUG [Slf4JLogger.java:71] - Platform: Windows
+2018-11-27 17:57:30.588 DEBUG [Slf4JLogger.java:76] - Java version: 8
+2018-11-27 17:57:30.589 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noUnsafe: false
+2018-11-27 17:57:30.589 DEBUG [Slf4JLogger.java:76] - sun.misc.Unsafe: available
+2018-11-27 17:57:30.589 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noJavassist: false
+2018-11-27 17:57:30.632 DEBUG [Slf4JLogger.java:71] - Javassist: available
+2018-11-27 17:57:30.632 DEBUG [Slf4JLogger.java:76] - -Dio.netty.tmpdir: C:\Users\18630\AppData\Local\Temp (java.io.tmpdir)
+2018-11-27 17:57:30.632 DEBUG [Slf4JLogger.java:76] - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+2018-11-27 17:57:30.632 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noPreferDirect: false
+2018-11-27 17:57:30.633 DEBUG [Slf4JLogger.java:76] - io.netty.maxDirectMemory: 1866465280 bytes
+2018-11-27 17:57:30.636 DEBUG [Slf4JLogger.java:76] - -Dio.netty.eventLoopThreads: 16
+2018-11-27 17:57:30.648 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noKeySetOptimization: false
+2018-11-27 17:57:30.648 DEBUG [Slf4JLogger.java:76] - -Dio.netty.selectorAutoRebuildThreshold: 512
+2018-11-27 17:57:30.649 DEBUG [Slf4JLogger.java:71] - org.jctools-core.MpscChunkedArrayQueue: available
+2018-11-27 17:57:30.683 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 17:57:30.687 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 17:57:30.687 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 17:57:30.711 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-27 17:57:30.711 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-27 17:57:30.736 DEBUG [Slf4JLogger.java:76] - -Dio.netty.processId: 11580 (auto-detected)
+2018-11-27 17:57:30.737 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv4Stack: false
+2018-11-27 17:57:30.738 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv6Addresses: false
+2018-11-27 17:57:30.812 DEBUG [Slf4JLogger.java:86] - Loopback interface: lo (Software Loopback Interface 1, 127.0.0.1)
+2018-11-27 17:57:30.813 DEBUG [Slf4JLogger.java:81] - \proc\sys\net\core\somaxconn: 200 (non-existent)
+2018-11-27 17:57:30.895 DEBUG [Slf4JLogger.java:76] - -Dio.netty.machineId: 54:48:10:ff:fe:d9:21:5e (auto-detected)
+2018-11-27 17:57:30.896 DEBUG [Slf4JLogger.java:71] - -Dio.netty.initialSeedUniquifier: 0x8dd5e2a2296639f2
+2018-11-27 17:57:30.905 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.level: simple
+2018-11-27 17:57:30.906 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.maxRecords: 4
+2018-11-27 17:57:30.923 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numHeapArenas: 16
+2018-11-27 17:57:30.923 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numDirectArenas: 16
+2018-11-27 17:57:30.923 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.pageSize: 8192
+2018-11-27 17:57:30.923 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxOrder: 11
+2018-11-27 17:57:30.924 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.chunkSize: 16777216
+2018-11-27 17:57:30.924 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.tinyCacheSize: 512
+2018-11-27 17:57:30.924 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.smallCacheSize: 256
+2018-11-27 17:57:30.924 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.normalCacheSize: 64
+2018-11-27 17:57:30.924 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxCachedBufferCapacity: 32768
+2018-11-27 17:57:30.924 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.cacheTrimInterval: 8192
+2018-11-27 17:57:30.933 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.type: pooled
+2018-11-27 17:57:30.933 DEBUG [Slf4JLogger.java:76] - -Dio.netty.threadLocalDirectBufferSize: 65536
+2018-11-27 17:57:30.933 DEBUG [Slf4JLogger.java:76] - -Dio.netty.maxThreadLocalCharBufferSize: 16384
+2018-11-27 17:57:30.944 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.io.netty.handler.codec.http.HttpObjectMatcher
+2018-11-27 17:57:30.970 DEBUG [Slf4JLogger.java:81] - -Dio.netty.buffer.bytebuf.checkAccessible: true
+2018-11-27 17:57:30.972 DEBUG [Slf4JLogger.java:76] - Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@439a85ff
+2018-11-27 17:57:30.977 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.java.net.InetSocketAddressMatcher
+2018-11-27 17:57:30.991 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxCapacityPerThread: 32768
+2018-11-27 17:57:30.991 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxSharedCapacityFactor: 2
+2018-11-27 17:57:30.991 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.linkCapacity: 16
+2018-11-27 17:57:30.991 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.ratio: 8
+2018-11-27 17:57:30.997 INFO  [NettyHttpClient.java:190] - Sending request. DefaultFullHttpRequest(decodeResult: success, version: HTTP/1.1, content: UnpooledHeapByteBuf(ridx: 0, widx: 374, cap: 374/374))
+POST /v3/push HTTP/1.1
+content-length: 374
+host: api.jpush.cn
+authorization: Basic MmE1NmIxMWQ5Zjk1NjYzMTA1NTdhMjdlOjkyZWYxNDI2ZmJmZGJhNTRiNmVlNjU0NA==
+Content-Type: application/json;charset=utf-8
+2018-11-27 17:57:30.997 INFO  [NettyHttpClient.java:191] - Send body: {"platform":"all","audience":{"registration_id":["1507bfd3f7ccd09e9b3"]},"notification":{"android":{"alert":"测试推送消息","title":"测试推送消息"},"ios":{"alert":"测试推送消息","badge":"+1","sound":"sound.caf"}},"message":{"title":"测试推送消息","msg_content":"测试推送消息"},"options":{"sendno":1,"time_to_live":86400,"apns_production":false}}
+2018-11-27 17:57:31.010 DEBUG [Slf4JLogger.java:71] - Accepting a server certificate: CN=*.jpush.cn, O=Shenzhen HeXunHuaGu Information Technologies Co.Ltd, L=Shenzhen, ST=GuangDong, C=CN
+2018-11-27 17:57:31.066 DEBUG [Slf4JLogger.java:81] - [id: 0x4db966c6, L:/10.0.50.46:51073 - R:api.jpush.cn/113.31.136.105:443] HANDSHAKEN: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+2018-11-27 17:57:31.093 INFO  [HttpResponseHandler.java:36] - PooledSlicedByteBuf(ridx: 0, widx: 43, cap: 43/43, unwrapped: PooledUnsafeDirectByteBuf(ridx: 336, widx: 336, cap: 365))
+2018-11-27 17:57:31.094 INFO  [HttpResponseHandler.java:38] - closing connection
+2018-11-27 18:03:49.120 INFO  [NettyHttpClient.java:48] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 18:03:49.128 DEBUG [Slf4JLogger.java:71] - Using SLF4J as the default logging framework
+2018-11-27 18:03:49.142 DEBUG [Slf4JLogger.java:71] - netty-tcnative not in the classpath; OpenSslEngine will be unavailable.
+2018-11-27 18:03:49.437 DEBUG [Slf4JLogger.java:76] - Default protocols (JDK): [TLSv1.2, TLSv1.1, TLSv1] 
+2018-11-27 18:03:49.438 DEBUG [Slf4JLogger.java:76] - Default cipher suites (JDK): [TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_GCM_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA]
+2018-11-27 18:03:49.448 DEBUG [Slf4JLogger.java:71] - java.nio.Buffer.address: available
+2018-11-27 18:03:49.449 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.theUnsafe: available
+2018-11-27 18:03:49.449 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.copyMemory: available
+2018-11-27 18:03:49.450 DEBUG [Slf4JLogger.java:71] - direct buffer constructor: available
+2018-11-27 18:03:49.450 DEBUG [Slf4JLogger.java:76] - java.nio.Bits.unaligned: available, true
+2018-11-27 18:03:49.450 DEBUG [Slf4JLogger.java:76] - java.nio.DirectByteBuffer.<init>(long, int): available
+2018-11-27 18:03:49.451 DEBUG [Slf4JLogger.java:76] - java.nio.ByteBuffer.cleaner(): available
+2018-11-27 18:03:49.452 DEBUG [Slf4JLogger.java:71] - Platform: Windows
+2018-11-27 18:03:49.452 DEBUG [Slf4JLogger.java:76] - Java version: 8
+2018-11-27 18:03:49.452 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noUnsafe: false
+2018-11-27 18:03:49.452 DEBUG [Slf4JLogger.java:76] - sun.misc.Unsafe: available
+2018-11-27 18:03:49.452 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noJavassist: false
+2018-11-27 18:03:49.500 DEBUG [Slf4JLogger.java:71] - Javassist: available
+2018-11-27 18:03:49.501 DEBUG [Slf4JLogger.java:76] - -Dio.netty.tmpdir: C:\Users\18630\AppData\Local\Temp (java.io.tmpdir)
+2018-11-27 18:03:49.501 DEBUG [Slf4JLogger.java:76] - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+2018-11-27 18:03:49.501 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noPreferDirect: false
+2018-11-27 18:03:49.501 DEBUG [Slf4JLogger.java:76] - io.netty.maxDirectMemory: 1866465280 bytes
+2018-11-27 18:03:49.506 DEBUG [Slf4JLogger.java:76] - -Dio.netty.eventLoopThreads: 16
+2018-11-27 18:03:49.519 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noKeySetOptimization: false
+2018-11-27 18:03:49.520 DEBUG [Slf4JLogger.java:76] - -Dio.netty.selectorAutoRebuildThreshold: 512
+2018-11-27 18:03:49.521 DEBUG [Slf4JLogger.java:71] - org.jctools-core.MpscChunkedArrayQueue: available
+2018-11-27 18:03:49.557 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 18:03:49.560 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 18:03:49.561 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 18:03:49.587 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-27 18:03:49.587 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-27 18:03:49.611 DEBUG [Slf4JLogger.java:76] - -Dio.netty.processId: 5504 (auto-detected)
+2018-11-27 18:03:49.613 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv4Stack: false
+2018-11-27 18:03:49.613 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv6Addresses: false
+2018-11-27 18:03:49.692 DEBUG [Slf4JLogger.java:86] - Loopback interface: lo (Software Loopback Interface 1, 127.0.0.1)
+2018-11-27 18:03:49.693 DEBUG [Slf4JLogger.java:81] - \proc\sys\net\core\somaxconn: 200 (non-existent)
+2018-11-27 18:03:49.782 DEBUG [Slf4JLogger.java:76] - -Dio.netty.machineId: 54:48:10:ff:fe:d9:21:5e (auto-detected)
+2018-11-27 18:03:49.783 DEBUG [Slf4JLogger.java:71] - -Dio.netty.initialSeedUniquifier: 0x1c9df2b8d26edc0c
+2018-11-27 18:03:49.797 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.level: simple
+2018-11-27 18:03:49.798 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.maxRecords: 4
+2018-11-27 18:03:49.821 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numHeapArenas: 16
+2018-11-27 18:03:49.822 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numDirectArenas: 16
+2018-11-27 18:03:49.822 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.pageSize: 8192
+2018-11-27 18:03:49.822 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxOrder: 11
+2018-11-27 18:03:49.823 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.chunkSize: 16777216
+2018-11-27 18:03:49.823 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.tinyCacheSize: 512
+2018-11-27 18:03:49.823 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.smallCacheSize: 256
+2018-11-27 18:03:49.823 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.normalCacheSize: 64
+2018-11-27 18:03:49.823 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxCachedBufferCapacity: 32768
+2018-11-27 18:03:49.823 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.cacheTrimInterval: 8192
+2018-11-27 18:03:49.831 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.type: pooled
+2018-11-27 18:03:49.832 DEBUG [Slf4JLogger.java:76] - -Dio.netty.threadLocalDirectBufferSize: 65536
+2018-11-27 18:03:49.832 DEBUG [Slf4JLogger.java:76] - -Dio.netty.maxThreadLocalCharBufferSize: 16384
+2018-11-27 18:03:49.847 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.io.netty.handler.codec.http.HttpObjectMatcher
+2018-11-27 18:03:49.872 DEBUG [Slf4JLogger.java:81] - -Dio.netty.buffer.bytebuf.checkAccessible: true
+2018-11-27 18:03:49.880 DEBUG [Slf4JLogger.java:76] - Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@34ad5f50
+2018-11-27 18:03:49.887 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.java.net.InetSocketAddressMatcher
+2018-11-27 18:03:49.902 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxCapacityPerThread: 32768
+2018-11-27 18:03:49.903 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxSharedCapacityFactor: 2
+2018-11-27 18:03:49.903 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.linkCapacity: 16
+2018-11-27 18:03:49.904 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.ratio: 8
+2018-11-27 18:03:49.909 INFO  [NettyHttpClient.java:190] - Sending request. DefaultFullHttpRequest(decodeResult: success, version: HTTP/1.1, content: UnpooledHeapByteBuf(ridx: 0, widx: 374, cap: 374/374))
+POST /v3/push HTTP/1.1
+content-length: 374
+host: api.jpush.cn
+authorization: Basic MmE1NmIxMWQ5Zjk1NjYzMTA1NTdhMjdlOjkyZWYxNDI2ZmJmZGJhNTRiNmVlNjU0NA==
+Content-Type: application/json;charset=utf-8
+2018-11-27 18:03:49.910 INFO  [NettyHttpClient.java:191] - Send body: {"platform":"all","audience":{"registration_id":["1507bfd3f7ccd09e9b3"]},"notification":{"android":{"alert":"测试推送消息","title":"测试推送消息"},"ios":{"alert":"测试推送消息","badge":"+1","sound":"sound.caf"}},"message":{"title":"测试推送消息","msg_content":"测试推送消息"},"options":{"sendno":1,"time_to_live":86400,"apns_production":false}}
+2018-11-27 18:03:49.923 DEBUG [Slf4JLogger.java:71] - Accepting a server certificate: CN=*.jpush.cn, O=Shenzhen HeXunHuaGu Information Technologies Co.Ltd, L=Shenzhen, ST=GuangDong, C=CN
+2018-11-27 18:03:49.985 DEBUG [Slf4JLogger.java:81] - [id: 0x1eebfbdb, L:/10.0.50.46:51942 - R:api.jpush.cn/113.31.136.105:443] HANDSHAKEN: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+2018-11-27 18:03:50.018 INFO  [HttpResponseHandler.java:36] - PooledSlicedByteBuf(ridx: 0, widx: 43, cap: 43/43, unwrapped: PooledUnsafeDirectByteBuf(ridx: 336, widx: 336, cap: 365))
+2018-11-27 18:03:50.018 INFO  [HttpResponseHandler.java:38] - closing connection
+2018-11-27 18:04:05.577 INFO  [NettyHttpClient.java:48] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 18:04:05.592 DEBUG [Slf4JLogger.java:71] - Using SLF4J as the default logging framework
+2018-11-27 18:04:05.613 DEBUG [Slf4JLogger.java:71] - netty-tcnative not in the classpath; OpenSslEngine will be unavailable.
+2018-11-27 18:04:05.933 DEBUG [Slf4JLogger.java:76] - Default protocols (JDK): [TLSv1.2, TLSv1.1, TLSv1] 
+2018-11-27 18:04:05.935 DEBUG [Slf4JLogger.java:76] - Default cipher suites (JDK): [TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_GCM_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA]
+2018-11-27 18:04:05.945 DEBUG [Slf4JLogger.java:71] - java.nio.Buffer.address: available
+2018-11-27 18:04:05.945 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.theUnsafe: available
+2018-11-27 18:04:05.946 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.copyMemory: available
+2018-11-27 18:04:05.946 DEBUG [Slf4JLogger.java:71] - direct buffer constructor: available
+2018-11-27 18:04:05.947 DEBUG [Slf4JLogger.java:76] - java.nio.Bits.unaligned: available, true
+2018-11-27 18:04:05.947 DEBUG [Slf4JLogger.java:76] - java.nio.DirectByteBuffer.<init>(long, int): available
+2018-11-27 18:04:05.948 DEBUG [Slf4JLogger.java:76] - java.nio.ByteBuffer.cleaner(): available
+2018-11-27 18:04:05.949 DEBUG [Slf4JLogger.java:71] - Platform: Windows
+2018-11-27 18:04:05.949 DEBUG [Slf4JLogger.java:76] - Java version: 8
+2018-11-27 18:04:05.949 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noUnsafe: false
+2018-11-27 18:04:05.949 DEBUG [Slf4JLogger.java:76] - sun.misc.Unsafe: available
+2018-11-27 18:04:05.950 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noJavassist: false
+2018-11-27 18:04:06.000 DEBUG [Slf4JLogger.java:71] - Javassist: available
+2018-11-27 18:04:06.001 DEBUG [Slf4JLogger.java:76] - -Dio.netty.tmpdir: C:\Users\18630\AppData\Local\Temp (java.io.tmpdir)
+2018-11-27 18:04:06.001 DEBUG [Slf4JLogger.java:76] - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+2018-11-27 18:04:06.001 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noPreferDirect: false
+2018-11-27 18:04:06.001 DEBUG [Slf4JLogger.java:76] - io.netty.maxDirectMemory: 1866465280 bytes
+2018-11-27 18:04:06.006 DEBUG [Slf4JLogger.java:76] - -Dio.netty.eventLoopThreads: 16
+2018-11-27 18:04:06.024 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noKeySetOptimization: false
+2018-11-27 18:04:06.025 DEBUG [Slf4JLogger.java:76] - -Dio.netty.selectorAutoRebuildThreshold: 512
+2018-11-27 18:04:06.026 DEBUG [Slf4JLogger.java:71] - org.jctools-core.MpscChunkedArrayQueue: available
+2018-11-27 18:04:06.055 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 18:04:06.057 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 18:04:06.058 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 18:04:06.088 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-27 18:04:06.088 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-27 18:04:06.108 DEBUG [Slf4JLogger.java:76] - -Dio.netty.processId: 3304 (auto-detected)
+2018-11-27 18:04:06.110 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv4Stack: false
+2018-11-27 18:04:06.110 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv6Addresses: false
+2018-11-27 18:04:06.175 DEBUG [Slf4JLogger.java:86] - Loopback interface: lo (Software Loopback Interface 1, 127.0.0.1)
+2018-11-27 18:04:06.176 DEBUG [Slf4JLogger.java:81] - \proc\sys\net\core\somaxconn: 200 (non-existent)
+2018-11-27 18:04:06.246 DEBUG [Slf4JLogger.java:76] - -Dio.netty.machineId: 54:48:10:ff:fe:d9:21:5e (auto-detected)
+2018-11-27 18:04:06.247 DEBUG [Slf4JLogger.java:71] - -Dio.netty.initialSeedUniquifier: 0x716ed55cd7de4903
+2018-11-27 18:04:06.256 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.level: simple
+2018-11-27 18:04:06.256 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.maxRecords: 4
+2018-11-27 18:04:06.271 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numHeapArenas: 16
+2018-11-27 18:04:06.271 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numDirectArenas: 16
+2018-11-27 18:04:06.271 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.pageSize: 8192
+2018-11-27 18:04:06.272 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxOrder: 11
+2018-11-27 18:04:06.272 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.chunkSize: 16777216
+2018-11-27 18:04:06.272 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.tinyCacheSize: 512
+2018-11-27 18:04:06.272 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.smallCacheSize: 256
+2018-11-27 18:04:06.272 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.normalCacheSize: 64
+2018-11-27 18:04:06.272 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxCachedBufferCapacity: 32768
+2018-11-27 18:04:06.272 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.cacheTrimInterval: 8192
+2018-11-27 18:04:06.278 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.type: pooled
+2018-11-27 18:04:06.278 DEBUG [Slf4JLogger.java:76] - -Dio.netty.threadLocalDirectBufferSize: 65536
+2018-11-27 18:04:06.279 DEBUG [Slf4JLogger.java:76] - -Dio.netty.maxThreadLocalCharBufferSize: 16384
+2018-11-27 18:04:06.288 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.io.netty.handler.codec.http.HttpObjectMatcher
+2018-11-27 18:04:06.313 DEBUG [Slf4JLogger.java:81] - -Dio.netty.buffer.bytebuf.checkAccessible: true
+2018-11-27 18:04:06.314 DEBUG [Slf4JLogger.java:76] - Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@56530e55
+2018-11-27 18:04:06.319 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.java.net.InetSocketAddressMatcher
+2018-11-27 18:04:06.330 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxCapacityPerThread: 32768
+2018-11-27 18:04:06.331 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxSharedCapacityFactor: 2
+2018-11-27 18:04:06.331 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.linkCapacity: 16
+2018-11-27 18:04:06.331 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.ratio: 8
+2018-11-27 18:04:06.337 INFO  [NettyHttpClient.java:190] - Sending request. DefaultFullHttpRequest(decodeResult: success, version: HTTP/1.1, content: UnpooledHeapByteBuf(ridx: 0, widx: 374, cap: 374/374))
+POST /v3/push HTTP/1.1
+content-length: 374
+host: api.jpush.cn
+authorization: Basic MmE1NmIxMWQ5Zjk1NjYzMTA1NTdhMjdlOjkyZWYxNDI2ZmJmZGJhNTRiNmVlNjU0NA==
+Content-Type: application/json;charset=utf-8
+2018-11-27 18:04:06.337 INFO  [NettyHttpClient.java:191] - Send body: {"platform":"all","audience":{"registration_id":["1507bfd3f7ccd09e9b3"]},"notification":{"ios":{"alert":"测试推送消息","badge":"+1","sound":"sound.caf"},"android":{"alert":"测试推送消息","title":"测试推送消息"}},"message":{"title":"测试推送消息","msg_content":"测试推送消息"},"options":{"sendno":1,"time_to_live":86400,"apns_production":false}}
+2018-11-27 18:04:06.347 DEBUG [Slf4JLogger.java:71] - Accepting a server certificate: CN=*.jpush.cn, O=Shenzhen HeXunHuaGu Information Technologies Co.Ltd, L=Shenzhen, ST=GuangDong, C=CN
+2018-11-27 18:04:06.396 DEBUG [Slf4JLogger.java:81] - [id: 0x289fa9df, L:/10.0.50.46:52004 - R:api.jpush.cn/113.31.136.105:443] HANDSHAKEN: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+2018-11-27 18:04:06.420 INFO  [HttpResponseHandler.java:36] - PooledSlicedByteBuf(ridx: 0, widx: 43, cap: 43/43, unwrapped: PooledUnsafeDirectByteBuf(ridx: 336, widx: 336, cap: 365))
+2018-11-27 18:04:06.421 INFO  [HttpResponseHandler.java:38] - closing connection
+2018-11-27 18:04:19.521 INFO  [NettyHttpClient.java:48] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 18:04:19.536 DEBUG [Slf4JLogger.java:71] - Using SLF4J as the default logging framework
+2018-11-27 18:04:19.559 DEBUG [Slf4JLogger.java:71] - netty-tcnative not in the classpath; OpenSslEngine will be unavailable.
+2018-11-27 18:04:19.869 DEBUG [Slf4JLogger.java:76] - Default protocols (JDK): [TLSv1.2, TLSv1.1, TLSv1] 
+2018-11-27 18:04:19.870 DEBUG [Slf4JLogger.java:76] - Default cipher suites (JDK): [TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_GCM_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA]
+2018-11-27 18:04:19.880 DEBUG [Slf4JLogger.java:71] - java.nio.Buffer.address: available
+2018-11-27 18:04:19.881 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.theUnsafe: available
+2018-11-27 18:04:19.881 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.copyMemory: available
+2018-11-27 18:04:19.882 DEBUG [Slf4JLogger.java:71] - direct buffer constructor: available
+2018-11-27 18:04:19.882 DEBUG [Slf4JLogger.java:76] - java.nio.Bits.unaligned: available, true
+2018-11-27 18:04:19.882 DEBUG [Slf4JLogger.java:76] - java.nio.DirectByteBuffer.<init>(long, int): available
+2018-11-27 18:04:19.883 DEBUG [Slf4JLogger.java:76] - java.nio.ByteBuffer.cleaner(): available
+2018-11-27 18:04:19.884 DEBUG [Slf4JLogger.java:71] - Platform: Windows
+2018-11-27 18:04:19.884 DEBUG [Slf4JLogger.java:76] - Java version: 8
+2018-11-27 18:04:19.885 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noUnsafe: false
+2018-11-27 18:04:19.885 DEBUG [Slf4JLogger.java:76] - sun.misc.Unsafe: available
+2018-11-27 18:04:19.885 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noJavassist: false
+2018-11-27 18:04:19.936 DEBUG [Slf4JLogger.java:71] - Javassist: available
+2018-11-27 18:04:19.936 DEBUG [Slf4JLogger.java:76] - -Dio.netty.tmpdir: C:\Users\18630\AppData\Local\Temp (java.io.tmpdir)
+2018-11-27 18:04:19.936 DEBUG [Slf4JLogger.java:76] - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+2018-11-27 18:04:19.937 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noPreferDirect: false
+2018-11-27 18:04:19.937 DEBUG [Slf4JLogger.java:76] - io.netty.maxDirectMemory: 1866465280 bytes
+2018-11-27 18:04:19.942 DEBUG [Slf4JLogger.java:76] - -Dio.netty.eventLoopThreads: 16
+2018-11-27 18:04:19.958 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noKeySetOptimization: false
+2018-11-27 18:04:19.958 DEBUG [Slf4JLogger.java:76] - -Dio.netty.selectorAutoRebuildThreshold: 512
+2018-11-27 18:04:19.960 DEBUG [Slf4JLogger.java:71] - org.jctools-core.MpscChunkedArrayQueue: available
+2018-11-27 18:04:19.988 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 18:04:19.992 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 18:04:19.993 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 18:04:20.022 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-27 18:04:20.023 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-27 18:04:20.043 DEBUG [Slf4JLogger.java:76] - -Dio.netty.processId: 12712 (auto-detected)
+2018-11-27 18:04:20.044 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv4Stack: false
+2018-11-27 18:04:20.045 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv6Addresses: false
+2018-11-27 18:04:20.104 DEBUG [Slf4JLogger.java:86] - Loopback interface: lo (Software Loopback Interface 1, 127.0.0.1)
+2018-11-27 18:04:20.105 DEBUG [Slf4JLogger.java:81] - \proc\sys\net\core\somaxconn: 200 (non-existent)
+2018-11-27 18:04:20.170 DEBUG [Slf4JLogger.java:76] - -Dio.netty.machineId: 54:48:10:ff:fe:d9:21:5e (auto-detected)
+2018-11-27 18:04:20.170 DEBUG [Slf4JLogger.java:71] - -Dio.netty.initialSeedUniquifier: 0xd7d251fde8e26a6f
+2018-11-27 18:04:20.177 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.level: simple
+2018-11-27 18:04:20.178 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.maxRecords: 4
+2018-11-27 18:04:20.192 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numHeapArenas: 16
+2018-11-27 18:04:20.192 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numDirectArenas: 16
+2018-11-27 18:04:20.192 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.pageSize: 8192
+2018-11-27 18:04:20.193 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxOrder: 11
+2018-11-27 18:04:20.193 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.chunkSize: 16777216
+2018-11-27 18:04:20.193 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.tinyCacheSize: 512
+2018-11-27 18:04:20.193 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.smallCacheSize: 256
+2018-11-27 18:04:20.193 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.normalCacheSize: 64
+2018-11-27 18:04:20.193 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxCachedBufferCapacity: 32768
+2018-11-27 18:04:20.194 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.cacheTrimInterval: 8192
+2018-11-27 18:04:20.200 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.type: pooled
+2018-11-27 18:04:20.200 DEBUG [Slf4JLogger.java:76] - -Dio.netty.threadLocalDirectBufferSize: 65536
+2018-11-27 18:04:20.200 DEBUG [Slf4JLogger.java:76] - -Dio.netty.maxThreadLocalCharBufferSize: 16384
+2018-11-27 18:04:20.209 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.io.netty.handler.codec.http.HttpObjectMatcher
+2018-11-27 18:04:20.232 DEBUG [Slf4JLogger.java:81] - -Dio.netty.buffer.bytebuf.checkAccessible: true
+2018-11-27 18:04:20.234 DEBUG [Slf4JLogger.java:76] - Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@1291d448
+2018-11-27 18:04:20.238 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.java.net.InetSocketAddressMatcher
+2018-11-27 18:04:20.253 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxCapacityPerThread: 32768
+2018-11-27 18:04:20.253 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxSharedCapacityFactor: 2
+2018-11-27 18:04:20.253 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.linkCapacity: 16
+2018-11-27 18:04:20.253 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.ratio: 8
+2018-11-27 18:04:20.259 INFO  [NettyHttpClient.java:190] - Sending request. DefaultFullHttpRequest(decodeResult: success, version: HTTP/1.1, content: UnpooledHeapByteBuf(ridx: 0, widx: 374, cap: 374/374))
+POST /v3/push HTTP/1.1
+content-length: 374
+host: api.jpush.cn
+authorization: Basic MmE1NmIxMWQ5Zjk1NjYzMTA1NTdhMjdlOjkyZWYxNDI2ZmJmZGJhNTRiNmVlNjU0NA==
+Content-Type: application/json;charset=utf-8
+2018-11-27 18:04:20.259 INFO  [NettyHttpClient.java:191] - Send body: {"platform":"all","audience":{"registration_id":["1507bfd3f7ccd09e9b3"]},"notification":{"ios":{"alert":"测试推送消息","badge":"+1","sound":"sound.caf"},"android":{"alert":"测试推送消息","title":"测试推送消息"}},"message":{"title":"测试推送消息","msg_content":"测试推送消息"},"options":{"sendno":1,"time_to_live":86400,"apns_production":false}}
+2018-11-27 18:04:20.270 DEBUG [Slf4JLogger.java:71] - Accepting a server certificate: CN=*.jpush.cn, O=Shenzhen HeXunHuaGu Information Technologies Co.Ltd, L=Shenzhen, ST=GuangDong, C=CN
+2018-11-27 18:04:20.319 DEBUG [Slf4JLogger.java:81] - [id: 0xe63413dc, L:/10.0.50.46:52063 - R:api.jpush.cn/113.31.136.105:443] HANDSHAKEN: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+2018-11-27 18:04:20.343 INFO  [HttpResponseHandler.java:36] - PooledSlicedByteBuf(ridx: 0, widx: 43, cap: 43/43, unwrapped: PooledUnsafeDirectByteBuf(ridx: 336, widx: 336, cap: 365))
+2018-11-27 18:04:20.344 INFO  [HttpResponseHandler.java:38] - closing connection
+2018-11-27 18:12:12.696 INFO  [NettyHttpClient.java:48] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 18:12:12.703 DEBUG [Slf4JLogger.java:71] - Using SLF4J as the default logging framework
+2018-11-27 18:12:12.716 DEBUG [Slf4JLogger.java:71] - netty-tcnative not in the classpath; OpenSslEngine will be unavailable.
+2018-11-27 18:12:13.003 DEBUG [Slf4JLogger.java:76] - Default protocols (JDK): [TLSv1.2, TLSv1.1, TLSv1] 
+2018-11-27 18:12:13.004 DEBUG [Slf4JLogger.java:76] - Default cipher suites (JDK): [TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_GCM_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA]
+2018-11-27 18:12:13.013 DEBUG [Slf4JLogger.java:71] - java.nio.Buffer.address: available
+2018-11-27 18:12:13.014 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.theUnsafe: available
+2018-11-27 18:12:13.015 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.copyMemory: available
+2018-11-27 18:12:13.015 DEBUG [Slf4JLogger.java:71] - direct buffer constructor: available
+2018-11-27 18:12:13.016 DEBUG [Slf4JLogger.java:76] - java.nio.Bits.unaligned: available, true
+2018-11-27 18:12:13.016 DEBUG [Slf4JLogger.java:76] - java.nio.DirectByteBuffer.<init>(long, int): available
+2018-11-27 18:12:13.016 DEBUG [Slf4JLogger.java:76] - java.nio.ByteBuffer.cleaner(): available
+2018-11-27 18:12:13.017 DEBUG [Slf4JLogger.java:71] - Platform: Windows
+2018-11-27 18:12:13.017 DEBUG [Slf4JLogger.java:76] - Java version: 8
+2018-11-27 18:12:13.017 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noUnsafe: false
+2018-11-27 18:12:13.017 DEBUG [Slf4JLogger.java:76] - sun.misc.Unsafe: available
+2018-11-27 18:12:13.018 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noJavassist: false
+2018-11-27 18:12:13.064 DEBUG [Slf4JLogger.java:71] - Javassist: available
+2018-11-27 18:12:13.064 DEBUG [Slf4JLogger.java:76] - -Dio.netty.tmpdir: C:\Users\18630\AppData\Local\Temp (java.io.tmpdir)
+2018-11-27 18:12:13.064 DEBUG [Slf4JLogger.java:76] - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+2018-11-27 18:12:13.065 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noPreferDirect: false
+2018-11-27 18:12:13.065 DEBUG [Slf4JLogger.java:76] - io.netty.maxDirectMemory: 1866465280 bytes
+2018-11-27 18:12:13.069 DEBUG [Slf4JLogger.java:76] - -Dio.netty.eventLoopThreads: 16
+2018-11-27 18:12:13.082 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noKeySetOptimization: false
+2018-11-27 18:12:13.082 DEBUG [Slf4JLogger.java:76] - -Dio.netty.selectorAutoRebuildThreshold: 512
+2018-11-27 18:12:13.083 DEBUG [Slf4JLogger.java:71] - org.jctools-core.MpscChunkedArrayQueue: available
+2018-11-27 18:12:13.117 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 18:12:13.120 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 18:12:13.122 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-27 18:12:13.146 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-27 18:12:13.146 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-27 18:12:13.170 DEBUG [Slf4JLogger.java:76] - -Dio.netty.processId: 17952 (auto-detected)
+2018-11-27 18:12:13.172 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv4Stack: false
+2018-11-27 18:12:13.172 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv6Addresses: false
+2018-11-27 18:12:13.247 DEBUG [Slf4JLogger.java:86] - Loopback interface: lo (Software Loopback Interface 1, 127.0.0.1)
+2018-11-27 18:12:13.248 DEBUG [Slf4JLogger.java:81] - \proc\sys\net\core\somaxconn: 200 (non-existent)
+2018-11-27 18:12:13.331 DEBUG [Slf4JLogger.java:76] - -Dio.netty.machineId: 54:48:10:ff:fe:d9:21:5e (auto-detected)
+2018-11-27 18:12:13.332 DEBUG [Slf4JLogger.java:71] - -Dio.netty.initialSeedUniquifier: 0x936a9202c30a8e3e
+2018-11-27 18:12:13.341 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.level: simple
+2018-11-27 18:12:13.341 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.maxRecords: 4
+2018-11-27 18:12:13.362 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numHeapArenas: 16
+2018-11-27 18:12:13.362 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numDirectArenas: 16
+2018-11-27 18:12:13.362 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.pageSize: 8192
+2018-11-27 18:12:13.362 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxOrder: 11
+2018-11-27 18:12:13.363 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.chunkSize: 16777216
+2018-11-27 18:12:13.363 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.tinyCacheSize: 512
+2018-11-27 18:12:13.363 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.smallCacheSize: 256
+2018-11-27 18:12:13.363 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.normalCacheSize: 64
+2018-11-27 18:12:13.363 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxCachedBufferCapacity: 32768
+2018-11-27 18:12:13.363 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.cacheTrimInterval: 8192
+2018-11-27 18:12:13.374 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.type: pooled
+2018-11-27 18:12:13.374 DEBUG [Slf4JLogger.java:76] - -Dio.netty.threadLocalDirectBufferSize: 65536
+2018-11-27 18:12:13.374 DEBUG [Slf4JLogger.java:76] - -Dio.netty.maxThreadLocalCharBufferSize: 16384
+2018-11-27 18:12:13.387 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.io.netty.handler.codec.http.HttpObjectMatcher
+2018-11-27 18:12:13.413 DEBUG [Slf4JLogger.java:81] - -Dio.netty.buffer.bytebuf.checkAccessible: true
+2018-11-27 18:12:13.415 DEBUG [Slf4JLogger.java:76] - Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@1b2c3845
+2018-11-27 18:12:13.420 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.java.net.InetSocketAddressMatcher
+2018-11-27 18:12:13.437 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxCapacityPerThread: 32768
+2018-11-27 18:12:13.437 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxSharedCapacityFactor: 2
+2018-11-27 18:12:13.437 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.linkCapacity: 16
+2018-11-27 18:12:13.437 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.ratio: 8
+2018-11-27 18:12:13.443 INFO  [NettyHttpClient.java:190] - Sending request. DefaultFullHttpRequest(decodeResult: success, version: HTTP/1.1, content: UnpooledHeapByteBuf(ridx: 0, widx: 374, cap: 374/374))
+POST /v3/push HTTP/1.1
+content-length: 374
+host: api.jpush.cn
+authorization: Basic MmE1NmIxMWQ5Zjk1NjYzMTA1NTdhMjdlOjkyZWYxNDI2ZmJmZGJhNTRiNmVlNjU0NA==
+Content-Type: application/json;charset=utf-8
+2018-11-27 18:12:13.443 INFO  [NettyHttpClient.java:191] - Send body: {"platform":"all","audience":{"registration_id":["1507bfd3f7ccd09e9b3"]},"notification":{"android":{"alert":"测试推送消息","title":"测试推送消息"},"ios":{"alert":"测试推送消息","badge":"+1","sound":"sound.caf"}},"message":{"title":"测试推送消息","msg_content":"测试推送消息"},"options":{"sendno":1,"time_to_live":86400,"apns_production":false}}
+2018-11-27 18:12:13.454 DEBUG [Slf4JLogger.java:71] - Accepting a server certificate: CN=*.jpush.cn, O=Shenzhen HeXunHuaGu Information Technologies Co.Ltd, L=Shenzhen, ST=GuangDong, C=CN
+2018-11-27 18:12:13.513 DEBUG [Slf4JLogger.java:81] - [id: 0xdc8f7bbc, L:/10.0.50.46:52990 - R:api.jpush.cn/113.31.136.105:443] HANDSHAKEN: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+2018-11-27 18:12:13.540 INFO  [HttpResponseHandler.java:36] - PooledSlicedByteBuf(ridx: 0, widx: 43, cap: 43/43, unwrapped: PooledUnsafeDirectByteBuf(ridx: 336, widx: 336, cap: 365))
+2018-11-27 18:12:13.540 INFO  [HttpResponseHandler.java:38] - closing connection
+2018-11-28 10:17:02.844 INFO  [NettyHttpClient.java:48] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-28 10:17:02.861 DEBUG [Slf4JLogger.java:71] - Using SLF4J as the default logging framework
+2018-11-28 10:17:02.876 DEBUG [Slf4JLogger.java:71] - netty-tcnative not in the classpath; OpenSslEngine will be unavailable.
+2018-11-28 10:17:03.194 DEBUG [Slf4JLogger.java:76] - Default protocols (JDK): [TLSv1.2, TLSv1.1, TLSv1] 
+2018-11-28 10:17:03.195 DEBUG [Slf4JLogger.java:76] - Default cipher suites (JDK): [TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_GCM_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA]
+2018-11-28 10:17:03.204 DEBUG [Slf4JLogger.java:71] - java.nio.Buffer.address: available
+2018-11-28 10:17:03.205 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.theUnsafe: available
+2018-11-28 10:17:03.205 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.copyMemory: available
+2018-11-28 10:17:03.205 DEBUG [Slf4JLogger.java:71] - direct buffer constructor: available
+2018-11-28 10:17:03.206 DEBUG [Slf4JLogger.java:76] - java.nio.Bits.unaligned: available, true
+2018-11-28 10:17:03.206 DEBUG [Slf4JLogger.java:76] - java.nio.DirectByteBuffer.<init>(long, int): available
+2018-11-28 10:17:03.207 DEBUG [Slf4JLogger.java:76] - java.nio.ByteBuffer.cleaner(): available
+2018-11-28 10:17:03.208 DEBUG [Slf4JLogger.java:71] - Platform: Windows
+2018-11-28 10:17:03.208 DEBUG [Slf4JLogger.java:76] - Java version: 8
+2018-11-28 10:17:03.208 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noUnsafe: false
+2018-11-28 10:17:03.208 DEBUG [Slf4JLogger.java:76] - sun.misc.Unsafe: available
+2018-11-28 10:17:03.209 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noJavassist: false
+2018-11-28 10:17:03.255 DEBUG [Slf4JLogger.java:71] - Javassist: available
+2018-11-28 10:17:03.255 DEBUG [Slf4JLogger.java:76] - -Dio.netty.tmpdir: C:\Users\18630\AppData\Local\Temp (java.io.tmpdir)
+2018-11-28 10:17:03.255 DEBUG [Slf4JLogger.java:76] - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+2018-11-28 10:17:03.255 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noPreferDirect: false
+2018-11-28 10:17:03.255 DEBUG [Slf4JLogger.java:76] - io.netty.maxDirectMemory: 1866465280 bytes
+2018-11-28 10:17:03.259 DEBUG [Slf4JLogger.java:76] - -Dio.netty.eventLoopThreads: 16
+2018-11-28 10:17:03.272 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noKeySetOptimization: false
+2018-11-28 10:17:03.272 DEBUG [Slf4JLogger.java:76] - -Dio.netty.selectorAutoRebuildThreshold: 512
+2018-11-28 10:17:03.273 DEBUG [Slf4JLogger.java:71] - org.jctools-core.MpscChunkedArrayQueue: available
+2018-11-28 10:17:03.311 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-28 10:17:03.314 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-28 10:17:03.314 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-28 10:17:03.344 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-28 10:17:03.345 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-28 10:17:03.369 DEBUG [Slf4JLogger.java:76] - -Dio.netty.processId: 22016 (auto-detected)
+2018-11-28 10:17:03.370 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv4Stack: false
+2018-11-28 10:17:03.371 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv6Addresses: false
+2018-11-28 10:17:03.471 DEBUG [Slf4JLogger.java:86] - Loopback interface: lo (Software Loopback Interface 1, 127.0.0.1)
+2018-11-28 10:17:03.472 DEBUG [Slf4JLogger.java:81] - \proc\sys\net\core\somaxconn: 200 (non-existent)
+2018-11-28 10:17:03.581 DEBUG [Slf4JLogger.java:76] - -Dio.netty.machineId: 54:48:10:ff:fe:d9:21:5e (auto-detected)
+2018-11-28 10:17:03.581 DEBUG [Slf4JLogger.java:71] - -Dio.netty.initialSeedUniquifier: 0x77d5fd490e858605
+2018-11-28 10:17:03.591 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.level: simple
+2018-11-28 10:17:03.591 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.maxRecords: 4
+2018-11-28 10:17:03.614 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numHeapArenas: 16
+2018-11-28 10:17:03.614 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numDirectArenas: 16
+2018-11-28 10:17:03.614 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.pageSize: 8192
+2018-11-28 10:17:03.614 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxOrder: 11
+2018-11-28 10:17:03.614 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.chunkSize: 16777216
+2018-11-28 10:17:03.615 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.tinyCacheSize: 512
+2018-11-28 10:17:03.615 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.smallCacheSize: 256
+2018-11-28 10:17:03.615 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.normalCacheSize: 64
+2018-11-28 10:17:03.615 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxCachedBufferCapacity: 32768
+2018-11-28 10:17:03.616 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.cacheTrimInterval: 8192
+2018-11-28 10:17:03.625 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.type: pooled
+2018-11-28 10:17:03.626 DEBUG [Slf4JLogger.java:76] - -Dio.netty.threadLocalDirectBufferSize: 65536
+2018-11-28 10:17:03.626 DEBUG [Slf4JLogger.java:76] - -Dio.netty.maxThreadLocalCharBufferSize: 16384
+2018-11-28 10:17:03.641 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.io.netty.handler.codec.http.HttpObjectMatcher
+2018-11-28 10:17:03.670 DEBUG [Slf4JLogger.java:81] - -Dio.netty.buffer.bytebuf.checkAccessible: true
+2018-11-28 10:17:03.672 DEBUG [Slf4JLogger.java:76] - Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@5b3b3683
+2018-11-28 10:17:03.678 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.java.net.InetSocketAddressMatcher
+2018-11-28 10:17:03.695 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxCapacityPerThread: 32768
+2018-11-28 10:17:03.696 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxSharedCapacityFactor: 2
+2018-11-28 10:17:03.696 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.linkCapacity: 16
+2018-11-28 10:17:03.696 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.ratio: 8
+2018-11-28 10:17:03.703 INFO  [NettyHttpClient.java:190] - Sending request. DefaultFullHttpRequest(decodeResult: success, version: HTTP/1.1, content: UnpooledHeapByteBuf(ridx: 0, widx: 314, cap: 314/314))
+POST /v3/push HTTP/1.1
+content-length: 314
+host: api.jpush.cn
+authorization: Basic MmE1NmIxMWQ5Zjk1NjYzMTA1NTdhMjdlOjkyZWYxNDI2ZmJmZGJhNTRiNmVlNjU0NA==
+Content-Type: application/json;charset=utf-8
+2018-11-28 10:17:03.704 INFO  [NettyHttpClient.java:191] - Send body: {"platform":"all","audience":{"registration_id":["1517bfd3f7fd34fd4e9"]},"notification":{"ios":{"alert":"机呼","badge":"+1","sound":"sound.caf"},"android":{"alert":"机呼","title":"机呼"}},"message":{"title":"推送","msg_content":"推送"},"options":{"sendno":1,"time_to_live":86400,"apns_production":false}}
+2018-11-28 10:17:03.715 DEBUG [Slf4JLogger.java:71] - Accepting a server certificate: CN=*.jpush.cn, O=Shenzhen HeXunHuaGu Information Technologies Co.Ltd, L=Shenzhen, ST=GuangDong, C=CN
+2018-11-28 10:17:03.774 DEBUG [Slf4JLogger.java:81] - [id: 0x16e0188c, L:/10.0.50.74:63664 - R:api.jpush.cn/113.31.136.105:443] HANDSHAKEN: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+2018-11-28 10:17:03.803 INFO  [HttpResponseHandler.java:36] - PooledSlicedByteBuf(ridx: 0, widx: 98, cap: 98/98, unwrapped: PooledUnsafeDirectByteBuf(ridx: 400, widx: 400, cap: 429))
+2018-11-28 10:17:03.803 INFO  [HttpResponseHandler.java:38] - closing connection
+2018-11-28 10:21:10.128 INFO  [NettyHttpClient.java:48] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-28 10:21:10.136 DEBUG [Slf4JLogger.java:71] - Using SLF4J as the default logging framework
+2018-11-28 10:21:10.149 DEBUG [Slf4JLogger.java:71] - netty-tcnative not in the classpath; OpenSslEngine will be unavailable.
+2018-11-28 10:21:10.467 DEBUG [Slf4JLogger.java:76] - Default protocols (JDK): [TLSv1.2, TLSv1.1, TLSv1] 
+2018-11-28 10:21:10.469 DEBUG [Slf4JLogger.java:76] - Default cipher suites (JDK): [TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_GCM_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA]
+2018-11-28 10:21:10.478 DEBUG [Slf4JLogger.java:71] - java.nio.Buffer.address: available
+2018-11-28 10:21:10.479 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.theUnsafe: available
+2018-11-28 10:21:10.479 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.copyMemory: available
+2018-11-28 10:21:10.480 DEBUG [Slf4JLogger.java:71] - direct buffer constructor: available
+2018-11-28 10:21:10.480 DEBUG [Slf4JLogger.java:76] - java.nio.Bits.unaligned: available, true
+2018-11-28 10:21:10.481 DEBUG [Slf4JLogger.java:76] - java.nio.DirectByteBuffer.<init>(long, int): available
+2018-11-28 10:21:10.481 DEBUG [Slf4JLogger.java:76] - java.nio.ByteBuffer.cleaner(): available
+2018-11-28 10:21:10.482 DEBUG [Slf4JLogger.java:71] - Platform: Windows
+2018-11-28 10:21:10.482 DEBUG [Slf4JLogger.java:76] - Java version: 8
+2018-11-28 10:21:10.482 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noUnsafe: false
+2018-11-28 10:21:10.482 DEBUG [Slf4JLogger.java:76] - sun.misc.Unsafe: available
+2018-11-28 10:21:10.483 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noJavassist: false
+2018-11-28 10:21:10.527 DEBUG [Slf4JLogger.java:71] - Javassist: available
+2018-11-28 10:21:10.528 DEBUG [Slf4JLogger.java:76] - -Dio.netty.tmpdir: C:\Users\18630\AppData\Local\Temp (java.io.tmpdir)
+2018-11-28 10:21:10.528 DEBUG [Slf4JLogger.java:76] - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+2018-11-28 10:21:10.528 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noPreferDirect: false
+2018-11-28 10:21:10.528 DEBUG [Slf4JLogger.java:76] - io.netty.maxDirectMemory: 1866465280 bytes
+2018-11-28 10:21:10.532 DEBUG [Slf4JLogger.java:76] - -Dio.netty.eventLoopThreads: 16
+2018-11-28 10:21:10.545 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noKeySetOptimization: false
+2018-11-28 10:21:10.546 DEBUG [Slf4JLogger.java:76] - -Dio.netty.selectorAutoRebuildThreshold: 512
+2018-11-28 10:21:10.547 DEBUG [Slf4JLogger.java:71] - org.jctools-core.MpscChunkedArrayQueue: available
+2018-11-28 10:21:10.581 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-28 10:21:10.584 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-28 10:21:10.585 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-28 10:21:10.608 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-28 10:21:10.609 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-28 10:21:10.629 DEBUG [Slf4JLogger.java:76] - -Dio.netty.processId: 14844 (auto-detected)
+2018-11-28 10:21:10.630 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv4Stack: false
+2018-11-28 10:21:10.631 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv6Addresses: false
+2018-11-28 10:21:10.726 DEBUG [Slf4JLogger.java:86] - Loopback interface: lo (Software Loopback Interface 1, 127.0.0.1)
+2018-11-28 10:21:10.727 DEBUG [Slf4JLogger.java:81] - \proc\sys\net\core\somaxconn: 200 (non-existent)
+2018-11-28 10:21:10.833 DEBUG [Slf4JLogger.java:76] - -Dio.netty.machineId: 54:48:10:ff:fe:d9:21:5e (auto-detected)
+2018-11-28 10:21:10.834 DEBUG [Slf4JLogger.java:71] - -Dio.netty.initialSeedUniquifier: 0xcdd654e0b549522b
+2018-11-28 10:21:10.842 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.level: simple
+2018-11-28 10:21:10.842 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.maxRecords: 4
+2018-11-28 10:21:10.859 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numHeapArenas: 16
+2018-11-28 10:21:10.859 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numDirectArenas: 16
+2018-11-28 10:21:10.859 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.pageSize: 8192
+2018-11-28 10:21:10.859 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxOrder: 11
+2018-11-28 10:21:10.860 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.chunkSize: 16777216
+2018-11-28 10:21:10.860 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.tinyCacheSize: 512
+2018-11-28 10:21:10.860 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.smallCacheSize: 256
+2018-11-28 10:21:10.860 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.normalCacheSize: 64
+2018-11-28 10:21:10.860 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxCachedBufferCapacity: 32768
+2018-11-28 10:21:10.860 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.cacheTrimInterval: 8192
+2018-11-28 10:21:10.868 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.type: pooled
+2018-11-28 10:21:10.868 DEBUG [Slf4JLogger.java:76] - -Dio.netty.threadLocalDirectBufferSize: 65536
+2018-11-28 10:21:10.869 DEBUG [Slf4JLogger.java:76] - -Dio.netty.maxThreadLocalCharBufferSize: 16384
+2018-11-28 10:21:10.883 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.io.netty.handler.codec.http.HttpObjectMatcher
+2018-11-28 10:21:10.910 DEBUG [Slf4JLogger.java:81] - -Dio.netty.buffer.bytebuf.checkAccessible: true
+2018-11-28 10:21:10.911 DEBUG [Slf4JLogger.java:76] - Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@2aa07cd3
+2018-11-28 10:21:10.917 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.java.net.InetSocketAddressMatcher
+2018-11-28 10:21:10.931 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxCapacityPerThread: 32768
+2018-11-28 10:21:10.932 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxSharedCapacityFactor: 2
+2018-11-28 10:21:10.932 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.linkCapacity: 16
+2018-11-28 10:21:10.932 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.ratio: 8
+2018-11-28 10:21:10.937 INFO  [NettyHttpClient.java:190] - Sending request. DefaultFullHttpRequest(decodeResult: success, version: HTTP/1.1, content: UnpooledHeapByteBuf(ridx: 0, widx: 374, cap: 374/374))
+POST /v3/push HTTP/1.1
+content-length: 374
+host: api.jpush.cn
+authorization: Basic MmE1NmIxMWQ5Zjk1NjYzMTA1NTdhMjdlOjkyZWYxNDI2ZmJmZGJhNTRiNmVlNjU0NA==
+Content-Type: application/json;charset=utf-8
+2018-11-28 10:21:10.938 INFO  [NettyHttpClient.java:191] - Send body: {"platform":"all","audience":{"registration_id":["1507bfd3f7ccd09e9b3"]},"notification":{"android":{"alert":"测试推送消息","title":"测试推送消息"},"ios":{"alert":"测试推送消息","badge":"+1","sound":"sound.caf"}},"message":{"title":"测试推送消息","msg_content":"测试推送消息"},"options":{"sendno":1,"time_to_live":86400,"apns_production":false}}
+2018-11-28 10:21:10.952 DEBUG [Slf4JLogger.java:71] - Accepting a server certificate: CN=*.jpush.cn, O=Shenzhen HeXunHuaGu Information Technologies Co.Ltd, L=Shenzhen, ST=GuangDong, C=CN
+2018-11-28 10:21:11.014 DEBUG [Slf4JLogger.java:81] - [id: 0xe51a7318, L:/10.0.50.74:64154 - R:api.jpush.cn/113.31.136.105:443] HANDSHAKEN: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+2018-11-28 10:21:11.044 INFO  [HttpResponseHandler.java:36] - PooledSlicedByteBuf(ridx: 0, widx: 43, cap: 43/43, unwrapped: PooledUnsafeDirectByteBuf(ridx: 335, widx: 335, cap: 364))
+2018-11-28 10:21:11.045 INFO  [HttpResponseHandler.java:38] - closing connection
+2018-11-28 10:21:40.345 INFO  [NettyHttpClient.java:48] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-28 10:21:40.467 DEBUG [Slf4JLogger.java:71] - Using SLF4J as the default logging framework
+2018-11-28 10:21:40.632 DEBUG [Slf4JLogger.java:71] - netty-tcnative not in the classpath; OpenSslEngine will be unavailable.
+2018-11-28 10:21:48.686 DEBUG [Slf4JLogger.java:76] - Default protocols (JDK): [TLSv1.2, TLSv1.1, TLSv1] 
+2018-11-28 10:21:48.696 DEBUG [Slf4JLogger.java:76] - Default cipher suites (JDK): [TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_GCM_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA]
+2018-11-28 10:21:48.862 DEBUG [Slf4JLogger.java:71] - java.nio.Buffer.address: available
+2018-11-28 10:21:48.868 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.theUnsafe: available
+2018-11-28 10:21:48.875 DEBUG [Slf4JLogger.java:71] - sun.misc.Unsafe.copyMemory: available
+2018-11-28 10:21:48.881 DEBUG [Slf4JLogger.java:71] - direct buffer constructor: available
+2018-11-28 10:21:48.887 DEBUG [Slf4JLogger.java:76] - java.nio.Bits.unaligned: available, true
+2018-11-28 10:21:48.889 DEBUG [Slf4JLogger.java:76] - java.nio.DirectByteBuffer.<init>(long, int): available
+2018-11-28 10:21:48.895 DEBUG [Slf4JLogger.java:76] - java.nio.ByteBuffer.cleaner(): available
+2018-11-28 10:21:48.910 DEBUG [Slf4JLogger.java:71] - Platform: Windows
+2018-11-28 10:21:48.916 DEBUG [Slf4JLogger.java:76] - Java version: 8
+2018-11-28 10:21:48.918 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noUnsafe: false
+2018-11-28 10:21:48.920 DEBUG [Slf4JLogger.java:76] - sun.misc.Unsafe: available
+2018-11-28 10:21:48.922 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noJavassist: false
+2018-11-28 10:21:50.419 DEBUG [Slf4JLogger.java:71] - Javassist: available
+2018-11-28 10:21:50.421 DEBUG [Slf4JLogger.java:76] - -Dio.netty.tmpdir: C:\Users\18630\AppData\Local\Temp (java.io.tmpdir)
+2018-11-28 10:21:50.422 DEBUG [Slf4JLogger.java:76] - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+2018-11-28 10:21:50.424 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noPreferDirect: false
+2018-11-28 10:21:50.426 DEBUG [Slf4JLogger.java:76] - io.netty.maxDirectMemory: 1866465280 bytes
+2018-11-28 10:21:50.506 DEBUG [Slf4JLogger.java:76] - -Dio.netty.eventLoopThreads: 16
+2018-11-28 10:21:50.722 DEBUG [Slf4JLogger.java:76] - -Dio.netty.noKeySetOptimization: false
+2018-11-28 10:21:50.724 DEBUG [Slf4JLogger.java:76] - -Dio.netty.selectorAutoRebuildThreshold: 512
+2018-11-28 10:21:50.747 DEBUG [Slf4JLogger.java:71] - org.jctools-core.MpscChunkedArrayQueue: available
+2018-11-28 10:21:50.986 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-28 10:21:51.021 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-28 10:21:51.032 INFO  [NativeHttpClient.java:55] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-28 10:21:51.166 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-28 10:21:51.167 DEBUG [PlatformNotification.java:132] - Extra value is null, throw away it.
+2018-11-28 10:21:51.218 DEBUG [Slf4JLogger.java:76] - -Dio.netty.processId: 10948 (auto-detected)
+2018-11-28 10:21:51.221 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv4Stack: false
+2018-11-28 10:21:51.222 DEBUG [Slf4JLogger.java:76] - -Djava.net.preferIPv6Addresses: false
+2018-11-28 10:21:51.298 DEBUG [Slf4JLogger.java:86] - Loopback interface: lo (Software Loopback Interface 1, 127.0.0.1)
+2018-11-28 10:21:51.300 DEBUG [Slf4JLogger.java:81] - \proc\sys\net\core\somaxconn: 200 (non-existent)
+2018-11-28 10:21:51.387 DEBUG [Slf4JLogger.java:76] - -Dio.netty.machineId: 54:48:10:ff:fe:d9:21:5e (auto-detected)
+2018-11-28 10:21:51.388 DEBUG [Slf4JLogger.java:71] - -Dio.netty.initialSeedUniquifier: 0x28b93f891a857e84
+2018-11-28 10:21:51.408 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.level: simple
+2018-11-28 10:21:51.408 DEBUG [Slf4JLogger.java:81] - -Dio.netty.leakDetection.maxRecords: 4
+2018-11-28 10:21:51.443 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numHeapArenas: 16
+2018-11-28 10:21:51.443 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.numDirectArenas: 16
+2018-11-28 10:21:51.444 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.pageSize: 8192
+2018-11-28 10:21:51.445 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxOrder: 11
+2018-11-28 10:21:51.445 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.chunkSize: 16777216
+2018-11-28 10:21:51.446 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.tinyCacheSize: 512
+2018-11-28 10:21:51.446 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.smallCacheSize: 256
+2018-11-28 10:21:51.446 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.normalCacheSize: 64
+2018-11-28 10:21:51.447 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.maxCachedBufferCapacity: 32768
+2018-11-28 10:21:51.447 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.cacheTrimInterval: 8192
+2018-11-28 10:21:51.461 DEBUG [Slf4JLogger.java:76] - -Dio.netty.allocator.type: pooled
+2018-11-28 10:21:51.462 DEBUG [Slf4JLogger.java:76] - -Dio.netty.threadLocalDirectBufferSize: 65536
+2018-11-28 10:21:51.462 DEBUG [Slf4JLogger.java:76] - -Dio.netty.maxThreadLocalCharBufferSize: 16384
+2018-11-28 10:21:51.502 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.io.netty.handler.codec.http.HttpObjectMatcher
+2018-11-28 10:21:51.547 DEBUG [Slf4JLogger.java:81] - -Dio.netty.buffer.bytebuf.checkAccessible: true
+2018-11-28 10:21:51.549 DEBUG [Slf4JLogger.java:76] - Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@34d137a6
+2018-11-28 10:21:51.554 DEBUG [Slf4JLogger.java:76] - Generated: io.netty.util.internal.__matchers__.java.net.InetSocketAddressMatcher
+2018-11-28 10:21:51.575 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxCapacityPerThread: 32768
+2018-11-28 10:21:51.575 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.maxSharedCapacityFactor: 2
+2018-11-28 10:21:51.575 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.linkCapacity: 16
+2018-11-28 10:21:51.576 DEBUG [Slf4JLogger.java:76] - -Dio.netty.recycler.ratio: 8
+2018-11-28 10:21:51.605 INFO  [NettyHttpClient.java:190] - Sending request. DefaultFullHttpRequest(decodeResult: success, version: HTTP/1.1, content: UnpooledHeapByteBuf(ridx: 0, widx: 374, cap: 374/374))
+POST /v3/push HTTP/1.1
+content-length: 374
+host: api.jpush.cn
+authorization: Basic MmE1NmIxMWQ5Zjk1NjYzMTA1NTdhMjdlOjkyZWYxNDI2ZmJmZGJhNTRiNmVlNjU0NA==
+Content-Type: application/json;charset=utf-8
+2018-11-28 10:21:51.605 INFO  [NettyHttpClient.java:191] - Send body: {"platform":"all","audience":{"registration_id":["1507bfd3f7ccd09e9b3"]},"notification":{"ios":{"alert":"测试推送消息","badge":"+1","sound":"sound.caf"},"android":{"alert":"测试推送消息","title":"测试推送消息"}},"message":{"title":"测试推送消息","msg_content":"测试推送消息"},"options":{"sendno":1,"time_to_live":86400,"apns_production":false}}
+2018-11-28 10:21:51.606 DEBUG [Slf4JLogger.java:71] - Accepting a server certificate: CN=*.jpush.cn, O=Shenzhen HeXunHuaGu Information Technologies Co.Ltd, L=Shenzhen, ST=GuangDong, C=CN
+2018-11-28 10:21:51.685 DEBUG [Slf4JLogger.java:81] - [id: 0x84d69573, L:/10.0.50.74:64259 - R:api.jpush.cn/113.31.136.105:443] HANDSHAKEN: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+2018-11-28 10:21:51.715 INFO  [HttpResponseHandler.java:36] - PooledSlicedByteBuf(ridx: 0, widx: 43, cap: 43/43, unwrapped: PooledUnsafeDirectByteBuf(ridx: 336, widx: 336, cap: 365))
+2018-11-28 10:21:51.715 INFO  [HttpResponseHandler.java:38] - closing connection
+2018-11-28 10:30:34.916 INFO  [NativeHttpClient.java:54] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-28 10:30:35.187 INFO  [NativeHttpClient.java:54] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-28 10:30:35.189 INFO  [NativeHttpClient.java:54] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-28 10:30:35.190 INFO  [NativeHttpClient.java:54] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2018-11-28 10:30:35.222 DEBUG [PlatformNotification.java:130] - Extra value is null, throw away it.
+2018-11-28 10:30:35.222 DEBUG [PlatformNotification.java:130] - Extra value is null, throw away it.
+2018-11-28 10:30:35.229 DEBUG [NativeHttpClient.java:120] - Send request - POST https://api.jpush.cn/v3/push
+2018-11-28 10:30:35.229 DEBUG [NativeHttpClient.java:122] - Request Content - {"platform":"all","audience":{"registration_id":["1507bfd3f7ccd09e9b3"]},"notification":{"android":{"alert":"测试推送消息","title":"测试推送消息"},"ios":{"alert":"测试推送消息","badge":"+1","sound":"sound.caf"}},"message":{"title":"测试推送消息","msg_content":"测试推送消息"},"options":{"sendno":1,"time_to_live":86400,"apns_production":false}}
+2018-11-28 10:30:35.360 DEBUG [ResponseWrapper.java:36] - JPush API Rate Limiting params - quota:600, remaining:598, reset:44
+2018-11-28 10:30:35.361 DEBUG [NativeHttpClient.java:190] - Succeed to get response OK - responseCode:200
+2018-11-28 10:30:35.361 DEBUG [NativeHttpClient.java:191] - Response Content - {"sendno":"1","msg_id":"29273405234092296"}
+2019-01-24 19:00:44.762 INFO  [NativeHttpClient.java:54] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2019-01-24 19:00:45.133 INFO  [NativeHttpClient.java:54] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2019-01-24 19:00:45.135 INFO  [NativeHttpClient.java:54] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2019-01-24 19:00:45.136 INFO  [NativeHttpClient.java:54] - Created instance with connectionTimeout 5,000, readTimeout 30,000, maxRetryTimes 3, SSL Version TLS
+2019-01-24 19:00:45.173 DEBUG [PlatformNotification.java:130] - Extra value is null, throw away it.
+2019-01-24 19:00:45.173 DEBUG [PlatformNotification.java:130] - Extra value is null, throw away it.
+2019-01-24 19:00:45.179 DEBUG [NativeHttpClient.java:120] - Send request - POST https://api.jpush.cn/v3/push
+2019-01-24 19:00:45.180 DEBUG [NativeHttpClient.java:122] - Request Content - {"platform":"all","audience":{"registration_id":["1507bfd3f7ccd09e9b3"]},"notification":{"android":{"alert":"测试推送消息","title":"测试推送消息"},"ios":{"alert":"测试推送消息","badge":"+1","sound":"sound.caf"}},"message":{"title":"测试推送消息","msg_content":"测试推送消息"},"options":{"sendno":1,"time_to_live":86400,"apns_production":false}}
+2019-01-24 19:00:45.284 DEBUG [ResponseWrapper.java:36] - JPush API Rate Limiting params - quota:600, remaining:599, reset:60
+2019-01-24 19:00:45.284 DEBUG [NativeHttpClient.java:190] - Succeed to get response OK - responseCode:200
+2019-01-24 19:00:45.284 DEBUG [NativeHttpClient.java:191] - Response Content - {"sendno":"1","msg_id":"38280600853863198"}

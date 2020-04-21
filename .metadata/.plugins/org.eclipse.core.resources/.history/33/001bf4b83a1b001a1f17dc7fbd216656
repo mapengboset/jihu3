@@ -1,0 +1,71 @@
+package com.hiko.gym.common.repository.redis;
+
+import java.util.*;
+
+/**
+ * 场馆客户运动日期列表接口
+ * 
+ * @author cychen
+ *
+ */
+public interface RVenueCustomerSportDateList {
+
+	/**
+	 * 添加运动日期
+	 * 
+	 * @param venueCustomerId 场馆客户标识
+	 * @param sportDate 运动日期
+	 */
+	public void add(String venueCustomerId, String sportDate);
+
+	/**
+	 * 删除运动日期
+	 * 
+	 * @param venueCustomerId 场馆客户标识
+	 * @param sportDate 运动日期
+	 */
+	public void remove(String venueCustomerId, String sportDate);
+
+	/**
+	 * 存在运动日期
+	 * 
+	 * @param venueCustomerId 场馆客户标识
+	 * @param sportDate 运动日期
+	 * @return 是否存在
+	 */
+	public Boolean exist(String venueCustomerId, String sportDate);
+
+	/**
+	 * 获取列表大小
+	 * 
+	 * @param venueCustomerId 场馆客户标识
+	 * @return 列表大小
+	 */
+	public Long size(String venueCustomerId);
+
+	/**
+	 * 最后运动日期
+	 * 
+	 * @param venueCustomerId 场馆客户标识
+	 * @return 运动日期
+	 */
+	public String last(String venueCustomerId);
+
+	/**
+	 * 清除列表内容
+	 * 
+	 * @param venueCustomerId 场馆客户标识
+	 */
+	public void clear(String venueCustomerId);
+
+	/**
+	 * 获取运动日期
+	 * 
+	 * @param venueCustomerId 场馆客户标识
+	 * @param startIndex 开始序号
+	 * @param endIndex 结束序号
+	 * @return 运动日期列表
+	 */
+	public List<String> range(String venueCustomerId, Long startIndex, Long endIndex);
+
+}

@@ -1,0 +1,277 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+import java.io.IOException;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yqbing.servicebing.repository.database.bean.UserToken;
+import com.yqbing.servicebing.service.UserService;
+import com.yqbing.servicebing.utils.StringUtil;
+import com.yqbing.servicebing.utils.enums.ErrorCode;
+import com.yqbing.servicebing.utils.json.JSONObject;
+import com.yqbing.servicebing.utils.json.JSONUtil;
+import com.yqbing.servicebing.utils.web.CommonResult;
+import com.yqbing.servicebing.webapp.request.ParamConstant;
+import com.yqbing.servicebing.webapp.request.UserInfo;
+import com.yqbing.servicebing.webapp.response.vo.UserAppInfo;
+import com.yqbing.servicebing.webapp.response.vo.UserTokenInfo;
+
+@RestController
+@Api(tags = "用户中心")
+@RequestMapping(value="/app/user/api")
+public class UserApiController {
+	
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserApiController.class);
+	@Resource(name = "userService")
+	private UserService userService = null;
+	
+	
+	@RequestMapping(value="/reg",method = {RequestMethod.GET,RequestMethod.POST})
+	@ApiOperation(value = "注册")
+    public CommonResult reg(HttpServletRequest http,String data) throws IOException {
+		
+		CommonResult result = null;
+		if(StringUtil.isNotEmpty(data)) {
+		
+			JSONObject dataJo = JSONObject.fromObject(data);
+			String loginUser = JSONUtil.getString(dataJo, ParamConstant.LOGIN_USER);
+			String loginPassword = JSONUtil.getString(dataJo, ParamConstant.LOGIN_PASSWORD);
+			String mobile = JSONUtil.getString(dataJo, ParamConstant.MOBILE);
+			int appId = JSONUtil.getInt(dataJo, ParamConstant.APP_ID);
+			
+			UserInfo user = new UserInfo();
+			user.setLoginUser(loginUser);
+			user.setLoginPassword(loginPassword);
+			user.setMobile(mobile);
+			user.setAppId(appId);
+			result = userService.createUser(user);
+			
+		}else {
+			
+			result =  new CommonResult(ErrorCode.CODE_PARAM_ERROR, "账号不能为空");
+		}
+		return result;
+    }
+	
+	
+	
+	
+	
+//	@RequestMapping(value="/login")登录
+	@RequestMapping(value="/login")
+    public CommonResult login(String data) throws IOException {
+		CommonResult result = null;
+		if(StringUtil.isNotEmpty(data)) {
+			UserInfo user = new UserInfo();
+			JSONObject dataJo = JSONObject.fromObject(data);
+			String loginUser = JSONUtil.getString(dataJo, ParamConstant.LOGIN_USER);
+			String loginPassword = JSONUtil.getString(dataJo, ParamConstant.LOGIN_PASSWORD);
+			int appId = JSONUtil.getInt(dataJo, ParamConstant.APP_ID);
+			if(StringUtils.isNotEmpty(loginPassword)) {
+				user.setIsCheckPassword(1);
+			}
+			user.setLoginUser(loginUser);
+			user.setLoginPassword(loginPassword);
+			user.setAppId(appId);
+			result = userService.userLogin(user);
+		}else {
+			result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+		}
+		return result;
+    }
+//	@RequestMapping(value="/logout")退出登录
+	@RequestMapping(value="/logout")
+	@ApiOperation(value = "退出登录")
+    public CommonResult logout(String data) throws IOException {
+		CommonResult result = null;
+		if(StringUtil.isNotEmpty(data)) {
+			UserInfo user = new UserInfo();
+			JSONObject dataJo = JSONObject.fromObject(data);
+			String token = JSONUtil.getString(dataJo, ParamConstant.USER_TOKEN);
+			int appId = JSONUtil.getInt(dataJo, ParamConstant.APP_ID);
+			user.setToken(token);
+			user.setAppId(appId);
+			result = userService.userLogout(user);
+		}else {
+			result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+		}
+		return result;
+    }
+	
+//	@RequestMapping(value="/getUserIdByToken")//获取token
+	@RequestMapping(value="/getUserIdByToken")
+	@ApiOperation(value = "获取token")
+    public CommonResult getUserIdByToken(String data) throws IOException {
+		LOGGER.info("---------------------------------data:"+data);
+		CommonResult result = null;
+		if(StringUtil.isNotEmpty(data)) {
+			JSONObject dataJo = JSONObject.fromObject(data);
+			String token = JSONUtil.getString(dataJo, ParamConstant.USER_TOKEN);
+			Integer appId = JSONUtil.getInt(dataJo, ParamConstant.APP_ID);
+			UserToken userToken = userService.queryUserInfoByToken(appId, token);
+			if(appId > 0 && StringUtils.isNotEmpty(token)) {
+				if(userToken != null && userToken.getUserId() != null) {
+					UserTokenInfo tokenInfo = new UserTokenInfo(userToken);
+					return new CommonResult(ErrorCode.CODE_SUCCESS, "", tokenInfo);
+				}else {
+					return new CommonResult(ErrorCode.CODE_NOT_EXIST_ERROR, "token不存在");
+				}
+			}else {
+				result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误, Token不能为空");
+			}
+		}else {
+			result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+		}
+		return result;
+    }
+	
+	
+	
+	
+//	@RequestMapping(value="/updatePassword")修改密码
+	@RequestMapping(value="/updatePassword")
+	@ApiOperation(value = "修改密码")
+    public CommonResult updatePassword(String data) throws IOException {
+		CommonResult result = null;
+		if(StringUtil.isNotEmpty(data)) {
+			JSONObject dataJo = JSONObject.fromObject(data);
+			String token = JSONUtil.getString(dataJo, ParamConstant.USER_TOKEN);
+			String loginPassword = JSONUtil.getString(dataJo, ParamConstant.LOGIN_PASSWORD);
+			int appId = JSONUtil.getInt(dataJo, ParamConstant.APP_ID);
+			long userId = JSONUtil.getLong(dataJo, ParamConstant.USER_ID);
+			
+			UserInfo user = new UserInfo();
+			user.setAppId(appId);
+			user.setToken(token);
+			user.setLoginPassword(loginPassword);
+			user.setId(userId);
+			
+			result = userService.updateUserPassword(user);
+		}else {
+			result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+		}
+		return result;
+    }
+	
+	
+//	@RequestMapping(value="/updateMobile")修改手机号
+	@RequestMapping(value="/updateMobile")
+	@ApiOperation(value = "修改手机号")
+    public CommonResult updateMobile(String data) throws IOException {
+		CommonResult result = null;
+		if(StringUtil.isNotEmpty(data)) {
+			JSONObject dataJo = JSONObject.fromObject(data);
+			String token = JSONUtil.getString(dataJo, ParamConstant.USER_TOKEN);
+			String mobile = JSONUtil.getString(dataJo, ParamConstant.MOBILE);
+			int appId = JSONUtil.getInt(dataJo, ParamConstant.APP_ID);
+			long userId = JSONUtil.getLong(dataJo, ParamConstant.USER_ID);
+			
+			UserInfo user = new UserInfo();
+			user.setAppId(appId);
+			user.setToken(token);
+			user.setMobile(mobile);
+			user.setId(userId);
+			
+			result = userService.updateUserMobile(user);
+		}else {
+			result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+		}
+		return result;
+    }
+	
+	
+//	@RequestMapping(value="/getUserInfoByMobile")获取手机号
+	@RequestMapping(value="/getUserInfoByMobile")
+	@ApiOperation(value = "获取手机号")
+    public CommonResult getUserInfoByMobile( String data) throws IOException {
+		CommonResult result = null;
+		if(StringUtil.isNotEmpty(data)) {
+			JSONObject dataJo = JSONObject.fromObject(data);
+			String mobile = JSONUtil.getString(dataJo, ParamConstant.MOBILE);
+			if(!StringUtil.isEmpty(mobile)) {
+				UserAppInfo userAppInfo = userService.queryUserInfoByMobile(mobile);
+				if(userAppInfo != null) {
+					return new CommonResult(ErrorCode.CODE_SUCCESS, "", userAppInfo);
+				}else {
+					return new CommonResult(ErrorCode.CODE_NOT_EXIST_ERROR, "手机号不存在");
+				}
+			}else {
+				result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误, 手机号码为空");
+			}
+		}else {
+			result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+		}
+		return result;
+    }
+//	@RequestMapping(value="/getTokenByUserId")token 返回用户ID
+	@RequestMapping(value="/getTokenByUserId")
+	@ApiOperation(value = "token 返回用户ID")
+    public CommonResult getTokenByUserId(String data) throws IOException {
+		CommonResult result = null;
+		if(StringUtil.isNotEmpty(data)) {
+			JSONObject dataJo = JSONObject.fromObject(data);
+			long userId = JSONUtil.getLong(dataJo, ParamConstant.USER_ID);
+			int appChannel = JSONUtil.getInt(dataJo, ParamConstant.APP_ID);
+			if(userId > 0 && appChannel > 0) {
+				UserToken userToken = userService.createUserToken(appChannel, userId);
+				if(userToken != null) {
+					UserTokenInfo tokenInfo = new UserTokenInfo(userToken);
+					return new CommonResult(ErrorCode.CODE_SUCCESS, "", tokenInfo);
+				}else {
+					return new CommonResult(ErrorCode.CODE_NOT_EXIST_ERROR, "用户或平台不存在");
+				}
+			}else {
+				result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误, 用户或平台不能为空");
+			}
+		}else {
+			result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+		}
+		return result;
+    }
+	
+	
+//	@RequestMapping(value="/submitUserToken")提交用户token
+	@RequestMapping(value="/submitUserToken")
+	@ApiOperation(value = "提交用户token")
+    public CommonResult submitUserToken(String data) throws IOException {
+		CommonResult result = null;
+		if(StringUtil.isNotEmpty(data)) {
+			JSONObject dataJo = JSONObject.fromObject(data);
+			String token = JSONUtil.getString(dataJo, ParamConstant.USER_TOKEN);
+			LOGGER.info("---------------------------------提交用户token:"+token);
+			long userId = JSONUtil.getLong(dataJo, ParamConstant.USER_ID);
+			int appChannel = JSONUtil.getInt(dataJo, ParamConstant.APP_ID);
+			if(userId > 0 && appChannel > 0 && StringUtil.isNotEmpty(token)) {
+				UserToken userToken = userService.saveUserToken(appChannel, userId, token);
+				if(userToken != null) {
+					UserTokenInfo tokenInfo = new UserTokenInfo(userToken);
+					return new CommonResult(ErrorCode.CODE_SUCCESS, "", tokenInfo);
+				}else {
+					return new CommonResult(ErrorCode.CODE_NOT_EXIST_ERROR, "用户不存在");
+				}
+			}else {
+				result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+			}
+		}else {
+			result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+		}
+		return result;
+    }
+	
+	
+	
+}

@@ -1,0 +1,42 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 分享类型类
+ * 
+ * @author cychen
+ *
+ */
+public class ShareType {
+
+	/** 体测 */
+	public static final short BODY = 1;
+	/** 运动 */
+	public static final short SPORT = 2;
+	/** 休眠 */
+	public static final short SLEEP = 3;
+	/** 成就 */
+	public static final short ACHIEVEMENT = 4;
+
+	/**
+	 * 获取分享类型描述
+	 * 
+	 * @param shareType 分享类型值
+	 * @return 分享类型描述
+	 */
+	public static String getDescription(short shareType) {
+		if (shareType == BODY) {
+			return "体测";
+		}
+		if (shareType == SPORT) {
+			return "运动";
+		}
+		if (shareType == SLEEP) {
+			return "休眠";
+		}
+		if (shareType == ACHIEVEMENT) {
+			return "成就";
+		}
+		return "";
+	}
+
+}

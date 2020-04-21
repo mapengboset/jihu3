@@ -1,0 +1,175 @@
+package com.yqbing.servicebing.repository.database.bean;
+
+import java.util.Date;
+
+public class TWxPayOrderBean {
+    private Long id;
+
+    private String platOrder;
+
+    private String outTradeNo;
+
+    private Integer platformId;
+
+    private String tradeType;
+
+    private String prepayId;
+
+    private Long userId;
+
+    private String appid;
+
+    private Date timestamp;
+
+    private String noncestr;
+
+    private String packagestr;
+
+    private String signtype;
+
+    private String paysign;
+
+    private String returnMsg;
+
+    private Integer statusSource;
+
+    private String payStatus;
+
+    private Date updateTime;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getPlatOrder() {
+        return platOrder;
+    }
+
+    public void setPlatOrder(String platOrder) {
+        this.platOrder = platOrder == null ? null : platOrder.trim();
+    }
+
+    public String getOutTradeNo() {
+        return outTradeNo;
+    }
+
+    public void setOutTradeNo(String outTradeNo) {
+        this.outTradeNo = outTradeNo == null ? null : outTradeNo.trim();
+    }
+
+    public Integer getPlatformId() {
+        return platformId;
+    }
+
+    public void setPlatformId(Integer platformId) {
+        this.platformId = platformId;
+    }
+
+    public String getTradeType() {
+        return tradeType;
+    }
+
+    public void setTradeType(String tradeType) {
+        this.tradeType = tradeType == null ? null : tradeType.trim();
+    }
+
+    public String getPrepayId() {
+        return prepayId;
+    }
+
+    public void setPrepayId(String prepayId) {
+        this.prepayId = prepayId == null ? null : prepayId.trim();
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getAppid() {
+        return appid;
+    }
+
+    public void setAppid(String appid) {
+        this.appid = appid == null ? null : appid.trim();
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getNoncestr() {
+        return noncestr;
+    }
+
+    public void setNoncestr(String noncestr) {
+        this.noncestr = noncestr == null ? null : noncestr.trim();
+    }
+
+    public String getPackagestr() {
+        return packagestr;
+    }
+
+    public void setPackagestr(String packagestr) {
+        this.packagestr = packagestr == null ? null : packagestr.trim();
+    }
+
+    public String getSigntype() {
+        return signtype;
+    }
+
+    public void setSigntype(String signtype) {
+        this.signtype = signtype == null ? null : signtype.trim();
+    }
+
+    public String getPaysign() {
+        return paysign;
+    }
+
+    public void setPaysign(String paysign) {
+        this.paysign = paysign == null ? null : paysign.trim();
+    }
+
+    public String getReturnMsg() {
+        return returnMsg;
+    }
+
+    public void setReturnMsg(String returnMsg) {
+        this.returnMsg = returnMsg == null ? null : returnMsg.trim();
+    }
+
+    public Integer getStatusSource() {
+        return statusSource;
+    }
+
+    public void setStatusSource(Integer statusSource) {
+        this.statusSource = statusSource;
+    }
+
+    public String getPayStatus() {
+        return payStatus;
+    }
+
+    public void setPayStatus(String payStatus) {
+        this.payStatus = payStatus == null ? null : payStatus.trim();
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+}

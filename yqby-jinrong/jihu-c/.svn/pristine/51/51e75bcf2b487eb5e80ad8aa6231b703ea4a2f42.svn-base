@@ -1,0 +1,430 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.google.gson.Gson;
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.Region;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+import com.yqbing.servicebing.repository.database.bean.UserAppTask;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.UserLocalApp;
+import com.yqbing.servicebing.repository.database.dao.RegionMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseMapper;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskExample;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskExample.Criteria;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskMapper;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.UserLocalAppMapper;
+import com.yqbing.servicebing.repository.jihuc.StoreInfoBean;
+import com.yqbing.servicebing.repository.redis.RStoreHouseData;
+import com.yqbing.servicebing.repository.redis.RUserAppTaskData;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.repository.redis.RregionData;
+import com.yqbing.servicebing.service.AccountService;
+import com.yqbing.servicebing.service.CommonService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.webapp.response.AreaRes;
+import com.yqbing.servicebing.webapp.response.CityRes;
+import com.yqbing.servicebing.webapp.response.ProvinceRes;
+import com.yqbing.servicebing.webapp.response.UserDownAppRes;
+import com.yqbing.servicebing.webapp.response.UserInfoRes;
+
+
+@Service("accountService")
+@SuppressWarnings("all")
+public class AccountServiceImpl<E> extends CommonService  implements AccountService{
+	
+	
+	 private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
+	 @Resource
+	 private UserInfoBeanMapper userInfoBeanMapper = null;
+	 @Resource
+	 private StoreHouseMapper storeHouseMapper = null;
+	 @Resource
+	 private RegionMapper regionMapper = null;
+	 
+	 @Resource
+	 private RUserLogBean rUserLogBean = null;
+	 @Resource
+	 private RregionData regionData = null;
+	 @Resource
+	 private RUserAppTaskData rUserAppTaskData = null;
+	 @Resource
+	 private RStoreHouseData rStoreHouseData = null;
+	 @Resource
+	 private UserLocalAppMapper userLocalAppMapper = null;
+	 @Resource
+	 private UserAppTaskMapper userAppTaskMapper = null;
+	 @Override
+	 public String bindingInvite(String token, String invite,String storeId,String storeName) {
+		// TODO Auto-generated method stub
+		try {
+			UserInfoBean infoBean = rUserLogBean.getRaw(token);
+			if(infoBean == null){
+				
+			infoBean = userInfoBeanMapper.queryToken(token);
+			}
+			if(infoBean != null){
+				
+				String firstInviteCode = infoBean.getFirstInviteCode();
+				if(StringUtils.isBlank(firstInviteCode)){//第-次绑定
+					infoBean.setFirstInviteCode(invite);
+					infoBean.setFirstStoreId(Integer.valueOf(storeId));
+					infoBean.setFirstStoreName(storeName);
+					infoBean.setUpdateTime(new Date());
+					
+				}else{//第二次绑定,FirstInviteCode永远不能改变
+                    if(firstInviteCode ==  invite){
+                    	return NotifyUtil.error(ErrorCodeEnum.OPERATERROE, "已经绑定过了");
+					}
+                    infoBean.setFirstInviteCode(invite);
+					infoBean.setInviteCode(invite);
+					infoBean.setStoreId(Integer.valueOf(storeId));
+					infoBean.setStoreName(storeName);
+					infoBean.setUpdateTime(new Date());
+				}
+				int i = userInfoBeanMapper.updateByPrimaryKey(infoBean);
+				if(i > 0){
+					rUserLogBean.set(token, infoBean);
+					return NotifyUtil.success();
+				}
+				
+			}else{
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在不存在");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "系统异常");
+		}
+		
+		
+		return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "系统异常");
+	}
+	@Override
+	public String quitUser(String token) {
+		
+		try {
+			UserInfoBean infoBean = rUserLogBean.getRaw(token);
+			if(infoBean == null){
+				
+				infoBean = userInfoBeanMapper.queryToken(token);
+			}
+			if(infoBean == null){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "已经退出");
+				
+				
+			}else{
+				infoBean.setToken(null);
+				userInfoBeanMapper.updateByPrimaryKey(infoBean);
+				rUserLogBean.remove(token);
+				return NotifyUtil.success();
+			}
+		  } catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "系统异常");
+		  }
+	}
+	@Override
+	public String uploadLogImg(String token, String imgUrl,String userName,Integer sex, String brith, String address) {
+		try {
+			    
+			UserInfoBean infoBean = queryTokenByUser(token);
+				if(infoBean == null){
+					return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户没有登录");
+				}
+				infoBean.setImage(imgUrl);
+				infoBean.setName(userName);
+				if(sex != null){
+					infoBean.setSex(Short.valueOf(sex+""));
+				}
+				infoBean.setBrith(brith);
+				if(StringUtils.isNotBlank(address)){
+					String[] adds = address.split(",");
+					infoBean.setProvinceId(Integer.valueOf(adds[0]));
+					infoBean.setProvinceName(adds[1]);
+					infoBean.setCityId(Integer.valueOf(adds[2]));
+					infoBean.setCityName(adds[3]);
+					infoBean.setAreaId(Integer.valueOf(adds[4]));
+					infoBean.setAreaName(adds[5]);
+					infoBean.setAdress(adds[6]);
+					
+				}else{
+					
+					infoBean.setAdress(address);
+				}
+				userInfoBeanMapper.updateByPrimaryKey(infoBean);
+				rUserLogBean.set(token, infoBean);
+				
+				return NotifyUtil.success();
+			
+		  } catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "系统异常");
+		  }
+	}
+	@Override
+	public String localApp(Map<String, Object> map) {
+		ArrayList<UserLocalApp> list = new ArrayList<UserLocalApp>();
+		UserLocalApp  uApp =null;
+		try {
+			String apps = (String) map.get("apps");
+			String device = (String) map.get("device");
+			String token = (String) map.get("token");
+			UserInfoBean infoBean = rUserLogBean.getRaw(token);
+			if(infoBean == null){
+				
+				infoBean = userInfoBeanMapper.queryToken(token);
+				if(infoBean == null){
+					return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+					
+				}
+			}
+			if(StringUtils.isBlank(apps)){
+				return NotifyUtil.error(ErrorCodeEnum.NULLPARAM, "app信息不能为空");
+			}
+			String[] applist = apps.split(",");
+			for(String app : applist) {//包名
+			//	String[] a = app.split(";");
+				UserLocalApp localApp = new UserLocalApp();
+				localApp.setAppName("");
+				uApp =userLocalAppMapper.UserLocalApp(app,infoBean.getId()+"");
+				if(uApp != null){//已经存在
+					continue;
+				}
+				localApp.setAppPack(app);
+			//	localApp.setAppVersion(a[1]);
+				localApp.setDevice(device);
+				localApp.setUserId(infoBean.getId());
+				localApp.setCreateTime(new Date());
+				list.add(localApp);
+				userLocalAppMapper.insertSelective(localApp);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "请刷新,重试");
+		}
+		
+		
+		return NotifyUtil.success();
+	}
+	@Override
+	public String userDownApp(Map<String, Object> map) {//包名 
+		
+		Byte t = 0;
+		StoreHouse sh = null;
+		UserAppTask appTask = null;
+		try {
+			String appPack = (String) map.get("appPack");
+			String device = (String) map.get("device");
+			String token = (String) map.get("token");
+			Integer type = (Integer) map.get("type");
+	
+			UserInfoBean infoBean = queryTokenByUser(token);
+			if(infoBean == null){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+			}
+			 sh = storeHouseMapper.getByAppPack(appPack);
+				if(sh ==  null){
+					
+					return NotifyUtil.error(ErrorCodeEnum.NULLOBJECT, "app信息不能为空");
+				}
+			//判断用户是否下载过
+			appTask =  rUserAppTaskData.getUserAppTask(infoBean.getId()+"", appPack);
+			if(appTask == null){
+				appTask = userAppTaskMapper.queryPackAndUserId(appPack,infoBean.getId());
+			}
+			
+			/*if(appTask != null){
+				return NotifyUtil.error(ErrorCodeEnum.USERALREADYAPP, "用户已经下载过了");
+			}*/
+			
+		//	sh = rStoreHouseData.getAppPack(appPack);
+			
+			if(appTask ==  null){
+				
+				appTask = new UserAppTask();
+			}
+			
+			appTask.setAppType(sh.getAppType());
+			appTask.setAppImg(sh.getAppUrlImg());
+			appTask.setAppUrl(sh.getAppUrl());
+			appTask.setAppVersion(sh.getAppVersion());
+			appTask.setAppPack(appPack);
+			appTask.setAppName(sh.getAppName());
+			appTask.setStoreId(sh.getId());
+			appTask.setUserId(infoBean.getId());
+			appTask.setStatus(t);
+			if(type == 1){
+				appTask.setTaskType(t);
+			}else{
+				t = 1;//任务列表
+				appTask.setTaskType(t);
+			}
+			appTask.setCreateTime(new Date());
+			if(appTask.getId() != null){
+				
+				userAppTaskMapper.updateByPrimaryKey(appTask);
+			}else{
+				
+				userAppTaskMapper.insertSelective(appTask);
+			}
+			rUserAppTaskData.setUserAppTask(infoBean.getId()+"", appTask);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "请刷新,重试");
+		}
+		
+		
+		return NotifyUtil.success();
+	}
+	@Override
+	public String replaceUserApp(String token) {
+		ArrayList<UserDownAppRes> udas = new ArrayList<UserDownAppRes>();
+		Byte s = 0;
+		Byte t = 1;
+		UserInfoBean infoBean = rUserLogBean.getRaw(token);
+		if(infoBean == null){
+			
+			infoBean = userInfoBeanMapper.queryToken(token);
+			if(infoBean == null){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+			}
+		}
+		List<UserAppTask> list = rUserAppTaskData.getUserAppTaskList(infoBean.getId()+"");
+		 if(null == list || list.size()<= 0){
+			 UserAppTaskExample example = new UserAppTaskExample();
+			 Criteria criteria = example.createCriteria();
+			 criteria.andUserIdEqualTo(infoBean.getId());
+			 list= userAppTaskMapper.selectByExample(example);
+			 if(null == list || list.size()<= 0){
+					return NotifyUtil.error(ErrorCodeEnum.USERNULLAPP, "没有可更新app");
+			 }
+		}
+		 for (UserAppTask ut : list) {
+			 StoreHouse sh = rStoreHouseData.getAppPack(ut.getAppPack());
+				if(sh ==  null){
+					sh = storeHouseMapper.getByAppPack(ut.getAppPack());
+				}else{
+					return NotifyUtil.error(ErrorCodeEnum.NULLOBJECT, "app信息不能为空");
+				}
+				//和当前version 作对比不一样的话就取库里的内容
+				UserDownAppRes userDownAppRes = new UserDownAppRes();
+				userDownAppRes.setAppImg(ut.getAppImg());
+				userDownAppRes.setAppName(ut.getAppName());
+				userDownAppRes.setAppPack(sh.getAppPack());
+				userDownAppRes.setAppType(sh.getAppType());
+				userDownAppRes.setAppUrl(sh.getAppUrl());
+				userDownAppRes.setId(sh.getId());
+				if(ut.getAppVersion().equals(sh.getAppVersion())){//一样就跳过
+					userDownAppRes.setStatus(s);//1更新 2打开
+				}else{
+				
+				userDownAppRes.setStatus(t);//1更新 2打开
+				udas.add(userDownAppRes);
+				}
+		}
+		
+		
+		 return NotifyUtil.success(udas);
+	}
+	@Override
+	public String getInvite(String token, String phone) {
+		// TODO Auto-generated method stub
+		UserInfoBean infoBean = rUserLogBean.getRaw(token);
+		if(infoBean == null){
+			
+			infoBean = userInfoBeanMapper.queryToken(token);
+			if(infoBean == null){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+			}
+		}
+		UserInfoRes res = new UserInfoRes();
+		res.setFirstInviteCode(infoBean.getFirstInviteCode() == null?"":infoBean.getFirstInviteCode());
+		res.setFirstStoreId(infoBean.getFirstStoreId());
+		res.setFirstStoreName(infoBean.getFirstStoreName()== null?"":infoBean.getFirstStoreName());
+		res.setStoreId(infoBean.getStoreId());
+		res.setStoreName(infoBean.getStoreName()== null?"":infoBean.getStoreName());
+		res.setInviteCode(infoBean.getInviteCode()== null?"":infoBean.getInviteCode());
+		res.setToken(token);
+		return NotifyUtil.success(res);
+	}
+	@Override
+	public String regions() {
+		// TODO Auto-generated method stub
+		//返回所有省
+	//	List<Map<Region,List<Region>>> list = new ArrayList<Map<Region,List<Region>>>();
+		
+		
+		/*
+		regionData.setProvinceRes("pro", p);
+		for (Region region : p) {
+			List<Region> ps = regionMapper.queryParent(region.getId());
+			for (Region r2 : ps) {
+				regionData.setProvinceRes(r2.getId()+"", ps);
+			}
+			regionData.setProvinceRes(region.getId()+"", p);*/
+		//	regionMapper.setCityRes()
+		
+	//	HashMap<Region,List<Region>> map = new HashMap<Region, List<Region>>();
+		List<Region> p = regionMapper.queryParent(1L);
+		List<ProvinceRes> list = new ArrayList<ProvinceRes>();
+	
+		for (Region region : p) {
+			ProvinceRes pres = new ProvinceRes();
+			pres.setId(region.getId());
+			pres.setName(region.getName());
+			List<Region> parent = regionMapper.queryParent(region.getId());
+			List<CityRes> citys = new ArrayList<CityRes>();
+			for (Region c : parent) {
+				CityRes cityRes = new CityRes();
+				cityRes.setId(c.getId());
+				cityRes.setName(c.getName());
+				List<Region> ps = regionMapper.queryParent(c.getId());
+				List<AreaRes> areas = new ArrayList<AreaRes>();
+				for (Region r2 : ps) {
+					AreaRes res = new AreaRes();
+					res.setId(r2.getId());
+					res.setName(r2.getName());
+					areas.add(res);
+				}
+				cityRes.setArea(areas);
+				citys.add(cityRes);
+			}
+			pres.setCity(citys);
+			list.add(pres);
+		}
+	//	regionData.setProvinceRes("all",list);
+		return NotifyUtil.success(list);
+		
+	}
+	@Override
+	public String aPPRegions() {
+		
+		
+		
+		Object obj = regionData.getProvinceRes("all");
+		
+		
+	
+		return NotifyUtil.success(obj);
+	}
+
+	
+}

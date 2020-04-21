@@ -1,0 +1,167 @@
+package com.yqbing.servicebing.service.impl;
+
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpUtils;
+
+import net.sf.json.JSONObject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.yqbing.servicebing.common.ErrorCode;
+import com.yqbing.servicebing.common.ResultModel;
+import com.yqbing.servicebing.exception.BingException;
+import com.yqbing.servicebing.repository.database.abstracts.StoreInfoBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.StoreInfoBeanExample.Criteria;
+import com.yqbing.servicebing.repository.database.abstracts.StoreOrderBeanExample;
+import com.yqbing.servicebing.repository.database.bean.StoreInfoBean;
+import com.yqbing.servicebing.repository.database.bean.StoreOrderBean;
+import com.yqbing.servicebing.repository.database.dao.StoreInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreOrderBeanMapper;
+import com.yqbing.servicebing.service.AntCreditService;
+import com.yqbing.servicebing.utils.DateUtil;
+import com.yqbing.servicebing.utils.HttpRequest;
+import com.yqbing.servicebing.utils.PropertiesUtil;
+import com.yqbing.servicebing.utils.StrUtils;
+import com.yqbing.servicebing.webapp.request.AntCreditRequest;
+
+
+@Service("antCreditService")
+@SuppressWarnings("all")
+public class AntCreditServiceImpl implements AntCreditService{
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(AntCreditServiceImpl.class);
+	
+	@Autowired
+	private StoreInfoBeanMapper storeInfoBeanMapper = null;
+
+	@Autowired
+	private StoreOrderBeanMapper storeOrderBeanMapper = null;
+	 
+	@SuppressWarnings("unchecked")
+	@Override
+	public ResultModel createGroup(long userId, String storeName,
+			String storeAddress, String phone, String seller_no, String uid)throws BingException {
+		
+		PropertiesUtil.loadFile("antcredit.properties");
+		
+		StoreInfoBeanExample example = new StoreInfoBeanExample();
+		Criteria createCriteria = example.createCriteria();
+		createCriteria.andStoreNameEqualTo(storeName).andOwnerIdEqualTo(Long.bitCount(userId));
+		ResultModel success = ResultModel.success();
+		
+		List<StoreInfoBean> list = storeInfoBeanMapper.selectByExample(example);
+		if(null == list || list.size()<= 0){
+			success = ResultModel.error(ErrorCode.E1020301,ErrorCode.getErrInfo(ErrorCode.E1020301));
+			return success;
+		}
+		StoreInfoBean infoBean = list.get(0);
+		
+		//手机商户信息
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("merchant_name", storeName);
+		map.put("store_no", infoBean.getStoreCode());
+		map.put("store_type", 1);
+		map.put("province", infoBean.getProvinceId());
+		map.put("city", infoBean.getCityId());
+		map.put("district", infoBean.getAreaId());
+		map.put("address", infoBean.getStoreAddress());
+		map.put("category", infoBean.getCategoryid());
+		map.put("business_image", infoBean.getStoreLicense());
+		map.put("out_door_image", infoBean.getStorePic());
+		map.put("landline_phone", "");
+		map.put("mobile_phone", infoBean.getBack6());
+		map.put("contact_name", infoBean.getOwnerName());
+		map.put("seller_no", seller_no);
+		map.put("uid", uid);
+		map.put("notify_url", "");
+		
+		
+		AntCreditRequest credit = getant();
+		credit.setApp_id(PropertiesUtil.getValue("ant_appId", null));
+		credit.setMethod("zanclick.merchant.register");
+		credit.setTimestamp(DateUtil.getDateTimePattern());
+		credit.setNotify_url("");
+		credit.setBiz_content(new Gson().toJson(map));
+		
+		String order_no = HttpRequest.sendPost(PropertiesUtil.getValue("ant_ceshi", null), credit.toString());
+		//00000000000000000000000
+		JSONObject order = JSONObject.fromObject(order_no);
+		String orderno = (String) order.get("order_no");
+		if(!StrUtils.isNullOrBlank(orderno)){
+			
+			StoreOrderBean orderBean = new StoreOrderBean();
+			orderBean.setOrderNo(order_no);
+			orderBean.setStoreId(infoBean.getStoreId());
+			storeOrderBeanMapper.insertSelective(orderBean);
+		}
+		success.setResult(order_no);
+		
+		return success;
+	}
+
+	public AntCreditRequest getant(){
+		
+		AntCreditRequest credit = new AntCreditRequest();
+		credit.setFormat("JSON");
+		credit.setSign_type("RSA2");
+		return credit;
+	}
+
+	@Override
+	public ResultModel queryOrderNo(long userId, Integer store_Id)throws BingException {
+		// TODO Auto-generated method stub
+		StoreOrderBeanExample example = new StoreOrderBeanExample();
+		com.yqbing.servicebing.repository.database.abstracts.StoreOrderBeanExample.Criteria criteria = example.createCriteria();
+		criteria.andStoreIdEqualTo(store_Id);
+		ResultModel success = ResultModel.success();
+		List<StoreOrderBean> list = storeOrderBeanMapper.selectByExample(example);
+		if(null == list || list.size()<= 0){
+			success = ResultModel.error(ErrorCode.E1020301,ErrorCode.getErrInfo(ErrorCode.E1020301));
+			return success;
+		}
+		StoreOrderBean storeOrderBean = list.get(0);
+		 
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("order_no", storeOrderBean.getOrderNo());
+		AntCreditRequest credit = getant();
+		credit.setApp_id(PropertiesUtil.getValue("ant_appId", null));
+		credit.setMethod("zanclick.merchant.register.query");
+		credit.setTimestamp(DateUtil.getDateTimePattern());
+		credit.setNotify_url("");
+		credit.setBiz_content(new Gson().toJson(map));
+		
+		String parameter = HttpRequest.sendPost(PropertiesUtil.getValue("ant_ceshi", null), credit.toString());
+		JSONObject para = JSONObject.fromObject(parameter);
+		String status = (String) para.get("status");
+		String merchant_id = (String) para.get("merchant_id");
+		String reason = (String) para.get("reason");
+	   try {
+		   storeOrderBean.setStatus(Integer.valueOf(status));
+		
+	    } catch (Exception e) {
+		// TODO: handle exception
+	    	success.setErrorMessage(e.getLocalizedMessage());
+	    	return success;
+	    }
+		storeOrderBean.setMerchantId(merchant_id);
+		storeOrderBean.setReason(reason);
+		storeOrderBeanMapper.updateByPrimaryKeySelective(storeOrderBean);
+	
+		success.setResult(parameter);
+		
+		return success;
+	}
+	
+	
+}

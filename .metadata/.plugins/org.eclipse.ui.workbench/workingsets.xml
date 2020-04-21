@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workingSetManager>
+<workingSet editPageId="org.eclipse.ui.resourceWorkingSetPage" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1542608413002_1" label="yqby-jinrong" name="yqby-jinrong">
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/yqby-jinrong/jihustore-service" type="2"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/yqby-jinrong" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/yqbing-pay" type="4"/>
+</workingSet>
+<workingSet editPageId="org.eclipse.ui.resourceWorkingSetPage" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1575342874465_2" label="yqbing-pay" name="yqbing-pay"/>
+<workingSet editPageId="org.eclipse.ui.resourceWorkingSetPage" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1575344746907_3" label="yqbing-sso" name="yqbing-sso"/>
+<workingSet editPageId="org.eclipse.ui.resourceWorkingSetPage" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1575439313410_4" label="yqbing-commons" name="yqbing-commons"/>
+<workingSet editPageId="org.eclipse.ui.resourceWorkingSetPage" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1575442775606_5" label="yqbing-store" name="yqbing-store"/>
+<workingSet editPageId="org.eclipse.ui.resourceWorkingSetPage" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1583045829152_6" label="yqby-payment" name="yqby-payment">
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/yqbing-payment" type="4"/>
+</workingSet>
+<workingSet aggregate="true" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1542608395232_0" label="Window Working Set" name="Aggregate for window 1542608395232"/>
+</workingSetManager>

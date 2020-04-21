@@ -1,0 +1,409 @@
+package com.yqbing.servicebing.service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.yqbing.servicebing.repository.database.bean.AppRecommend;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+import com.yqbing.servicebing.repository.database.bean.UserActionLog;
+import com.yqbing.servicebing.repository.database.bean.UserAppTask;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.UserLocalApp;
+import com.yqbing.servicebing.repository.database.dao.AppRecommendMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseMapper;
+import com.yqbing.servicebing.repository.database.dao.UserActionLogExample;
+import com.yqbing.servicebing.repository.database.dao.UserActionLogExample.Criteria;
+import com.yqbing.servicebing.repository.database.dao.UserActionLogMapper;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskExample;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskMapper;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.UserLocalAppMapper;
+import com.yqbing.servicebing.repository.redis.RCpdAppsData;
+import com.yqbing.servicebing.repository.redis.RStoreHouseData;
+import com.yqbing.servicebing.repository.redis.RUserAppTaskData;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.utils.DateUtil;
+import com.yqbing.servicebing.utils.SendUtils;
+import com.yqbing.servicebing.webapp.response.BoxStoreAppRes;
+import com.yqbing.servicebing.webapp.response.CpdApps;
+import com.yqbing.servicebing.webapp.response.EntryVo;
+import com.yqbing.servicebing.webapp.response.StoreAppRes;
+
+
+public class CommonService {
+	
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(CommonService.class);
+
+	private static final UserInfoBean UserInfoBean = null;
+	
+	 @Resource
+	 private AppRecommendMapper appRecommendMapper= null;
+	 @Resource
+	 private UserInfoBeanMapper userInfoBeanMapper = null;
+	 @Resource
+	 private StoreHouseMapper storeHouseMapper = null;
+	 @Resource
+	 private UserActionLogMapper userActionLogMapper = null;
+	 
+	 @Resource
+	 private RUserLogBean rUserLogBean = null;
+	 @Resource
+	 private RUserAppTaskData rUserAppTaskData = null;
+	 @Resource
+	 private RStoreHouseData rStoreHouseData = null;
+	 @Resource
+	 private UserLocalAppMapper userLocalAppMapper = null;
+	 @Resource
+	 private UserAppTaskMapper userAppTaskMapper = null;
+	 @Resource
+	 private RCpdAppsData rCpdAppsData = null;
+	
+	
+	public UserInfoBean queryTokenByUser(String token){
+		 UserInfoBean infoBean = rUserLogBean.getRaw(token);
+			if(infoBean == null){
+				
+				infoBean = userInfoBeanMapper.queryToken(token);
+			}
+		return infoBean;
+	}
+	public  List<StoreAppRes> getTypeByApps(String type,UserInfoBean infoBean){
+		LOGGER.info("---------------------------------------返回自定义列表+类型:"+type+"用户信息"+infoBean);
+		List<AppRecommend> ares =  appRecommendMapper.queryTagId(type);
+		List<StoreAppRes> apps = new ArrayList<StoreAppRes>();
+		for (AppRecommend a : ares) {
+			StoreAppRes appRes = new StoreAppRes();
+			StoreHouse sh = rStoreHouseData.getAppPack(a.getAppId());//a.getAppId() == 包名
+			if(sh ==  null){
+				 sh = storeHouseMapper.getByAppPack(a.getAppId());
+				 
+			}
+			if(sh == null){
+				continue;
+			//	return NotifyUtil.error(ErrorCodeEnum.NULLOBJECT, "app信息不存在");
+			}
+			//在我的下载列表 存在不在展示
+			if(getIsTrue(infoBean, sh)){
+				continue;
+			}
+				LOGGER.info("-----------------------------------app信息"+new Gson().toJson(sh));
+				appRes.setAppName(sh.getAppName());
+				appRes.setAppPake(sh.getAppPack());
+				appRes.setAppType(getAppType(sh.getAppType()));
+				appRes.setImg(sh.getAppUrlImg());
+				appRes.setUrl(sh.getAppUrl());
+				if(getLocalApp(infoBean.getId(), sh.getAppPack())){
+					appRes.setLocalstatus(1);
+			    }
+				appRes.setType(2);
+				appRes.setLocalstatus(0);
+				appRes.setId(sh.getId());
+				if(type.equals("free_charge_tag")){
+					appRes.setType(2);
+				}
+				
+				apps.add(appRes);
+		}
+		LOGGER.info("-----------------------------------所有apps"+new Gson().toJson(apps));
+		return apps;
+	}
+	
+	public List<BoxStoreAppRes>  getCpdApps(UserInfoBean infoBean){
+		LOGGER.info("---------------------------------------返回自getCpdApps:"+infoBean);
+		Map<String,String> map = null;
+		List<BoxStoreAppRes> apps = new ArrayList<BoxStoreAppRes>();
+		List<CpdApps> list= null;
+		try {
+		Object obj = rCpdAppsData.getCpdApps();
+		if(null == obj){
+			List<CpdApps> cpdList = CpdList(list, map);//返回cpd app列表
+			if(cpdList == null|| cpdList.size()<=0){
+				return apps;
+			}
+		}else{
+			list= new Gson().fromJson(obj.toString(), new TypeToken<List<CpdApps>>() {}.getType());
+		}
+	//	List<BoxStoreAppRes> apps = new ArrayList<BoxStoreAppRes>();
+		if(null == list || list.size() == 0){
+			return apps;
+		}
+		for (CpdApps cpdApps : list) {
+			//和充电宝列表做对比,
+			/*List<StoreAppRes> typeByApps = getTypeByApps("", infoBean);
+			if(null != typeByApps && typeByApps.size() > 0){//
+				Map<String, Object> map1 = new HashMap<String, Object>();
+			    for (StoreAppRes taps : typeByApps) {
+			    	map1.put(taps.getAppPake(), taps);
+				}
+			    
+			    if(map1.containsKey(cpdApps.getPackage_name())){//存在
+			    	continue;
+			    }
+			}*/
+			//在我的下载列表 存在不在展示
+			StoreHouse sh = storeHouseMapper.getByAppPack(cpdApps.getPackage_name());
+			if(sh != null){
+				if(getIsTrue(infoBean, sh)){
+					continue;
+				}
+			}
+			BoxStoreAppRes appRes = new BoxStoreAppRes();
+			appRes.setId(0);
+			appRes.setAppName(cpdApps.getApp_name());
+			appRes.setAppPake(cpdApps.getPackage_name());
+			appRes.setAppType("下载得充电");//cpd
+			appRes.setImg(cpdApps.getIcon_url());
+			appRes.setUrl(cpdApps.getDownload_url());
+			appRes.setLocalstatus(0);
+			appRes.setModel("3001");
+			appRes.setType(3001);
+			appRes.setSource(cpdApps.getSource());
+			appRes.setPid(cpdApps.getPid());
+			if(null == obj){
+			rCpdAppsData.setCpd(cpdApps.getPackage_name(), cpdApps);
+			}
+			StoreHouse house = storeHouseMapper.getByAppPack(cpdApps.getPackage_name());
+			
+			addStoreHouse( house,  cpdApps);//存入
+			apps.add(appRes);
+				
+		}
+		if(null == obj && list != null && list.size() > 0){
+			rCpdAppsData.setCpdApps(list);
+		}
+		return apps;
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		 return null;
+	 }
+	
+	public String getAppType(short s){
+		String appType =  null;
+		 switch (s) {
+			case 1:
+				appType =  "系统工具";
+				break;
+			case 2:
+				appType =  "主题壁纸";
+				break;
+			case 3:
+				appType =  "社交通讯";
+				break;
+			case 4:
+				appType =  "拍摄美化";
+				break;
+			case 5:
+				appType =  "影音播放";
+				break;
+			case 6:
+				appType =  "生活实用";
+				break;
+			case 7:
+				appType =  "理财购物";
+				break;
+			case 8:
+				appType =  "办公学习";
+				break;
+			case 9:
+				appType =  "资讯阅读";
+				break;
+			case 10:
+				appType =  "旅游出行";
+				break;
+			case 11:
+				appType =  "休闲益智";
+				break;
+			case 12:
+				appType =  "动作射击";
+				break;
+			case 13:
+				appType =  "体育竞技";
+				break;
+			case 14:
+				appType =  "经营养成";
+				break;
+			case 15:
+				appType =  "角色扮演";
+				break;
+			case 16:
+				appType =  "赛车竞速";
+				break;
+			case 17:
+				appType =  "模拟辅助";
+				break;
+			case 18:
+				appType =  "棋牌桌游";
+				break;
+			case 19:
+				appType =  "网络游戏";
+				break;
+			default:
+				appType =  "其他应用";
+				break;
+			}
+		return appType;
+	}
+	public Boolean getIsTrue(UserInfoBean infoBean,StoreHouse sh){
+		
+		List<UserAppTask> taskList = rUserAppTaskData.getUserAppTaskList(infoBean.getId()+"");
+		if(null == taskList || taskList.size() < 0){
+			UserAppTaskExample appTaskExample = new UserAppTaskExample();
+			appTaskExample.createCriteria().andUserIdEqualTo(infoBean.getId());
+			taskList = userAppTaskMapper.selectByExample(appTaskExample);
+			
+		}
+		if(null != taskList && taskList.size() > 0){//
+			Map<String, Object> map1 = new HashMap<String, Object>();
+		    for (UserAppTask userAppTask : taskList) {
+		    	map1.put(userAppTask.getAppPack(), userAppTask);
+			}
+		    
+		    if(map1.containsKey(sh.getAppPack())){//存在
+		    	return true;
+		    }
+		}
+		
+		
+		return false;
+	}
+	
+	public List<String> getAppsType(Integer type){
+		List<String> list2 = new ArrayList<String>();
+		if(type == 1){
+			
+		
+		list2.add("1");
+		list2.add("2");
+		list2.add("3");
+		list2.add("4");
+		list2.add("5");
+		list2.add("6");
+		list2.add("7");
+		list2.add("8");
+		list2.add("9");
+		list2.add("10");
+		}else{
+		list2.add("11");
+		list2.add("12");
+		list2.add("13");
+		list2.add("14");
+		list2.add("15");
+		list2.add("16");
+		list2.add("17");
+		list2.add("18");
+		}
+		return list2;
+	}
+	
+	 public boolean getLocalApp(Long id,String appPack){
+	    	try {
+	    		LOGGER.info("/-----------------------返回手机app id:"+id+"------"+"包名:"+appPack);
+	    		UserLocalApp localApp = userLocalAppMapper.UserLocalApp(appPack, id+"");
+	    		if(localApp != null){
+	    			return true;
+	    			
+	    		}
+	    		
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+			}
+	    	return false;
+	    }
+	 
+	 public void addUserActionLog(Long uid,String desces,String appPack ,String mac,Short opt){
+		 /**
+		  * 1	注册
+             2	登陆
+           3	活动
+          4	开始下载
+            5	完成下载
+		  */
+		 UserActionLogExample example = new UserActionLogExample();
+		 Criteria criteria = example.createCriteria();
+		 UserActionLog actionLog = new UserActionLog();
+		 actionLog.setUid(uid);
+		 actionLog.setActionSource("1");
+		 actionLog.setAppPack(appPack);
+		 actionLog.setKeyword(mac);
+		 actionLog.setOccurtime(new Date());
+		 actionLog.setOpdesc(desces);
+		 actionLog.setOptype(opt);
+		 if(opt == 2 || opt == 3){//登陆一天只存1次
+					 criteria.andUidEqualTo(uid).andOccurtimeBetween(DateUtil.getzero(), DateUtil.gettwelve());
+					 List<UserActionLog> list = userActionLogMapper.selectByExample(example);
+					 if(list==null||list.size()==0){
+		        		 userActionLogMapper.insertSelective(actionLog);
+		        	 }
+				 }
+		 
+		
+         if(opt == 5){//设备mac 和  包名唯一
+        	 criteria.andKeywordEqualTo(mac). andAppPackEqualTo(appPack);
+        	 List<UserActionLog> list = userActionLogMapper.selectByExample(example);
+        	 if(list==null||list.size()==0){
+        		 userActionLogMapper.insertSelective(actionLog);
+        	 }
+		 }
+	 }
+	 public List<CpdApps> CpdList(List<CpdApps> list,Map<String,String> map){
+		 map = new HashMap<String , String>();
+			map.put("channel_id", "2019005");
+			String sdlist = SendUtils.doGet("http://api.liyanmobi.com:808/market-list/list", map);
+			if(sdlist != null){
+				JSONObject JSONObject = new JSONObject(sdlist);
+				Integer code = (Integer) JSONObject.get("code");
+				if(Integer.valueOf(code) == 200) {
+					
+					Object ad_list = JSONObject.get("ad_list");
+					if(ad_list != null){
+						
+						list= new Gson().fromJson(ad_list.toString(), new TypeToken<List<CpdApps>>() {}.getType());
+					}
+					
+				}
+			}
+			return list;
+	 }
+	 
+	 public void addStoreHouse(StoreHouse house, CpdApps cpdApps){
+			if(house == null){
+				StoreHouse storeHouse = new StoreHouse();
+				storeHouse.setAppName(cpdApps.getApp_name());
+				storeHouse.setAppPack(cpdApps.getPackage_name());
+				storeHouse.setAppSize(cpdApps.getFile_size()+"");
+				short tt = 3001;
+				storeHouse.setAppType(tt);
+				storeHouse.setAppUrl(cpdApps.getDownload_url());
+				storeHouse.setAppUrlImg(cpdApps.getIcon_url());
+				storeHouse.setAppVersion(cpdApps.getVersion_code()+"");
+				storeHouse.setCreateTime(new Date());
+				storeHouse.setIsSelf(1);//自营
+				storeHouseMapper.insertSelective(storeHouse);
+			}else{
+				house.setAppName(cpdApps.getApp_name());
+				house.setAppPack(cpdApps.getPackage_name());
+				house.setAppSize(cpdApps.getFile_size()+"");
+				house.setAppUrl(cpdApps.getDownload_url());
+				house.setAppUrlImg(cpdApps.getIcon_url());
+				house.setAppVersion(cpdApps.getVersion_code()+"");
+				house.setCreateTime(new Date());
+				storeHouseMapper.updateByPrimaryKey(house);
+			}
+	 }
+}

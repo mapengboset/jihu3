@@ -1,0 +1,205 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import io.swagger.annotations.ApiParam;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.service.AccountService;
+import com.yqbing.servicebing.service.StoreInfoService;
+import com.yqbing.servicebing.service.UserLogingService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.utils.SendSms;
+
+/**
+ * 
+
+ * @ClassName: AccountController
+
+ * @Description: 本机用户管理信息
+
+ * @author: mpb
+
+ * @date: 2019年4月10日 下午1:30:17
+ */
+
+@RestController
+@CrossOrigin
+@SuppressWarnings("all")
+public class AccountController extends BaseController{
+
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AccountController.class);
+	//账户信息/退出登录/解除绑定
+	//应用管理/可更新应用
+	//下载管理
+	//碎屏险
+	@Resource
+	private RUserLogBean rUserLogBean = null;
+	@Resource
+	private UserLogingService userLogingService = null;
+	@Resource
+	private StoreInfoService storeInfoService = null;
+	@Resource
+	private AccountService accountService = null;
+	
+	 //通过邀请码返回店铺数据
+    @RequestMapping(value = "/user/queryInvite",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String queryInvite(@ApiParam(value = "data") @RequestParam(value = "data", required = true) String data){
+    	 LOGGER.info("--------------------------------------------user/queryInvite:"+data);
+  	      String invite = StringUtils.EMPTY;
+	      String result = StringUtils.EMPTY;
+	      try {
+	    	  JSONObject obj = JSONObject.fromObject(data);
+	    	  invite = obj.getString("invite");
+	    	  result = storeInfoService.queryInvite(invite);
+	    	  
+			} catch (Exception e) {
+				
+				e.printStackTrace();
+				
+			}
+    	
+    	return result;
+    }
+    //绑定/解除
+    @RequestMapping(value = "/user/bindingInvite",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String bindingInvite(@ApiParam(value = "data") @RequestParam(value = "data", required = true) String data){
+    	 LOGGER.info("--------------------------------------------user/queryInvite:"+data);
+  	      String invite = StringUtils.EMPTY;
+	      String result = StringUtils.EMPTY;
+	      String token = StringUtils.EMPTY;
+	      try {
+	    	  JSONObject obj = JSONObject.fromObject(data);
+	    	  invite = obj.getString("invite");
+	    	  token = obj.getString("token");
+	    	 
+	    	  
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+	      if(!StringUtils.isNotBlank(invite)){
+	        	
+       	   result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"店铺邀请码必须填写");
+   			
+   			return result;
+       }
+       if(!StringUtils.isNotBlank(token)){
+       	
+       	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"用户信息必须填写");
+       	
+       	return result;
+       }
+       
+       try {
+    	      //通过token 返回用户id
+	    	  result = accountService.bindingInvite(token,invite);
+	    	  
+	  } catch (Exception e) {
+		// TODO: handle exception
+	  }
+       
+    	return result;
+    }
+    //退出登录
+    @RequestMapping(value = "/user/quitUser",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String quitUser(@ApiParam(value = "data") @RequestParam(value = "data", required = true) String data){
+    	 LOGGER.info("--------------------------------------------user/queryInvite:"+data);
+  	      String invite = StringUtils.EMPTY;
+	      String result = StringUtils.EMPTY;
+	      String token = StringUtils.EMPTY;
+	      try {
+	    	  JSONObject obj = JSONObject.fromObject(data);
+	    	  invite = obj.getString("invite");
+	    	  token = obj.getString("token");
+	    	 
+	    	  
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+	      if(!StringUtils.isNotBlank(invite)){
+	        	
+       	   result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"店铺邀请码必须填写");
+   			
+   			return result;
+       }
+       if(!StringUtils.isNotBlank(token)){
+       	
+       	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"用户信息必须填写");
+       	
+       	return result;
+       }
+       
+       try {
+    	   //通过token 返回用户id
+	    	  result = accountService.quitUser(token);
+	  } catch (Exception e) {
+		// TODO: handle exception
+	  }
+       
+    	return result;
+    }
+    
+    //上传头像 
+    @RequestMapping(value = "/user/uploadLogImg",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String uploadLogImg(@ApiParam(value = "data") @RequestParam(value = "data", required = true) String data){
+    	 LOGGER.info("--------------------------------------------user/queryInvite:"+data);
+  	      String imgUrl = StringUtils.EMPTY;
+  	      String userName = StringUtils.EMPTY;
+	      String result = StringUtils.EMPTY;
+	      String token = StringUtils.EMPTY;
+	      try {
+	    	  JSONObject obj = JSONObject.fromObject(data);
+	    	  imgUrl = obj.getString("imgUrl");
+	    	  userName = obj.getString("userName");
+	    	  token = obj.getString("token");
+	    	 
+	    	  
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+	      /*if(!StringUtils.isNotBlank(imgUrl)){
+	        	
+       	   result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"上传头像地址不能为空");
+   			
+   			return result;
+       }*/
+       if(!StringUtils.isNotBlank(token)){
+       	
+       	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"用户token必须填写");
+       	
+       	return result;
+       }
+       
+       try {
+    	      //通过token 上传用户头像
+	    	  result = accountService.uploadLogImg(token,imgUrl,userName);
+	    	  
+	  } catch (Exception e) {
+		// TODO: handle exception
+	  }
+       
+    	return result;
+    }
+    
+}

@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.TbAgentBusinessLogMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.TbAgentBusinessLog" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="userId" property="userid" jdbcType="BIGINT" />
+    <result column="userName" property="username" jdbcType="VARCHAR" />
+    <result column="userRole" property="userrole" jdbcType="TINYINT" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="storeId" property="storeid" jdbcType="BIGINT" />
+    <result column="storeName" property="storename" jdbcType="VARCHAR" />
+    <result column="agentId" property="agentid" jdbcType="BIGINT" />
+    <result column="agentType" property="agenttype" jdbcType="SMALLINT" />
+    <result column="agentPId" property="agentpid" jdbcType="BIGINT" />
+    <result column="agentName" property="agentname" jdbcType="VARCHAR" />
+    <result column="agentMobile" property="agentmobile" jdbcType="VARCHAR" />
+    <result column="businessType" property="businesstype" jdbcType="SMALLINT" />
+    <result column="businessTypeName" property="businesstypename" jdbcType="VARCHAR" />
+    <result column="businessPrice" property="businessprice" jdbcType="INTEGER" />
+    <result column="businessNum" property="businessnum" jdbcType="INTEGER" />
+    <result column="provinceId" property="provinceid" jdbcType="BIGINT" />
+    <result column="provinceName" property="provincename" jdbcType="VARCHAR" />
+    <result column="cityId" property="cityid" jdbcType="BIGINT" />
+    <result column="cityName" property="cityname" jdbcType="VARCHAR" />
+    <result column="countyId" property="countyid" jdbcType="BIGINT" />
+    <result column="countyName" property="countyname" jdbcType="VARCHAR" />
+    <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="isbalance" property="isbalance" jdbcType="TINYINT" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, userId, userName, userRole, mobile, storeId, storeName, agentId, agentType, agentPId, 
+    agentName, agentMobile, businessType, businessTypeName, businessPrice, businessNum, 
+    provinceId, provinceName, cityId, cityName, countyId, countyName, createTime, isbalance
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.dao.TbAgentBusinessLogExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from tb_agent_business_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_agent_business_log
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tb_agent_business_log
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.TbAgentBusinessLog" >
+    insert into tb_agent_business_log (id, userId, userName, 
+      userRole, mobile, storeId, 
+      storeName, agentId, agentType, 
+      agentPId, agentName, agentMobile, 
+      businessType, businessTypeName, businessPrice, 
+      businessNum, provinceId, provinceName, 
+      cityId, cityName, countyId, 
+      countyName, createTime, isbalance
+      )
+    values (#{id,jdbcType=INTEGER}, #{userid,jdbcType=BIGINT}, #{username,jdbcType=VARCHAR}, 
+      #{userrole,jdbcType=TINYINT}, #{mobile,jdbcType=VARCHAR}, #{storeid,jdbcType=BIGINT}, 
+      #{storename,jdbcType=VARCHAR}, #{agentid,jdbcType=BIGINT}, #{agenttype,jdbcType=SMALLINT}, 
+      #{agentpid,jdbcType=BIGINT}, #{agentname,jdbcType=VARCHAR}, #{agentmobile,jdbcType=VARCHAR}, 
+      #{businesstype,jdbcType=SMALLINT}, #{businesstypename,jdbcType=VARCHAR}, #{businessprice,jdbcType=INTEGER}, 
+      #{businessnum,jdbcType=INTEGER}, #{provinceid,jdbcType=BIGINT}, #{provincename,jdbcType=VARCHAR}, 
+      #{cityid,jdbcType=BIGINT}, #{cityname,jdbcType=VARCHAR}, #{countyid,jdbcType=BIGINT}, 
+      #{countyname,jdbcType=VARCHAR}, #{createtime,jdbcType=TIMESTAMP}, #{isbalance,jdbcType=TINYINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.TbAgentBusinessLog" >
+    insert into tb_agent_business_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userid != null" >
+        userId,
+      </if>
+      <if test="username != null" >
+        userName,
+      </if>
+      <if test="userrole != null" >
+        userRole,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="storeid != null" >
+        storeId,
+      </if>
+      <if test="storename != null" >
+        storeName,
+      </if>
+      <if test="agentid != null" >
+        agentId,
+      </if>
+      <if test="agenttype != null" >
+        agentType,
+      </if>
+      <if test="agentpid != null" >
+        agentPId,
+      </if>
+      <if test="agentname != null" >
+        agentName,
+      </if>
+      <if test="agentmobile != null" >
+        agentMobile,
+      </if>
+      <if test="businesstype != null" >
+        businessType,
+      </if>
+      <if test="businesstypename != null" >
+        businessTypeName,
+      </if>
+      <if test="businessprice != null" >
+        businessPrice,
+      </if>
+      <if test="businessnum != null" >
+        businessNum,
+      </if>
+      <if test="provinceid != null" >
+        provinceId,
+      </if>
+      <if test="provincename != null" >
+        provinceName,
+      </if>
+      <if test="cityid != null" >
+        cityId,
+      </if>
+      <if test="cityname != null" >
+        cityName,
+      </if>
+      <if test="countyid != null" >
+        countyId,
+      </if>
+      <if test="countyname != null" >
+        countyName,
+      </if>
+      <if test="createtime != null" >
+        createTime,
+      </if>
+      <if test="isbalance != null" >
+        isbalance,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userid != null" >
+        #{userid,jdbcType=BIGINT},
+      </if>
+      <if test="username != null" >
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="userrole != null" >
+        #{userrole,jdbcType=TINYINT},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="storeid != null" >
+        #{storeid,jdbcType=BIGINT},
+      </if>
+      <if test="storename != null" >
+        #{storename,jdbcType=VARCHAR},
+      </if>
+      <if test="agentid != null" >
+        #{agentid,jdbcType=BIGINT},
+      </if>
+      <if test="agenttype != null" >
+        #{agenttype,jdbcType=SMALLINT},
+      </if>
+      <if test="agentpid != null" >
+        #{agentpid,jdbcType=BIGINT},
+      </if>
+      <if test="agentname != null" >
+        #{agentname,jdbcType=VARCHAR},
+      </if>
+      <if test="agentmobile != null" >
+        #{agentmobile,jdbcType=VARCHAR},
+      </if>
+      <if test="businesstype != null" >
+        #{businesstype,jdbcType=SMALLINT},
+      </if>
+      <if test="businesstypename != null" >
+        #{businesstypename,jdbcType=VARCHAR},
+      </if>
+      <if test="businessprice != null" >
+        #{businessprice,jdbcType=INTEGER},
+      </if>
+      <if test="businessnum != null" >
+        #{businessnum,jdbcType=INTEGER},
+      </if>
+      <if test="provinceid != null" >
+        #{provinceid,jdbcType=BIGINT},
+      </if>
+      <if test="provincename != null" >
+        #{provincename,jdbcType=VARCHAR},
+      </if>
+      <if test="cityid != null" >
+        #{cityid,jdbcType=BIGINT},
+      </if>
+      <if test="cityname != null" >
+        #{cityname,jdbcType=VARCHAR},
+      </if>
+      <if test="countyid != null" >
+        #{countyid,jdbcType=BIGINT},
+      </if>
+      <if test="countyname != null" >
+        #{countyname,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isbalance != null" >
+        #{isbalance,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.dao.TbAgentBusinessLogExample" resultType="java.lang.Integer" >
+    select count(*) from tb_agent_business_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.TbAgentBusinessLog" >
+    update tb_agent_business_log
+    <set >
+      <if test="userid != null" >
+        userId = #{userid,jdbcType=BIGINT},
+      </if>
+      <if test="username != null" >
+        userName = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="userrole != null" >
+        userRole = #{userrole,jdbcType=TINYINT},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="storeid != null" >
+        storeId = #{storeid,jdbcType=BIGINT},
+      </if>
+      <if test="storename != null" >
+        storeName = #{storename,jdbcType=VARCHAR},
+      </if>
+      <if test="agentid != null" >
+        agentId = #{agentid,jdbcType=BIGINT},
+      </if>
+      <if test="agenttype != null" >
+        agentType = #{agenttype,jdbcType=SMALLINT},
+      </if>
+      <if test="agentpid != null" >
+        agentPId = #{agentpid,jdbcType=BIGINT},
+      </if>
+      <if test="agentname != null" >
+        agentName = #{agentname,jdbcType=VARCHAR},
+      </if>
+      <if test="agentmobile != null" >
+        agentMobile = #{agentmobile,jdbcType=VARCHAR},
+      </if>
+      <if test="businesstype != null" >
+        businessType = #{businesstype,jdbcType=SMALLINT},
+      </if>
+      <if test="businesstypename != null" >
+        businessTypeName = #{businesstypename,jdbcType=VARCHAR},
+      </if>
+      <if test="businessprice != null" >
+        businessPrice = #{businessprice,jdbcType=INTEGER},
+      </if>
+      <if test="businessnum != null" >
+        businessNum = #{businessnum,jdbcType=INTEGER},
+      </if>
+      <if test="provinceid != null" >
+        provinceId = #{provinceid,jdbcType=BIGINT},
+      </if>
+      <if test="provincename != null" >
+        provinceName = #{provincename,jdbcType=VARCHAR},
+      </if>
+      <if test="cityid != null" >
+        cityId = #{cityid,jdbcType=BIGINT},
+      </if>
+      <if test="cityname != null" >
+        cityName = #{cityname,jdbcType=VARCHAR},
+      </if>
+      <if test="countyid != null" >
+        countyId = #{countyid,jdbcType=BIGINT},
+      </if>
+      <if test="countyname != null" >
+        countyName = #{countyname,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null" >
+        createTime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isbalance != null" >
+        isbalance = #{isbalance,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.TbAgentBusinessLog" >
+    update tb_agent_business_log
+    set userId = #{userid,jdbcType=BIGINT},
+      userName = #{username,jdbcType=VARCHAR},
+      userRole = #{userrole,jdbcType=TINYINT},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      storeId = #{storeid,jdbcType=BIGINT},
+      storeName = #{storename,jdbcType=VARCHAR},
+      agentId = #{agentid,jdbcType=BIGINT},
+      agentType = #{agenttype,jdbcType=SMALLINT},
+      agentPId = #{agentpid,jdbcType=BIGINT},
+      agentName = #{agentname,jdbcType=VARCHAR},
+      agentMobile = #{agentmobile,jdbcType=VARCHAR},
+      businessType = #{businesstype,jdbcType=SMALLINT},
+      businessTypeName = #{businesstypename,jdbcType=VARCHAR},
+      businessPrice = #{businessprice,jdbcType=INTEGER},
+      businessNum = #{businessnum,jdbcType=INTEGER},
+      provinceId = #{provinceid,jdbcType=BIGINT},
+      provinceName = #{provincename,jdbcType=VARCHAR},
+      cityId = #{cityid,jdbcType=BIGINT},
+      cityName = #{cityname,jdbcType=VARCHAR},
+      countyId = #{countyid,jdbcType=BIGINT},
+      countyName = #{countyname,jdbcType=VARCHAR},
+      createTime = #{createtime,jdbcType=TIMESTAMP},
+      isbalance = #{isbalance,jdbcType=TINYINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

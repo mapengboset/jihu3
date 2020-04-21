@@ -1,0 +1,503 @@
+package com.yqbing.servicebing.service.impl;
+
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import sun.net.www.protocol.http.HttpURLConnection;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
+import com.yqbing.servicebing.repository.database.abstracts.TWealthDayLogBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.TWealthMonthLogBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.WeBankBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.WebankTaskRuleBeanExample;
+import com.yqbing.servicebing.repository.database.abstracts.WeBankBeanExample.Criteria;
+import com.yqbing.servicebing.repository.database.bean.StoreInfoBean;
+import com.yqbing.servicebing.repository.database.bean.StoreUserBean;
+import com.yqbing.servicebing.repository.database.bean.TUserInfoBean;
+import com.yqbing.servicebing.repository.database.bean.TUserMessageBean;
+import com.yqbing.servicebing.repository.database.bean.TWealthDayLogBean;
+import com.yqbing.servicebing.repository.database.bean.TWealthLogBean;
+import com.yqbing.servicebing.repository.database.bean.TWealthMonthLogBean;
+import com.yqbing.servicebing.repository.database.bean.WeBankBean;
+import com.yqbing.servicebing.repository.database.bean.WebankTaskRuleBean;
+import com.yqbing.servicebing.repository.database.dao.StoreInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreUserBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TUserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TUserLogBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TUserMessageBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TWealthDayLogBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TWealthLogBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TWealthMonthLogBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.WeBankBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.WebankTaskRuleBeanMapper;
+import com.yqbing.servicebing.repository.redis.RWeBankBean;
+import com.yqbing.servicebing.repository.redis.RWealthLogBean;
+import com.yqbing.servicebing.service.WeBankService;
+import com.yqbing.servicebing.utils.DateUtil;
+import com.yqbing.servicebing.utils.ExcelUtil;
+import com.yqbing.servicebing.utils.PushContentUtil;
+import com.yqbing.servicebing.utils.StrUtils;
+import com.yqbing.servicebing.utils.excel.ExcelWeBankModel;
+import com.yqbing.servicebing.utils.excel.exportWeBank;
+
+@Service("weBankControService")
+public class WeBankServiceImpl implements WeBankService{
+
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(WeBankServiceImpl.class);
+	
+	@Autowired
+	private WeBankBeanMapper weBankBeanMapper = null;
+	
+	@Autowired
+	private TUserInfoBeanMapper userInfoBeanMapper = null;
+	@Autowired
+	private TUserLogBeanMapper userLogBeanMapper = null;
+	@Autowired
+	private TUserMessageBeanMapper userMessageBeanMapper = null;
+	@Autowired
+	private TWealthDayLogBeanMapper wealthDayLogBeanMapper = null;
+	@Autowired
+	private TWealthLogBeanMapper wealthLogBeanMapper = null;
+	@Autowired
+	private TWealthMonthLogBeanMapper wealthMonthLogBeanMapper = null;
+	@Autowired
+	private WebankTaskRuleBeanMapper webankTaskRuleBeanMapper = null;
+	
+	@Autowired
+	private StoreInfoBeanMapper storeInfoBeanMapper = null;
+	@Autowired
+	private StoreUserBeanMapper storeUserBeanMapper = null;
+	
+	/**
+	 * 缓存标识
+	 */
+	@Autowired
+	private RWealthLogBean rWealthLogBean = null;
+	@Autowired
+	private RWeBankBean rWeBankBean = null;
+	
+	@Override
+	public PageInfo<WeBankBean> query(String name, String stime, String etime,Integer page,Integer limit) {
+		// TODO Auto-generated method stub
+		WeBankBeanExample example = new WeBankBeanExample();
+		PageInfo<WeBankBean> info = null;
+		Criteria createCriteria = example.createCriteria();
+		try {
+			if(!StrUtils.isNullOrBlank(name)){
+				
+			   //createCriteria.andBeInvitedLike(name);
+			   createCriteria.andBeInvitedLike(name+"%");
+			
+			}
+            if(!StrUtils.isNullOrBlank(stime) && !StrUtils.isNullOrBlank(etime)){
+            	createCriteria.andBeInvitedTimeBetween(DateUtil.parse(stime),DateUtil.parse(etime));
+            	
+			}
+            PageHelper.startPage(page,limit);
+            example.setOrderByClause("create_time desc");
+            List<WeBankBean> list = this.weBankBeanMapper.selectByExample(example);
+            LOGGER.info("-----------------------------------------微众提取记录"+new Gson().toJson(list));
+            info = new PageInfo<WeBankBean>(list);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return info;
+	}
+
+	@Override//公司名称 名店名称 开始时间和结束时间的联合查询
+	public PageInfo<WeBankBean> queryWelth(String company, String store,String stime, String etime,int page,int limit) {
+//       HashMap<String,Object> map = new HashMap<String, Object>();
+//       map.put("company",company);
+//       map.put("store",store);
+//       map.put("stime",stime);
+//       map.put("etime",etime);
+       PageInfo<WeBankBean> info = null;
+       try {
+    	   PageHelper.startPage(page,limit);//
+    	   if(!StrUtils.isNullOrBlank(company)){
+    		   company = company+"%";
+    	   }
+           if(!StrUtils.isNullOrBlank(store)){
+        	   store = store+"%";
+    	   }
+           
+    	   List<WeBankBean> list = this.weBankBeanMapper.queryWelth(company,store,DateUtil.parse(stime),DateUtil.parse(etime));
+    	   LOGGER.info("-----------------------------------------微众财富发放记录记录"+new Gson().toJson(list));
+    	   info = new PageInfo<WeBankBean>(list);
+	} catch (Exception e) {
+		// TODO: handle exception
+		e.printStackTrace();
+	}
+		return info;
+	}
+
+	@Override
+	@Transactional
+	public int importWB(MultipartFile excel,String f) throws Exception {
+		List<WeBankBean> list = null;
+		Integer userId = null;
+		Integer wealth = 0;
+		List<Object> readExcel = ExcelUtil.readExcel(excel, new ExcelWeBankModel(),1);
+		LOGGER.info("-----------------------------------------财富导入ecxel"+new Gson().toJson(readExcel));
+		if(readExcel != null&&readExcel.size() > 0){
+			list = new ArrayList<WeBankBean>();
+			for (int i = 0; i < readExcel.size(); i++) {
+				ExcelWeBankModel object = (ExcelWeBankModel) readExcel.get(i);
+				WeBankBean bean = null;
+				bean = weBankBeanMapper.queryBeInvited(object.getCompany());
+				if(null == bean){
+					continue;
+				}
+				if(bean.getIsSuccessful().equals("4")){//已经发送过财富值,不需要再发送了
+					continue;
+				}
+				bean.setUpdateTime(new Date());//提交时间
+			//	bean.setBeInvited(object.getCompany());//公司名称
+				if(!StrUtils.isNullOrBlank(object.getMoney())){
+					
+					bean.setMoney(Integer.valueOf(object.getMoney()));//已启动额度
+				}
+				String succcess = null;
+				short p = 1;
+				short  t = 2;
+				short  ty = 301;
+				/*if(!StrUtils.isNullOrBlank(f)){
+				     	
+				}else{}*/
+					
+				Long userId1 = bean.getUserid();//邀请人的用户id ,
+				TUserInfoBean infoBean = userInfoBeanMapper.selectByPrimaryKey(userId1.intValue());
+				StoreInfoBean storeInfoBean = storeInfoBeanMapper.selectByPrimaryKey(bean.getStoreId());
+				if(storeInfoBean != null){
+					bean.setStoreCode(storeInfoBean.getStoreCode());
+					bean.setStoreName(storeInfoBean.getStoreName());
+				}
+				 bean.setStoreUsername(infoBean.getUserName());
+				 bean.setPhone(infoBean.getUserPhone());
+				 bean.setUpdateTime(new Date());
+					if("是".equals(object.getIssuccess())){
+						if(!StrUtils.isNullOrBlank(f)){
+							if(infoBean.getUserState() == -2){//被冻结
+								continue;
+							}
+							//必须先开始导入
+							if(StrUtils.isNullOrBlank(object.getMoney()) || bean.getIsSuccessful().equals("3")){
+								continue;
+							}
+							succcess = "4";//代表已经计算过财富值了,不代表一定给这个用户发放了
+							//-----------------------------------------------------------------开始为这个用户发放财富值
+							if(null ==bean.getStoreId()|| bean.getStoreId() == -1 ){//申请的时候是普通用户也不可以
+								continue;
+							}
+							 if(infoBean != null && bean.getStoreId() != null && infoBean.getUserState() != -1){
+								 userId = infoBean.getUserId();
+								 //门店被冻结也发送不了财富
+								 if(storeInfoBean == null ||storeInfoBean.getStoreState() != 1){
+									 continue;
+								 }
+								 
+								 //店员申请的要把财富给店长
+								
+									 StoreUserBean S =  storeUserBeanMapper.selectByUSER3(bean.getStoreId(),3); 
+									 Integer userId2 = S.getUserId();
+									 //通过门店ID 得到店长id
+									 infoBean = userInfoBeanMapper.selectByPrimaryKey(userId2);
+									 userId = infoBean.getUserId();
+								
+								 TWealthDayLogBean tWealthDayLogBean = null;
+								 TWealthMonthLogBean monthLogBean = null;
+								 String money = object.getMoney();//启用额度
+								 if(!StrUtils.isNullOrBlank(money)){
+									 Integer moneys = Integer.valueOf(money);
+									 //计算财富值
+									 wealth = (int) (moneys*100*0.001);
+									 bean.setWealth(wealth);
+									 bean.setStoreCode(storeInfoBean.getStoreCode());
+									 bean.setStoreName(storeInfoBean.getStoreName());
+									 bean.setStoreUsername(infoBean.getUserName());
+									 bean.setPhone(infoBean.getUserPhone());
+									 bean.setUpdateTime(new Date());
+									 Integer wealth2 = infoBean.getUserWealth();
+									 //--------给用户info 表添加财富
+									 infoBean.setUserWealth(wealth+wealth2);
+								
+									 userInfoBeanMapper.updateByPrimaryKeySelective(infoBean);
+									 //---------给财富log添加一条记录
+									 TWealthLogBean wealthLogBean = new TWealthLogBean();
+									 wealthLogBean.setUserId(userId.intValue());
+									 wealthLogBean.setUserName(infoBean.getUserName());
+									 wealthLogBean.setLoginPlat(p);
+									 wealthLogBean.setAdminId(0);
+									 wealthLogBean.setWealthBefore(wealth2);
+									 wealthLogBean.setWealthAfter(infoBean.getUserWealth());
+									 wealthLogBean.setWealthCount(wealth);
+									 wealthLogBean.setLogType(t);
+									 wealthLogBean.setTypeId(ty);
+									 wealthLogBean.setTypeDesc("微众银行");
+									 wealthLogBean.setDetailId(0);
+									 wealthLogBean.setWealthType(p);
+									 wealthLogBean.setWealthState(p);
+									 wealthLogBean.setBack3(3);
+									// DateUtil.
+									 wealthLogBean.setCreateTime(new Date().getDay());
+									 wealthLogBean.setRecTime(new Date());
+									 wealthLogBean.setVersion("");
+									 wealthLogBeanMapper.insertSelective(wealthLogBean);
+									 //存入缓存
+									 rWealthLogBean.set(userId.longValue(), infoBean.getUserName(), wealthLogBean);
+										 
+									 
+									 //-------------------存取财富当天的
+									 //返回当前天
+									
+									 TWealthDayLogBeanExample tWealthDayLogBeanExample = new TWealthDayLogBeanExample();
+									 tWealthDayLogBeanExample.createCriteria().andDayStringEqualTo(DateUtil.format(new Date())).andUserIdEqualTo(userId.intValue());
+									 List<TWealthDayLogBean> wdays = wealthDayLogBeanMapper.selectByExample(tWealthDayLogBeanExample);
+									 
+									 
+									 if(wdays != null && wdays.size() > 0){//存在
+										 tWealthDayLogBean = wdays.get(0);
+										 tWealthDayLogBean.setWealthEarn(moneys);
+										 tWealthDayLogBean.setWealthTotal(wealth+wealth2);//
+										 tWealthDayLogBean.setRecTime(new Date());
+										 tWealthDayLogBean.setUpdateTime(new Date().getDate());
+										 wealthDayLogBeanMapper.updateByPrimaryKeySelective(tWealthDayLogBean);
+										
+									 }else{
+										 
+										 tWealthDayLogBean = new TWealthDayLogBean();
+										 tWealthDayLogBean.setDayString(DateUtil.format(new Date()));
+										 tWealthDayLogBean.setDayInt(new Date().getDay());
+										 tWealthDayLogBean.setUserId(userId.intValue());
+										 tWealthDayLogBean.setUserName(infoBean.getUserName());
+										 
+										 
+										 TWealthDayLogBeanExample tWealthDayLogBeanExample1 = new TWealthDayLogBeanExample();
+										 tWealthDayLogBeanExample1.createCriteria().andDayStringEqualTo(DateUtil.getyester()).andUserIdEqualTo(userId.intValue());
+										 List<TWealthDayLogBean> selectByExample = wealthDayLogBeanMapper.selectByExample(tWealthDayLogBeanExample1);
+										 
+									     tWealthDayLogBean.setWealthYes(selectByExample.size() > 0?selectByExample.get(0).getWealthYes():0);
+										
+									     tWealthDayLogBean.setWealthEarn(moneys);
+										 tWealthDayLogBean.setWealthTotal(wealth+wealth2);//
+										 tWealthDayLogBean.setRecTime(new Date());
+										 //判断不存在赋值0 
+									     tWealthDayLogBean.setWealthExchange(0);
+									     tWealthDayLogBean.setWealthQueque(0);
+									     wealthDayLogBeanMapper.insertSelective(tWealthDayLogBean);
+										 
+									 }
+									 //--------------------存取财富当月的
+									 TWealthMonthLogBeanExample monthLogBeanExample = new TWealthMonthLogBeanExample();
+									 monthLogBeanExample.createCriteria().andUserIdEqualTo(userId.intValue()).andMonthStringEqualTo(DateUtil.format(new Date(),"YYYY-mm"));
+									 List<TWealthMonthLogBean> monthexample = wealthMonthLogBeanMapper.selectByExample(monthLogBeanExample);
+									 if(monthexample != null && monthexample.size() > 0){
+										 monthLogBean = monthexample.get(0);
+										 monthLogBean.setWealthEarn(monthLogBean.getWealthEarn()+wealth);
+										 monthLogBean.setRecTime(new Date());
+										 monthLogBean.setWealthTotal(monthLogBean.getWealthTotal()+wealth);
+										 monthLogBean.setUpdateTime(new Date().getDate());
+										 monthLogBean.setRecTime(new Date());
+										 
+										 wealthMonthLogBeanMapper.updateByPrimaryKeySelective(monthLogBean);
+									 }else{
+										 monthLogBean = new TWealthMonthLogBean();
+										 monthLogBean.setMonthString(DateUtil.format(new Date(),"YYYY-mm"));
+										 monthLogBean.setMonthInt(new Date().getMonth());
+										 monthLogBean.setUserId(userId.intValue());
+										 monthLogBean.setUserName(infoBean.getUserName());
+										 TWealthMonthLogBeanExample monthLogBeanExample1 = new TWealthMonthLogBeanExample();
+										 monthLogBeanExample1.createCriteria().andUserIdEqualTo(userId.intValue()).andMonthStringEqualTo(DateUtil.format(new Date(),"YYYY-mm"));
+										 List<TWealthMonthLogBean> monthexample1 = wealthMonthLogBeanMapper.selectByExample(monthLogBeanExample1);
+										
+											 
+									     monthLogBean.setWealthYes(wealth2 - wealth);
+										
+									   
+										 monthLogBean.setWealthEarn(wealth);
+										 monthLogBean.setWealthExchange(0);
+										 monthLogBean.setWealthTotal(wealth+wealth2);
+										 monthLogBean.setWealthQueque(0);
+										 monthLogBean.setCreateTime(new Date().getDate());
+										 monthLogBean.setRecTime(new Date());
+										 wealthMonthLogBeanMapper.insertSelective(monthLogBean);
+									 }
+									 //--------------------记录用户发送消息类型
+										String jGPushContent ="尊敬的掌柜，"+ wealthLogBean.getTypeDesc()+money  + "财富已经到账啦！";
+										boolean content = false;
+											
+											 content = PushContentUtil.pushContent(2, infoBean.getPushKey(), jGPushContent, wealthLogBean.getTypeDesc());
+										
+									    short m = -1;
+									    
+									    	TUserMessageBean tUserMessageBean = new TUserMessageBean();
+									    	tUserMessageBean.setUserId(userId.intValue());
+									    	tUserMessageBean.setMessageTitle("财富到账");
+									    	tUserMessageBean.setMessageState(content?1:m);
+									    	tUserMessageBean.setMessageType(p);
+									    	tUserMessageBean.setMessageLink(t);
+									    	tUserMessageBean.setMessageText(jGPushContent);
+									    	tUserMessageBean.setPushKey(infoBean.getPushKey());
+									    	tUserMessageBean.setCreateTime(new Date().getDate());
+									    	tUserMessageBean.setRecTime(new Date());
+									    	
+									    	userMessageBeanMapper.insertSelective(tUserMessageBean);
+									   
+								 }else{
+									 continue;
+								 }
+							 }else{//普通用户获得不了财富
+								 continue;
+							 }
+							
+						}else{
+							succcess = "1";
+						}
+					}else{
+						
+						succcess = "2";
+					}
+				bean.setIsSuccessful(succcess);//是否成功
+				
+			//	list.add(bean);
+				weBankBeanMapper.updateByPrimaryKeySelective(bean);
+				
+				//修改缓存
+				rWeBankBean.set(bean.getUserid(), bean.getBeInvited(), bean);
+				
+				//同时删除每月拉新数据的缓存
+				rWeBankBean.removeList(bean.getUserid());
+				
+			}
+		/*	if( null != list && list.size() > 0){
+				
+				weBankBeanMapper.updateBatch(list);
+			}else{
+				return 2;	
+			}*/
+		}else{
+			return 1;
+		}
+		return 0;
+	}
+    
+	@Override
+	public int exportWB(String time,HttpServletResponse response) throws Exception {
+	
+		List<WeBankBean> wes = weBankBeanMapper.queryTime(time);
+		if(wes.size() == 0){//为空不用导出表格
+			return 1;
+		}
+		List<exportWeBank> list = new ArrayList<exportWeBank>();
+		for (WeBankBean e : wes) {
+			exportWeBank model = new exportWeBank();
+			 model.setTime(DateUtil.formatDateTime(e.getBeInvitedTime()));
+			 model.setCompany(e.getBeInvited());
+			 model.setPicurl(e.getPicUrl());
+			 
+			 list.add(model);
+		    // String picUrl = e.getPicUrl();
+		   //  getPic(picUrl, e.getBeInvited(), "d://");
+		}
+		String fileName = "机呼下载列表";
+		String sheetName = "sheet";
+		ExcelUtil.writeExcel(response, list, fileName, sheetName, new exportWeBank());
+	    return 0;
+	}
+    @SuppressWarnings("resource")
+	public void getPic(String urlStr,String fileName,String savePath) throws Exception{
+    	URL url = new URL(urlStr);  
+        HttpURLConnection conn = (HttpURLConnection)url.openConnection();  
+                //设置超时间为3秒
+        conn.setConnectTimeout(3*1000);
+        //防止屏蔽程序抓取而返回403错误
+        conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
+        
+        //得到输入流
+        InputStream inputStream = conn.getInputStream();
+        
+        //得到自己的数组
+        byte[] data = readInputStream(inputStream);
+        File saveDir  = new File(savePath);
+        if(!saveDir .exists()){
+        	saveDir .mkdir();
+        }
+        
+        File file = new File(saveDir+File.separator+fileName+".jpg");
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(data);
+        fos.close();
+        inputStream.close();
+    }
+    
+    /**
+     * 从输入流中获取字节数组
+     * @param inputStream
+     * @return
+     * @throws IOException
+     */
+    public static  byte[] readInputStream(InputStream inputStream) throws IOException {  
+        byte[] buffer = new byte[1024];  
+        int len = 0;  
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();  
+        while((len = inputStream.read(buffer)) != -1) {  
+            bos.write(buffer, 0, len);  
+        }  
+        bos.close();  
+        return bos.toByteArray();  
+    }
+
+	@Override
+	public int weBankOff(String off) {
+		// TODO Auto-generated method stub
+		//webankTaskRuleBeanMapper.updateByPrimaryKeySelective(record);
+		WebankTaskRuleBeanExample ruleBeanExample = new WebankTaskRuleBeanExample();
+		ruleBeanExample.createCriteria().andTaskisopenIsNotNull();
+		List<WebankTaskRuleBean> selectByExample = webankTaskRuleBeanMapper.selectByExample(ruleBeanExample);
+		WebankTaskRuleBean ruleBean = selectByExample.get(0);
+	    byte t = 1;
+	    byte s = 0;
+		
+		ruleBean.setTaskisopen(off.equals("true")?t:s);
+		int i = webankTaskRuleBeanMapper.updateByPrimaryKeySelective(ruleBean);
+		
+		return i;
+	}
+
+	@Override
+	public WebankTaskRuleBean queryWeBankopen() {
+		//webankTaskRuleBeanMapper.updateByPrimaryKeySelective(record);
+				WebankTaskRuleBeanExample ruleBeanExample = new WebankTaskRuleBeanExample();
+				ruleBeanExample.createCriteria().andTaskisopenIsNotNull();
+				List<WebankTaskRuleBean> selectByExample = webankTaskRuleBeanMapper.selectByExample(ruleBeanExample);
+				WebankTaskRuleBean ruleBean = selectByExample.get(0);
+			 
+		return ruleBean;
+	}  
+    
+    
+    
+}

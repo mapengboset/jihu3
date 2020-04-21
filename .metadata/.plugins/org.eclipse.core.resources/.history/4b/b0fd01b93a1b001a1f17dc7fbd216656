@@ -1,0 +1,40 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 客户标识今天消耗卡路里数接口
+ * 
+ * @author yinjy
+ *
+ */
+public interface RCustomerIdTodayCalorieValue {
+	/**
+	 * 设置客户标识今天消耗卡路里数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param calorie 今天消耗卡路里数值
+	 */
+	public void set(Long customerId, Long calorie);
+
+	/**
+	 * 获取今天消耗卡路里数值
+	 * 
+	 * @param customerId 客户标识
+	 * @return 今天消耗卡路里数值
+	 */
+	public Long get(Long customerId);
+
+	/**
+	 * 删除客户标识今天消耗卡路里数值
+	 * 
+	 * @param customerId 客户标识
+	 */
+	public void remove(Long customerId);
+
+	/**
+	 * 存在客户标识今天消耗卡路里数值
+	 * 
+	 * @param customerId 客户标识
+	 * @return 是否存在
+	 */
+	public boolean exist(Long customerId);
+}

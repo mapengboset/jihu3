@@ -1,0 +1,503 @@
+package com.hiko.gym.common.service.sms;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.hiko.gym.common.constant.PushMessageStatus;
+import com.hiko.gym.common.constant.ShortMessageStatus;
+import com.hiko.gym.common.exception.GymException;
+import com.hiko.gym.common.repository.database.base.DShortMessageCreate;
+import com.hiko.gym.common.repository.database.base.DShortMessageDAO;
+import com.hiko.gym.common.repository.database.base.DShortMessageModify;
+import com.hiko.gym.common.repository.redis.RShortMessageId;
+import com.hiko.gym.common.util.EncryptHelper;
+import com.hiko.gym.common.util.StringUtils;
+import com.hiko.gym.common.wxpay.HttpUtil;
+
+/**
+ * 短信服务实现类
+ * 
+ * @author cychen
+ *
+ */
+@Service("smsService")
+public class SmsServiceImpl implements SmsService {
+
+	/** 标识相关 */
+	/** 短消息标识 */
+	@Resource(name = "rShortMessageId")
+	private RShortMessageId rShortMessageId = null;
+
+	/** DAO相关 */
+	/** 短消息DAO */
+	@Resource(name = "dShortMessageDAO")
+	private DShortMessageDAO dShortMessageDAO = null;
+
+	/** 属性相关 */
+	/** 行业短信 */
+	/** 服务地址 */
+	@Value("${sms.host}")
+	private String host = null;
+	/** 用户名称 */
+	@Value("${sms.username}")
+	private String username = null;
+	/** 用户密码 */
+	@Value("${sms.password}")
+	private String password = null;
+	/** 提交标识 */
+	// @Value("${sms.subid}")
+	// private String subid = null;
+
+	/** 营销短信 */
+	/** 用户名称 */
+	@Value("${sms.username.sale}")
+	private String usernameSale = null;
+	/** 用户密码 */
+	@Value("${sms.password.sale}")
+	private String passwordSale = null;
+	/************************* 宜信通短信配置参数 *************************************/
+
+	// 短信发送路径（宜信通）
+	@Value("${sms.httpPath}")
+	private String httpPath = null;
+	// 客户端CID
+	@Value("${sms.cid}")
+	private String cid = null;
+	// 客户端密码
+	@Value("${sms.pwd}")
+	private String pwd = null;
+	// 行业短信通道
+	@Value("${sms.productid}")
+	private String productid = null;
+	// 营销短信通道
+	@Value("${sms.sale.productid}")
+	private String saleProductid = null;
+	// 短信类型:15普通短信,32长短信
+	@Value("${sms.format}")
+	private String format = null;
+	//默认短信签名
+	@Value("${sms.sign}")
+	private String sign = null;
+	@Value("${sms.code}")
+	private String code;
+	@Value("${sms.sale.code}")
+	private String saleCode;
+	/** 日志相关 */
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(SmsServiceImpl.class);
+
+	/**
+	 * 发送消息
+	 * 
+	 * @param phone
+	 *            电话号码
+	 * @param type
+	 *            短信类型
+	 * @param subid
+	 *            短信通道
+	 * @param content
+	 *            短信内容
+	 * @throws GymException
+	 *             健身馆异常
+	 */
+	@Override
+	public void sendMessage(String phone, Short type, String subid,
+			String content) throws GymException {
+		// 获取标识
+		Long messageId = rShortMessageId.increment();
+		//添加短信记录
+		addShortMsg(phone, type, content,messageId,ShortMessageStatus.SENDING);
+ 		// 推送消息
+		try {
+			// 调用接口
+			//sendMessage(subid, phone, content);
+			this.sendSms(this.cid,this.pwd, phone, code, content, null, messageId.toString(), this.productid, messageId);
+			// 修改状态
+			DShortMessageModify dMessageModify = new DShortMessageModify();
+			dMessageModify.setId(messageId);
+			dMessageModify.setStatus(ShortMessageStatus.SUCCESS);
+			dShortMessageDAO.modify(dMessageModify);
+		} catch (Exception e) {
+			// 修改结果
+			DShortMessageModify dMessageModify = new DShortMessageModify();
+			dMessageModify.setId(messageId);
+			dMessageModify.setStatus(PushMessageStatus.FAILURE);
+			dMessageModify.setCause(e.getMessage());
+			dShortMessageDAO.modify(dMessageModify);
+
+			// 抛出异常
+			throw new GymException(e);
+		}
+	}
+	/**
+	 * 添加短信发送记录
+	 * @param phone 手机号
+	 * @param type 短信类型
+	 * @param content 短信内容
+	 * @param messageId 消息表示
+	 */
+	private void addShortMsg(String phone, Short type, String content,Long messageId,short status) {
+ 		// 保存消息
+		DShortMessageCreate dMessageCreate = new DShortMessageCreate();
+		dMessageCreate.setStatus(status);
+		dMessageCreate.setType(type);
+		dMessageCreate.setPhone(phone);
+		dMessageCreate.setContent(content);
+		dMessageCreate.setCause(null);
+		dShortMessageDAO.create(messageId, dMessageCreate);
+	}
+
+	/**
+	 * 发送消息
+	 * 
+	 * @param subid
+	 *            通道
+	 * @param phone
+	 *            电话号码
+	 * @param content
+	 *            短信内容
+	 * @throws GymException
+	 *             健身馆异常
+	 */
+	private void sendMessage(String subid, String phone, String content)
+			throws GymException {
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append(host);
+			sb.append("?un=").append(username); // 用户名
+			sb.append("&pw=").append(password); // 密码
+			sb.append("&da=").append(phone); // 手机号
+			sb.append("&sa="); // 扩展码
+			sb.append("&ex="); // 自定义消息编码，可以忽略
+			sb.append("&dc=").append(8); // UNICODE编码
+			sb.append("&tf=").append(3); // URLEncode+UTF8
+			sb.append("&rf=").append(2); // 返回格式为Json格式
+			sb.append("&sm=").append(URLEncoder.encode(content, "utf8"));
+			// 执行请求
+			URL url = new URL(sb.toString());
+
+			// 读取应答
+			String line;
+			sb.setLength(0);
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					url.openStream()));
+			while ((line = in.readLine()) != null) {
+				sb.append(line.trim());
+			}
+			in.close();
+			LOGGER.info("行业短信发送成功返回：" + sb.toString());
+		} catch (Exception e) {
+			// 打印日志
+			LOGGER.error("发送消息异常", e);
+
+			// 抛出异常
+			throw new GymException("发送消息异常");
+		}
+	}
+
+	/**
+	 * 发送短信
+	 * 
+	 * @param host
+	 *            服务器路径
+	 * @param username
+	 *            用户名
+	 * @param password
+	 *            密码
+	 * @param subid
+	 *            短信通道
+	 * @param phone
+	 *            手机号码
+	 * @param content
+	 *            短信内容
+	 * @throws GymException
+	 * @throws
+	 */
+	@Override
+	public Boolean sendMessage(String host, String username, String password,
+			String subid, String phone, String content) {
+		// 组装请求: 服务地址
+		BufferedReader in = null;
+		try {
+			// 数据验证
+			if (StringUtils.isNullOrBlank(host)) {
+				host = this.host;
+			}
+			if (StringUtils.isNullOrBlank(username)) {
+				username = this.username;
+			}
+			if (StringUtils.isNullOrBlank(password)) {
+				password = this.password;
+			}
+			StringBuilder sb = new StringBuilder();
+			sb.append(host).append("?un=").append(username) // 用户名
+					.append("&pw=").append(password) // 密码
+					.append("&da=").append(phone) // 手机号
+					.append("&sa=") // 扩展码
+					.append("&ex=") // 自定义消息编码，可以忽略
+					.append("&dc=").append(8) // UNICODE编码
+					.append("&tf=").append(3) // URLEncode+UTF8
+					.append("&rf=").append(2) // 返回格式为Json格式
+					.append("&sm=").append(URLEncoder.encode(content, "utf8"));
+
+			// 执行请求
+			URL url = new URL(sb.toString());
+			// 读取应答
+			String line;
+			sb.setLength(0);
+			in = new BufferedReader(new InputStreamReader(url.openStream()));
+			while ((line = in.readLine()) != null) {
+				sb.append(line.trim());
+			}
+			in.close();
+			LOGGER.info("行业短信发送成功返回：" + sb.toString());
+			return true;
+		} catch (Exception e) {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+					return false;
+				}
+			}
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	/**
+	 * 发送短信
+	 * 
+	 * @param host
+	 *            服务器路径
+	 * @param username
+	 *            用户名
+	 * @param password
+	 *            密码
+	 * @param subid
+	 *            短信通道
+	 * @param phone
+	 *            手机号码
+	 * @param content
+	 *            短信内容
+	 * @throws GymException
+	 * @throws
+	 */
+	@Override
+	public Boolean sendSaleMessage(String phone, String content) {
+		// 组装请求: 服务地址
+		BufferedReader in = null;
+		try {
+			// 数据验证
+			StringBuilder sb = new StringBuilder();
+			sb.append(host).append("?un=").append(usernameSale) // 用户名
+					.append("&pw=").append(passwordSale) // 密码
+					.append("&da=").append(phone) // 手机号
+					.append("&sa=") // 扩展码
+					.append("&ex=") // 自定义消息编码，可以忽略
+					.append("&dc=").append(8) // UNICODE编码
+					.append("&tf=").append(3) // URLEncode+UTF8
+					.append("&rf=").append(2) // 返回格式为Json格式
+					.append("&sm=").append(URLEncoder.encode(content, "utf8"));
+
+			// 执行请求
+			URL url = new URL(sb.toString());
+			// 读取应答
+			String line;
+			sb.setLength(0);
+			in = new BufferedReader(new InputStreamReader(url.openStream()));
+			while ((line = in.readLine()) != null) {
+				sb.append(line.trim());
+			}
+			in.close();
+			LOGGER.info("营销短信发送成功返回：" + sb.toString());
+			return true;
+		} catch (Exception e) {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+					return false;
+				}
+			}
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	
+	 
+	@Override
+	public Boolean sendMsg(String content, String lcode,String sign, String ssid,String...mobiles) throws GymException {
+		//验证参数
+		if(mobiles==null||mobiles.length==0)throw new GymException("接收手机号不能为空！");
+ 		if (StringUtils.isNullOrBlank(content))throw new GymException("短信内容不能为空！");
+ 		if(StringUtils.isNullOrBlank(sign))sign = this.sign;
+ 		if(StringUtils.isNullOrBlank(ssid))sign =this.sign;
+ 		if(StringUtils.isNullOrBlank(lcode))lcode = this.code;
+ 		//拼接手机号
+ 		List<String> phoneList  = getPhoneList(mobiles);
+ 		if(phoneList!=null&&phoneList.size()>0){
+			for (String phones : phoneList) {
+				if(StringUtils.isNullOrBlank(phones))continue;
+				// 获取标识
+				Long messageId = rShortMessageId.increment();
+				//发送短信
+				Boolean flag = this.sendSms(phones, lcode, content, sign, ssid, productid,messageId);
+				//短信发送状态
+				short status = flag?ShortMessageStatus.SUCCESS:ShortMessageStatus.FAILURE;
+					//添加短信记录
+				addShortMsg(phones, (short)1, content,messageId,status);
+			}
+		} 
+ 		return true;
+	}
+ 
+	@Override
+	public Boolean sendSaleMsg(String content, String lcode,
+			String sign, String ssid,String...mobiles) throws GymException {
+				//验证参数
+				if(mobiles==null||mobiles.length==0)throw new GymException("接收手机号不能为空！");
+		 		if (StringUtils.isNullOrBlank(content))throw new GymException("短信内容不能为空！");
+		 		if(StringUtils.isNullOrBlank(sign))sign = this.sign;
+ 		 		if(StringUtils.isNullOrBlank(lcode))lcode = this.code;
+		 		//拼接手机号
+		 		List<String> phoneList  = getPhoneList(mobiles);
+		 		//发送短信
+				if(phoneList!=null&&phoneList.size()>0){
+					for (String phones : phoneList) {
+						if(StringUtils.isNullOrBlank(phones))continue;
+						// 获取标识
+						Long messageId = rShortMessageId.increment();
+						//发送短信
+						Boolean flag = this.sendSms(phones, lcode, content, sign, ssid, saleProductid,messageId);
+						//短信发送状态
+						short status = flag?ShortMessageStatus.SUCCESS:ShortMessageStatus.FAILURE;
+ 						//添加短信记录
+						addShortMsg(phones, (short)1, content,messageId,status);
+					}
+ 				}
+				return true;
+ 	}
+	/**
+	 * 短信发送
+	 * @param mobile 手机号
+	 * @param lcode 子通道
+	 * @param content 短信内容
+	 * @param sign 短信签名
+	 * @param ssid 短信唯一标识
+	 * @param productid 短信通道
+	 * @return
+	 */
+	private Boolean sendSms(String mobile, String lcode, String content,
+			String sign, String ssid,String productid,Long shortMsgId) {
+ 		return this.sendSms(this.cid, this.pwd, mobile, lcode, content, sign, ssid, productid,shortMsgId);
+ 	}
+	/**
+	 * 短信发送
+	 * @param cid 客户端ID
+	 * @param pwd 密码
+	 * @param mobile 手机号
+	 * @param lcode 子通道
+	 * @param content 短信内容
+	 * @param sign 短信签名
+	 * @param ssid 短信唯一标识
+	 * @param productid 通道组
+	 * @param shortMsgId 短信标识
+	 * @return
+	 */
+	private Boolean sendSms(String cid,String pwd,String mobile, String lcode, String content,
+			String sign, String ssid,String productid,Long shortMsgId) {
+		StringBuffer params = new StringBuffer();
+		try {
+			params.append("cid=").append(EncryptHelper.encodeBase64URL(cid))
+					.append("&").append("pwd=")
+					.append(EncryptHelper.encodeBase64URL(pwd)).append("&")
+					.append("productid=")
+					.append(EncryptHelper.encodeURL(productid)).append("&")
+					.append("mobile=")
+					.append(EncryptHelper.encodeBase64URL(mobile + ""))
+					.append("&").append("content=")
+					.append(EncryptHelper.encodeBase64URL(content)).append("&")
+					.append("lcode=").append(lcode).append("&").append("ssid=")
+					.append(ssid).append("&").append("format=").append(format)
+					.append("&").append("sign=")
+					.append(EncryptHelper.encodeBase64URL(sign)).append("&")
+					.append("custom=").append(EncryptHelper.encodeURL(shortMsgId.toString()));
+			String result = HttpUtil.sendPost(httpPath, params.toString());
+			System.out.println(result);
+			JSONObject json = JSON.parseObject(result);
+			int status = json.getIntValue("status");
+			if (0 == status) {
+				return true;
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return false;
+ 	}
+	/**
+	 * 取得多个手机号的字符串（以分号分割）
+	 * @param mobiles 手机号数组
+	 * @return
+	 */
+	private List<String> getPhoneList(String... mobiles) {
+		StringBuffer phoneList =	new StringBuffer();
+ 		int i = 1;
+ 		List<String> phoneStrs = new ArrayList<String>();
+ 		//拼接短信接收手机号
+ 		for (String phone : mobiles) {
+			phoneList.append(phone);
+			if(i%50==0){
+				phoneStrs.add(phoneList.toString());
+				phoneList = new StringBuffer();
+				i=0;
+			}else{
+				if((phoneStrs.size()*50+i)<mobiles.length){
+					phoneList.append(",");
+				}
+			}
+ 			i++;
+		}
+ 		if(phoneList.length()>0)
+ 			phoneStrs.add(phoneList.toString());
+		return phoneStrs;
+	}
+	/**
+	 * 测试主函数
+	 * 
+	 * @param args
+	 *            参数数组
+	 * @throws GymException
+	 *             健身馆异常
+	 */
+	public static void main(String[] args) throws Exception {
+ 		String[] mobiles = new String[7]; 
+		for (int j = 0; j <7; j++) {
+			mobiles[j]=Integer.toString(j);
+		}
+		SmsServiceImpl sms = new SmsServiceImpl();
+		List<String> phoneList = sms.getPhoneList(mobiles);
+		if(phoneList!=null&&phoneList.size()>0){
+			for (String phones : phoneList) {
+				System.out.println(phones);
+			}
+		}
+	}
+}

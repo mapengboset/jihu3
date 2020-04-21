@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.TWxPayOrderBeanMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.TWxPayOrderBean" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="plat_order" property="platOrder" jdbcType="VARCHAR" />
+    <result column="out_trade_no" property="outTradeNo" jdbcType="VARCHAR" />
+    <result column="platform_id" property="platformId" jdbcType="INTEGER" />
+    <result column="trade_type" property="tradeType" jdbcType="VARCHAR" />
+    <result column="prepay_id" property="prepayId" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="appid" property="appid" jdbcType="VARCHAR" />
+    <result column="timeStamp" property="timestamp" jdbcType="TIMESTAMP" />
+    <result column="nonceStr" property="noncestr" jdbcType="VARCHAR" />
+    <result column="packageStr" property="packagestr" jdbcType="VARCHAR" />
+    <result column="signType" property="signtype" jdbcType="VARCHAR" />
+    <result column="paySign" property="paysign" jdbcType="VARCHAR" />
+    <result column="return_msg" property="returnMsg" jdbcType="VARCHAR" />
+    <result column="status_source" property="statusSource" jdbcType="INTEGER" />
+    <result column="pay_status" property="payStatus" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, plat_order, out_trade_no, platform_id, trade_type, prepay_id, user_id, appid, 
+    timeStamp, nonceStr, packageStr, signType, paySign, return_msg, status_source, pay_status, 
+    update_time
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.abstracts.TWxPayOrderBeanExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from wx_pay_order
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+   <select id="getOrder" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from wx_pay_order
+    where plat_order = #{platOrder,jdbcType=VARCHAR}
+    and 
+    platform_id= #{appChanl,jdbcType=INTEGER}
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from wx_pay_order
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from wx_pay_order
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.TWxPayOrderBean" >
+    insert into wx_pay_order (id, plat_order, out_trade_no, 
+      platform_id, trade_type, prepay_id, 
+      user_id, appid, timeStamp, 
+      nonceStr, packageStr, signType, 
+      paySign, return_msg, status_source, 
+      pay_status, update_time)
+    values (#{id,jdbcType=BIGINT}, #{platOrder,jdbcType=VARCHAR}, #{outTradeNo,jdbcType=VARCHAR}, 
+      #{platformId,jdbcType=INTEGER}, #{tradeType,jdbcType=VARCHAR}, #{prepayId,jdbcType=VARCHAR}, 
+      #{userId,jdbcType=BIGINT}, #{appid,jdbcType=VARCHAR}, #{timestamp,jdbcType=TIMESTAMP}, 
+      #{noncestr,jdbcType=VARCHAR}, #{packagestr,jdbcType=VARCHAR}, #{signtype,jdbcType=VARCHAR}, 
+      #{paysign,jdbcType=VARCHAR}, #{returnMsg,jdbcType=VARCHAR}, #{statusSource,jdbcType=INTEGER}, 
+      #{payStatus,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.TWxPayOrderBean" >
+    insert into wx_pay_order
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="platOrder != null" >
+        plat_order,
+      </if>
+      <if test="outTradeNo != null" >
+        out_trade_no,
+      </if>
+      <if test="platformId != null" >
+        platform_id,
+      </if>
+      <if test="tradeType != null" >
+        trade_type,
+      </if>
+      <if test="prepayId != null" >
+        prepay_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="appid != null" >
+        appid,
+      </if>
+      <if test="timestamp != null" >
+        timeStamp,
+      </if>
+      <if test="noncestr != null" >
+        nonceStr,
+      </if>
+      <if test="packagestr != null" >
+        packageStr,
+      </if>
+      <if test="signtype != null" >
+        signType,
+      </if>
+      <if test="paysign != null" >
+        paySign,
+      </if>
+      <if test="returnMsg != null" >
+        return_msg,
+      </if>
+      <if test="statusSource != null" >
+        status_source,
+      </if>
+      <if test="payStatus != null" >
+        pay_status,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="platOrder != null" >
+        #{platOrder,jdbcType=VARCHAR},
+      </if>
+      <if test="outTradeNo != null" >
+        #{outTradeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="platformId != null" >
+        #{platformId,jdbcType=INTEGER},
+      </if>
+      <if test="tradeType != null" >
+        #{tradeType,jdbcType=VARCHAR},
+      </if>
+      <if test="prepayId != null" >
+        #{prepayId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="appid != null" >
+        #{appid,jdbcType=VARCHAR},
+      </if>
+      <if test="timestamp != null" >
+        #{timestamp,jdbcType=TIMESTAMP},
+      </if>
+      <if test="noncestr != null" >
+        #{noncestr,jdbcType=VARCHAR},
+      </if>
+      <if test="packagestr != null" >
+        #{packagestr,jdbcType=VARCHAR},
+      </if>
+      <if test="signtype != null" >
+        #{signtype,jdbcType=VARCHAR},
+      </if>
+      <if test="paysign != null" >
+        #{paysign,jdbcType=VARCHAR},
+      </if>
+      <if test="returnMsg != null" >
+        #{returnMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="statusSource != null" >
+        #{statusSource,jdbcType=INTEGER},
+      </if>
+      <if test="payStatus != null" >
+        #{payStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.abstracts.TWxPayOrderBeanExample" resultType="java.lang.Integer" >
+    select count(*) from wx_pay_order
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.TWxPayOrderBean" >
+    update wx_pay_order
+    <set >
+      <if test="platOrder != null" >
+        plat_order = #{platOrder,jdbcType=VARCHAR},
+      </if>
+      <if test="outTradeNo != null" >
+        out_trade_no = #{outTradeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="platformId != null" >
+        platform_id = #{platformId,jdbcType=INTEGER},
+      </if>
+      <if test="tradeType != null" >
+        trade_type = #{tradeType,jdbcType=VARCHAR},
+      </if>
+      <if test="prepayId != null" >
+        prepay_id = #{prepayId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="appid != null" >
+        appid = #{appid,jdbcType=VARCHAR},
+      </if>
+      <if test="timestamp != null" >
+        timeStamp = #{timestamp,jdbcType=TIMESTAMP},
+      </if>
+      <if test="noncestr != null" >
+        nonceStr = #{noncestr,jdbcType=VARCHAR},
+      </if>
+      <if test="packagestr != null" >
+        packageStr = #{packagestr,jdbcType=VARCHAR},
+      </if>
+      <if test="signtype != null" >
+        signType = #{signtype,jdbcType=VARCHAR},
+      </if>
+      <if test="paysign != null" >
+        paySign = #{paysign,jdbcType=VARCHAR},
+      </if>
+      <if test="returnMsg != null" >
+        return_msg = #{returnMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="statusSource != null" >
+        status_source = #{statusSource,jdbcType=INTEGER},
+      </if>
+      <if test="payStatus != null" >
+        pay_status = #{payStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.TWxPayOrderBean" >
+    update wx_pay_order
+    set plat_order = #{platOrder,jdbcType=VARCHAR},
+      out_trade_no = #{outTradeNo,jdbcType=VARCHAR},
+      platform_id = #{platformId,jdbcType=INTEGER},
+      trade_type = #{tradeType,jdbcType=VARCHAR},
+      prepay_id = #{prepayId,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=BIGINT},
+      appid = #{appid,jdbcType=VARCHAR},
+      timeStamp = #{timestamp,jdbcType=TIMESTAMP},
+      nonceStr = #{noncestr,jdbcType=VARCHAR},
+      packageStr = #{packagestr,jdbcType=VARCHAR},
+      signType = #{signtype,jdbcType=VARCHAR},
+      paySign = #{paysign,jdbcType=VARCHAR},
+      return_msg = #{returnMsg,jdbcType=VARCHAR},
+      status_source = #{statusSource,jdbcType=INTEGER},
+      pay_status = #{payStatus,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

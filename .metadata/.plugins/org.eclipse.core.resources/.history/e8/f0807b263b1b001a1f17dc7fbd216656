@@ -1,0 +1,27 @@
+package com.yqbing.commons.utils.es.index.field;
+
+import com.yqbing.commons.utils.es.index.Field;
+
+/**
+ * @version 创建时间:2017年10月17日
+ * 
+ */
+public class DateField extends Field {
+
+	protected String format;
+
+	public String getFormat() {
+		return format;
+	}
+
+	public void setFormat(String format) {
+		this.format = format;
+	}
+
+	@Override
+	public String toString() {
+		return "DateField [format=" + format + ", type=" + type + ", index=" + index + ", analyzer=" + analyzer + "]";
+	}
+
+	
+}

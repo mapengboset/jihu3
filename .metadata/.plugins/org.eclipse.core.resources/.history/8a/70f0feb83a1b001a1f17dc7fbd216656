@@ -1,0 +1,76 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 客户推送令牌哈希接口
+ * 
+ * @author cychen
+ *
+ */
+public interface RCustomerPushTokenHash {
+
+	/**
+	 * 设置客户推送令牌
+	 * 
+	 * @param customerPushToken 客户推送令牌
+	 */
+	public void set(RCustomerPushToken customerPushToken);
+
+	/**
+	 * 获取客户推送令牌
+	 * 
+	 * @param customerId 客户标识
+	 * @return 客户推送令牌
+	 */
+	public RCustomerPushToken get(Long customerId);
+
+	/**
+	 * 删除客户推送令牌
+	 * 
+	 * @param customerId 客户标识
+	 */
+	public void remove(Long customerId);
+
+	/**
+	 * 存在客户推送令牌
+	 * 
+	 * @param customerId 客户标识
+	 * @return 是否存在
+	 */
+	public boolean exist(Long customerId);
+
+	/**
+	 * 设置参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 * @param value 参数值
+	 */
+	public void set(Long customerId, String name, String value);
+
+	/**
+	 * 获取参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 * @return 参数值
+	 */
+	public String get(Long customerId, String name);
+
+	/**
+	 * 删除参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 */
+	public void remove(Long customerId, String name);
+
+	/**
+	 * 存在参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 * @return 持久化异常
+	 */
+	public boolean exist(Long customerId, String name);
+
+}

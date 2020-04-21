@@ -1,0 +1,9 @@
+package com.yqbing.servicebing.service;
+
+import com.yqbing.servicebing.repository.database.bean.TWxNoticeBean;
+
+public interface IPublicPayService {
+
+	void saveNotifyResult(TWxNoticeBean notic);
+
+}

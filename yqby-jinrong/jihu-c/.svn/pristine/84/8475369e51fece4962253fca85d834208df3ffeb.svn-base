@@ -1,0 +1,28 @@
+package com.yqbing.servicebing.repository.jihuc;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface UserExtBeanMapper {
+	
+    int countByExample(UserExtBeanExample example);
+
+    int deleteByPrimaryKey(Long id);
+
+    int insert(UserExtBean record);
+
+    int insertSelective(UserExtBean record);
+
+    List<UserExtBean> selectByExample(UserExtBeanExample example);
+
+    UserExtBean selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(UserExtBean record);
+
+    int updateByPrimaryKey(UserExtBean record);
+
+	UserExtBean queryInvite(@Param("invite")String invite);
+}

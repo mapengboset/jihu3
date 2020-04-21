@@ -1,0 +1,26 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import com.yqbing.servicebing.utils.StringUtil;
+import io.swagger.annotations.Api;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletResponse;
+
+@RestController
+@Api(tags = "彩票")
+@SuppressWarnings("all")
+@RequestMapping("/lottery")
+public class LotteryTicketController {
+
+    @GetMapping("/ticket/index")
+    void testLotteryIndex(HttpServletResponse response) throws Exception{
+        String lotteryName = "蓝玫瑰";
+        String unicodeStr = StringUtil.stringToUnicode(lotteryName);
+        lotteryName = StringUtil.stringToUnicode(unicodeStr);
+        StringBuilder resultLotteryHtml = new StringBuilder("http://www.yqbing.com/page/mobilePage/html/lottery/index.html?picUrl=http://html.500lottery.com/goodsImg/55ecbe7b52e24b1297585af85b5881c6.jpg&price=1000&standbyTicket=0&lotteryName=");
+        resultLotteryHtml.append(lotteryName);
+        response.sendRedirect(resultLotteryHtml.toString());
+    }
+}

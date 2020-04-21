@@ -1,0 +1,172 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 客户运动数据累计类
+ * @author zhouwf
+ *
+ */
+public class RCustomerSport {
+	
+	/** 属性相关 */
+	/** 客户标识 */
+	private Long customerId = null;
+	
+	private Integer login = null;
+	
+	/** 卡路里 (卡)*/
+	private Double calorie = null;
+	
+	/** 步数 (步)*/
+	private Integer bushu = null;
+	
+	/** 步行距离 (km)*/
+	private Double distance = null;
+
+	/** 重量 (KG)*/
+	private Double weight = null;
+	
+	/** 收到点赞数(次) */
+	private Integer praise = null;
+	
+	/** 完成每日目标天数 (天)*/
+	private Integer target = null;
+	
+	/** 常量相关 */
+	/** 客户标识 */
+	public static final String CUSTOMERID = "customerId";
+	/** 连续登录标识 */
+	public static final String LOGIN = "login";
+	/** 卡路里 (卡)*/
+	public static final String CALORIE = "calorie";
+	/** 步数 (步)*/
+	public static final String BUSHU = "bushu";
+	/** 步行距离 (km)*/
+	public static final String DISTANCE = "distance";
+	/** 重量 (KG)*/
+	public static final String WEIGHT = "weight";
+	/** 收到点赞数(次) */
+	public static final String PRAISE = "praise";
+	/** 完成每日目标天数 (天)*/
+	public static final String TARGET = "target";
+	
+	/**
+	 * 获取用户唯一标识
+	 * @return
+	 */
+	public Long getCustomerId() {
+		return customerId;
+	}
+
+	/**
+	 * 设置用户唯一标识
+	 * @param customerId
+	 */
+	public void setCustomerId(Long customerId) {
+		this.customerId = customerId;
+	}
+
+	/**
+	 * 获取总消耗卡路里
+	 * @return
+	 */
+	public Double getCalorie() {
+		return calorie;
+	}
+
+	/**
+	 * 设置总共消耗卡路里
+	 * @param calorie
+	 */
+	public void setCalorie(Double calorie) {
+		this.calorie = calorie;
+	}
+
+	/**
+	 * 获取运动总步数
+	 * @return
+	 */
+	public Integer getBushu() {
+		return bushu;
+	}
+
+	/**
+	 * 设置运动总步数
+	 * @param bushu
+	 */
+	public void setBushu(Integer bushu) {
+		this.bushu = bushu;
+	}
+
+	/**
+	 * 获取步行距离
+	 * @return
+	 */
+	public Double getDistance() {
+		return distance;
+	}
+
+	/**
+	 * 设置步行距离
+	 * @param distance
+	 */
+	public void setDistance(Double distance) {
+		this.distance = distance;
+	}
+
+	/**
+	 * 获取运动的总重量
+	 * @return
+	 */
+	public Double getWeight() {
+		return weight;
+	}
+
+	/**
+	 * 设置运动的总重量
+	 * @param weight
+	 */
+	public void setWeight(Double weight) {
+		this.weight = weight;
+	}
+
+	/**
+	 * 获取点赞总数
+	 * @return
+	 */
+	public Integer getPraise() {
+		return praise;
+	}
+
+	/**
+	 * 设置点赞数
+	 * @param praise
+	 */
+	public void setPraise(Integer praise) {
+		this.praise = praise;
+	}
+
+	/**
+	 * 获取完成的每日目标天数
+	 * @return
+	 */
+	public Integer getTarget() {
+		return target;
+	}
+
+	/**
+	 * 设置完成的每日目标天数
+	 * @param target
+	 */
+	public void setTarget(Integer target) {
+		this.target = target;
+	}
+
+	public Integer getLogin() {
+		return login;
+	}
+
+	public void setLogin(Integer login) {
+		this.login = login;
+	}
+	
+}

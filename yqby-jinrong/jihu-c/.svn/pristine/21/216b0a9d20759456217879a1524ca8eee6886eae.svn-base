@@ -1,0 +1,68 @@
+package com.yqbing.servicebing.repository.database.abstracts;
+
+import java.util.List;
+
+import com.yqbing.servicebing.repository.database.bean.AppAppraise;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+import com.yqbing.servicebing.webapp.response.StoreAppRes;
+
+public class StoreHouseAbs extends StoreHouse{
+	
+	
+	private String apptype;
+	
+	private String click;
+	
+	private Integer localstatus;
+	 
+	
+	
+    public String getClick() {
+		return click;
+	}
+
+	public void setClick(String click) {
+		this.click = click;
+	}
+
+	public Integer getLocalstatus() {
+		return localstatus;
+	}
+
+	public void setLocalstatus(Integer localstatus) {
+		this.localstatus = localstatus;
+	}
+
+	
+
+	public String getApptype() {
+		return apptype;
+	}
+
+	public void setApptype(String apptype) {
+		this.apptype = apptype;
+	}
+
+
+
+	private List<AppAppraise>  as ;
+    
+    private List<StoreAppRes>  apps;
+
+	public List<AppAppraise> getAs() {
+		return as;
+	}
+
+	public void setAs(List<AppAppraise> as) {
+		this.as = as;
+	}
+
+	public List<StoreAppRes> getApps() {
+		return apps;
+	}
+
+	public void setApps(List<StoreAppRes> apps) {
+		this.apps = apps;
+	}
+    
+}

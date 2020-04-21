@@ -1,0 +1,38 @@
+package com.yqbing.servicebing.webapp.response;
+
+import java.util.List;
+
+import com.yqbing.servicebing.repository.database.bean.Region;
+
+public class CityRes {
+	private Long id;
+	private	String	name;
+	private	long	parentid;
+	private List<Region> area;
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public long getParentid() {
+		return parentid;
+	}
+	public void setParentid(long parentid) {
+		this.parentid = parentid;
+	}
+	public List<Region> getArea() {
+		return area;
+	}
+	public void setArea(List<Region> area) {
+		this.area = area;
+	}
+	
+	
+}

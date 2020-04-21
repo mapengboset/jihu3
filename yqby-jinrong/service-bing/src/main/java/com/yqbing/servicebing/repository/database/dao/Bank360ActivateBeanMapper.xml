@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.Bank360ActivateBeanMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.Bank360ActivateBean" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="bank_url" property="bankUrl" jdbcType="VARCHAR" />
+    <result column="total" property="total" jdbcType="INTEGER" />
+    <result column="register" property="register" jdbcType="INTEGER" />
+    <result column="access" property="access" jdbcType="INTEGER" />
+    <result column="activate" property="activate" jdbcType="INTEGER" />
+    <result column="regis_time" property="regisTime" jdbcType="TIMESTAMP" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, bank_url, register, access, activate, regis_time, create_time
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.abstracts.Bank360ActivateBeanExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from tb_360bank_activate
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_360bank_activate
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="queryList" resultMap="BaseResultMap" parameterType="HashMap" >
+     select  
+      <include refid="Base_Column_List" />
+     from 
+     tb_360bank_activate a 
+     where 
+     a.bank_url = #{bankUrl}
+     <if test="startTime != null" >
+     and
+     a.regis_time >= #{startTime} 
+     </if>
+     <if test="endTime != null" >
+     and
+     a.regis_time &lt;= #{endTime} 
+     </if>
+     and a.activate>0
+     order by a.regis_time desc 
+  </select>
+  
+  <select id="queryToal" resultType="java.lang.Integer" parameterType="HashMap" >
+     select  COALESCE(SUM(a.activate),0) as total 
+     from 
+     tb_360bank_activate a 
+     where 
+     a.bank_url = #{bankUrl}
+     <if test="startTime != null" >
+     and
+     a.regis_time >= #{startTime}
+     </if> 
+      <if test="endTime != null" >
+     and
+     a.regis_time &lt;= #{endTime} 
+     </if>
+     order by a.regis_time desc  
+  </select>
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tb_360bank_activate
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.Bank360ActivateBean" >
+    insert into tb_360bank_activate (id, bank_url, register, 
+      access, activate, regis_time, 
+      create_time)
+    values (#{id,jdbcType=INTEGER}, #{bankUrl,jdbcType=VARCHAR}, #{register,jdbcType=INTEGER}, 
+      #{access,jdbcType=INTEGER}, #{activate,jdbcType=INTEGER}, #{regisTime,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.Bank360ActivateBean" >
+    insert into tb_360bank_activate
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="bankUrl != null" >
+        bank_url,
+      </if>
+      <if test="register != null" >
+        register,
+      </if>
+      <if test="access != null" >
+        access,
+      </if>
+      <if test="activate != null" >
+        activate,
+      </if>
+      <if test="regisTime != null" >
+        regis_time,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="bankUrl != null" >
+        #{bankUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="register != null" >
+        #{register,jdbcType=INTEGER},
+      </if>
+      <if test="access != null" >
+        #{access,jdbcType=INTEGER},
+      </if>
+      <if test="activate != null" >
+        #{activate,jdbcType=INTEGER},
+      </if>
+      <if test="regisTime != null" >
+        #{regisTime,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.abstracts.Bank360ActivateBeanExample" resultType="java.lang.Integer" >
+    select count(*) from tb_360bank_activate
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.Bank360ActivateBean" >
+    update tb_360bank_activate
+    <set >
+      <if test="bankUrl != null" >
+        bank_url = #{bankUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="register != null" >
+        register = #{register,jdbcType=INTEGER},
+      </if>
+      <if test="access != null" >
+        access = #{access,jdbcType=INTEGER},
+      </if>
+      <if test="activate != null" >
+        activate = #{activate,jdbcType=INTEGER},
+      </if>
+      <if test="regisTime != null" >
+        regis_time = #{regisTime,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.Bank360ActivateBean" >
+    update tb_360bank_activate
+    set bank_url = #{bankUrl,jdbcType=VARCHAR},
+      register = #{register,jdbcType=INTEGER},
+      access = #{access,jdbcType=INTEGER},
+      activate = #{activate,jdbcType=INTEGER},
+      regis_time = #{regisTime,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

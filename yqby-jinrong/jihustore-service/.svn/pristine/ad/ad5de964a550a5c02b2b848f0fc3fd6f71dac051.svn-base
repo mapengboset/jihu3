@@ -1,0 +1,49 @@
+package com.yqbing.servicebing.webapp.response;
+
+import java.util.List;
+
+public class HomePageRes {
+
+	//全部商品
+	private List<Goods> goods;
+	//次数
+	private Integer Number;
+	//是否签到
+	private Integer sign;//0未签到 1已经签到
+	//我的奖品
+	private List<AwardRes> MyAward;
+	//中奖记录
+	private List<AwardRes> Award;
+	public List<Goods> getGoods() {
+		return goods;
+	}
+	public void setGoods(List<Goods> goods) {
+		this.goods = goods;
+	}
+	public Integer getNumber() {
+		return Number;
+	}
+	public void setNumber(Integer number) {
+		Number = number;
+	}
+	public Integer getSign() {
+		return sign;
+	}
+	public void setSign(Integer sign) {
+		this.sign = sign;
+	}
+	public List<AwardRes> getMyAward() {
+		return MyAward;
+	}
+	public void setMyAward(List<AwardRes> myAward) {
+		MyAward = myAward;
+	}
+	public List<AwardRes> getAward() {
+		return Award;
+	}
+	public void setAward(List<AwardRes> award) {
+		Award = award;
+	}
+	
+	
+}

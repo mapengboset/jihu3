@@ -1,0 +1,135 @@
+package com.yqbing.servicebing.common;
+
+import java.io.Serializable;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.yqbing.commons.utils.enums.ErrorBean;
+import com.yqbing.commons.utils.enums.ErrorCode;
+import com.yqbing.commons.utils.enums.ErrorCodeEnum;
+import com.yqbing.commons.utils.json.JSONObject;
+
+public class CommonResult implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	private String code;
+
+	private String msg;
+
+	private Object body;
+	
+	private long currentTime = System.currentTimeMillis();
+	
+	private ErrorBean error = null;
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public String getMsg() {
+		return msg;
+	}
+
+	public void setMsg(String msg) {
+		this.msg = msg;
+	}
+
+	public Object getBody() {
+		return body;
+	}
+
+	public void setBody(Object body) {
+		this.body = body;
+	}
+
+	public CommonResult() {
+
+	}
+
+	public CommonResult(int code, String message) {
+		this.code = String.valueOf(code);
+		this.msg = message;
+		this.body = new JSONObject();
+	}
+
+	public CommonResult(int code, String message, Object data) {
+		this.code = String.valueOf(code);
+		this.msg = message;
+		this.body = data;
+	}
+
+	public long getCurrentTime() {
+		return currentTime;
+	}
+
+	public void setCurrentTime(long currentTime) {
+		this.currentTime = currentTime;
+	}
+
+	public ErrorBean getError() {
+		return error;
+	}
+
+	public void setError(ErrorBean error) {
+		this.error = error;
+	}
+	
+	public void setError(ErrorCode error) {
+
+		setError(error, null);
+	}
+	
+	public void setError(ErrorCode error, Object data) {
+
+		setError(error, data, null);
+	}
+	
+	public void setError(ErrorCode error, Object data, String[] errorMessageParams) {
+
+		if (error != null) {
+			this.error = new ErrorBean();
+			this.error.setCode(error.getCode());
+			this.error.setMessage(error.getMessage());
+			this.error.setBody(data);
+			processErrorMessage(error.getMessage(), errorMessageParams);
+		} else {
+			this.error = null;
+		}
+	}
+
+	public void setErrorTitleIfNone(String title) {
+		if (error != null) {
+			if (error.getCode() == ErrorCodeEnum.CODE_ERROR || error.getTitle() == null || this.error.getTitle().isEmpty()){
+				this.error.setTitle(title);
+			}
+		}
+	}
+	
+	private void processErrorMessage(String errorMessageTemplate, String[] errorMessageParams){
+		
+		if(errorMessageTemplate == null || errorMessageParams == null || errorMessageParams.length == 0){
+			return;
+		}
+		
+		int idx = 1;
+		for(String param : errorMessageParams){
+			errorMessageTemplate = StringUtils.replace(errorMessageTemplate, "{" + idx++ + "}", param);
+		}
+		this.error.setMessage(errorMessageTemplate);
+	}
+
+	@Override
+	public String toString() {
+		return "CommonResult [code=" + code + ", msg=" + msg + ", body=" + body + ", currentTime=" + currentTime
+				+ ", error=" + error + "]";
+	}
+
+	
+	
+
+}

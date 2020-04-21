@@ -1,0 +1,202 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 运动类型类
+ * 
+ * @author cychen
+ *
+ */
+public class SportType {	
+
+	/** 跑步 */
+	public static final int PAO_BU_JI = 1;
+	/** 步行 */
+	public static final int BU_XING = 2;
+	/** 有氧舞蹈 */
+	public static final int YOU_YANG_WU_DAO = 3;
+	/** 动感单车 */
+	public static final int DONG_GAN_DAN_CHE = 4;
+	/** 杠铃操 */
+	public static final int GANG_LING_CAO = 5;
+	/** 搏击操 */
+	public static final int BO_JI_CAO = 6;
+	/** 椭圆机 */
+	public static final int TUO_YUAN_JI = 7;
+	/** 坐式划艇拉力练习器--->坐姿划船 */
+	public static final int HUA_TING_LA_LI = 8;
+	/** 坐式肩膀后展练习器 */
+	public static final int JIAN_BANG_HOU_ZHAN = 9;
+	/** 高拉力背肌练习器--->高位下拉 */
+	public static final int LA_LI_BEI_JI = 10;
+	/** 坐式背肌伸展练习器 */
+	public static final int BEI_JI_SHEN_ZHAN = 11;
+	/** 坐式飞鸟练习器 --->坐姿侧平举*/
+	public static final int ZUO_SHI_FEI_NIAO = 12;
+	/** 坐式提膝练习器 */
+	public static final int ZUO_SHI_TI_XI = 13;
+	/** 坐式大腿伸展练习器 --->坐姿腿屈伸*/
+	public static final int ZUO_SHI_DA_TUI_SHEN_ZHAN = 14;
+	/** 坐式后腿屈伸练习器 */
+	public static final int ZUO_SHI_HOU_TUI_QU_SHEN = 15;
+	/** 大腿外侧肌练习器--->坐姿大腿外展 */
+	public static final int DA_TUI_WAI_CE_JI = 16;
+	/** 大腿内侧肌练习器--->坐姿大腿内收*/
+	public static final int DA_TUI_NEI_CE_JI = 17;
+	/** 坐式肩膀推举练习器--->坐姿推肩 */
+	public static final int JIAN_BANG_TUI_JU = 18;
+	/** 坐式双向推胸练习器--->坐姿平推 */
+	public static final int SHUANG_XIANG_TUI_XIONG = 19;
+	/** 蝴蝶式扩胸练习器 --->坐姿飞鸟*/
+	public static final int HU_DIE_SHI_KUO_XIONG = 20;
+	/** 卧式腿屈展器 --->俯卧腿弯举*/
+	public static final int WO_SHI_TUI_QU_ZHAN = 21;
+	/** 二头肌双向练习器 --->坐姿托肘弯举*/
+	public static final int ER_TOU_JI_SHUANG_XIANG = 22;
+	/** 三头肌双向练习器--->坐姿三头下压 */
+	public static final int SAN_TOU_JI_SHUANG_XIANG = 23;
+	/** 立式大腿伸展练习器 */
+	public static final int LI_SHI_DA_TUI_SHEN_ZHAN = 24;
+	/** 调节式蹬腿练习器 --->坐姿蹬腿*/
+	public static final int TIAO_JIE_DENG_TUI = 25;
+	/** 立式大腿屈伸练习器 */
+	public static final int LI_SHI_DA_TUI_QU_SHEN = 26;
+	/** 游泳 */
+	public static final int YOU_YONG = 27;
+	/** 健身操 */
+	public static final int JIAN_SHEN_CAO = 28;
+	/** 跳绳 */
+	public static final int TIAO_SHENG = 29;
+	/** 龙门架 */
+	public static final int LONG_MEN_JIA = 30;
+	/** 助力引体向上 */
+	public static final int ZHU_LI_YIN_TI_XIANG_SHANG = 31;
+	/** 助力双杠臂屈伸 */
+	public static final int ZHU_LI_SHAUNG_GANG_BI_QU_SHEN = 32;
+	/** 坐姿反向飞鸟 */
+	public static final int ZUO_ZI_FAN_XIANG_FEI_NIAO = 33;
+	/** 多功能器械 */
+	public static final int DUO_GONG_NENG_QI_XIE= 34;
+	/** 臀部复合训练器  */
+	public static final int TUN_BU_FUHE_XUN_LIAN= 35;
+	/** 腿部内外弯训练器 */
+	public static final int TUI_BU_BEI_WAI_WAN= 38;
+	/**
+	 * 获取运动类型描述
+	 * 
+	 * @param sportType 运动类型值
+	 * @return 运动类型描述
+	 */
+	public static String getDescription(int sportType) {
+		if (sportType == PAO_BU_JI) {
+			return "跑步";
+		}
+		if (sportType == BU_XING) {
+			return "步行";
+		}
+		if (sportType == YOU_YANG_WU_DAO) {
+			return "有氧舞蹈";
+		}
+		if (sportType == DONG_GAN_DAN_CHE) {
+			return "动感单车";
+		}
+		if (sportType == GANG_LING_CAO) {
+			return "杠铃操";
+		}
+		if (sportType == BO_JI_CAO) {
+			return "搏击操";
+		}
+		if (sportType == TUO_YUAN_JI) {
+			return "椭圆机";
+		}
+		if (sportType == HUA_TING_LA_LI) {
+			return "坐姿划船";
+		}
+		if (sportType == JIAN_BANG_HOU_ZHAN) {
+			return "坐式肩膀后展";
+		}
+		if (sportType == LA_LI_BEI_JI) {
+			return "高位下拉";
+		}
+		if (sportType == BEI_JI_SHEN_ZHAN) {
+			return "坐式背肌伸展";
+		}
+		if (sportType == ZUO_SHI_FEI_NIAO) {
+			return "坐姿侧平举";
+		}
+		if (sportType == ZUO_SHI_TI_XI) {
+			return "坐式提膝";
+		}
+		if (sportType == ZUO_SHI_DA_TUI_SHEN_ZHAN) {
+			return "坐姿腿屈伸";
+		}
+		if (sportType == ZUO_SHI_HOU_TUI_QU_SHEN) {
+			return "坐式后腿屈伸";
+		}
+		if (sportType == DA_TUI_WAI_CE_JI) {
+			return "坐姿大腿外展";
+		}
+		if (sportType == DA_TUI_NEI_CE_JI) {
+			return "坐姿大腿内收";
+		}
+		if (sportType == JIAN_BANG_TUI_JU) {
+			return "坐姿推肩";
+		}
+		if (sportType == SHUANG_XIANG_TUI_XIONG) {
+			return "坐姿平推";
+		}
+		if (sportType == HU_DIE_SHI_KUO_XIONG) {
+			return "坐姿飞鸟";
+		}
+		if (sportType == WO_SHI_TUI_QU_ZHAN) {
+			return "俯卧腿弯举";
+		}
+		if (sportType == ER_TOU_JI_SHUANG_XIANG) {
+			return "坐姿托肘弯举";
+		}
+		if (sportType == SAN_TOU_JI_SHUANG_XIANG) {
+			return "坐姿三头下压";
+		}
+		if (sportType == LI_SHI_DA_TUI_SHEN_ZHAN) {
+			return "立式大腿伸展";
+		}
+		if (sportType == TIAO_JIE_DENG_TUI) {
+			return "坐姿蹬腿";
+		}
+		if (sportType == LI_SHI_DA_TUI_QU_SHEN) {
+			return "立式大腿屈伸";
+		}
+		if (sportType == YOU_YONG) {
+			return "游泳";
+		}
+		if (sportType == JIAN_SHEN_CAO) {
+			return "健身操";
+		}
+		if (sportType == TIAO_SHENG) {
+			return "跳绳";
+		}
+		if (sportType == LONG_MEN_JIA) {
+			return "龙门架";
+		}
+		if (sportType == ZHU_LI_YIN_TI_XIANG_SHANG) {
+			return "助力引体向上";
+		}
+		if (sportType == ZHU_LI_SHAUNG_GANG_BI_QU_SHEN) {
+			return "助力双杠臂屈伸";
+		}
+		if (sportType == ZUO_ZI_FAN_XIANG_FEI_NIAO) {
+			return "坐姿反向飞鸟";
+		}
+		if (sportType == DUO_GONG_NENG_QI_XIE) {
+			return "多功能器械";
+		}
+		if (sportType == TUN_BU_FUHE_XUN_LIAN) {
+			return "臀部复合训练器";
+		}
+		if (sportType == TUI_BU_BEI_WAI_WAN) {
+			
+			return "腿部内外弯训练器";
+		}
+		return "";
+	}
+
+}

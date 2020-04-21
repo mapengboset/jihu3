@@ -1,0 +1,232 @@
+//
+//  Created by  fred on 2017/1/12.
+//  Copyright © 2016年 Alibaba. All rights reserved.
+//
+
+package com.yqbing.servicebing.utils.gateway;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.docx4j.model.datastorage.XPathEnhancerParser.main_return;
+
+import net.sf.json.JSONArray;
+
+import com.alibaba.cloudapi.sdk.client.ApacheHttpClient;
+import com.alibaba.cloudapi.sdk.enums.Scheme;
+import com.alibaba.cloudapi.sdk.enums.HttpMethod;
+import com.alibaba.cloudapi.sdk.model.ApiRequest;
+import com.alibaba.cloudapi.sdk.model.ApiResponse;
+import com.alibaba.cloudapi.sdk.model.ApiCallback;
+import com.alibaba.cloudapi.sdk.model.HttpClientBuilderParams;
+import com.alibaba.cloudapi.sdk.enums.ParamPosition;
+import com.alibaba.cloudapi.sdk.enums.WebSocketApiType;
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.primitives.Bytes;
+import com.google.gson.Gson;
+import com.yqbing.servicebing.webapp.request.UserAdd;
+
+
+public class HttpApiClientgroup extends ApacheHttpClient{
+    public final static String HOST = "contract.baimeiyun.com";
+    static HttpApiClientgroup instance = new HttpApiClientgroup();
+    public static HttpApiClientgroup getInstance(){return instance;}
+
+    public void init(HttpClientBuilderParams httpClientBuilderParams){
+        httpClientBuilderParams.setScheme(Scheme.HTTP);
+        httpClientBuilderParams.setHost(HOST);
+        super.init(httpClientBuilderParams);
+        
+        
+    }
+
+
+
+
+    public void contractView(ApiCallback callback) {
+        String path = "/contract/view";
+        byte[] body = "dd".getBytes();
+        ApiRequest request = new ApiRequest(HttpMethod.POST_BODY , path, body);
+        
+
+
+        sendAsyncRequest(request , callback);
+    }
+
+    public ApiResponse contractViewSyncMode() {
+        String path = "/contract/view";
+        byte[] body = "dd".getBytes();
+        ApiRequest request = new ApiRequest(HttpMethod.POST_BODY , path, body);
+        
+
+
+        return sendSyncRequest(request);
+    }
+    public void contractDownload(ApiCallback callback) {
+        String path = "/contract/download";
+        byte[] body = "dd".getBytes();
+        ApiRequest request = new ApiRequest(HttpMethod.POST_BODY , path, body);
+        
+
+
+        sendAsyncRequest(request , callback);
+    }
+
+    public ApiResponse contractDownloadSyncMode() {
+        String path = "/contract/download";
+        byte[] bode = "dd".getBytes();
+        byte[] body = "dd".getBytes();
+        ApiRequest request = new ApiRequest(HttpMethod.POST_BODY , path, body);
+        
+
+
+        return sendSyncRequest(request);
+    }
+    public void contractSign(ApiCallback callback, String moblie, String returnUrl, String notifyUrl) {
+        String path = "/contract/sign";
+        Map<String,String> map = new HashMap<String, String>();
+		map.put("mobile", moblie);
+		map.put("returnUrl", returnUrl);
+		map.put("notifyUrl", notifyUrl);
+        byte[] body = new Gson().toJson(map).getBytes();
+        ApiRequest request = new ApiRequest(HttpMethod.POST_BODY , path, body);
+        
+
+
+        sendAsyncRequest(request , callback);
+    }
+
+    public ApiResponse contractSignSyncMode(String moblie,String returnUrl, String notifyUrl) throws IOException {
+        String path = "/contract/sign";
+        Map<String,String> map = new HashMap<String, String>();
+		map.put("mobile", moblie);
+		map.put("returnUrl", returnUrl);
+		map.put("notifyUrl", notifyUrl);
+        byte[] body = new Gson().toJson(map).getBytes("iso-8859-1");
+        ApiRequest request = new ApiRequest(HttpMethod.POST_BODY , path, body);
+        
+
+
+        return sendSyncRequest(request);
+    }
+    
+    public void userVerify(ApiCallback callback,String moblie,String reurl,String noturl) {
+        String path = "/user/verify";
+        Map<String,String> map = new HashMap<String, String>();
+		map.put("mobile", moblie);
+		map.put("returnUrl", reurl);
+		map.put("notifyUrl", noturl);
+        byte[] body = new Gson().toJson(map).getBytes();
+        ApiRequest request = new ApiRequest(HttpMethod.POST_BODY , path, body);
+
+
+        sendAsyncRequest(request , callback);
+    }
+
+    public ApiResponse userVerifySyncMode(String moblie, String returnUrl, String notifyUrl) throws IOException {
+    	String path = "/user/verify";
+    	 Map<String,String> map = new HashMap<String, String>();
+ 		 map.put("mobile", moblie);
+ 		 map.put("returnUrl", returnUrl);
+ 		 map.put("notifyUrl", notifyUrl);
+         byte[] body = new Gson().toJson(map).getBytes("iso-8859-1");
+        ApiRequest request = new ApiRequest(HttpMethod.POST_BODY , path, body);
+        
+
+
+        return sendSyncRequest(request);
+    }
+    
+    public void userInfo(ApiCallback callback, String moblie) throws IOException {
+    	Map<String,String> map = new HashMap<String, String>();
+		map.put("mobile", moblie);
+        byte[] body = new Gson().toJson(map).getBytes("iso-8859-1");
+        String path = "/user/info";
+        ApiRequest request = new ApiRequest(HttpMethod.POST_BODY , path, body);
+        
+
+
+        sendAsyncRequest(request , callback);
+    }
+    public ApiResponse userAddSyncMode(String moblie,String name,String idCard) throws UnsupportedEncodingException {
+    	List<UserAdd> list = new ArrayList<UserAdd>();
+    	UserAdd userAdd = new UserAdd();
+    	userAdd.setIdCard(idCard);
+    	userAdd.setName(name);
+    	userAdd.setMobile(moblie);
+    	list.add(userAdd);
+    	byte[] body = new Gson().toJson(list).getBytes("iso-8859-1");
+    	
+        String path = "/user/add";
+        ApiRequest request = new ApiRequest(HttpMethod.POST_BODY , path, body);
+
+
+        return sendSyncRequest(request);
+
+    }
+     public static void main(String[] args) {
+    	  //Original String
+         String string = "张三";
+          
+         //Convert to byte[]
+         byte[] bytes = string.getBytes();
+          
+         //Convert back to String
+         String s = new String(bytes);
+          
+         //Check converted string against original String
+         System.out.println("Decoded String : " + s);
+     }
+    public ApiResponse userEditSyncMode(String moble, String name, String idCard) {
+    	Map<String,String> map = new HashMap<String, String>();
+		map.put("mobile", moble);
+		map.put("name", name);
+		map.put("idCard", idCard);
+        byte[] body = new Gson().toJson(map).getBytes();
+        String path = "/user/update";
+        ApiRequest request = new ApiRequest(HttpMethod.POST_BODY , path, body);
+        
+        
+
+        return sendSyncRequest(request);
+	}
+    
+    
+    
+    public ApiResponse userInfoSyncMode(String moblie) {
+    	Map<String,String> map = new HashMap<String, String>();
+		map.put("mobile", moblie);
+        byte[] body = new Gson().toJson(map).getBytes();
+        String path = "/user/info";
+        ApiRequest request = new ApiRequest(HttpMethod.POST_BODY , path, body);
+        
+        
+
+        return sendSyncRequest(request);
+    }
+    public void getapis(ApiCallback callback) {
+        String path = "/apilist/getapis";
+        byte[] body = "dd".getBytes();
+        ApiRequest request = new ApiRequest(HttpMethod.POST_BODY , path, body);
+        
+
+
+        sendAsyncRequest(request , callback);
+    }
+
+    public ApiResponse getapisSyncMode() {
+        String path = "/apilist/getapis";
+        byte[] body = "dd".getBytes();
+        ApiRequest request = new ApiRequest(HttpMethod.POST_BODY , path, body);
+        
+
+
+        return sendSyncRequest(request);
+    }
+
+	
+
+}

@@ -1,0 +1,184 @@
+package com.hiko.gym.common.repository.database.base;
+
+import static org.junit.Assert.*;
+
+import java.util.*;
+
+import javax.annotation.*;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.springframework.test.context.*;
+import org.springframework.test.context.junit4.*;
+
+import com.alibaba.fastjson.*;
+
+/**
+ * 推送消息DAO测试类
+ * 
+ * @author cychen
+ *
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:spring-config-test.xml" })
+public class DPushMessageDAOTest {
+
+	/** 推送消息DAO类 */
+	@Resource(name = "dPushMessageDAO")
+	private DPushMessageDAO dPushMessageDAO = null;
+
+	/**
+	 * 测试获取推送消息信息
+	 */
+	@Test
+	public void testGet() {
+		// TODO: 赋值参数
+		Long id = null;
+
+		// 调用函数
+		DPushMessage dPushMessage = dPushMessageDAO.get(id);
+
+		// 打印结果
+		System.out.println("testGet:");
+		System.out.println(JSON.toJSONString(dPushMessage));
+
+		// TODO: 检查结果
+		assertTrue(dPushMessage != null);
+	}
+
+	/**
+	 * 测试统计推送消息数量
+	 */
+	@Test
+	public void testCount() {
+		// 初始化
+		DPushMessageQuery dPushMessageQuery = new DPushMessageQuery();
+
+		// TODO: 赋值参数
+		dPushMessageQuery.setId(null);
+		dPushMessageQuery.setCustomerId(null);
+		dPushMessageQuery.setOsType(null);
+		dPushMessageQuery.setToken(null);
+		dPushMessageQuery.setStatus(null);
+		dPushMessageQuery.setType(null);
+		dPushMessageQuery.setTitle(null);
+		dPushMessageQuery.setContent(null);
+		dPushMessageQuery.setCause(null);
+		dPushMessageQuery.setCreatedTime(null);
+		dPushMessageQuery.setModifiedTime(null);
+
+		// 调用函数
+		Integer count = dPushMessageDAO.count(dPushMessageQuery);
+
+		// 打印结果
+		System.out.println("testCount:");
+		System.out.println(count);
+
+		// TODO: 检查结果
+		assertTrue(count != null);
+		assertTrue(count >= 0);
+	}
+
+	/**
+	 * 测试查询推送消息信息
+	 */
+	@Test
+	public void testQuery() {
+		// 初始化
+		String orderBy = null;
+		Integer startIndex = null;
+		Integer pageSize = null;
+		DPushMessageQuery dPushMessageQuery = new DPushMessageQuery();
+
+		// TODO: 赋值参数
+		dPushMessageQuery.setId(null);
+		dPushMessageQuery.setCustomerId(null);
+		dPushMessageQuery.setOsType(null);
+		dPushMessageQuery.setToken(null);
+		dPushMessageQuery.setStatus(null);
+		dPushMessageQuery.setType(null);
+		dPushMessageQuery.setTitle(null);
+		dPushMessageQuery.setContent(null);
+		dPushMessageQuery.setCause(null);
+		dPushMessageQuery.setCreatedTime(null);
+		dPushMessageQuery.setModifiedTime(null);
+		orderBy = null;
+		startIndex = null;
+		pageSize = null;
+
+		// 调用函数
+		List<DPushMessage> dPushMessageList = dPushMessageDAO.query(dPushMessageQuery, orderBy, startIndex, pageSize);
+
+		// 打印结果
+		System.out.println("testQuery:");
+		System.out.println(JSON.toJSONString(dPushMessageList));
+
+		// TODO: 检查结果
+		assertTrue(dPushMessageList != null);
+		assertTrue(dPushMessageList.size() >= 0);
+	}
+
+	/**
+	 * 测试创建推送消息信息
+	 */
+	@Test
+	public void testCreate() {
+		// 初始化
+		Long id = null;
+		DPushMessageCreate create = new DPushMessageCreate();
+
+		// TODO: 赋值参数
+		id = null;
+		create.setCustomerId(null);
+		create.setOsType(null);
+		create.setToken(null);
+		create.setStatus(null);
+		create.setType(null);
+		create.setTitle(null);
+		create.setContent(null);
+		create.setCause(null);
+
+		// 调用函数
+		Integer count = dPushMessageDAO.create(id, create);
+
+		// 打印结果
+		System.out.println("testCreate:");
+		System.out.println(count);
+
+		// TODO: 检查结果
+		assertTrue(count != null);
+		assertTrue(count == 1);
+	}
+
+	/**
+	 * 测试修改推送消息信息
+	 */
+	@Test
+	public void testModify() {
+		// 初始化
+		DPushMessageModify modify = new DPushMessageModify();
+
+		// TODO: 赋值参数
+		modify.setId(null);
+		modify.setCustomerId(null);
+		modify.setOsType(null);
+		modify.setToken(null);
+		modify.setStatus(null);
+		modify.setType(null);
+		modify.setTitle(null);
+		modify.setContent(null);
+		modify.setCause(null);
+
+		// 调用函数
+		Integer count = dPushMessageDAO.modify(modify);
+
+		// 打印结果
+		System.out.println("testModify:");
+		System.out.println(count);
+
+		// TODO: 检查结果
+		assertTrue(count != null);
+		assertTrue(count == 1);
+	}
+
+}

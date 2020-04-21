@@ -1,0 +1,72 @@
+package com.hiko.gym.common.repository.redis;
+
+import static org.junit.Assert.*;
+
+import javax.annotation.*;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.springframework.test.context.*;
+import org.springframework.test.context.junit4.*;
+
+/**
+ * 场馆客户最新体测日期值测试类
+ * 
+ * @author cychen
+ *
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:spring-config-test.xml" })
+public class RVenueCustomerLatestMeasureDateValueTest {
+
+	/** 场馆客户最新体测日期值 */
+	@Resource(name = "rVenueCustomerLatestMeasureDateValue")
+	private RVenueCustomerLatestMeasureDateValue rVenueCustomerLatestMeasureDateValue = null;
+
+	/**
+	 * 测试设置场馆客户最新体测日期函数
+	 */
+	@Test
+	public void testSet() {
+		String venueCustomerId = null; // TODO:
+		String latestMeasureDate = null; // TODO:
+		rVenueCustomerLatestMeasureDateValue.set(venueCustomerId, latestMeasureDate);
+		assertEquals(rVenueCustomerLatestMeasureDateValue.get(venueCustomerId), latestMeasureDate);
+	}
+
+	/**
+	 * 测试获取场馆客户最新体测日期函数
+	 */
+	@Test
+	public void testGet() {
+		String venueCustomerId = null; // TODO:
+		String latestMeasureDate = null; // TODO:
+		rVenueCustomerLatestMeasureDateValue.set(venueCustomerId, latestMeasureDate);
+		assertEquals(rVenueCustomerLatestMeasureDateValue.get(venueCustomerId), latestMeasureDate);
+	}
+
+	/**
+	 * 测试删除场馆客户最新体测日期函数
+	 */
+	@Test
+	public void testRemove() {
+		String venueCustomerId = null; // TODO:
+		String latestMeasureDate = null; // TODO:
+		rVenueCustomerLatestMeasureDateValue.set(venueCustomerId, latestMeasureDate);
+		assertTrue(rVenueCustomerLatestMeasureDateValue.exist(venueCustomerId));
+		rVenueCustomerLatestMeasureDateValue.remove(venueCustomerId);
+		assertFalse(rVenueCustomerLatestMeasureDateValue.exist(venueCustomerId));
+	}
+
+	/**
+	 * 测试存在场馆客户最新体测日期函数
+	 */
+	@Test
+	public void testExist() {
+		String venueCustomerId = null; // TODO:
+		String latestMeasureDate = null; // TODO:
+		rVenueCustomerLatestMeasureDateValue.set(venueCustomerId, latestMeasureDate);
+		assertEquals(rVenueCustomerLatestMeasureDateValue.get(venueCustomerId), latestMeasureDate);
+	}
+
+}

@@ -1,0 +1,673 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 客户类
+ * 
+ * @author cychen
+ *
+ */
+public class RCustomer {
+
+	/** 属性相关 */
+	/** 客户标识 */
+	private Long id = null;
+	/** 城市标识 */
+	private Long cityId = null;
+	/** 客户状态(1:正常;2:冻结;3:删除) */
+	private Short status = null;
+	/** 客户类型(1:普通;2:官方;3:运营) */
+	private Short type = null;
+	/** 客户名称 */
+	private String name = null;
+	/** 客户电话 */
+	private String phone = null;
+	/** 客户密码 */
+	private String password = null;
+	/** 客户头像 */
+	private String avatar = null;
+	/** 客户身高(厘米) */
+	private Double height = null;
+	/** 最初体重(千克) */
+	private Double firstWeight = null;
+	/** 最新体重(千克) */
+	private Double lastWeight = null;
+	/** 客户年龄 */
+	private Short age = null;
+	/** 客户性别(0:未知;1:男性;2:女性) */
+	private Short gender = null;
+	/** 客户签名 */
+	private String signature = null;
+	/** 隐藏体重 */
+	private Boolean hideWeight = null;
+	/** 注册时间(YYYY-MM-DD HH:MM:SS) */
+	private String registerTime = null;
+	/** 注册地址 */
+	private String registerIp = null;
+	/** 登录时间(YYYY-MM-DD HH:MM:SS) */
+	private String loginTime = null;
+	/** 登录地址 */
+	private String loginIp = null;
+	/** 登录令牌 */
+	private String loginToken = null;
+	/** 系统类型(1:IOS;2:安卓) */
+	private Short osType = null;
+	/** 系统版本 */
+	private String osVersion = null;
+	/** 设备标识 */
+	private String deviceId = null;
+	/** 设备型号 */
+	private String deviceModel = null;
+	/** 渠道标识(钛酷：1，浩沙：2) **/
+	private Integer marketChannel = null;
+	/** 应用版本 */
+	private String appVersion = null;
+	/** 开始冻结时间(YYYY-MM-DD HH:MM:SS) */
+	private String bfrozenTime = null;
+	/** 结束冻结时间(YYYY-MM-DD HH:MM:SS) */
+	private String efrozenTime = null;
+	/** 热度分数 */
+	private Integer hotScore = null;
+	/** 客户描述 */
+	private String description = null;
+
+	/** 常量相关 */
+	/** 客户标识 */
+	public static final String ID = "id";
+	/** 城市标识 */
+	public static final String CITYID = "cityId";
+	/** 客户状态(1:正常;2:冻结;3:删除) */
+	public static final String STATUS = "status";
+	/** 客户类型(1:普通;2:官方;3:运营) */
+	public static final String TYPE = "type";
+	/** 客户名称 */
+	public static final String NAME = "name";
+	/** 客户电话 */
+	public static final String PHONE = "phone";
+	/** 客户密码 */
+	public static final String PASSWORD = "password";
+	/** 客户头像 */
+	public static final String AVATAR = "avatar";
+	/** 客户身高(厘米) */
+	public static final String HEIGHT = "height";
+	/** 最初体重(千克) */
+	public static final String FIRSTWEIGHT = "firstWeight";
+	/** 最新体重(千克) */
+	public static final String LASTWEIGHT = "lastWeight";
+	/** 客户年龄 */
+	public static final String AGE = "age";
+	/** 客户性别(0:未知;1:男性;2:女性) */
+	public static final String GENDER = "gender";
+	/** 客户签名 */
+	public static final String SIGNATURE = "signature";
+	/** 隐藏体重 */
+	public static final String HIDEWEIGHT = "hideWeight";
+	/** 注册时间(YYYY-MM-DD HH:MM:SS) */
+	public static final String REGISTERTIME = "registerTime";
+	/** 注册地址 */
+	public static final String REGISTERIP = "registerIp";
+	/** 登录时间(YYYY-MM-DD HH:MM:SS) */
+	public static final String LOGINTIME = "loginTime";
+	/** 登录地址 */
+	public static final String LOGINIP = "loginIp";
+	/** 登录令牌 */
+	public static final String LOGINTOKEN = "loginToken";
+	/** 系统类型(1:IOS;2:安卓) */
+	public static final String OSTYPE = "osType";
+	/** 系统版本 */
+	public static final String OSVERSION = "osVersion";
+	
+	public static final String MARKETCHANNEL = "marketChannel";
+	/** 设备标识 */
+	public static final String DEVICEID = "deviceId";
+	/** 设备型号 */
+	public static final String DEVICEMODEL = "deviceModel";
+	/** 应用版本 */
+	public static final String APPVERSION = "appVersion";
+	/** 开始冻结时间(YYYY-MM-DD HH:MM:SS) */
+	public static final String BFROZENTIME = "bfrozenTime";
+	/** 结束冻结时间(YYYY-MM-DD HH:MM:SS) */
+	public static final String EFROZENTIME = "efrozenTime";
+	/** 热度分数 */
+	public static final String HOTSCORE = "hotScore";
+	/** 客户描述 */
+	public static final String DESCRIPTION = "description";
+
+	/**
+	 * 获取客户标识
+	 * 
+	 * @return 客户标识
+	 */
+	public Long getId() {
+		return id;
+	}
+
+	/**
+	 * 设置客户标识
+	 * 
+	 * @param id 客户标识
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	/**
+	 * 获取城市标识
+	 * 
+	 * @return 城市标识
+	 */
+	public Long getCityId() {
+		return cityId;
+	}
+
+	/**
+	 * 设置城市标识
+	 * 
+	 * @param cityId 城市标识
+	 */
+	public void setCityId(Long cityId) {
+		this.cityId = cityId;
+	}
+
+	/**
+	 * 获取客户状态(1:正常;2:冻结;3:删除)
+	 * 
+	 * @return 客户状态(1:正常;2:冻结;3:删除)
+	 */
+	public Short getStatus() {
+		return status;
+	}
+
+	/**
+	 * 设置客户状态(1:正常;2:冻结;3:删除)
+	 * 
+	 * @param status 客户状态(1:正常;2:冻结;3:删除)
+	 */
+	public void setStatus(Short status) {
+		this.status = status;
+	}
+
+	/**
+	 * 获取客户类型(1:普通;2:官方;3:运营)
+	 * 
+	 * @return 客户类型(1:普通;2:官方;3:运营)
+	 */
+	public Short getType() {
+		return type;
+	}
+
+	/**
+	 * 设置客户类型(1:普通;2:官方;3:运营)
+	 * 
+	 * @param type 客户类型(1:普通;2:官方;3:运营)
+	 */
+	public void setType(Short type) {
+		this.type = type;
+	}
+
+	/**
+	 * 获取客户名称
+	 * 
+	 * @return 客户名称
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * 设置客户名称
+	 * 
+	 * @param name 客户名称
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * 获取客户电话
+	 * 
+	 * @return 客户电话
+	 */
+	public String getPhone() {
+		return phone;
+	}
+
+	/**
+	 * 设置客户电话
+	 * 
+	 * @param phone 客户电话
+	 */
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	/**
+	 * 获取客户密码
+	 * 
+	 * @return 客户密码
+	 */
+	public String getPassword() {
+		return password;
+	}
+
+	/**
+	 * 设置客户密码
+	 * 
+	 * @param password 客户密码
+	 */
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	/**
+	 * 获取客户头像
+	 * 
+	 * @return 客户头像
+	 */
+	public String getAvatar() {
+		return avatar;
+	}
+
+	/**
+	 * 设置客户头像
+	 * 
+	 * @param avatar 客户头像
+	 */
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
+	}
+
+	/**
+	 * 获取客户身高(厘米)
+	 * 
+	 * @return 客户身高(厘米)
+	 */
+	public Double getHeight() {
+		return height;
+	}
+
+	/**
+	 * 设置客户身高(厘米)
+	 * 
+	 * @param height 客户身高(厘米)
+	 */
+	public void setHeight(Double height) {
+		this.height = height;
+	}
+
+	/**
+	 * 获取最初体重(千克)
+	 * 
+	 * @return 最初体重(千克)
+	 */
+	public Double getFirstWeight() {
+		return firstWeight;
+	}
+
+	/**
+	 * 设置最初体重(千克)
+	 * 
+	 * @param firstWeight 最初体重(千克)
+	 */
+	public void setFirstWeight(Double firstWeight) {
+		this.firstWeight = firstWeight;
+	}
+
+	/**
+	 * 获取最新体重(千克)
+	 * 
+	 * @return 最新体重(千克)
+	 */
+	public Double getLastWeight() {
+		return lastWeight;
+	}
+
+	/**
+	 * 设置最新体重(千克)
+	 * 
+	 * @param lastWeight 最新体重(千克)
+	 */
+	public void setLastWeight(Double lastWeight) {
+		this.lastWeight = lastWeight;
+	}
+
+	/**
+	 * 获取客户年龄
+	 * 
+	 * @return 客户年龄
+	 */
+	public Short getAge() {
+		return age;
+	}
+
+	/**
+	 * 设置客户年龄
+	 * 
+	 * @param age 客户年龄
+	 */
+	public void setAge(Short age) {
+		this.age = age;
+	}
+
+	/**
+	 * 获取客户性别(0:未知;1:男性;2:女性)
+	 * 
+	 * @return 客户性别(0:未知;1:男性;2:女性)
+	 */
+	public Short getGender() {
+		return gender;
+	}
+
+	/**
+	 * 设置客户性别(0:未知;1:男性;2:女性)
+	 * 
+	 * @param gender 客户性别(0:未知;1:男性;2:女性)
+	 */
+	public void setGender(Short gender) {
+		this.gender = gender;
+	}
+
+	/**
+	 * 获取渠道标识
+	 * @return 渠道标识
+	 */
+	public Integer getMarketChannel() {
+		return marketChannel;
+	}
+
+	/**
+	 * 设置渠道标识
+	 * @param marketChannel 渠道标识
+	 */
+	public void setMarketChannel(Integer marketChannel) {
+		this.marketChannel = marketChannel;
+	}
+
+	/**
+	 * 获取客户签名
+	 * 
+	 * @return 客户签名
+	 */
+	public String getSignature() {
+		return signature;
+	}
+
+	/**
+	 * 设置客户签名
+	 * 
+	 * @param signature 客户签名
+	 */
+	public void setSignature(String signature) {
+		this.signature = signature;
+	}
+
+	/**
+	 * 获取隐藏体重
+	 * 
+	 * @return 隐藏体重
+	 */
+	public Boolean getHideWeight() {
+		return hideWeight;
+	}
+
+	/**
+	 * 设置隐藏体重
+	 * 
+	 * @param hideWeight 隐藏体重
+	 */
+	public void setHideWeight(Boolean hideWeight) {
+		this.hideWeight = hideWeight;
+	}
+
+	/**
+	 * 获取注册时间(YYYY-MM-DD HH:MM:SS)
+	 * 
+	 * @return 注册时间(YYYY-MM-DD HH:MM:SS)
+	 */
+	public String getRegisterTime() {
+		return registerTime;
+	}
+
+	/**
+	 * 设置注册时间(YYYY-MM-DD HH:MM:SS)
+	 * 
+	 * @param registerTime 注册时间(YYYY-MM-DD HH:MM:SS)
+	 */
+	public void setRegisterTime(String registerTime) {
+		this.registerTime = registerTime;
+	}
+
+	/**
+	 * 获取注册地址
+	 * 
+	 * @return 注册地址
+	 */
+	public String getRegisterIp() {
+		return registerIp;
+	}
+
+	/**
+	 * 设置注册地址
+	 * 
+	 * @param registerIp 注册地址
+	 */
+	public void setRegisterIp(String registerIp) {
+		this.registerIp = registerIp;
+	}
+
+	/**
+	 * 获取登录时间(YYYY-MM-DD HH:MM:SS)
+	 * 
+	 * @return 登录时间(YYYY-MM-DD HH:MM:SS)
+	 */
+	public String getLoginTime() {
+		return loginTime;
+	}
+
+	/**
+	 * 设置登录时间(YYYY-MM-DD HH:MM:SS)
+	 * 
+	 * @param loginTime 登录时间(YYYY-MM-DD HH:MM:SS)
+	 */
+	public void setLoginTime(String loginTime) {
+		this.loginTime = loginTime;
+	}
+
+	/**
+	 * 获取登录地址
+	 * 
+	 * @return 登录地址
+	 */
+	public String getLoginIp() {
+		return loginIp;
+	}
+
+	/**
+	 * 设置登录地址
+	 * 
+	 * @param loginIp 登录地址
+	 */
+	public void setLoginIp(String loginIp) {
+		this.loginIp = loginIp;
+	}
+
+	/**
+	 * 获取登录令牌
+	 * 
+	 * @return 登录令牌
+	 */
+	public String getLoginToken() {
+		return loginToken;
+	}
+
+	/**
+	 * 设置登录令牌
+	 * 
+	 * @param loginToken 登录令牌
+	 */
+	public void setLoginToken(String loginToken) {
+		this.loginToken = loginToken;
+	}
+
+	/**
+	 * 获取系统类型(1:IOS;2:安卓)
+	 * 
+	 * @return 系统类型(1:IOS;2:安卓)
+	 */
+	public Short getOsType() {
+		return osType;
+	}
+
+	/**
+	 * 设置系统类型(1:IOS;2:安卓)
+	 * 
+	 * @param osType 系统类型(1:IOS;2:安卓)
+	 */
+	public void setOsType(Short osType) {
+		this.osType = osType;
+	}
+
+	/**
+	 * 获取系统版本
+	 * 
+	 * @return 系统版本
+	 */
+	public String getOsVersion() {
+		return osVersion;
+	}
+
+	/**
+	 * 设置系统版本
+	 * 
+	 * @param osVersion 系统版本
+	 */
+	public void setOsVersion(String osVersion) {
+		this.osVersion = osVersion;
+	}
+
+	/**
+	 * 获取设备标识
+	 * 
+	 * @return 设备标识
+	 */
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+	/**
+	 * 设置设备标识
+	 * 
+	 * @param deviceId 设备标识
+	 */
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+	}
+
+	/**
+	 * 获取设备型号
+	 * 
+	 * @return 设备型号
+	 */
+	public String getDeviceModel() {
+		return deviceModel;
+	}
+
+	/**
+	 * 设置设备型号
+	 * 
+	 * @param deviceModel 设备型号
+	 */
+	public void setDeviceModel(String deviceModel) {
+		this.deviceModel = deviceModel;
+	}
+
+	/**
+	 * 获取应用版本
+	 * 
+	 * @return 应用版本
+	 */
+	public String getAppVersion() {
+		return appVersion;
+	}
+
+	/**
+	 * 设置应用版本
+	 * 
+	 * @param appVersion 应用版本
+	 */
+	public void setAppVersion(String appVersion) {
+		this.appVersion = appVersion;
+	}
+
+	/**
+	 * 获取开始冻结时间(YYYY-MM-DD HH:MM:SS)
+	 * 
+	 * @return 开始冻结时间(YYYY-MM-DD HH:MM:SS)
+	 */
+	public String getBfrozenTime() {
+		return bfrozenTime;
+	}
+
+	/**
+	 * 设置开始冻结时间(YYYY-MM-DD HH:MM:SS)
+	 * 
+	 * @param bfrozenTime 开始冻结时间(YYYY-MM-DD HH:MM:SS)
+	 */
+	public void setBfrozenTime(String bfrozenTime) {
+		this.bfrozenTime = bfrozenTime;
+	}
+
+	/**
+	 * 获取结束冻结时间(YYYY-MM-DD HH:MM:SS)
+	 * 
+	 * @return 结束冻结时间(YYYY-MM-DD HH:MM:SS)
+	 */
+	public String getEfrozenTime() {
+		return efrozenTime;
+	}
+
+	/**
+	 * 设置结束冻结时间(YYYY-MM-DD HH:MM:SS)
+	 * 
+	 * @param efrozenTime 结束冻结时间(YYYY-MM-DD HH:MM:SS)
+	 */
+	public void setEfrozenTime(String efrozenTime) {
+		this.efrozenTime = efrozenTime;
+	}
+
+	/**
+	 * 获取热度分数
+	 * 
+	 * @return 热度分数
+	 */
+	public Integer getHotScore() {
+		return hotScore;
+	}
+
+	/**
+	 * 设置热度分数
+	 * 
+	 * @param hotScore 热度分数
+	 */
+	public void setHotScore(Integer hotScore) {
+		this.hotScore = hotScore;
+	}
+
+	/**
+	 * 获取客户描述
+	 * 
+	 * @return 客户描述
+	 */
+	public String getDescription() {
+		return description;
+	}
+
+	/**
+	 * 设置客户描述
+	 * 
+	 * @param description 客户描述
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+}

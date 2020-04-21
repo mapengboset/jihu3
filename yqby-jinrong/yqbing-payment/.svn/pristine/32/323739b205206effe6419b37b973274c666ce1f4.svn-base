@@ -1,0 +1,109 @@
+package com.yqbing.servicebing.service.impl;
+
+import javax.annotation.Resource;
+
+import org.apache.ibatis.annotations.Param;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.yqbing.servicebing.repository.database.bean.TWxApayOrderBean;
+import com.yqbing.servicebing.repository.database.bean.TWxNoticeBean;
+import com.yqbing.servicebing.repository.database.bean.TWxPayOrderBean;
+import com.yqbing.servicebing.repository.database.dao.TWxApayOrderBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TWxNoticeBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.TWxPayOrderBeanMapper;
+import com.yqbing.servicebing.service.IPublicPayService;
+import com.yqbing.servicebing.webapp.wxpay.pay.WxPayData;
+
+@Service("publicPayService")
+public class PublicPayServiceImpl implements IPublicPayService{
+
+	
+	
+	@Value("${wxappid}")
+    private String wxappid;
+	@Value("${wxsecret}")
+	private String wxsecret;
+	@Value("${wxmchId}")
+	private String wxmchId;
+	@Value("${wxpartnerkey}")
+	private String wxpartnerkey;
+	@Value("${wxtrade_type}")
+	private String wxtrade_type;
+	@Value("${wxbody}")
+	private String wxbody;
+	@Value("${servehttp}")
+	private String servehttp;
+	@Value("${jhtest}")
+	private String jhtest;
+	
+	@Resource
+	TWxNoticeBeanMapper wxNoticeBeanMapper;
+	@Resource
+	TWxPayOrderBeanMapper wxPayOrderBeanMapper;
+	@Resource
+	TWxApayOrderBeanMapper wxApayOrderBeanMapper;
+	@Override
+	public void saveNotifyResult(TWxNoticeBean notic) {
+		try {
+			
+			wxNoticeBeanMapper.insertSelective(notic);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	@Override
+	public WxPayData getWXPayConfig() {
+		WxPayData payData = new WxPayData();
+		payData.setWxappid(wxappid);
+		payData.setWxbody(wxbody);
+		payData.setWxmchId(wxmchId);
+		payData.setWxpartnerkey(wxpartnerkey);
+		payData.setWxsecret(wxsecret);
+		payData.setWxtrade_type(wxtrade_type);
+		payData.setUrl(servehttp);
+		payData.setH5url(jhtest);
+		
+		return payData;
+	}
+	@Override
+	public void savePayOrderData(TWxPayOrderBean payOrder) {
+		
+		try {
+			
+			wxPayOrderBeanMapper.insertSelective(payOrder);
+		} catch (Exception e) {
+			throw new RuntimeException("保存失败");
+		}
+		
+		
+	}
+	@Override
+	public void savePrepPayResult(TWxApayOrderBean apayRecord) {
+		// TODO Auto-generated method stub
+		
+		
+        try {
+			
+        	wxApayOrderBeanMapper.insertSelective(apayRecord);
+		} catch (Exception e) {
+			throw new RuntimeException("保存失败");
+		}
+	    }
+	
+	
+	@Override
+		public TWxApayOrderBean getPrepPayParam(String out) throws Exception {
+			// TODO 根据交易流水获取之前传进来的参数
+			if (out== null) {
+				return null;
+			}
+			return wxApayOrderBeanMapper.selectOuttrade(out);
+	}
+	@Override
+	public TWxPayOrderBean getOrder(String order,Integer appChanl) {
+		// TODO Auto-generated method stub
+		return wxPayOrderBeanMapper.getOrder(order,appChanl);
+	}
+
+}

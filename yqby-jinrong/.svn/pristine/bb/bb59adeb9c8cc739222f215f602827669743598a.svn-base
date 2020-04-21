@@ -1,0 +1,127 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import javax.annotation.Resource;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yqbing.servicebing.common.ErrorCode;
+import com.yqbing.servicebing.common.ResultModel;
+import com.yqbing.servicebing.repository.database.bean.TUserInfoBean;
+import com.yqbing.servicebing.service.AntCreditService;
+import com.yqbing.servicebing.service.TUserInfoBeanService;
+
+@RestController
+@Api(tags = "花呗支付对接接口")
+@CrossOrigin
+@SuppressWarnings("all")
+public class AntCreditController extends BaseController{
+	
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AntCreditController.class);
+	
+	@Resource(name = "userInfoBeanService")
+	private TUserInfoBeanService userInfoBeanService;
+	
+	@Resource(name = "antCreditService")
+	private AntCreditService antCreditService;
+	
+	//创建商铺
+    @RequestMapping(value = "/antcredit/createGroup",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public ResultModel QueryStoreNameOnly(@ApiParam(value = "token") @RequestParam(value = "token", required = true) String token,
+			@RequestParam(value = "storeName", required = true) String storeName,
+			@RequestParam(value = "storeAddress", required = true) String storeAddress,
+			@RequestParam(value = "phone", required = true) String phone,
+			@RequestParam(value = "seller_no", required = true) String seller_no,
+			@RequestParam(value = "uid", required = true) String uid){
+    	
+    	    ResultModel resultModel = ResultModel.success();
+    	    
+    	    try {
+    	    	
+    		TUserInfoBean validToken = userInfoBeanService.getValidToken(token);
+    		
+    		if (null == validToken) {
+    			LOGGER.error("/laxin/webank{}----------------------------------token 失效"+ token);
+    			
+    			
+    			resultModel = ResultModel.error(ErrorCode.E1020201,ErrorCode.getErrInfo(ErrorCode.E1020201));
+    			
+    			return resultModel;
+    		}
+    		//
+    		LOGGER.info("/antcredit/createGroup--------------------------------------参数集合"+storeName,storeAddress,phone,seller_no,uid);
+    		resultModel = antCreditService.createGroup(validToken.getUserId(),storeName,storeAddress,phone,seller_no,uid);
+    		
+    		
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.getStackTrace();
+		}
+    	
+    	
+    	
+		return resultModel;
+	} 
+	
+	//获取支付宝的UID
+    
+    
+	//商户创建结果查询接口(在将资料提交至赞呗后，可通过返回的订单号进行入驻结果查询)
+    @RequestMapping(value = "/antcredit/queryOrderNo",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public ResultModel queryOrderNo(@ApiParam(value = "token") @RequestParam(value = "token", required = true) String token,
+			@RequestParam(value = "store_Id", required = true) Integer store_Id
+		)
+    {
+        ResultModel resultModel = ResultModel.success();
+	    
+	    try {
+	    	
+		TUserInfoBean validToken = userInfoBeanService.getValidToken(token);
+		
+		if (null == validToken) {
+			LOGGER.error("/laxin/webank{}----------------------------------token 失效"+ token);
+			
+			
+			resultModel = ResultModel.error(ErrorCode.E1020201,ErrorCode.getErrInfo(ErrorCode.E1020201));
+			
+			return resultModel;
+		}
+		//
+		LOGGER.info("/antcredit/createGroup--------------------------------------参数集合{store_Id:}"+store_Id);
+		resultModel = antCreditService.queryOrderNo(validToken.getUserId(),store_Id);
+		
+		
+	} catch (Exception e) {
+		// TODO: handle exception
+		e.getStackTrace();
+	}
+    	
+    	return resultModel;
+    }
+    
+    
+    
+	// 商户修改接口(审核通过后的商户资料可通过商户修改接口修改商户资料，目前仅开放修改收款账号(修改成功后并不会马上生效))
+    
+	//商户新增回调(审核通过或审核失败时会触发回调，如调用商户创建接口时未传入回调地址，或因商户原因未接受到回调通知可通过商户新增查询结果进行商户审核状态查询)
+    
+    //交易回调(在主扫、被扫交易创建后，交易成功时将交易结果通过创建订单时传入的notify_url推送通知)
+    
+	// 订单详情查询接口(创建订单之后可通过该接口查询订单详情)
+    
+    //交易回调.在主扫、被扫交易创建后，交易成功时将交易结果通过创建订单时传入的notify_url推送通知
+	
+	
+	
+}

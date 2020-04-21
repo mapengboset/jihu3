@@ -1,0 +1,148 @@
+package com.hiko.gym.common.repository.redis;
+
+import java.text.*;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.*;
+import org.springframework.data.redis.core.*;
+import org.springframework.stereotype.*;
+
+/**
+ * 磁卡标识客户标识值实现类
+ * 
+ * @author cychen
+ *
+ */
+@Repository("rCardIdCustomerIdValue")
+public class RCardIdCustomerIdValueImpl implements RCardIdCustomerIdValue {
+
+	/** Redis模板 */
+	@Resource(name = "redisTemplate")
+	private RedisTemplate<String, String> redisTemplate = null;
+
+	/** 键值格式 */
+	private static final MessageFormat KEY_FORMAT = new MessageFormat("Value:CardIdCustomerId:{0}");
+	private static final MessageFormat KEY_PHONE = new MessageFormat("Value:phone:{0}");
+
+	/**
+	 * 设置磁卡标识客户标识
+	 * 
+	 * @param cardId 磁卡标识
+	 * @param customerId 客户标识
+	 */
+	@Override
+	public void set(String cardId, Long customerId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new String[] { cardId });
+
+		// 调用接口
+		redisTemplate.opsForValue().set(key, customerId.toString());
+	}
+   
+	/**
+	 * 获取客户标识
+	 * 
+	 * @param cardId 磁卡标识
+	 * @return 客户标识
+	 */
+	@Override
+	public Long get(String cardId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new String[] { cardId });
+
+		// 调用接口
+		String customerId = redisTemplate.opsForValue().get(key);
+
+		// 返回数据
+		if (customerId != null) {
+			return Long.parseLong(customerId);
+		}
+		return null;
+	}
+
+	/**
+	 * 删除磁卡标识客户标识
+	 * 
+	 * @param cardId 磁卡标识
+	 */
+	@Override
+	public void remove(String cardId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new String[] { cardId });
+
+		// 调用接口
+		redisTemplate.delete(key);
+	}
+
+	/**
+	 * 存在磁卡标识客户标识
+	 * 
+	 * @param cardId 磁卡标识
+	 * @return 是否存在
+	 */
+	@Override
+	public boolean exist(String cardId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new String[] { cardId });
+
+		// 调用接口
+		return redisTemplate.hasKey(key);
+	}
+
+	@Override
+	public void set(String cardId, Long customerId, Long liveTime) {
+		// TODO Auto-generated method stub
+		// 初始化
+		String key = KEY_FORMAT.format(new String[] { cardId });
+		// 调用接口
+		redisTemplate.opsForValue().set(key, customerId.toString());
+		redisTemplate.expire(key, liveTime, TimeUnit.HOURS);
+	}
+
+	
+	
+	@Override
+	public void setPhone(String phone, Long customerId) {
+		// TODO Auto-generated method stub
+		// 初始化
+				String key = KEY_PHONE.format(new String[] { phone });
+
+				// 调用接口
+				redisTemplate.opsForValue().set(key, customerId.toString());
+	}
+
+	@Override
+	public Long getPhone(String phone) {
+		// 初始化
+				String key = KEY_PHONE.format(new String[] { phone });
+
+				// 调用接口
+				String customerId = redisTemplate.opsForValue().get(key);
+
+				// 返回数据
+				if (customerId != null) {
+					return Long.parseLong(customerId);
+				}
+				return null;
+	}
+
+	@Override
+	public void removePhone(String phone) {
+		// 初始化
+				String key = KEY_PHONE.format(new String[] { phone });
+
+				// 调用接口
+				redisTemplate.delete(key);
+		
+	}
+
+	@Override
+	public boolean existPhone(String phone) {
+		// 初始化
+				String key = KEY_PHONE.format(new String[] { phone });
+
+				// 调用接口
+				return redisTemplate.hasKey(key);
+	}
+
+}

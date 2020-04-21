@@ -1,0 +1,15 @@
+package com.hiko.gym.common.service.push.umeng.ios;
+
+import com.hiko.gym.common.service.push.umeng.*;
+
+public class IOSUnicast extends IOSNotification {
+	public IOSUnicast() {
+		try {
+			this.setPredefinedKeyValue("type", "unicast");
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+			System.exit(1);
+		}
+	}
+}

@@ -1,0 +1,12 @@
+package com.hiko.gym.common.repository;
+
+public class Snippet {
+	public static void main(String[] args) {
+		<parent>
+				<groupId>com.yqbing</groupId>
+				<artifactId>yqbing</artifactId>
+				<version>1.0.0</version>
+			</parent>
+	}
+}
+

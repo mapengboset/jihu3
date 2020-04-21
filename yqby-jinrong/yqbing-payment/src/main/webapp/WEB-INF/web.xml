@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+
+
+    <!-- 显示名称 -->
+    <display-name>yqbing-payment</display-name>
+     <!-- Web应用键值 -->
+    <context-param>
+        <param-name>webAppRootKey</param-name>
+        <param-value>yqbing-payment.root</param-value>
+    </context-param>
+    <!-- Logback相关 -->
+    <!-- Logback配置 -->
+    <context-param>
+        <param-name>logbackConfigLocation</param-name>
+        <param-value>classpath:logback.xml</param-value>
+    </context-param>
+    <!-- Logback监听器 -->
+    <listener>
+        <listener-class>
+            ch.qos.logback.ext.spring.web.LogbackConfigListener
+        </listener-class>
+    </listener>
+
+    <!-- Spring相关 -->
+    <!-- Spring上下文配置 -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:applicationContext.xml,classpath:spring/spring-*.xml</param-value>
+    </context-param>
+    <!-- 权限过滤器 -->
+	<!-- <filter>
+		<filter-name>tvFilter</filter-name>
+		<filter-class>com.yqbing.servicebing.filter.TokenVerifyFilter</filter-class>
+		<init-param>    
+			<param-name>excludedUrls</param-name>
+			<param-value>/index</param-value>
+		</init-param> 
+	</filter>
+	<filter-mapping>
+		<filter-name>tvFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping> -->
+    
+    <!-- Spring编码过滤器 -->
+     <filter>
+    <filter-name>encodingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <async-supported>true</async-supported>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>encodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+    <!-- Spring上下文监听器 -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <!-- Spring内存清理监听器 -->
+    <listener>
+        <listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
+    </listener>
+    <!-- Spring调度器 -->
+    <servlet>
+        <servlet-name>SpringMVC</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:spring/spring-mvc.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SpringMVC</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+
+   <!--  <servlet>
+        <servlet-name>DruidStatView</servlet-name>
+        <servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
+          
+            deny优先于allow，如果在deny列表中，就算在allow列表中，也会被拒绝。  
+            如果allow没有配置或者为空，则允许所有访问  
+        
+        <init-param>
+            <param-name>allow</param-name>
+            <param-value>128.242.127.1/24,127.0.0.1</param-value>
+        </init-param>
+        <init-param>
+            <param-name>deny</param-name>
+            <param-value>192.168.1.118</param-value>
+        </init-param>
+        在StatViewSerlvet输出的html页面中，有一个功能是Reset All，执行这个操作之后，会导致所有计数器清零，重新计数
+        <init-param>
+            <param-name>resetEnable</param-name>
+            <param-value>false</param-value>
+        </init-param>
+         用户名和密码
+        <init-param>
+            <param-name>loginUsername</param-name>
+            <param-value>tties</param-value>
+        </init-param>
+        <init-param>
+            <param-name>loginPassword</param-name>
+            <param-value>tties</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DruidStatView</servlet-name>
+        <url-pattern>/druid/*</url-pattern>
+    </servlet-mapping> -->
+
+    <!-- 欢迎文件列表 -->
+    <welcome-file-list>
+        <welcome-file>/index.html</welcome-file>
+    </welcome-file-list>
+	<!--  <security-constraint>
+	    <web-resource-collection>
+	<web-resource-name>ssl</web-resource-name>
+	    <url-pattern>/*</url-pattern>
+	</web-resource-collection>
+	    <user-data-constraint>
+	       <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+	    </user-data-constraint>
+	</security-constraint> -->
+</web-app>

@@ -1,0 +1,32 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 系统类型类
+ * 
+ * @author cychen
+ *
+ */
+public class OsType {
+
+	/** IOS */
+	public static final short IOS = 1;
+	/** 安卓 */
+	public static final short ANDROID = 2;
+
+	/**
+	 * 获取系统类型描述
+	 * 
+	 * @param osType 系统类型值
+	 * @return 系统类型描述
+	 */
+	public static String getDescription(short osType) {
+		if (osType == IOS) {
+			return "IOS";
+		}
+		if (osType == ANDROID) {
+			return "安卓";
+		}
+		return "";
+	}
+
+}

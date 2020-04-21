@@ -1,0 +1,21 @@
+package com.hiko.gym.common.service.thirdLogin;
+
+import com.hiko.gym.common.exception.*;
+
+/**
+ * 新浪微博用户登陆验证服务接口
+ * 
+ * @author yinjy
+ *
+ */
+public interface SinaWeiboUserCheckService {
+	/**
+	 * 新浪微博用户登陆验证
+	 * 
+	 * @param uid 微博登录用户标识
+	 * @param accessToken 访问授权凭证
+	 * @return 是否有效
+	 * @throws GymException 健身馆异常
+	 */
+	public Boolean checkUserValid(String uid, String accessToken) throws GymException;
+}

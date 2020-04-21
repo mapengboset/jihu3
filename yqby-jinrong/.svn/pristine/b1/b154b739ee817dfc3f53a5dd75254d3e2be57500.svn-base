@@ -1,0 +1,183 @@
+package com.yqbing.servicebing.repository.redis;
+
+import java.util.Date;
+
+
+public class RWeBankBean {
+
+	
+	/** 客户标识 */
+	private Long id;
+	private Long userid;
+
+    private String phone;
+
+    private String beInvited;
+
+
+    private String invitedName;
+    
+	private Integer storeId;
+	
+	private String storeCode;
+
+    private String storeName;
+
+    private String storeUsername;
+    private Integer money;
+    private Date beInvitedTime;
+
+    private Integer wealth;
+
+    private String isSuccessful;
+
+    private Date createTime;
+    private Date updateTime;
+	
+	public static final String USERID="userid";
+	public static final String PHONE="phone";
+	public static final String BEINVITED="beInvited";
+	public static final String INVITEDNAME="invitedName";
+	public static final String STOREID="storeId";
+	public static final String STORECODE="storeCode";
+	public static final String STORENAME="storeName";
+	public static final String STOREUSERNAME="storeUsername";
+	public static final String MONEY="money";
+	public static final String BEINVITEDTIME="beInvitedTime";
+	public static final String WEALTH="wealth";
+	public static final String ISSUCCESSFUL="isSuccessful";
+	public static final String CREATETIME="createTime";
+	public static final String UPDATETIME="updateTime";
+	
+    
+    
+    
+    
+    public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserid() {
+		return userid;
+	}
+
+	public void setUserid(Long userid) {
+		this.userid = userid;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getBeInvited() {
+		return beInvited;
+	}
+
+	public void setBeInvited(String beInvited) {
+		this.beInvited = beInvited;
+	}
+
+	
+
+	public String getInvitedName() {
+		return invitedName;
+	}
+
+	public void setInvitedName(String invitedName) {
+		this.invitedName = invitedName;
+	}
+
+	public Integer getStoreId() {
+		return storeId;
+	}
+
+	public void setStoreId(Integer storeId) {
+		this.storeId = storeId;
+	}
+
+	public String getStoreCode() {
+		return storeCode;
+	}
+
+	public void setStoreCode(String storeCode) {
+		this.storeCode = storeCode;
+	}
+
+	public String getStoreName() {
+		return storeName;
+	}
+
+	public void setStoreName(String storeName) {
+		this.storeName = storeName;
+	}
+
+	public String getStoreUsername() {
+		return storeUsername;
+	}
+
+	public void setStoreUsername(String storeUsername) {
+		this.storeUsername = storeUsername;
+	}
+
+	public Integer getMoney() {
+		return money;
+	}
+
+	public void setMoney(Integer money) {
+		this.money = money;
+	}
+
+	public Date getBeInvitedTime() {
+		return beInvitedTime;
+	}
+
+	public void setBeInvitedTime(Date beInvitedTime) {
+		this.beInvitedTime = beInvitedTime;
+	}
+
+	public Integer getWealth() {
+		return wealth;
+	}
+
+	public void setWealth(Integer wealth) {
+		this.wealth = wealth;
+	}
+
+	public String getIsSuccessful() {
+		return isSuccessful;
+	}
+
+	public void setIsSuccessful(String isSuccessful) {
+		this.isSuccessful = isSuccessful;
+	}
+
+	
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public Date getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
+	}
+
+
+    
+    
+}

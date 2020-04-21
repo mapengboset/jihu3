@@ -1,0 +1,37 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 消息状态类
+ * 
+ * @author cychen
+ *
+ */
+public class MessageStatus {
+
+	/** 未读 */
+	public static final short UNREAD = 1;
+	/** 已读 */
+	public static final short READED = 2;
+	/** 删除 */
+	public static final short DELETED = 3;
+
+	/**
+	 * 获取消息状态描述
+	 * 
+	 * @param messageStatus 消息状态值
+	 * @return 消息状态描述
+	 */
+	public static String getDescription(short messageStatus) {
+		if (messageStatus == UNREAD) {
+			return "未读";
+		}
+		if (messageStatus == READED) {
+			return "已读";
+		}
+		if (messageStatus == DELETED) {
+			return "删除";
+		}
+		return "";
+	}
+
+}

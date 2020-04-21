@@ -1,0 +1,129 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
+
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.jihuc.StoreInfoBean;
+import com.yqbing.servicebing.repository.jihuc.StoreInfoBeanMapper;
+import com.yqbing.servicebing.repository.jihuc.StoreUserBean;
+import com.yqbing.servicebing.repository.jihuc.StoreUserBeanMapper;
+import com.yqbing.servicebing.repository.jihuc.TUserInfoBean;
+import com.yqbing.servicebing.repository.jihuc.TUserInfoBeanMapper;
+import com.yqbing.servicebing.repository.jihuc.UserExtBean;
+import com.yqbing.servicebing.repository.jihuc.UserExtBeanMapper;
+import com.yqbing.servicebing.repository.redis.RStoreInfoData;
+import com.yqbing.servicebing.service.CommonService;
+import com.yqbing.servicebing.service.StoreInfoService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.utils.SendUtils;
+
+
+@Service("storeInfoService")
+@SuppressWarnings("all")
+public class StoreInfoServiceImpl extends CommonService implements StoreInfoService{
+	
+	
+	 private static final Logger LOGGER = LoggerFactory.getLogger(StoreInfoServiceImpl.class);
+	 @Resource
+     private StoreInfoBeanMapper  storeInfoBeanMapper = null;
+	 @Resource
+	 private StoreUserBeanMapper  storeUserBeanMapper = null;
+	
+	 @Resource
+	 private RStoreInfoData  rStoreInfoData = null;
+	 @Resource
+	 private UserExtBeanMapper  userExtBeanMapper = null;
+	 @Resource
+	 private TUserInfoBeanMapper  tuserInfoBeanMapper = null;
+	 @Value("${charg_service}")
+	 private   String  chargHttps;
+	
+	
+	 @Override
+	 public String queryInvite(String invite) {
+		
+		    Map<String,Object> map = new HashMap<String,Object>();
+		    StoreInfoBean info = rStoreInfoData.getStoreInfo(invite);
+	        if(info != null){
+	        	
+	        	map.put("storeInfo",info);
+	        	return NotifyUtil.success(map);
+	        }
+	        UserExtBean user = userExtBeanMapper.queryInvite(invite);
+	        StoreInfoBean storeInfoBean  = null;
+		    if(user == null){
+		    	
+		    //查询 网点信息进行绑定
+		    	
+		    	  Map<String,String> map2 = new HashMap<String, String>();
+					 map2.put("invitationCode", invite);
+					 String wangba = SendUtils.doPost(chargHttps+"/kxzs/idea/detail", map2);
+					 
+					 JSONObject JSONOb = new JSONObject(wangba);
+					 
+					 int code = JSONOb.getInt("code");
+					 
+					 if(code != 0){
+						 
+						 return NotifyUtil.error(ErrorCodeEnum.OPERATERROE,JSONOb.getString("msg"));
+					 }
+					  JSONObject body = JSONOb.getJSONObject("body");
+					  
+					  String  phone =  body.getString("shopkeeperMobile");//手机号
+					  
+					  String address =  body.getString("storeAddress");//门店地址
+					  String storename =  body.getString("storeName");//门店名称
+					  String invitationCode =  body.getString("invitationCode");//code
+					  String imgurl =  body.getString("shopkeeperPhotoUrl");//头像
+					  String storeCode =  body.getString("storeCode");//编号/
+
+					  storeInfoBean = new StoreInfoBean();
+					  storeInfoBean.setStoreAddress(address);
+					  storeInfoBean.setStoreName(storename);
+					  storeInfoBean.setStorePic(imgurl);
+					  storeInfoBean.setStoreCode(storeCode);
+					  storeInfoBean.setBack8(phone);
+					  storeInfoBean.setStoreId(rStoreInfoData.increment());
+				      map.put("storeInfo",storeInfoBean);
+				      rStoreInfoData.setStoreInfo(invite, storeInfoBean);
+					  return NotifyUtil.success(map);
+		//	return NotifyUtil.error(ErrorCodeEnum.OBJECT, "用户不存在");
+		    }
+			StoreUserBean storeuser= storeUserBeanMapper.selectByUserId(Integer.valueOf(user.getId()+""));//返回店铺storeuser
+			if(storeuser == null){
+				return NotifyUtil.error(ErrorCodeEnum.OBJECT, "用户店铺关系不存在");
+			}
+			storeInfoBean  = storeInfoBeanMapper.selectByPrimaryKey(storeuser.getStoreId());//通过店铺ID发货店铺信息
+			if(storeInfoBean == null){
+				return NotifyUtil.error(ErrorCodeEnum.OBJECT, "店铺不存在");
+			}
+			TUserInfoBean infoBean = tuserInfoBeanMapper.selectByPrimaryKey(Integer.valueOf(user.getId()+""));
+			
+			storeInfoBean.setBack8(infoBean.getUserPhone());
+			
+			rStoreInfoData.setStoreInfo(invite, storeInfoBean);
+		
+			map.put("storeInfo",storeInfoBean);
+		
+		 
+		
+		    return NotifyUtil.success(map);
+		
+	}
+
+
+}

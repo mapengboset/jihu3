@@ -1,0 +1,31 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 体质数据类型定义
+ * 
+ * @author yinjy
+ *
+ */
+public class BodyDataType {
+
+	/** 身体指数 */
+	public static final short BMI = 1;
+	/** 蛋白质 */
+	public static final short DANBAIZHI = 2;
+	/** 腹部肥胖率 */
+	public static final short FUBUFEIPANLV = 3;
+	/** 骨龄 */
+	public static final short GULING = 4;
+	/** 肌肉率 */
+	public static final short JIROULV = 5;
+	/** 内脏脂肪 */
+	public static final short NEIZANGZHIFANG = 6;
+	/** 水分 */
+	public static final short SHUIFEN = 7;
+	/** 体重 */
+	public static final short TIZHONG = 8;
+	/** 脂肪 */
+	public static final short ZHIFANGLV = 9;
+	/** 基础代谢率 */
+	public static final short JICHUDAIXIELV = 10;
+}

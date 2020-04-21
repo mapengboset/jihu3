@@ -1,0 +1,107 @@
+package com.yqbing.servicebing.webapp.response;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.io.Serializable;
+
+@ApiModel(value = "用户下载列表")
+public class UserDownAppRes implements Serializable{
+	
+	    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2136394716715006902L;
+
+		private Integer id;
+		@ApiModelProperty(value = "app归类分析1系统工具 2主题壁纸 3社交通讯 4拍摄美化 5影音播放  6生活实用 7理财购物 8办公学习 9资讯阅读   10旅游出行", name = "appImg")
+	    private String appType;
+	    @ApiModelProperty(value = "app头像地址", name = "appImg")
+	    private String img;
+	    @ApiModelProperty(value = "app下载地址", name = "appUrl")
+	    private String url;
+
+	    @ApiModelProperty(value = "app名称", name = "appName")
+	    private String appName;
+	    @ApiModelProperty(value = "app包名", name = "appPake")
+	    private String appPake;
+	    @ApiModelProperty(value = "app是否更新  1是  2否 ", name = "status")
+	    private Byte status;//1更新 
+	    
+	    private Integer type;//
+
+	    
+	    
+		public Integer getType() {
+			return type;
+		}
+
+		public void setType(Integer type) {
+			this.type = type;
+		}
+
+		public Integer getId() {
+			return id;
+		}
+
+		public void setId(Integer id) {
+			this.id = id;
+		}
+
+		public String getAppType() {
+			return appType;
+		}
+
+		public void setAppType(String appType) {
+			this.appType = appType;
+		}
+
+		
+
+		
+
+		public String getAppName() {
+			return appName;
+		}
+
+		public void setAppName(String appName) {
+			this.appName = appName;
+		}
+
+	    
+		public String getImg() {
+			return img;
+		}
+
+		public void setImg(String img) {
+			this.img = img;
+		}
+
+		public String getUrl() {
+			return url;
+		}
+
+		public void setUrl(String url) {
+			this.url = url;
+		}
+
+		public String getAppPake() {
+			return appPake;
+		}
+
+		public void setAppPake(String appPake) {
+			this.appPake = appPake;
+		}
+
+		public Byte getStatus() {
+			return status;
+		}
+
+		public void setStatus(Byte status) {
+			this.status = status;
+		}
+	    
+	    
+
+	  
+}

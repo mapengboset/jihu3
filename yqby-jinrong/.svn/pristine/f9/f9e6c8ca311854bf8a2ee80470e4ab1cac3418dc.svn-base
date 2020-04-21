@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+
+	<!-- 组件扫描 -->
+	<context:component-scan base-package="com.yqbing.servicebing.webapp.controller" />
+     <!-- Swagger配置 -->
+    <bean class="com.yqbing.servicebing.webapp.handle.SwaggerConfig" />
+	<!-- 注解驱动 -->
+     <mvc:annotation-driven>
+		<mvc:message-converters register-defaults="true">
+			<bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />
+			<bean class="org.springframework.http.converter.FormHttpMessageConverter" />
+			<bean class="org.springframework.http.converter.xml.SourceHttpMessageConverter" />
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter" />
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+    <!--拦截登陆成功 登陆成功,往index 页面跳转 -->
+    <mvc:interceptors>
+		<mvc:interceptor>
+			<!-- 拦截所有的请求，这个必须写在前面，也就是写在【不拦截】的上面 -->
+			<mvc:mapping path="/hkhjkhk/**" />
+			<!-- 但是排除下面这些，也就是不拦截请求 -->
+			<mvc:exclude-mapping path="/pc/**" />
+			<mvc:exclude-mapping path="/nologin.html" />
+			<mvc:exclude-mapping path="/nopermiss.html" />
+			<mvc:exclude-mapping path="/static/**" />
+			<mvc:exclude-mapping path="/pagesindex-v2.html" />
+			<!-- 定义在mvc:interceptor下面的表示是对特定的请求才进行拦截的 -->
+			<bean class="com.yqbing.servicebing.webapp.interceptor.PermissionInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors>
+	<!-- 视图分析 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
+		<property name="prefix" value="/pages"></property>
+		<property name="suffix" value=".html"></property>
+	</bean>
+
+	<!-- 上传文件 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="10485760" />
+	</bean>
+	
+	<!-- 日志添加界面 -->
+	<mvc:view-controller path="/" view-name="index-v2" />
+	<!-- 资源相关 -->
+	<mvc:resources location="/" mapping="/**" />
+	<mvc:resources location="/qrcode/" mapping="/qrcode/**" />
+	<mvc:resources location="/images/" mapping="/images/**" />
+	<mvc:resources location="/js/" mapping="/js/**" />
+	<mvc:resources location="/css/" mapping="/css/**" />
+	 <mvc:annotation-driven>
+	  <mvc:message-converters> 
+	  <bean class="org.springframework.http.converter.StringHttpMessageConverter"> 
+	  <property name="supportedMediaTypes"> <list> <value>application/json;charset=UTF-8</value> </list> 
+	  </property> </bean>
+	   </mvc:message-converters> 
+	   </mvc:annotation-driven>
+	<!-- 激活自动代理功能 -->
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+	<!-- 系统服务组件的切面Bean 
+	<bean id="logAopAction" class="com.tties.energy.repository.log.LogAopUtil"></bean>
+	AOP配置
+	<aop:config>
+		声明一个切面,并注入切面Bean,相当于@Aspect
+		<aop:aspect id="logAopAspect" ref="logAopAction">
+			配置一个切入点,相当于@Pointcut
+			<aop:pointcut expression="execution(* com.tties.energy.webapp.controller.*.*(..))"
+				id="logAopPointCut" />
+			普通日志记录
+			<aop:around pointcut-ref="logAopPointCut" method="logAll"/>
+			报错后记录日志
+			<aop:after-throwing pointcut-ref="logAopPointCut"
+				method="afterThrow" throwing="ex" />
+ 		</aop:aspect>
+	</aop:config>
+ -->
+</beans>

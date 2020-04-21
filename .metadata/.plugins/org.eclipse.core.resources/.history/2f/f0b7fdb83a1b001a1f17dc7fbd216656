@@ -1,0 +1,42 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 场馆编码标识值接口
+ * 
+ * @author cychen
+ *
+ */
+public interface RVenueCodeIdValue {
+
+	/**
+	 * 设置场馆编码标识
+	 * 
+	 * @param venueCode 场馆编码
+	 * @param venueId 场馆标识
+	 */
+	public void set(String venueCode, Integer venueId);
+
+	/**
+	 * 获取场馆编码标识
+	 * 
+	 * @param venueCode 场馆编码
+	 * @return 场馆标识
+	 */
+	public Integer get(String venueCode);
+
+	/**
+	 * 删除场馆编码标识
+	 * 
+	 * @param venueCode 场馆编码
+	 */
+	public void remove(String venueCode);
+
+	/**
+	 * 存在场馆编码标识
+	 * 
+	 * @param venueCode 场馆编码
+	 * @return 是否存在
+	 */
+	public boolean exist(String venueCode);
+
+}

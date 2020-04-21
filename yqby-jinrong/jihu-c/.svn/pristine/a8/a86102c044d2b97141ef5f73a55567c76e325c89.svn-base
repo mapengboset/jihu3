@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.UserAppTaskMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.UserAppTask" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_ID" property="userId" jdbcType="BIGINT" />
+    <result column="store_ID" property="storeId" jdbcType="INTEGER" />
+    <result column="app_type" property="appType" jdbcType="SMALLINT" />
+    <result column="app_img" property="appImg" jdbcType="VARCHAR" />
+    <result column="app_url" property="appUrl" jdbcType="VARCHAR" />
+    <result column="app_version" property="appVersion" jdbcType="VARCHAR" />
+    <result column="app_name" property="appName" jdbcType="VARCHAR" />
+    <result column="app_pack" property="appPack" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="task_type" property="taskType" jdbcType="TINYINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, user_ID, store_ID, app_type, app_img, app_url, app_version, app_name, app_pack, 
+    status, task_type, create_time, update_time
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.dao.UserAppTaskExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from user_app_task
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_app_task
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+   <select id="queryPackAndUserId" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_app_task
+    where user_ID = #{userId,jdbcType=BIGINT}
+    and app_pack = #{appPack,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from user_app_task
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.UserAppTask" >
+    insert into user_app_task (id, user_ID, store_ID, 
+      app_type, app_img, app_url, 
+      app_version, app_name, app_pack, 
+      status, task_type, create_time, 
+      update_time)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=BIGINT}, #{storeId,jdbcType=INTEGER}, 
+      #{appType,jdbcType=SMALLINT}, #{appImg,jdbcType=VARCHAR}, #{appUrl,jdbcType=VARCHAR}, 
+      #{appVersion,jdbcType=VARCHAR}, #{appName,jdbcType=VARCHAR}, #{appPack,jdbcType=VARCHAR}, 
+      #{status,jdbcType=TINYINT}, #{taskType,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.UserAppTask" >
+    insert into user_app_task
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_ID,
+      </if>
+      <if test="storeId != null" >
+        store_ID,
+      </if>
+      <if test="appType != null" >
+        app_type,
+      </if>
+      <if test="appImg != null" >
+        app_img,
+      </if>
+      <if test="appUrl != null" >
+        app_url,
+      </if>
+      <if test="appVersion != null" >
+        app_version,
+      </if>
+      <if test="appName != null" >
+        app_name,
+      </if>
+      <if test="appPack != null" >
+        app_pack,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="taskType != null" >
+        task_type,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="storeId != null" >
+        #{storeId,jdbcType=INTEGER},
+      </if>
+      <if test="appType != null" >
+        #{appType,jdbcType=SMALLINT},
+      </if>
+      <if test="appImg != null" >
+        #{appImg,jdbcType=VARCHAR},
+      </if>
+      <if test="appUrl != null" >
+        #{appUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="appVersion != null" >
+        #{appVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="appName != null" >
+        #{appName,jdbcType=VARCHAR},
+      </if>
+      <if test="appPack != null" >
+        #{appPack,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="taskType != null" >
+        #{taskType,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.dao.UserAppTaskExample" resultType="java.lang.Integer" >
+    select count(*) from user_app_task
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.UserAppTask" >
+    update user_app_task
+    <set >
+      <if test="userId != null" >
+        user_ID = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="storeId != null" >
+        store_ID = #{storeId,jdbcType=INTEGER},
+      </if>
+      <if test="appType != null" >
+        app_type = #{appType,jdbcType=SMALLINT},
+      </if>
+      <if test="appImg != null" >
+        app_img = #{appImg,jdbcType=VARCHAR},
+      </if>
+      <if test="appUrl != null" >
+        app_url = #{appUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="appVersion != null" >
+        app_version = #{appVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="appName != null" >
+        app_name = #{appName,jdbcType=VARCHAR},
+      </if>
+      <if test="appPack != null" >
+        app_pack = #{appPack,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="taskType != null" >
+        task_type = #{taskType,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.UserAppTask" >
+    update user_app_task
+    set user_ID = #{userId,jdbcType=BIGINT},
+      store_ID = #{storeId,jdbcType=INTEGER},
+      app_type = #{appType,jdbcType=SMALLINT},
+      app_img = #{appImg,jdbcType=VARCHAR},
+      app_url = #{appUrl,jdbcType=VARCHAR},
+      app_version = #{appVersion,jdbcType=VARCHAR},
+      app_name = #{appName,jdbcType=VARCHAR},
+      app_pack = #{appPack,jdbcType=VARCHAR},
+      status = #{status,jdbcType=TINYINT},
+      task_type = #{taskType,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

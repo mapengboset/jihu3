@@ -1,0 +1,81 @@
+package com.yqbing.servicebing.service;
+
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+
+public interface UserLogingService {
+    
+	/**
+	 * 
+	
+	 * @Title: registerUser
+	
+	 * @Description:注册
+	
+	 * @param phone 手机号
+	 * @param code  验证码
+	 * @param invite 邀请码
+	 * @param password 
+	 * @return
+	
+	 * @return: String
+	 */
+	String registerUser(String phone, String code, String invite, String password);
+    
+	/**
+	 * 
+	
+	 * @Title: loginUserCode
+	
+	 * @Description: 验证码登录
+	
+	 * @param phone
+	 * @param code
+	 * @return
+	
+	 * @return: String
+	 */
+	String loginUserCode(String phone, String code,UserInfoBean user);
+    
+	/**
+	 * 
+	
+	 * @Title: loginUserPass
+	
+	 * @Description: 密码登录
+	
+	 * @param phone
+	 * @param password
+	 * @return
+	
+	 * @return: String
+	 */
+	String loginUserPass(String phone, String password);
+
+	/**
+	 * 
+	
+	 * @Title: loginUserCode
+	
+	 * @Description: 是否存在手机
+	
+	 * @param phone
+	 * @return
+	
+	 * @return: UserInfoBean
+	 */
+	UserInfoBean loginUserCode(String phone);
+    
+	/**
+	 * 
+	
+	 * @Title: queryAndPhone
+	
+	 * @Description: TODO
+	
+	 * @param phone
+	 * @return
+	
+	 * @return: UserInfoBean
+	 */
+	UserInfoBean queryAndPhone(String phone);
+}

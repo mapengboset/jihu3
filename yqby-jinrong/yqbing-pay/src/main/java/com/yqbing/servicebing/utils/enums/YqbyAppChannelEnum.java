@@ -1,0 +1,43 @@
+package com.yqbing.servicebing.utils.enums;
+
+/**
+ * 渠道
+ */
+public enum YqbyAppChannelEnum {
+
+	PC(11, "官网"),
+	ANDRIOD_B(21, "机呼Andriod-B端"),
+	IOS_B(22, "机呼IOS-B端"),
+	ANDRIOD_C(31, "机呼Andriod-C端"),
+	IOS_C(32, "机呼IOS-C端"),
+	ANDRIOD_SCHOOL_C(41, "Andriod-校嗨"),
+	IOS_SCHOOL_C(42, "IOS-校嗨");
+	
+	private int id;
+	private String name;
+	
+	private YqbyAppChannelEnum(int id, String name){
+		this.name=name;
+		this.id = id;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+	
+	public static YqbyAppChannelEnum getEnum(int accessType){
+		YqbyAppChannelEnum typeEnum = null;
+		YqbyAppChannelEnum[] accessTypeEnums = YqbyAppChannelEnum.values();
+		for (YqbyAppChannelEnum relation : accessTypeEnums) {
+			if(relation.getId() == accessType){
+				typeEnum = relation;
+				break;
+			}
+		}
+		return typeEnum;
+	}
+}

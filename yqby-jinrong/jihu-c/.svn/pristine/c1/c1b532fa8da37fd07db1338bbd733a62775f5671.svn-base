@@ -1,0 +1,13 @@
+package com.yqbing.servicebing.repository.redis;
+
+import java.util.List;
+
+import com.yqbing.servicebing.repository.database.bean.AppAppraise;
+
+public interface RAppraiseData {
+
+	public void setAppraise(Integer appID,AppAppraise info);
+	public List<AppAppraise> getAppraise(Integer appID);
+	public void removeAppraise(Integer appID);
+	
+}

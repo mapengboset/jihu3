@@ -1,0 +1,72 @@
+package com.hiko.gym.common.repository.redis;
+
+import static org.junit.Assert.*;
+
+import javax.annotation.*;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.springframework.test.context.*;
+import org.springframework.test.context.junit4.*;
+
+/**
+ * 场馆编码标识值测试类
+ * 
+ * @author cychen
+ *
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:spring-config-test.xml" })
+public class RVenueCodeIdValueTest {
+
+	/** 场馆编码标识值 */
+	@Resource(name = "rVenueCodeIdValue")
+	private RVenueCodeIdValue rVenueCodeIdValue = null;
+
+	/**
+	 * 测试设置场馆编码标识函数
+	 */
+	@Test
+	public void testSet() {
+		String venueCode = null; // TODO:
+		Integer venueId = null; // TODO:
+		rVenueCodeIdValue.set(venueCode, venueId);
+		assertEquals(rVenueCodeIdValue.get(venueCode), venueId);
+	}
+
+	/**
+	 * 测试获取场馆编码标识函数
+	 */
+	@Test
+	public void testGet() {
+		String venueCode = null; // TODO:
+		Integer venueId = null; // TODO:
+		rVenueCodeIdValue.set(venueCode, venueId);
+		assertEquals(rVenueCodeIdValue.get(venueCode), venueId);
+	}
+
+	/**
+	 * 测试删除场馆编码标识函数
+	 */
+	@Test
+	public void testRemove() {
+		String venueCode = null; // TODO:
+		Integer venueId = null; // TODO:
+		rVenueCodeIdValue.set(venueCode, venueId);
+		assertTrue(rVenueCodeIdValue.exist(venueCode));
+		rVenueCodeIdValue.remove(venueCode);
+		assertFalse(rVenueCodeIdValue.exist(venueCode));
+	}
+
+	/**
+	 * 测试存在场馆编码标识函数
+	 */
+	@Test
+	public void testExist() {
+		String venueCode = null; // TODO:
+		Integer venueId = null; // TODO:
+		rVenueCodeIdValue.set(venueCode, venueId);
+		assertEquals(rVenueCodeIdValue.get(venueCode), venueId);
+	}
+
+}

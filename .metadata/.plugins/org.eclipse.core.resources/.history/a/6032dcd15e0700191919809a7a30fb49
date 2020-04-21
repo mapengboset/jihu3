@@ -1,0 +1,38 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import io.swagger.annotations.Api;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@Api(tags = "花呗支付对接接口")
+@CrossOrigin
+@SuppressWarnings("all")
+public class AntCreditController extends BaseController{
+	
+	
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(AntCreditController.class);
+	//是否是自己的商铺
+    @RequestMapping(value = "/antcredit/createGroup",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String QueryStoreNameOnly(){
+		return null;
+	}
+	
+	//获取支付宝的UID
+	//提交商户信息
+	//商户查询是否开户成功
+	//商户修改.商户的支付宝账号
+	//商户回调.审核通过或审核失败时会触发回调，如调用商户创建接口时未传入回调地址，或因商户原因未接受到回调通知可通过商户新增查询结果进行商户审核状态查询
+    //交易回调.在主扫、被扫交易创建后，交易成功时将交易结果通过创建订单时传入的notify_url推送通知
+	
+	
+	
+	
+}

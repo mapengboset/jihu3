@@ -1,0 +1,201 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import javax.annotation.Resource;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.common.ResultModel;
+import com.yqbing.servicebing.repository.database.bean.TUserInfoBean;
+import com.yqbing.servicebing.service.Bank360Service;
+import com.yqbing.servicebing.service.TUserInfoBeanService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+
+/**
+ * 
+
+ * @ClassName: Bank360Controller
+
+ * @Description: 360贷款导航接口
+
+ * @author: mpb
+
+ * @date: 2019年3月7日 下午2:03:29
+ */
+@RestController
+@Api(tags = "360贷款对接接口")
+@SuppressWarnings("all")
+@CrossOrigin
+public class Bank360Controller extends BaseController{
+
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(Bank360Controller.class);
+	
+	
+	@Resource(name = "bank360Service")
+	private Bank360Service bank360Service;
+	@Resource(name = "userInfoBeanService")
+	private TUserInfoBeanService userInfoBeanService;
+	
+	/**
+	 * 申请360贷款
+	 * 
+	 * 
+	 */
+	@RequestMapping(value = { "/bank360/put360Bank" }, method = {RequestMethod.GET,RequestMethod.POST})
+	public String put360Bank(@RequestParam(value = "data", required = true)String data) {
+		 String token = StringUtils.EMPTY;
+    	 String resultModel = StringUtils.EMPTY;
+    	  try {
+	            JSONObject obj = JSONObject.fromObject(data);
+	            token = obj.getString("token");
+	        } catch (Exception e) {
+	        	LOGGER.error("转换对象失败" + e.getMessage(), e.getCause());
+	           
+	        }
+    	 if(!StringUtils.isNotBlank(token)){
+        	 resultModel = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"token 不能为空");
+    			
+    			return resultModel;
+        }
+    	
+  	    try {
+ 	    	
+  			TUserInfoBean validToken = userInfoBeanService.getValidToken(token);
+  			
+  			if (null == validToken) {
+  				LOGGER.error("/laxin/webank{}----------------------------------token 失效"+ token);
+  				
+  				
+  				resultModel = NotifyUtil.error(ErrorCodeEnum.NULLUSER,"token已经失效");
+  				
+  				return resultModel;
+  			}
+		   //往表中插入数据
+  			resultModel = bank360Service.put360Bank(validToken);
+  			
+  			
+  	    }catch(Exception e){
+  	    	e.printStackTrace();
+  	    }
+  	  return resultModel;
+	}
+	/**
+	 * 返回360二维码链接,同时把二维码图片上传到七牛上
+	 * 
+	 * 
+	 */
+	/*@RequestMapping(value = { "/bank360/get360Code" },method = {RequestMethod.GET,RequestMethod.POST})
+	public String get360Code(@RequestParam(value = "data", required = true)String data) {
+		return null;
+	}*/
+	/**
+	 * 展示360收益数据(通过日期查询)
+	 * 
+	 * 
+	 */
+	@RequestMapping(value = { "/bank360/bank360List" }, method = {RequestMethod.GET,RequestMethod.POST})
+	public String bank360List(@RequestParam(value = "data", required = true)String data) {
+		 String resultModel = StringUtils.EMPTY; 
+		 String token = StringUtils.EMPTY;
+		 String page = StringUtils.EMPTY;
+		 String size = StringUtils.EMPTY;
+		 String startTime = StringUtils.EMPTY;
+		 String endTime = StringUtils.EMPTY;
+		 try {
+	            JSONObject obj = JSONObject.fromObject(data);
+	            token = obj.getString("token");
+	            page = obj.getString("page");
+	            size = obj.getString("size");
+	            startTime = obj.getString("startTime");
+	            endTime = obj.getString("endTime");
+	        } catch (Exception e) {
+	        	LOGGER.error("转换对象失败" + e.getMessage(), e.getCause());
+	           
+	        }
+		 if(!StringUtils.isNotBlank(token)){
+        	 resultModel = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"token 不能为空");
+    			
+    			return resultModel;
+        }
+		 try {
+	 	    	
+	  			TUserInfoBean validToken = userInfoBeanService.getValidToken(token);
+	  			
+	  			if (null == validToken) {
+	  				LOGGER.error("/laxin/webank{}----------------------------------token 失效"+ token);
+	  				
+	  				
+	  				resultModel = NotifyUtil.error(ErrorCodeEnum.NULLUSER,"token已经失效");
+	  				
+	  				return resultModel;
+	  			}
+			    
+	  			resultModel =  bank360Service.bank360List(validToken,page,size,startTime,endTime);
+	  			
+	  			
+	  	    }catch(Exception e){
+	  	    	e.printStackTrace();
+	  	    }
+		 
+		 
+		return resultModel;
+	}
+	
+	/**
+	 * 360开关
+	 * 
+	 * 
+	 */
+	@RequestMapping(value = { "/bank360/bank360Off" }, method = {RequestMethod.GET,RequestMethod.POST})
+	public String bank360Off(@RequestParam(value = "data", required = true)String data) {
+		 String token = StringUtils.EMPTY;
+    	 String resultModel = StringUtils.EMPTY;
+    	  try {
+	            JSONObject obj = JSONObject.fromObject(data);
+	            token = obj.getString("token");
+	        } catch (Exception e) {
+	        	LOGGER.error("转换对象失败" + e.getMessage(), e.getCause());
+	           
+	        }
+    	 if(!StringUtils.isNotBlank(token)){
+        	 resultModel = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"token 不能为空");
+    			
+    			return resultModel;
+        }
+    	
+  	    try {
+ 	    	
+  			TUserInfoBean validToken = userInfoBeanService.getValidToken(token);
+  			
+  			if (null == validToken) {
+  				LOGGER.error("/laxin/webank{}----------------------------------token 失效"+ token);
+  				
+  				
+  				resultModel = NotifyUtil.error(ErrorCodeEnum.NULLUSER,"token已经失效");
+  				
+  				return resultModel;
+  			}
+  			//
+  		
+  			resultModel = bank360Service.queryBank360Off(validToken.getUserId());
+  			
+  			
+  		} catch (Exception e) {
+  			// TODO: handle exception
+  			e.getStackTrace();
+  		}
+  	    return resultModel;
+	}
+}

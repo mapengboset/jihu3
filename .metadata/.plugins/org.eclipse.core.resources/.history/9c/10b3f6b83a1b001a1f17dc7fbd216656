@@ -1,0 +1,42 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 场馆客户最新体测日期值接口
+ * 
+ * @author cychen
+ *
+ */
+public interface RVenueCustomerLatestMeasureDateValue {
+
+	/**
+	 * 设置场馆客户最新体测日期
+	 * 
+	 * @param venueCustomerId 场馆客户标识
+	 * @param latestMeasureDate 最新体测日期
+	 */
+	public void set(String venueCustomerId, String latestMeasureDate);
+
+	/**
+	 * 获取场馆客户最新体测日期
+	 * 
+	 * @param venueCustomerId 场馆客户标识
+	 * @return 最新体测日期
+	 */
+	public String get(String venueCustomerId);
+
+	/**
+	 * 删除场馆客户最新体测日期
+	 * 
+	 * @param venueCustomerId 场馆客户标识
+	 */
+	public void remove(String venueCustomerId);
+
+	/**
+	 * 存在场馆客户最新体测日期
+	 * 
+	 * @param venueCustomerId 场馆客户标识
+	 * @return 是否存在
+	 */
+	public boolean exist(String venueCustomerId);
+
+}

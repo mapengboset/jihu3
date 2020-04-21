@@ -1,0 +1,23 @@
+package com.yqbing.servicebing.repository.database.dao;
+
+import com.yqbing.servicebing.repository.database.bean.AppModule;
+import com.yqbing.servicebing.repository.database.bean.AppModuleExample;
+import java.util.List;
+
+public interface AppModuleMapper {
+    int countByExample(AppModuleExample example);
+
+    int deleteByPrimaryKey(Long id);
+
+    int insert(AppModule record);
+
+    int insertSelective(AppModule record);
+
+    List<AppModule> selectByExample(AppModuleExample example);
+
+    AppModule selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(AppModule record);
+
+    int updateByPrimaryKey(AppModule record);
+}

@@ -1,0 +1,33 @@
+package com.yqbing.servicebing.repository.database.bean;
+
+public class LocalTourWithBLOBs extends LocalTour {
+    private String tourIntroduction;
+
+    private String tourTips;
+
+    private String pictures;
+
+    public String getTourIntroduction() {
+        return tourIntroduction;
+    }
+
+    public void setTourIntroduction(String tourIntroduction) {
+        this.tourIntroduction = tourIntroduction == null ? null : tourIntroduction.trim();
+    }
+
+    public String getTourTips() {
+        return tourTips;
+    }
+
+    public void setTourTips(String tourTips) {
+        this.tourTips = tourTips == null ? null : tourTips.trim();
+    }
+
+    public String getPictures() {
+        return pictures;
+    }
+
+    public void setPictures(String pictures) {
+        this.pictures = pictures == null ? null : pictures.trim();
+    }
+}

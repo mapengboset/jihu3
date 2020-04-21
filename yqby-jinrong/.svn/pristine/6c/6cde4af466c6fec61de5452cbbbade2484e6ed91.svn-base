@@ -1,0 +1,44 @@
+package com.yqbing.servicebing.service;
+
+import org.apache.poi.ss.formula.functions.T;
+
+import com.yqbing.servicebing.common.ResultModel;
+
+public interface AntCreditService {
+
+	/**
+	 * 
+	
+	 * @Title: createGroup
+	
+	 * @Description: TODO
+	
+	 * @param userId  用户iD
+	 * @param storeName 商铺名字
+	 * @param storeAddress 商铺地址
+	 * @param phone 商铺手机号
+	 * @param seller_no 支付宝收款账号
+	 * @param uid 支付Id
+	 * @return
+	
+	 * @return: ResultModel
+	 */
+	ResultModel<T> createGroup(long userId, String storeName, String storeAddress,
+			String phone, String seller_no, String uid);
+    
+	/**
+	 * 
+	
+	 * @Title: queryOrderNo
+	
+	 * @Description: TODO
+	
+	 * @param userId    用户id
+	 * @param store_Id  商铺Id
+	 * @return
+	
+	 * @return: ResultModel
+	 */
+	ResultModel queryOrderNo(long userId, Integer store_Id);
+
+}

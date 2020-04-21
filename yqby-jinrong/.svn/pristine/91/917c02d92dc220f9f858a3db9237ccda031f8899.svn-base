@@ -1,0 +1,67 @@
+package com.yqbing.servicebing.service;
+
+import java.util.List;
+
+import com.github.pagehelper.PageInfo;
+import com.yqbing.servicebing.repository.database.bean.HotCityBean;
+import com.yqbing.servicebing.repository.database.bean.OfferInfoBean;
+import com.yqbing.servicebing.repository.database.bean.WeBankBean;
+
+public interface OfferService {
+
+	/**
+	 * 
+	
+	 * @Title: addoffer
+	
+	 * @Description: 单价报价系统接口
+	
+	 * @param offerInfoBean
+	 * @return
+	
+	 * @return: int
+	 */
+	int addoffer(OfferInfoBean offerInfoBean);
+    /**
+     * 
+    
+     * @Title: editffer
+    
+     * @Description: 单价报价系统接口(修改)
+    
+     * @param offerInfoBean
+     * @return
+    
+     * @return: int
+     */
+	int editffer(OfferInfoBean offerInfoBean);
+	/**
+	 * 
+	
+	 * @Title: queryoffer
+	
+	 * @Description: 查找报价系统信息
+	
+	 * @param shopname
+	 * @param hotid
+	 * @param offertype
+	 * @return
+	
+	 * @return: PageInfo<OfferInfoBean>
+	 */
+	PageInfo<OfferInfoBean> queryoffer(String shopname, Long hotid, Byte offertype);
+	
+	/**
+	 * 
+	
+	 * @Title: queryHotcity
+	
+	 * @Description: 查找热门城市
+	
+	 * @return
+	
+	 * @return: PageInfo<HotCityBean>
+	 */
+	List<HotCityBean> queryHotcity();
+
+}

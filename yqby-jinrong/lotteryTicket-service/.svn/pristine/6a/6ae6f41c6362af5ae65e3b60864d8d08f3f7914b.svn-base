@@ -1,0 +1,28 @@
+package com.yqbing.servicebing.service;
+
+import com.yqbing.servicebing.webapp.request.AddressReq;
+import com.yqbing.servicebing.webapp.request.GoodsOrderReq;
+
+public interface GoodsOrderService {
+
+	String citys(String token);
+
+	String myAddress(String token);
+
+	String addAddress(AddressReq req);
+
+	String delAddress(String token, Integer id);
+
+	String editAddress(AddressReq req);
+
+	String queryById(String token, Integer id);
+
+	String order(GoodsOrderReq req);
+
+	String goodsDatail(String token);
+
+	String myOrders(String token, short type, Integer page, Integer size);
+
+	String orderDetail(String token, Integer id);
+
+}

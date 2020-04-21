@@ -1,0 +1,424 @@
+package com.yqbing.servicebing.webapp.controller.wx;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.jsoup.helper.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.xml.sax.SAXException;
+
+import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
+import com.yqbing.servicebing.repository.database.bean.TWxNoticeBean;
+import com.yqbing.servicebing.repository.database.bean.TWxProfitOrderBean;
+import com.yqbing.servicebing.repository.database.bean.TWxRefundQueryBean;
+import com.yqbing.servicebing.service.IPublicPayService;
+import com.yqbing.servicebing.utils.enums.ErrorCode;
+import com.yqbing.servicebing.utils.web.CommonResult;
+import com.yqbing.servicebing.webapp.wxpay.pay.WxPayData;
+import com.yqbing.servicebing.webapp.wxpay.util.Configure;
+import com.yqbing.servicebing.webapp.wxpay.util.HttpUtil;
+import com.yqbing.servicebing.webapp.wxpay.util.MapUtils;
+import com.yqbing.servicebing.webapp.wxpay.util.Signature;
+import com.yqbing.servicebing.webapp.wxpay.util.XmlUtil;
+import com.yqbing.servicebing.webapp.wxpay.util.aes.AESUtil;
+
+/**
+ * 微信支付 异步通知
+ * 
+ * @author mapb
+ *
+ */
+@Controller
+public class NotifyController {
+
+
+	private static Logger logger = LoggerFactory.getLogger(NotifyController.class);
+	private static String PROFIT_URL = "https://api.mch.weixin.qq.com/secapi/pay/profitsharing";
+    @Resource
+	IPublicPayService publicPayService;
+    /**
+	 * 支付成功回调映射
+	 * 
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
+	@RequestMapping("/weixin/pay/pay_notify")
+	public void payNotify(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		logger.error("-------------微信支付回调数据开始--------------");
+		String inputLine;
+		String notityXml = "";
+		String resXml = "";
+		try {
+			while ((inputLine = request.getReader().readLine()) != null) {
+				notityXml += inputLine;
+			}
+			request.getReader().close();
+		} catch (Exception e) {
+			logger.error("接受支付回调失败-----------");
+			logger.error(e.getMessage());
+		}
+		logger.debug("[接收到的报文]：" + JSON.toJSONString(notityXml));
+		// 处理回调参数
+		Map<String, String> map = notifyProcess(notityXml);
+		String code = map.get("code");
+		String msg = map.get("msg").toUpperCase();
+		logger.error("code:" + code + " msg:" + msg);
+		if ("0".equals(code) && "OK".equals(msg)) {
+			resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
+					+ "<return_msg><![CDATA[OK]]></return_msg>" + "</xml> ";
+		} else {
+			resXml = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>"
+					+ "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml> ";
+		}
+		logger.debug("微信支付回调数据结束----------");
+		BufferedOutputStream out = new BufferedOutputStream(response.getOutputStream());
+		out.write(resXml.getBytes());
+		out.flush();
+		out.close();
+	}
+
+	/**
+	 * 保存微信异步通知消息
+	 * 
+	 * @param notityXml
+	 *            微信异步通知消息
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, String> notifyProcess(String notityXml) throws Exception {
+		Map<String, String> resultMap = new HashMap<>();
+		String code = "";
+		String msg = "";
+		/** 公众号appid **/
+		String appid = "";
+		/** 商户ID **/
+		String mch_id = "";
+		/** 设备号 **/
+		String device_info = "";
+		/** 随机数 **/
+		String nonce_str = "";
+		/** 签名 **/
+		String sign = "";
+		/** 签名类型 **/
+		String sign_type = "";
+		/** 业务结果 **/
+		String result_code = "";
+		/** 错误代码 **/
+		String err_code = "";
+		/** 错误代码描述 **/
+		String err_code_des = "";
+		/** 用户openid **/
+		String openid = "";
+		/** 是否关注公众账号 **/
+		String is_subscribe = "";
+		/** 交易类型 **/
+		String trade_type = "";
+		/** 支付银行 **/
+		String bankType = "";
+		/** 订单金额 **/
+		String total_fee = "0";
+		/** 货币种类 **/
+		String fee_type = "";
+		/** 现金支付金额 **/
+		String cash_fee = "0";
+		/** 现金支付货币类型 **/
+		String cash_fee_type = "";
+		/** 微信支付交易号 **/
+		String transaction_id = "";
+		/** 订单号 **/
+		String out_trade_no = "-1";
+		/** 商家数据包 **/
+		String attach = "";
+		/** 支付完成时间 **/
+		String time_end = "";
+
+		String backcode = "-1";
+		String backMsg = "--";
+		Map map = XmlUtil.doXMLParse(notityXml);
+		MapUtils mapUtils = new MapUtils(map);
+
+		String return_code = mapUtils.getString("return_code");
+		String return_msg = mapUtils.getString("return_msg");
+		if ("SUCCESS".equals(return_code.toUpperCase())) {
+			appid = mapUtils.getString("appid");
+			mch_id = mapUtils.getString("mch_id");
+			device_info = mapUtils.getString("device_info");
+			nonce_str = mapUtils.getString("nonce_str");
+			sign = mapUtils.getString("sign");
+			sign_type = mapUtils.getString("sign_type");
+			openid = mapUtils.getString("openid");
+			is_subscribe = mapUtils.getString("is_subscribe");
+			trade_type = mapUtils.getString("trade_type");
+			bankType = mapUtils.getString("bankType");
+			total_fee = mapUtils.getString("total_fee");
+			fee_type = mapUtils.getString("fee_type");
+			cash_fee = mapUtils.getString("cash_fee");
+			cash_fee_type = mapUtils.getString("cash_fee_type");
+			transaction_id = mapUtils.getString("transaction_id");
+			out_trade_no = mapUtils.getString("out_trade_no");
+			attach = mapUtils.getString("attach");
+			time_end = mapUtils.getString("time_end");
+			// 业务结果
+			result_code = mapUtils.getString("result_code");
+			err_code = mapUtils.getString("err_code");
+			err_code_des = mapUtils.getString("err_code_des");
+		} else {
+			code = "-1";
+			msg = "通信失败";
+		}
+		TWxNoticeBean notic = new TWxNoticeBean();
+		/** 返回状态码 **/
+		notic.setReturnCode(return_code);
+		/** 返回信息 **/
+		notic.setReturnMsg(return_msg);
+		/** 商户订单号 **/
+		notic.setOutTradeNo(out_trade_no);
+		/** 微信支付订单号 **/
+		notic.setTransactionId(transaction_id);
+		/** 公众账号ID **/
+		notic.setAppid(appid);
+		/** 商户账号 **/
+		notic.setMchId(mch_id);
+		/** 设备账号 **/
+		notic.setDeviceInfo(device_info);
+		/** 随机字符串 **/
+		notic.setNonceStr(nonce_str);
+		/** 签名 **/
+		notic.setSign(sign);
+		/** 签名类型 **/
+		notic.setSignType(sign_type);
+		/** 业务结果 **/
+		notic.setResultCode(result_code);
+		/** 错误代码 **/
+		notic.setErrCode(err_code);
+		/** 错误代码描述 **/
+		notic.setErrCodeDes(err_code_des);
+		/** 用户标识 **/
+		notic.setOpenid(openid);
+		/** 是否关注公主账号 **/
+		notic.setIsSubscribe(is_subscribe);
+		/** 交易类型 **/
+		notic.setTradeType(trade_type);
+		/** 付款银行 **/
+		notic.setBankType(bankType);
+		/** 订单金额 **/
+		notic.setTotalFee(Integer.valueOf(total_fee));
+		/** 货币种类 **/
+		notic.setFeeType(fee_type);
+		/** 现金支付金额 **/
+		notic.setCashFee(Integer.valueOf(cash_fee));
+		/** 现金支付货币类型 **/
+		notic.setCashFeeType(cash_fee_type);
+		/** 商家数据包 **/
+		notic.setAttach(attach);
+		/** 支付完成时间 **/
+		notic.setTimeend(time_end);
+		/** 创建时间 **/
+		notic.setCreateTime(new Date());
+		/** 接收状态 **/
+		notic.setBackCode(backcode);
+		/** 接收信息 **/
+		notic.setBackMsg(backMsg);
+		publicPayService.saveNotifyResult(notic);
+
+		// 业务结果成功表明支付成功
+		if ("SUCCESS".equals(result_code.toUpperCase())) {
+			code = "0";
+			msg = "OK";
+			if(attach != null && attach.equals("12")){//需要分账数据
+				
+				Map<String, String> profitsharing = profitsharing(notic);
+				String procode = profitsharing.get("result_code");
+				String promsg = profitsharing.get("return_msg");
+				if(!result_code.equals("SUCCESS")){
+					code = procode;
+					msg = promsg;
+				}
+			}
+		} else {
+			// 业务失败
+			code = err_code;
+			msg = err_code_des;
+		}
+		
+		
+		resultMap.put("code", code);
+		resultMap.put("msg", msg);
+		return resultMap;
+	}
+	
+	//分账接口
+	private Map<String, String> profitsharing(TWxNoticeBean notic) throws Exception {
+		
+		Map<String, String> map = new HashMap<>();
+		WxPayData wxdata = publicPayService.getWXPayConfig();
+		String partnerkey = wxdata.getWxpartnerkey();// 商户key
+		String mchId = notic.getMchId();
+		String appid = notic.getAppid();
+		String nonce_str = notic.getNonceStr();
+		Map<String, Object> packageParams = new HashMap<>();
+		packageParams.put("mch_id", notic.getMchId());
+		packageParams.put("appid", notic.getAppid());
+		packageParams.put("nonce_str", notic.getNonceStr());
+		packageParams.put("transaction_id", notic.getTransactionId());
+		packageParams.put("out_order_no", notic.getOutTradeNo());
+		Map<String, Object> receiver = new HashMap<>();
+		receiver.put("type", "PERSONAL_OPENID");
+		receiver.put("account", notic.getOpenid());
+		receiver.put("amount", notic.getCashFee());
+		receiver.put("description", "商品交易");
+		packageParams.put("receiver", receiver);
+		// 进行签名
+		Configure.setKey(partnerkey);
+		String  sign = Signature.paySignDesposit(packageParams,Configure.getKey());
+
+		String	xml = "<xml>" + "<appid>" + appid + "</appid>" + "<mch_id>" + mchId + "</mch_id>" + "<nonce_str>"
+					+ nonce_str + "</nonce_str>"+ "<out_order_no>"
+					+ notic.getOutTradeNo() + "</out_order_no>"+ "<transaction_id>"
+					+ notic.getTransactionId() + "</transaction_id>" + "<sign>" + sign + "</sign>" + "<receiver>" + receiver
+					+ "</receiver>" + "</xml>";
+		logger.info(xml);
+		String result = HttpUtil.sendPost(PROFIT_URL, xml);
+		logger.info("------------------分账------------------");
+		logger.info(result);
+		Map map1 = null;
+		MapUtils mapUtils = null;
+			
+		map1 = XmlUtil.doXMLParse(result);
+		
+		mapUtils = new MapUtils(map1);
+		String return_code = mapUtils.getString("return_code");
+		String return_msg = mapUtils.getString("return_msg");
+		
+		if(!return_code.equals("SUCCESS")){
+			map.put("result_code", return_code);
+        	map.put("return_msg", return_msg);
+        	return map;
+		}
+		String result_code = mapUtils.getString("result_code");
+		String err_code_des = mapUtils.getString("err_code_des");
+        if(!result_code.equals("SUCCESS")){
+        	map.put("result_code", result_code);
+        	map.put("return_msg", err_code_des);
+        	return map;
+		}
+		//保存到数据库
+        TWxProfitOrderBean orderBean = new TWxProfitOrderBean();
+        orderBean.setAmount(notic.getCashFee());
+        orderBean.setCreateTime(new Date());
+        orderBean.setOrderId(mapUtils.getString("order_id"));
+        orderBean.setOutOrderNo(mapUtils.getString("out_order_no"));
+        orderBean.setPid(Long.valueOf(notic.getAttach()));
+        orderBean.setResultCode(result_code);
+        orderBean.setTransactionId(mapUtils.getString("transaction_id"));
+        publicPayService.saveProfitOrder(orderBean);
+    	map.put("result_code", result_code);
+    	map.put("err_code_des", err_code_des);
+    	return map;
+	}
+
+	@RequestMapping("/weixin/pay/refund_notify")
+	@ApiOperation(value = "异步回调退款")
+	public void  refundNotify(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		logger.error("-------------微信退款回调数据开始--------------");
+		String inputLine;
+		String notityXml = "";
+		String resXml = "";
+		try {
+			while ((inputLine = request.getReader().readLine()) != null) {
+				notityXml += inputLine;
+			}
+			request.getReader().close();
+		} catch (Exception e) {
+			logger.error("接受微信退款回调失败-----------");
+			logger.error(e.getMessage());
+		}
+		logger.debug("[接收到的报文]：" + JSON.toJSONString(notityXml));
+		// 处理回调参数
+		Map<String, String> map = notifyrefund(notityXml);
+		String code = map.get("code");
+		String msg = map.get("msg").toUpperCase();
+		logger.error("code:" + code + " msg:" + msg);
+		if ("0".equals(code) && "OK".equals(msg)) {
+			resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
+					+ "<return_msg><![CDATA[OK]]></return_msg>" + "</xml> ";
+		} else {
+			resXml = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>"
+					+ "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml> ";
+		}
+		logger.debug("微信支付回调数据结束----------");
+		BufferedOutputStream out = new BufferedOutputStream(response.getOutputStream());
+		out.write(resXml.getBytes());
+		out.flush();
+		out.close();
+	}
+
+	private Map<String, String> notifyrefund(String notityXml) {
+		
+		Map<String, String> resultMap = new HashMap<>();
+		
+		Map map = null;
+		Map map1 = null;
+		try {
+			map = XmlUtil.doXMLParse(notityXml);
+			MapUtils mapUtils = new MapUtils(map);
+			if(mapUtils.getString("return_code").equals("SUCCESS")){//
+				String req_info = mapUtils.getString("req_info");
+				String encryptData = AESUtil.encryptData(req_info, "1573218931");
+				
+				map1 = AESUtil.readStringXmlOut(encryptData);
+				MapUtils mapUtils1 = new MapUtils(map1);
+				TWxRefundQueryBean refundBean = new TWxRefundQueryBean();
+				
+				if(mapUtils.getString("return_code").equals("SUCCESS")){
+					
+					    mapUtils1.getString("refund_request_source");
+						refundBean.setOutRefundNo(mapUtils1.getString("out_refund_no"));
+						refundBean.setOutTradeNo(mapUtils1.getString("out_trade_no"));
+						refundBean.setTotalRefundCount(Integer.valueOf(mapUtils1.getString("total_fee")));
+						refundBean.setCashFee(Integer.valueOf(mapUtils1.getString("cash_fee")));
+						refundBean.setRefundCount(Integer.valueOf(mapUtils1.getString("refund_account")));
+						refundBean.setRefundFeeN(mapUtils1.getString("refund_fee"));
+						refundBean.setRefundStatusN(mapUtils1.getString("refund_status"));   
+						refundBean.setRefundRecvAccoutN(mapUtils1.getString("refund_recv_accout"));   
+						refundBean.setTransactionId(mapUtils1.getString("transaction_id"));
+						publicPayService.saveRefundQuery(refundBean);
+					
+				}
+				
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultMap;
+	}
+   public static void main(String[] args) throws Exception {
+	String notityXml = "<xml><return_code>SUCCESS</return_code><appid><![CDATA[wxca56d5ed57bc64b0]]></appid><mch_id><![CDATA[1573218931]]></mch_id><nonce_str><![CDATA[b381afbd46fa84caf576bf13daddbc16]]></nonce_str><req_info><![CDATA[OkgG42zKLg+68Q0tJhzRACGAEWk3Q8lJXQCuNSaj7J0JVtv02JTCKRRTovch/zTiRu26Kv1CsZLFZxTkn7WklmRPqKn2l9sXdC+CH10FwN89imxqNjl/8aGdRDWc2RJ1t8XGJ2jwGs7DGRp0JV0tAtpNZMH/NMIAW6dmK5ClavJmOnX4ywa56ZH4/f89BFvvlf6fWoq1XVPs/hoCL87upHWUv8g9+S0NxnxoNDZrfRCfkKCY+NWpou4/SVx3Q4PbiruiXZL+vwvxfF0AVmW0J1yG7Yv6rcxFl5OSlQ5FfcL9p7fSzx76eL9F8vwFkcIqAtMowHofeCS1QAqiQevuPvTrgc7euWejqL4XC3jhx79ZQkX1IgwbZD35rBPEAn6fL8nEyxZnVDp5LIBcbWCqUU1vom/q61XMymtAuRVgnE6es1eOVNoieXWRisXOGUgUiSrE+RqQxCab8qeWPEWyZ1RaWMtgkdeaI2g4gOz8lETFAw4TEW3rBWDPYsROJUFhX57yEjM2HeWuuubuuGcylxhSPoovvaL/M/5WKFvXWLj3zAJDgB75t0DcJUyhl0kAwdg6F4nW36WNn5WEWVAi7q4hrWfQ29Ee86rt+eGqTBkHdBQR6nw4CSz3XrmIKpp+GtB/RHsywx/jfgW1YoSYh170jyrsaoBy7ToxYQD7y4hT9IGrY6aPsivbWvJE+SuHFaj2IHH5qujF/QQO4JO43+vt6Iv5vDxP85EhkTh7lnqL8GX0XhnVi1aKBgtskaWcgDTaqJNiPHKp76RRN1acRejm4GNYl/7hs2dPW17Oa1Rs+EQdLcKyQ7UnopIr+VZ4XbPLNO6iS4ynLGJUlf/4BOkNrQ+29twdMMzAH5gI3qzCbBlezLNkj7ecjacpiP4I41eriFGHiVienRFJoZoNk1I3jPdinPU4I5OUXUPjZ93jBGUwJyGbYngiWK/5SPpu2de7D4GYTy1WjLqKa/X0tuiAoDfjA+Ujc7Fl7RzmBUMvpb1LxT45rgDLEN11jRkgUhHBiFujIQDGcV/n14GPfWrG0rSDrGwGnwn3dOsJ1ZG4SxjVrRW+3yaeZv38wtRE]]></req_info></xml>";
+	
+	Map map = null;
+	Map map1 = null;
+	map = XmlUtil.doXMLParse(notityXml);
+	String req_info = (String) map.get("req_info");
+	String encryptData = AESUtil.encryptData(req_info, "1573218931");
+	System.out.println(encryptData);
+}
+}

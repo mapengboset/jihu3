@@ -1,0 +1,32 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 日志评价状态类
+ * 
+ * @author zhouwf
+ *
+ */
+public class DiaryCommentStatus {
+
+	/** 删除 */
+	public static final short DELETED = 0;
+	/** 正常 */
+	public static final short NORMAL = 1;
+
+	/**
+	 * 获取日志评价状态描述
+	 * 
+	 * @param diaryCommentStatus 日志评价状态值
+	 * @return 日志评价状态描述
+	 */
+	public static String getDescription(short diaryCommentStatus) {
+		if (diaryCommentStatus == DELETED) {
+			return "删除";
+		}
+		if (diaryCommentStatus == NORMAL) {
+			return "正常";
+		}
+		return "";
+	}
+
+}

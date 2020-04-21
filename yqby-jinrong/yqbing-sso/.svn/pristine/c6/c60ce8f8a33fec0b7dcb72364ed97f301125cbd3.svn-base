@@ -1,0 +1,37 @@
+package com.yqbing.servicebing.utils.enums;
+
+public enum ErrorCodeEnum implements ErrorCode{
+	
+	COM_PARAM_UNKNOW(ErrorCodeEnum.CODE_ERROR,1,"URL参数异常"),
+	COM_PARAMETER_INVALID(ErrorCodeEnum.CODE_ERROR ,2,"参数异常"),
+	COMMON_PAGE_NOT_FOUND(ErrorCodeEnum.CODE_ERROR ,3,"访问的页面不存在"),
+	COM_SIGN_INVALID(ErrorCodeEnum.CODE_ERROR ,4,"签名错误"),
+	CLIENT_TOKEN_INVALID(ErrorCodeEnum.USER_ERROR_CODE ,5,"客户端凭证已失效");
+	
+	private int root;
+
+	private int code;
+	
+	private String message;
+
+	private ErrorCodeEnum(int root, int code, String message) {
+		
+		this.root = root;
+		this.code = code;
+		this.message = message;
+	}
+
+	public int getCode() {
+		return root + code;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	@Override
+	public int getRoot() {
+		
+		return root;
+	}
+}

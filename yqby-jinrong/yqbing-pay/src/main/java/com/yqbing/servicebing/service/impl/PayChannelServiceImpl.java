@@ -1,0 +1,56 @@
+package com.yqbing.servicebing.service.impl;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
+import com.yqbing.servicebing.repository.database.bean.AlipayAppConfig;
+import com.yqbing.servicebing.repository.database.bean.BalanceAppConfig;
+import com.yqbing.servicebing.repository.database.bean.PayAppInfo;
+import com.yqbing.servicebing.repository.database.bean.PayChannelInfo;
+import com.yqbing.servicebing.repository.database.dao.PayAppInfoMapper;
+import com.yqbing.servicebing.repository.database.dao.PayChannelInfoMapper;
+import com.yqbing.servicebing.service.IPayChannelService;
+import com.yqbing.servicebing.utils.json.JSONUtils;
+import com.yqbing.servicebing.webapp.request.dto.WxpayAppConfig;
+import com.yqbing.servicebing.webapp.request.pay.enums.PayProviderEnum;
+
+@Service("payChannelService")
+public class PayChannelServiceImpl implements IPayChannelService{
+
+	@Resource
+	private PayChannelInfoMapper payChannelInfoMapper;
+	@Resource
+	private PayAppInfoMapper payAppInfoMapper;
+	@Override
+	public PayChannelInfo getPayChannelInfo(String payChannel) {
+	    
+		
+		return payChannelInfoMapper.queryPayChannel(payChannel);
+	}
+	
+	@Override
+	public PayAppInfo getPayApp(int appChannel, Integer customerId,
+			Integer payGroupId, String payProvider) {
+		PayAppInfo payApp = payAppInfoMapper.queryPayApp(appChannel, customerId, payGroupId, payProvider);
+		setAppConfig(payApp);
+		return payApp;
+		
+		
+	}
+private void setAppConfig(PayAppInfo payApp){
+		
+		if(payApp == null){
+			return;
+		}
+		
+		if(StringUtils.equals(payApp.getPayProvider(), PayProviderEnum.ALIPAY.getId())){
+			payApp.setAppConfig(JSONUtils.toObject(payApp.getConfig(), AlipayAppConfig.class));
+		}else if(StringUtils.equals(payApp.getPayProvider(), PayProviderEnum.WXPAY.getId())){
+			payApp.setAppConfig(JSONUtils.toObject(payApp.getConfig(), WxpayAppConfig.class));
+		}else if(StringUtils.equals(payApp.getPayProvider(), PayProviderEnum.BALANCE.getId())) {
+			payApp.setAppConfig(JSONUtils.toObject(payApp.getConfig(), BalanceAppConfig.class));
+		}
+	}
+}

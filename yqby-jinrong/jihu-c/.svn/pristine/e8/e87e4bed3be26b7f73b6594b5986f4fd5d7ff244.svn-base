@@ -1,0 +1,141 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.abstracts.StoreHouseAbs;
+import com.yqbing.servicebing.repository.database.bean.AppAppraise;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.dao.AppAppraiseExample;
+import com.yqbing.servicebing.repository.database.dao.AppAppraiseMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseExample;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseExample.Criteria;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseMapper;
+import com.yqbing.servicebing.repository.redis.RAppraiseData;
+import com.yqbing.servicebing.repository.redis.RStoreHouseData;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.service.StoreHouseService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+
+
+@Service("storeHouseService")
+@SuppressWarnings("all")
+public class StoreHouseServiceImpl implements StoreHouseService{
+     
+	
+	 private static final Logger LOGGER = LoggerFactory.getLogger(StoreHouseServiceImpl.class);
+	 @Autowired
+	 private StoreHouseMapper storeHouseMapper= null;
+	 @Autowired
+	 private AppAppraiseMapper appAppraiseMapper= null;
+	 @Resource
+	 private RUserLogBean rUserLogBean = null;
+	 @Resource
+	 private RAppraiseData rAppraiseData = null;
+	 @Resource
+	 private UserInfoBeanMapper userInfoBeanMapper = null;
+	 @Resource
+	 private AppAppraiseMapper appraiseMapper = null;
+	 @Resource
+	 private RStoreHouseData rStoreHouseData = null;
+	
+	public  void add(StoreHouse s){
+		storeHouseMapper.insertSelective(s);
+	}
+
+	@Override
+	public String searchAppName(String appName) {
+		// TODO Auto-generated method stub
+		 Map<String,Object> map = new HashMap<String,Object>();
+		 StoreHouseExample example = new StoreHouseExample();
+		 Criteria criteria = example.createCriteria();
+		 
+		 criteria.andAppNameLike(appName);
+		 List<StoreHouse> list =  storeHouseMapper.selectByExample(example);
+		 //log,名字 ,分类,地址,id 
+			if(null == list || list.size()<= 0){
+				return NotifyUtil.error(ErrorCodeEnum.STOREISEMPTY,"APP不存在");
+			}
+		 map.put("body", list);
+		
+		return NotifyUtil.success(map);
+	}
+
+	@Override
+	public String appDatails(String id) {
+		
+		 
+		 Map<String,Object> map = new HashMap<String,Object>();
+		 List<AppAppraise> list =null;
+		 StoreHouseAbs storeHouse = storeHouseMapper.selectByPrimaryKey(Integer.valueOf(id));
+		 if(storeHouse == null){//不存在
+			 return NotifyUtil.error(ErrorCodeEnum.STOREISEMPTY,"APP不存在");
+		 }
+		 Integer sid = storeHouse.getId();
+		 list = rAppraiseData.getAppraise(sid);
+		 if(null == list || list.size()<= 0){
+		 AppAppraiseExample example = new AppAppraiseExample();
+		 com.yqbing.servicebing.repository.database.dao.AppAppraiseExample.Criteria criteria = example.createCriteria();
+		 criteria.andAppIdEqualTo(sid);
+		 list = appAppraiseMapper.selectByExample(example);
+		 }
+		/* if(null == list || list.size()<= 0){
+				
+				storeHouse.setAs();
+			}*/
+		 storeHouse.setAs(list);
+		 map.put("body", storeHouse);
+		
+		 return NotifyUtil.success(map);
+	}
+
+	@Override
+	public String appraise(String id, String token, String desc) {
+		
+		try {
+			Integer aid = Integer.valueOf(id);
+			UserInfoBean infoBean = rUserLogBean.getRaw(token);
+			if(infoBean == null){
+				
+				infoBean = userInfoBeanMapper.queryToken(token);
+			}
+			if(infoBean == null){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+			}else{
+				AppAppraise appraise = new AppAppraise();
+				appraise.setCreateTime(new Date());
+				appraise.setContent(desc);
+				appraise.setAppId(aid);
+				appraise.setUserId(Integer.valueOf(infoBean.getId()+""));
+				
+				appraise.setUserimg(infoBean.getImage() != null ? infoBean.getImage():"");
+				appraise.setUsername(infoBean.getName() != null ? infoBean.getName():"");
+				appraiseMapper.insertSelective(appraise);
+				//缓存评论
+				rAppraiseData.setAppraise(aid, appraise);
+				
+				return NotifyUtil.success();
+			}
+		  } catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "系统异常");
+		  }
+		
+	}
+	
+	
+	
+}

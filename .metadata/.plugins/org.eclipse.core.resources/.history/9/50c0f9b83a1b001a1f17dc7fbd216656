@@ -1,0 +1,194 @@
+package com.hiko.gym.common.repository.redis;
+
+import java.text.*;
+import java.util.*;
+
+import javax.annotation.*;
+
+import org.springframework.data.redis.core.*;
+import org.springframework.stereotype.*;
+
+/**
+ * 客户推送令牌哈希实现类
+ * 
+ * @author cychen
+ *
+ */
+@Repository("rCustomerPushTokenHash")
+public class RCustomerPushTokenHashImpl implements RCustomerPushTokenHash {
+
+	/** Redis模板 */
+	@Resource(name = "redisTemplate")
+	private RedisTemplate<String, String> redisTemplate = null;
+
+	/** 键值格式 */
+	private static final MessageFormat KEY_FORMAT = new MessageFormat("Hash:CustomerPushToken:{0}");
+
+	/**
+	 * 设置客户推送令牌
+	 * 
+	 * @param customerPushToken 客户推送令牌
+	 */
+	@Override
+	public void set(RCustomerPushToken customerPushToken) {
+		// 初始化
+		Map<String, String> map = new HashMap<String, String>();
+		String key = KEY_FORMAT.format(new Long[] { customerPushToken.getCustomerId() });
+
+		// 赋值参数
+		if (customerPushToken.getOsType() != null) {
+			map.put(RCustomerPushToken.OSTYPE, customerPushToken.getOsType().toString());
+		}
+		if (customerPushToken.getPushToken() != null) {
+			map.put(RCustomerPushToken.PUSHTOKEN, customerPushToken.getPushToken());
+		}
+
+		// 调用接口
+		redisTemplate.opsForHash().putAll(key, map);
+	}
+
+	/**
+	 * 获取客户推送令牌
+	 * 
+	 * @param customerId 客户标识
+	 * @return 客户推送令牌
+	 */
+	@Override
+	public RCustomerPushToken get(Long customerId) {
+		// 初始化
+		RCustomerPushToken customerPushToken = null;
+		List<String> keyList = new ArrayList<String>();
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 赋值参数
+		keyList.add(RCustomerPushToken.OSTYPE);
+		keyList.add(RCustomerPushToken.PUSHTOKEN);
+
+		// 调用接口
+		HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
+		List<String> valueList = hashOperations.multiGet(key, keyList);
+
+		// 转化数据
+		if (valueList != null && !valueList.isEmpty()) {
+			// 判断有效
+			boolean isValid = false;
+			for (String value : valueList) {
+				if (value != null) {
+					isValid = true;
+					break;
+				}
+			}
+
+			// 有效赋值
+			if (isValid) {
+				customerPushToken = new RCustomerPushToken();
+				customerPushToken.setCustomerId(customerId);
+				if (valueList.size() > 0) {
+					customerPushToken.setOsType(Short.parseShort(valueList.get(0)));
+				}
+				if (valueList.size() > 1) {
+					customerPushToken.setPushToken(valueList.get(1));
+				}
+			}
+		}
+
+		// 返回数据
+		return customerPushToken;
+	}
+
+	/**
+	 * 删除客户推送令牌
+	 * 
+	 * @param customerId 客户标识
+	 */
+	@Override
+	public void remove(Long customerId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		redisTemplate.delete(key);
+	}
+
+	/**
+	 * 存在客户推送令牌
+	 * 
+	 * @param customerId 客户标识
+	 * @return 是否存在
+	 */
+	@Override
+	public boolean exist(Long customerId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		return redisTemplate.hasKey(key);
+	}
+
+	/**
+	 * 设置参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 * @param value 参数值
+	 */
+	@Override
+	public void set(Long customerId, String name, String value) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		redisTemplate.opsForHash().put(key, name, value);
+	}
+
+	/**
+	 * 获取参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 * @return 参数值
+	 */
+	@Override
+	public String get(Long customerId, String name) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
+		return hashOperations.get(key, name);
+	}
+
+	/**
+	 * 删除参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 */
+	@Override
+	public void remove(Long customerId, String name) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
+		hashOperations.delete(key, name);
+	}
+
+	/**
+	 * 存在参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 * @return 持久化异常
+	 */
+	@Override
+	public boolean exist(Long customerId, String name) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
+		return hashOperations.hasKey(key, name);
+	}
+
+}

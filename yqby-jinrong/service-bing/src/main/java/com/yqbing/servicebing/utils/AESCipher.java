@@ -1,0 +1,111 @@
+package com.yqbing.servicebing.utils;
+
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import com.owtelse.codec.Base64;
+
+
+/**
+ * AES加密工具(IOS与JAVA适配版)
+ * @author mapb
+ *
+ */
+public class AESCipher {
+
+	private static final String IV_STRING = "16-Bytes--String";
+
+	/**
+	 * AES加密
+	 * @param content 加密内容
+	 * @param key     密钥
+	 * @return
+	 * @throws InvalidKeyException
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchPaddingException
+	 * @throws UnsupportedEncodingException
+	 * @throws InvalidAlgorithmParameterException
+	 * @throws IllegalBlockSizeException
+	 * @throws BadPaddingException
+	 */
+	public static String encryptAES(String content, String key)
+			throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException,
+			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+
+		byte[] byteContent = content.getBytes("UTF-8");
+
+		// 注意，为了能与 iOS 统一
+		// 这里的 key 不可以使用 KeyGenerator、SecureRandom、SecretKey 生成
+		byte[] enCodeFormat = key.getBytes();
+		SecretKeySpec secretKeySpec = new SecretKeySpec(enCodeFormat, "AES");
+
+		byte[] initParam = IV_STRING.getBytes();
+		IvParameterSpec ivParameterSpec = new IvParameterSpec(initParam);
+
+		// 指定加密的算法、工作模式和填充方式
+		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
+
+		byte[] encryptedBytes = cipher.doFinal(byteContent);
+		
+		// 同样对加密后数据进行 base64 编码
+		return Base64.encode(encryptedBytes);
+	}
+
+	/**
+	 * AES解密
+	 * @param content 内容
+	 * @param key     密钥
+	 * @return
+	 * @throws InvalidKeyException
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchPaddingException
+	 * @throws InvalidAlgorithmParameterException
+	 * @throws IllegalBlockSizeException
+	 * @throws BadPaddingException
+	 * @throws UnsupportedEncodingException
+	 */
+	public static String decryptAES(String content, String key) throws InvalidKeyException, NoSuchAlgorithmException,
+			NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException,
+			UnsupportedEncodingException {
+
+		// base64 解码
+		byte[] encryptedBytes = Base64.decode(content);
+
+		byte[] enCodeFormat = key.getBytes();
+		SecretKeySpec secretKey = new SecretKeySpec(enCodeFormat, "AES");
+
+		byte[] initParam = IV_STRING.getBytes();
+		IvParameterSpec ivParameterSpec = new IvParameterSpec(initParam);
+
+		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParameterSpec);
+
+		byte[] result = cipher.doFinal(encryptedBytes);
+
+		return new String(result, "UTF-8");
+	}
+	
+	public static void main(String[] args) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+		String key="16BytesLengthKey";
+		String str="123!@#abc,._";
+		System.err.println("密钥："+key);
+		System.err.println("原始数据："+str);
+		String str_aes=AESCipher.encryptAES(str, key);
+		System.err.println("加密后数据："+str_aes);
+		String aes_str=AESCipher.decryptAES(str_aes, key);
+		System.err.println("解密结果："+aes_str.equals(str));
+		System.err.println("解密后数据："+aes_str);
+		
+	}
+
+}

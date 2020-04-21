@@ -1,0 +1,68 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.yqbing.servicebing.repository.store.bean.StoreUser;
+import com.yqbing.servicebing.repository.store.bean.UserExt;
+import com.yqbing.servicebing.repository.store.dao.StoreUserExample;
+import com.yqbing.servicebing.repository.store.dao.StoreUserMapper;
+import com.yqbing.servicebing.repository.store.dao.UserExtExample;
+import com.yqbing.servicebing.repository.store.dao.UserExtMapper;
+import com.yqbing.servicebing.service.IStoreService;
+import com.yqbing.servicebing.utils.StringUtil;
+
+
+@Service("storeService")
+public class StoreServiceImpl implements IStoreService{
+    
+	@Resource
+	UserExtMapper userExtMapper;
+	@Resource
+	StoreUserMapper storeUserMapper;
+	
+	@Override
+	public void recordUserBusinessInfo(UserExt userExt) {
+		if(userExt != null && userExt.getUserId() > 0) {
+			UserExt ext = userExtMapper.queryUserExtByUserId(userExt.getPlatformId(), userExt.getUserId());
+			if(ext != null) {
+				if(StringUtil.isEmpty(userExt.getRelationId())) {
+					userExt.setRelationId(ext.getRelationId());
+				}
+				if(StringUtil.isEmpty(userExt.getSpecialId())) {
+					userExt.setSpecialId(ext.getSpecialId());
+				}
+				if(StringUtil.isEmpty(userExt.getBusinessValue())) {
+					userExt.setBusinessValue(ext.getBusinessValue());
+				}
+			}
+			userExt.setCreateTime(new Date());
+			userExtMapper.insertSelective(userExt);
+			
+		
+	}
+	}
+
+	@Override
+	public UserExt queryUserExtInfoByUserId(int i, Long uid) {
+	   UserExtExample example = new UserExtExample();
+	   example.createCriteria().andPlatformIdEqualTo(0).andUserIdEqualTo(uid);
+	   List<UserExt> list = userExtMapper.selectByExample(example);
+	   if(null != list && list.size() > 0){
+		   
+		   return list.get(0);
+	   }
+	   return null;
+	}
+
+	@Override
+	public List<StoreUser> queryStoreUserByUserId(Long id) {
+		StoreUserExample example = new StoreUserExample();
+		example.createCriteria().andUserIdEqualTo(id);
+		return storeUserMapper.selectByExample(example);
+	}
+}

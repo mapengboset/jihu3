@@ -1,0 +1,155 @@
+package com.yqbing.servicebing.mina.server;
+
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.Resource;
+
+import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+
+import com.alibaba.fastjson.JSON;
+/**
+ * 
+ * @Title:     
+ * @Description:    自定义消息处理类  
+ * @author: mapb   
+ * @date:   2018年11月7日 下午4:37:53   
+ * @version V1.0
+ */
+@Controller
+public class MyHandler extends IoHandlerAdapter {
+
+	
+	private final Logger LOG = LoggerFactory.getLogger(MyHandler.class);
+	public static ConcurrentHashMap<String, IoSession> sessionsConcurrentHashMap = new ConcurrentHashMap<String, IoSession>();
+	
+	
+	
+	@Override
+	public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+		
+		LOG.warn("---------【IoSession】：session发生异常，所以关闭session. ===>");
+		if (session != null) {
+			String deviceId = (String)session.getAttribute("id");
+			if (deviceId != null && deviceId.length() > 0) {
+				sessionsConcurrentHashMap.remove(deviceId);
+//				sessions.remove(session);
+				session.close(true);
+			}
+		}
+		
+	}
+
+	@Override
+	public void messageReceived(IoSession session, Object message) throws Exception {
+		byte[] b = (byte[])message;
+		String str = new String(b);
+		LOG.info("---------------【IoSession】:收到的消息 {}", str);
+		MessageData msgData = null;
+		if (str != null && str.length() > 0) {
+			/*int count = StrUtil.count(str, "{");
+			int count1 = StrUtil.count(str, "}");
+		    if(count == 1 && count1 == 1){
+		    	msgData = JSON.parseObject(str, MessageData.class);
+				
+				String mac = msgData.getMac();
+				
+				String userId = msgData.getUserId();//用户id
+				String heartbeat = msgData.getCmd();//
+			//	String content = msgData.getContent();
+			//	if (msgType == MessageConstant.MSG_TYPE_101) {//握手，第一次连接发送
+				if(!StringUtils.isNullOrBlank(mac) && StringUtils.isNullOrBlank(userId)){
+					LOG.info("---------------【IoSession】：获取到mac:"+mac);
+				
+					sessionsConcurrentHashMap.put(mac, session);//缓存客户端信息，以mac作为key存储
+					session.setAttribute("id", mac);
+//					sessions.add(session);
+					MessageData msgData1 = new MessageData();
+					msgData1.setCode(200);//连接成功
+					String jsonStr = JSON.toJSONString(msgData1);
+					session.write(jsonStr.getBytes());//发送消息
+			        
+					LOG.info("---------------【IoSession】：发送成功消息{}", jsonStr);
+						
+					}else if(!StringUtils.isNullOrBlank(userId) && !StringUtils.isNullOrBlank(mac)){
+						//获取瞬时数据
+						
+						//PoBuJiTcpInfo paobuji = JSON.parseObject(str, PoBuJiTcpInfo.class);
+						if (str != null) {
+							//数据库进行存值
+							LOG.info("---------------【IoSession】：跑步机发送的瞬时数据{}"+str);
+							paobujiService.saveRaw(str);  
+						}
+					*/
+			}
+				/*if(!StringUtils.isNullOrBlank(heartbeat)){//在做心跳检测,
+					LOG.info("---------------【IoSession】：发送心跳检测{}"+heartbeat);
+					
+				MessageData msgData1 = new MessageData();
+				msgData1.setCode(200);//连接成功
+				String jsonStr = JSON.toJSONString(msgData1);
+				session.write(jsonStr.getBytes());//发送消息
+				
+			}
+				}*/
+		    }
+
+	
+
+	public void messageSent(IoSession session, Object message) throws Exception {
+		
+	}
+
+	@Override
+	public void sessionCreated(IoSession session) throws Exception {
+		LOG.warn("---------【IoSession】：客户端  {} 连接了...", session.getRemoteAddress().toString());
+		session.getConfig().setIdleTime(IdleStatus.BOTH_IDLE, 5);  
+	}
+
+	@Override
+	public void sessionClosed(IoSession session) throws Exception {
+		LOG.warn("---------【IoSession】：客户端  {} 断开，关闭session连接...", session.getRemoteAddress().toString());
+		if (session != null) {
+			String deviceId = (String)session.getAttribute("id");
+			if (deviceId != null && deviceId.length() > 0) {
+				sessionsConcurrentHashMap.remove(deviceId);
+//				sessions.remove(session);
+				session.close(true);
+			}
+		}
+	}
+
+	@Override
+	public void sessionIdle(IoSession session, IdleStatus status) throws Exception {
+		// 如果IoSession闲置
+		
+		LOG.warn("---------【IoSession】：如果IoSession闲置", session.getRemoteAddress().toString());
+	    if (status == IdleStatus.BOTH_IDLE){
+	      MessageData msgData = new MessageData();
+	     // msgData.setMsgType(MessageConstant.MSG_TYPE_1100);
+	     // msgData.setContent("");
+	      String mac = "";
+	      if (session.getAttribute("id") != null) {
+	    	  mac = (String)session.getAttribute("id");
+	    	  sessionsConcurrentHashMap.put(mac, session);
+	      }
+	      msgData.setMac(mac);
+	      
+	      LOG.info("---------------【IoSession】：获取到mac:"+mac);
+	      String jsonStr = JSON.toJSONString(msgData);
+		  session.write(jsonStr.getBytes());
+		}
+	}	
+
+	@Override
+	public void sessionOpened(IoSession session) throws Exception {
+		 session.getConfig().setIdleTime(IdleStatus.BOTH_IDLE, 5);
+	}
+
+}

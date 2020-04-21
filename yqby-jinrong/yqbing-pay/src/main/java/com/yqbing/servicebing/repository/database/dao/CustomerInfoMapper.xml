@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.CustomerInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.Customer" >
+    <id column="customer_id" property="customerId" jdbcType="INTEGER" />
+    <result column="customer" property="customer" jdbcType="VARCHAR" />
+    <result column="customer_type" property="customerType" jdbcType="TINYINT" />
+    <result column="pay_group_id" property="payGroupId" jdbcType="INTEGER" />
+    <result column="security_key" property="securityKey" jdbcType="VARCHAR" />
+    <result column="sign_type" property="signType" jdbcType="VARCHAR" />
+    <result column="valid_time" property="validTime" jdbcType="DATE" />
+    <result column="customer_status" property="customerStatus" jdbcType="SMALLINT" />
+    <result column="apply_time" property="applyTime" jdbcType="TIMESTAMP" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    customer_id, customer, customer_type, pay_group_id, security_key, sign_type, valid_time, 
+    customer_status, apply_time, create_time, update_time
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.abstracts.CustomerInfoExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from customer
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from customer
+    where customer_id = #{customerId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from customer
+    where customer_id = #{customerId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.Customer" useGeneratedKeys="true" keyProperty="customer_id">
+    insert into customer (customer_id, customer, customer_type, 
+      pay_group_id, security_key, sign_type, 
+      valid_time, customer_status, apply_time, 
+      create_time, update_time)
+    values (#{customerId,jdbcType=INTEGER}, #{customer,jdbcType=VARCHAR}, #{customerType,jdbcType=TINYINT}, 
+      #{payGroupId,jdbcType=INTEGER}, #{securityKey,jdbcType=VARCHAR}, #{signType,jdbcType=VARCHAR}, 
+      #{validTime,jdbcType=DATE}, #{customerStatus,jdbcType=SMALLINT}, #{applyTime,jdbcType=TIMESTAMP}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.Customer" useGeneratedKeys="true" keyProperty="customer_id">
+    insert into customer
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="customerId != null" >
+        customer_id,
+      </if>
+      <if test="customer != null" >
+        customer,
+      </if>
+      <if test="customerType != null" >
+        customer_type,
+      </if>
+      <if test="payGroupId != null" >
+        pay_group_id,
+      </if>
+      <if test="securityKey != null" >
+        security_key,
+      </if>
+      <if test="signType != null" >
+        sign_type,
+      </if>
+      <if test="validTime != null" >
+        valid_time,
+      </if>
+      <if test="customerStatus != null" >
+        customer_status,
+      </if>
+      <if test="applyTime != null" >
+        apply_time,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="customerId != null" >
+        #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="customer != null" >
+        #{customer,jdbcType=VARCHAR},
+      </if>
+      <if test="customerType != null" >
+        #{customerType,jdbcType=TINYINT},
+      </if>
+      <if test="payGroupId != null" >
+        #{payGroupId,jdbcType=INTEGER},
+      </if>
+      <if test="securityKey != null" >
+        #{securityKey,jdbcType=VARCHAR},
+      </if>
+      <if test="signType != null" >
+        #{signType,jdbcType=VARCHAR},
+      </if>
+      <if test="validTime != null" >
+        #{validTime,jdbcType=DATE},
+      </if>
+      <if test="customerStatus != null" >
+        #{customerStatus,jdbcType=SMALLINT},
+      </if>
+      <if test="applyTime != null" >
+        #{applyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.abstracts.CustomerInfoExample" resultType="java.lang.Integer" >
+    select count(*) from customer
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.Customer" >
+    update customer
+    <set >
+      <if test="customer != null" >
+        customer = #{customer,jdbcType=VARCHAR},
+      </if>
+      <if test="customerType != null" >
+        customer_type = #{customerType,jdbcType=TINYINT},
+      </if>
+      <if test="payGroupId != null" >
+        pay_group_id = #{payGroupId,jdbcType=INTEGER},
+      </if>
+      <if test="securityKey != null" >
+        security_key = #{securityKey,jdbcType=VARCHAR},
+      </if>
+      <if test="signType != null" >
+        sign_type = #{signType,jdbcType=VARCHAR},
+      </if>
+      <if test="validTime != null" >
+        valid_time = #{validTime,jdbcType=DATE},
+      </if>
+      <if test="customerStatus != null" >
+        customer_status = #{customerStatus,jdbcType=SMALLINT},
+      </if>
+      <if test="applyTime != null" >
+        apply_time = #{applyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where customer_id = #{customerId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.Customer" >
+    update customer
+    set customer = #{customer,jdbcType=VARCHAR},
+      customer_type = #{customerType,jdbcType=TINYINT},
+      pay_group_id = #{payGroupId,jdbcType=INTEGER},
+      security_key = #{securityKey,jdbcType=VARCHAR},
+      sign_type = #{signType,jdbcType=VARCHAR},
+      valid_time = #{validTime,jdbcType=DATE},
+      customer_status = #{customerStatus,jdbcType=SMALLINT},
+      apply_time = #{applyTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where customer_id = #{customerId,jdbcType=INTEGER}
+  </update>
+</mapper>

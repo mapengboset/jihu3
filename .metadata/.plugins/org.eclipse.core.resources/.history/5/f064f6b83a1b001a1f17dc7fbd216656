@@ -1,0 +1,26 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 推送消息标识接口
+ * 
+ * @author cychen
+ *
+ */
+public interface RPushMessageId {
+
+	/**
+	 * 递增推送消息标识
+	 * 
+	 * @return 推送消息标识
+	 */
+	public Long increment();
+
+	/**
+	 * 递增推送消息标识
+	 * 
+	 * @param time 指定时间(毫秒)
+	 * @return 推送消息标识
+	 */
+	public Long increment(long time);
+
+}

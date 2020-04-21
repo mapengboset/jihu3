@@ -1,0 +1,111 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yqbing.servicebing.common.ErrorCode;
+import com.yqbing.servicebing.common.ResultModel;
+import com.yqbing.servicebing.service.AntCreditService;
+import com.yqbing.servicebing.service.WeBankService;
+
+
+@SuppressWarnings("all")
+@RestController
+public class AntCreditController extends BaseController{
+
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(AntCreditController.class);
+	
+	@Resource(name="antCreditService")
+	private AntCreditService antCreditService = null;
+	
+	/*//商铺开户信息列表
+	@RequestMapping(value ={"/manageWB/stroreOrder"},method=RequestMethod.POST)
+	public  ResultModel  stroreOrder(String storeName,String stime,String etime,int page,int limit){
+		
+		ResultModel resultModel = ResultModel.success();
+		try {
+			
+			resultModel = antCreditService.refund(StoreId,out_trade_no, trade_no, ali_trade_no);
+		} catch (Exception e) {
+			// TODO: handle exception
+			resultModel.error(ErrorCode.OTHERS, e.getMessage());
+		}
+		
+		return resultModel;
+	}
+	*/
+	//交易记录订单列表
+	@RequestMapping(value ={"/manageWB/zanClickLog"},method=RequestMethod.POST)
+	public  ResultModel  zanClickLog(Integer StoreId){
+		
+		ResultModel resultModel = ResultModel.success();
+		try {
+			
+			resultModel = antCreditService.zanClickLog(StoreId);
+		} catch (Exception e) {
+			// TODO: handle exception
+			resultModel.error(ErrorCode.OTHERS, e.getMessage());
+		}
+		
+		return resultModel;
+	}
+	
+	//订单详情列表
+	@RequestMapping(value ={"/manageWB/zanClickLogDatail"},method=RequestMethod.POST)
+	public  ResultModel  zanClickLogDatail(Integer StoreId,String out_trade_no,String trade_no){
+		
+		ResultModel resultModel = ResultModel.success();
+		try {
+			
+			resultModel = antCreditService.zanClickLogDatail(StoreId,out_trade_no, trade_no);
+		} catch (Exception e) {
+			// TODO: handle exception
+			resultModel.error(ErrorCode.OTHERS, e.getMessage());
+		}
+		
+		return resultModel;
+	}
+	
+	
+	//退款功能
+	@RequestMapping(value ={"/manageWB/refund"},method=RequestMethod.POST)
+	public  ResultModel  refund(Integer StoreId,String out_trade_no,String trade_no,String ali_trade_no){
+		
+		ResultModel resultModel = ResultModel.success();
+		try {
+			
+			resultModel = antCreditService.refund(StoreId,out_trade_no, trade_no, ali_trade_no);
+		} catch (Exception e) {
+			// TODO: handle exception
+			resultModel.error(ErrorCode.OTHERS, e.getMessage());
+		}
+		
+		return resultModel;
+	}
+	
+	//退款列表
+	@RequestMapping(value ={"/manageWB/refundList"},method=RequestMethod.POST)
+	public  ResultModel  refundList(Integer StoreId){
+		
+		ResultModel resultModel = ResultModel.success();
+		try {
+			
+			resultModel = antCreditService.refundList(StoreId);
+		} catch (Exception e) {
+			// TODO: handle exception
+			resultModel.error(ErrorCode.OTHERS, e.getMessage());
+		}
+		
+		return resultModel;
+	}
+	
+	
+	
+	
+}

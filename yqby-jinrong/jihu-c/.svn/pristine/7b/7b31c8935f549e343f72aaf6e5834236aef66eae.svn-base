@@ -1,0 +1,117 @@
+package com.yqbing.servicebing.service.impl;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.service.AccountService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+
+
+@Service("accountService")
+@SuppressWarnings("all")
+public class AccountServiceImpl implements AccountService{
+	
+	
+	 private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
+	 @Resource
+	 private UserInfoBeanMapper userInfoBeanMapper = null;
+	 
+	 @Resource
+	 private RUserLogBean rUserLogBean = null;
+	 @Override
+	 public String bindingInvite(String token, String invite) {
+		// TODO Auto-generated method stub
+		try {
+			UserInfoBean infoBean = rUserLogBean.getRaw(token);
+			if(infoBean == null){
+				
+				infoBean = userInfoBeanMapper.queryToken(token);
+			}
+			if(infoBean != null){
+				String firstInviteCode = infoBean.getFirstInviteCode();
+				if(StringUtils.isBlank(firstInviteCode)){//第-次绑定
+					
+					infoBean.setFirstInviteCode(firstInviteCode);
+					infoBean.setInviteCode(firstInviteCode);
+					
+					
+				}else{//第二次绑定,FirstInviteCode永远不能改变
+					infoBean.setInviteCode(firstInviteCode);
+				}
+				int i = userInfoBeanMapper.updateByPrimaryKeySelective(infoBean);
+				if(i > 0){
+					rUserLogBean.set(token, infoBean);
+					return NotifyUtil.success();
+				}
+				
+			}else{
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在不存在");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "系统异常");
+		}
+		
+		
+		return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "系统异常");
+	}
+	@Override
+	public String quitUser(String token) {
+		
+		try {
+			UserInfoBean infoBean = rUserLogBean.getRaw(token);
+			if(infoBean == null){
+				
+				infoBean = userInfoBeanMapper.queryToken(token);
+			}
+			if(infoBean == null){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+				
+			}else{
+				infoBean.setToken(null);
+				userInfoBeanMapper.updateByPrimaryKeySelective(infoBean);
+				rUserLogBean.remove(token);
+				return NotifyUtil.success();
+			}
+		  } catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "系统异常");
+		  }
+	}
+	@Override
+	public String uploadLogImg(String token, String imgUrl,String userName) {
+		try {
+			UserInfoBean infoBean = rUserLogBean.getRaw(token);
+			if(infoBean == null){
+				
+				infoBean = userInfoBeanMapper.queryToken(token);
+			}
+			if(infoBean == null){
+				return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+				
+				
+			}else{
+				infoBean.setImage(imgUrl);
+				infoBean.setName(userName);
+				userInfoBeanMapper.updateByPrimaryKeySelective(infoBean);
+				rUserLogBean.set(token, infoBean);
+				
+				return NotifyUtil.success();
+			}
+		  } catch (Exception e) {
+			e.printStackTrace();
+			return NotifyUtil.error(ErrorCodeEnum.SYSTEMERROR, "系统异常");
+		  }
+	}
+	
+	
+}

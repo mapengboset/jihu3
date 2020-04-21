@@ -1,0 +1,10 @@
+package com.yqbing.servicebing.repository.redis;
+
+import com.yqbing.servicebing.repository.jihuc.StoreInfoBean;
+
+public interface RStoreInfoData {
+
+	public void setStoreInfo(String invite,StoreInfoBean info);
+	public StoreInfoBean getStoreInfo(String invite);
+	
+}

@@ -1,0 +1,506 @@
+package com.yqbing.servicebing.utils;
+
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
+
+
+public class DateUtil {
+
+	private static String defaultDatePattern = "yyyy-MM-dd";
+	private static String defaultDateTimePattern = "yyyy-MM-dd HH:mm:ss";
+
+	/**
+	 * 获得默认的 date pattern
+	 */
+	public static String getDatePattern() {
+		return defaultDatePattern;
+	}
+
+	/**
+	 * 获得默认的 datetime pattern
+	 */
+	public static String getDateTimePattern() {
+		return defaultDateTimePattern;
+	}
+
+	/**
+	 * 返回预设Format的当前日期字符串
+	 */
+	public static String getToday() {
+		Date today = new Date();
+		return format(today);
+	}
+
+	/**
+	 * 使用预设Format格式化Date成字符串
+	 */
+	public static String format(Date date) {
+		return format(date, getDatePattern());
+	}
+
+	/**
+	 * 使用参数Format格式化Date成字符串
+	 */
+	public static String format(Date date, String pattern) {
+		String returnValue = "";
+
+		if (date != null) {
+			SimpleDateFormat df = new SimpleDateFormat(pattern);
+			returnValue = df.format(date);
+		}
+
+		return (returnValue);
+	}
+
+	/**
+	 * 使用预设格式将字符串转为Date
+	 */
+	public static Date parse(String strDate) throws ParseException {
+		if(strDate == null) {
+			return null;
+		}
+		return parse(strDate, getDatePattern());
+	}
+
+	/**
+	 * 使用参数Format将字符串转为Date
+	 */
+	public static Date parse(String strDate, String pattern) throws ParseException {
+		if(StrUtils.isNullOrBlank(strDate)){
+			return null;
+		}
+		SimpleDateFormat df = new SimpleDateFormat(pattern);
+		return df.parse(strDate);
+	}
+
+	/**
+	 * 在日期上增加数个整月
+	 */
+	public static Date addMonth(Date date, int n) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.MONTH, n);
+		return cal.getTime();
+	}
+	/**
+	 * 获取当前月的第一天.
+	 * @param date
+	 * @return
+	 */
+    public static Date oneDay(Date date){
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        /*c.add(date.getMonth() + 1, 0);*/
+        c.set(c.DAY_OF_MONTH, 1);// 设置为1号,当前日期既为本月第一天
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        return c.getTime();
+    }
+	/**
+	 * 在日期上增加数个整日(n为负数则是减少数日)
+	 */
+	public static Date addDay(Date date, int n) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.DAY_OF_MONTH, n);
+		return cal.getTime();
+	}
+
+	/**
+	 * 在日期上增加数个小时(n为负数则是减少数小时)
+	 */
+	public static Date addHour(Date date, int n) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.HOUR_OF_DAY, n);
+		return cal.getTime();
+	}
+
+	/**
+	 * 字符串转化为日期,通用性相对较强
+	 *
+	 * @param dateString
+	 *            具有日期格式的字符串
+	 * @param DataFormat
+	 *            日期格式
+	 * @return Date
+	 */
+	public static Date stringToDate(String dateString, String DataFormat) {
+		Date date = null;
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat(DataFormat);
+			date = sdf.parse(dateString);
+		} catch (ParseException ex) {
+			return null;
+		}
+		return date;
+	}
+
+	/**
+	 * 求出两个时间段的时间差（精确到天/小时/分）
+	 */
+	public static String timeLeft(Date timeNow, Date timeLimit) {
+		if (timeNow == null || timeLimit == null) {
+			return "0";
+		}
+		long now = timeNow.getTime();
+		long limit = timeLimit.getTime();
+		int day = (int) (Math.abs(now - limit) / (3600000 * 24));
+		int hour = (int) (Math.abs(now - limit) % (3600000 * 24)) / 3600000;
+		int minute = (int) ((Math.abs(now - limit) % (3600000 * 24)) % 3600000) / 60000;
+		String timeLeft = "0";
+		StringBuffer sb = new StringBuffer();
+		if (now < limit) {
+			sb.append("剩余").append(day).append("天").append(hour).append("小时").append(minute)
+					.append("分");
+		}
+		if (now > limit) {
+			sb.append("超过").append(day).append("天").append(hour).append("小时").append(minute)
+					.append("分");
+		}
+		timeLeft = sb.toString();
+		return timeLeft;
+	}
+
+	/**
+	 * 时间一是否超过时间二
+	 */
+	public static String isExceed(Date timeNow, Date timeLimit) {
+		if (timeNow == null || timeLimit == null) {
+			return "false";
+		}
+		long now = timeNow.getTime();
+		long limit = timeLimit.getTime();
+		if (now > limit) {
+			return "true";
+		}
+		return "false";
+	}
+	/**
+	 * string to Date
+	 * 
+	 * @param dateStr
+	 * @return Date
+	 * @throws ParseException 
+	 */
+	public static Date ExecuteDate(String date) throws ParseException {
+	        	
+	        
+	        DateFormat df3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	        
+	        return df3.parse(date);
+	}
+	
+	/**
+	 * 求出两个时间段的时间差(精确到小时)
+	 */
+	public static int timeInterval(Date timeNow, Date timeLimit) {
+		if (timeNow == null || timeLimit == null) {
+			return 0;
+		}
+		long now = timeNow.getTime();
+		long limit = timeLimit.getTime();
+		int interval = (int) ((now - limit) / 3600000);
+		return interval;
+	}
+
+	/**
+	 * 求出两个时间段的时间差(精确到秒)
+	 */
+	public static int timeIntervalSecond(Date timeNow, Date timeLimit) {
+		if (timeNow == null || timeLimit == null) {
+			return 0;
+		}
+		long now = timeNow.getTime();
+		long limit = timeLimit.getTime();
+		int interval = (int) ((now - limit) / 1000);
+		return interval;
+	}
+
+	/**
+	 * 按照小时添加时间(减去下班时间)
+	 */
+	public static Date addHours(Date currentDate, int num, String amStart, String amEnd,
+			String pmStart, String pmEnd) throws Exception {
+		if (currentDate == null) {
+			return null;
+		}
+		// 求出下班时间的时间差，包括中午和晚上
+		long midDay = Timestamp.valueOf("2007-04-09 " + pmStart + ":00").getTime()
+				- Timestamp.valueOf("2007-04-09 " + amEnd + ":00").getTime();
+		long midNight = Timestamp.valueOf("2007-04-10 " + amStart + ":00").getTime()
+				- Timestamp.valueOf("2007-04-09 " + pmEnd + ":00").getTime();
+		Calendar calendar = Calendar.getInstance();
+		// 判断是否是工作时间，如果不是的话currentDate变为下次上班时间，并过一秒
+		if (!isWorkTime(currentDate, amStart, amEnd, pmStart, pmEnd)) {
+			// 是否是中午休息
+			if (isDay(currentDate, amEnd, pmStart)) {
+				DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				String now = df.format(currentDate);
+				String[] nowDay = now.split(" ");
+				// 组织成date型
+				currentDate = df.parse(nowDay[0] + " " + pmStart + ":01");
+			}
+			// 是否是夜间休息凌晨之后上班之前
+			else if (isAfterMidNight(currentDate, amStart)) {
+				DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				String now = df.format(currentDate);
+				String[] nowDay = now.split(" ");
+				// 组织成date型
+				currentDate = df.parse(nowDay[0] + " " + amStart + ":01");
+			}
+			// 下午下班后，晚上凌晨前
+			else {
+				int day = calendar.get(Calendar.DAY_OF_MONTH);
+				day = day + 1;
+				calendar.set(Calendar.DAY_OF_MONTH, day);
+				Date dateTemp = calendar.getTime();
+				DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				String now = df.format(dateTemp);
+				String[] nowDay = now.split(" ");
+				// 组织成date型
+				currentDate = df.parse(nowDay[0] + " " + amStart + ":01");
+			}
+		}
+		// 对时间间隔进行for循环，发现下班时间跳过，并加上相应的时间间隔
+		calendar.setTimeInMillis(currentDate.getTime());
+		for (int i = 0; i < num; i++) {
+			int hour = calendar.get(Calendar.HOUR_OF_DAY);
+			hour = hour + 1;
+			calendar.set(Calendar.HOUR_OF_DAY, hour);
+			currentDate = calendar.getTime();
+			while (!isWorkTime(currentDate, amStart, amEnd, pmStart, pmEnd)) {
+				if (isDay(currentDate, amEnd, pmStart)) {
+					currentDate = new Date((currentDate.getTime() + midDay));
+					calendar.setTimeInMillis(currentDate.getTime());
+				} else {
+					currentDate = new Date((currentDate.getTime() + midNight));
+					calendar.setTimeInMillis(currentDate.getTime());
+				}
+			}
+		}
+		long time = currentDate.getTime();
+		return new Date(time);
+	}
+
+	// 是否是上班时间
+	private static boolean isWorkTime(Date date, String amStart, String amEnd, String pmStart,
+			String pmEnd) throws ParseException {
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String now = df.format(date);
+		String[] nowDay = now.split(" ");
+		// 组织成date型
+		Date amstart = df.parse(nowDay[0] + " " + amStart + ":00");
+		Date amend = df.parse(nowDay[0] + " " + amEnd + ":00");
+		Date pmstart = df.parse(nowDay[0] + " " + pmStart + ":00");
+		Date pmend = df.parse(nowDay[0] + " " + pmEnd + ":00");
+		if ((date.after(amstart) && date.before(amend))
+				|| (date.after(pmstart) && date.before(pmend))) {
+			return true;
+		}
+		return false;
+	}
+
+	// 非工作时间---中午还是晚上，只能在!isWorkTime嵌套下使用
+	private static boolean isDay(Date date, String amEnd, String pmStart) throws ParseException {
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String now = df.format(date);
+		String[] nowDay = now.split(" ");
+		// 组织成date型
+		Date amend = df.parse(nowDay[0] + " " + amEnd + ":00");
+		Date pmstart = df.parse(nowDay[0] + " " + pmStart + ":00");
+		if (date.after(amend) && date.before(pmstart)) {
+			return true;
+		}
+		return false;
+	}
+
+	// 是否在午夜之后
+	private static boolean isAfterMidNight(Date date, String amStart) throws ParseException {
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String now = df.format(date);
+		String[] nowDay = now.split(" ");
+		// 组织成date型
+		Date amstart = df.parse(nowDay[0] + " " + amStart + ":00");
+		if (date.before(amstart)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 获取当前月.
+	 * @return
+	 */
+	public static int getCurrentMonth(){
+	    Calendar calendar=Calendar.getInstance();
+	    return calendar.get(Calendar.MONTH)+1;
+	}
+
+	/**
+	 * 获取上月月初和月底.
+	 * @return Map
+	 * @throws ParseException
+	 */
+	public static Map<String, Date> getLastMonth() throws ParseException{
+	    Calendar cal_1=Calendar.getInstance();
+        cal_1.add(Calendar.MONTH, -1);
+        cal_1.set(Calendar.DAY_OF_MONTH,1);
+        Date firstDay = parse(format(cal_1.getTime(),"yyyy-MM-dd 00:00:00"), "yyyy-MM-dd 00:00:00");
+        //获取前月的最后一天
+        Calendar cale = Calendar.getInstance();
+        cale.set(Calendar.DAY_OF_MONTH,0);
+        Date lastDay = parse(format(cale.getTime(),"yyyy-MM-dd 00:00:00"), "yyyy-MM-dd 00:00:00");
+        Map<String, Date> map = new HashMap<String, Date>();
+        map.put("firstDay", firstDay);
+        map.put("lastDay", lastDay);
+        return map;
+	}
+
+	/**
+     * 使用yyyyMMdd格式将字符串转为Date
+     */
+    public static Date parse2(String strDate) throws ParseException {
+        return parse(strDate, "yyyyMMdd");
+    }
+
+	/**
+	 * 使用yyyy-MM-dd HH:mm:ss格式将字符串转为Date
+	 * @param strDate
+	 * @exception
+	 */
+	public static Date parseDateTime(String strDate) throws ParseException {
+		return parse(strDate, getDateTimePattern());
+	}
+
+	/**
+	 * 使用yyyy-MM-dd HH:mm:ss格式将Date转为字符串
+	 * @param date
+	 * @return
+	 */
+	public static String formatDateTime(Date date) {
+		return format(date, getDateTimePattern());
+	}
+
+    public static String format2(Date date) {
+        return format(date, getDateTimePattern());
+    }
+
+    /**
+     *
+     * 获取某一月的月初和月末.
+     */
+    public static Date[] querySomeMonth(Date date) throws ParseException{
+        String datestr=format2(date).substring(0, 7);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String beginStr = datestr+"-01";
+        Date beginTo;
+        Date endTo;
+        beginTo = dateFormat.parse(beginStr);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(dateFormat.parse(beginStr));
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        endTo = calendar.getTime();
+        return new Date[]{beginTo,endTo};
+    }
+
+    /**
+     * 计算两个时间段的月数
+     * @param beginTime
+     * @param endTime
+     * @return
+     */
+    public static int getBetweenMonthes(Date endTime, Date beginTime) {
+        Calendar cal1 = new GregorianCalendar();
+        cal1.setTime(endTime);
+        Calendar cal2 = new GregorianCalendar();
+        cal2.setTime(beginTime);
+        int c =
+         (cal1.get(Calendar.YEAR) - cal2.get(Calendar.YEAR)) * 12 + cal1.get(Calendar.MONTH)
+          - cal2.get(Calendar.MONTH);
+        return c;
+    }
+
+
+
+    //获取任意日期的下一个月(yangh)
+    public static String getPreMonth(String repeatDate) {
+        String lastMonth = "";
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat dft = new SimpleDateFormat("yyyyMM");
+        int year = Integer.parseInt(repeatDate.substring(0, 4));
+        String monthsString = repeatDate.substring(4, 6);
+        int month;
+        if ("0".equals(monthsString.substring(0, 1))) {
+            month = Integer.parseInt(monthsString.substring(1, 2));
+        } else {
+            month = Integer.parseInt(monthsString.substring(0, 2));
+        }
+        cal.set(year,month,Calendar.DATE);
+        lastMonth = dft.format(cal.getTime());
+        return lastMonth;
+    }
+
+	/**
+	 * 获取上个月的今天.
+	 * @param date
+	 * @param reduceDay true-上个月今天减1天 false-不减
+	 * @return
+	 */
+	public static Date getLastMonthToday(Date date, boolean reduceDay) {
+		Calendar ca = Calendar.getInstance();
+		ca.setTime(date);// 月份是从0开始的，所以11表示12月
+//        ca.add(Calendar.YEAR, ); // 年份减1
+		ca.add(Calendar.MONTH, -1);// 月份减1
+		if (reduceDay) {
+			ca.add(Calendar.DATE, -1);// 日期减1
+		}
+		Date resultDate = ca.getTime(); // 结果
+		return resultDate;
+	}
+	
+	//返回当前天
+	public static Date getzero () {
+		
+	
+    	
+		return getNeedTime(23,59,59,0);
+	}
+	public static Date gettwelve() {
+		
+		
+		
+		
+		
+		return getNeedTime(0,0,0,0);
+	}
+	private static Date getNeedTime(int hour,int minute,int second,int addDay,int ...args){
+	    Calendar calendar = Calendar.getInstance();
+	    if(addDay != 0){
+	        calendar.add(Calendar.DATE,addDay);
+	    }
+	    calendar.set(Calendar.HOUR_OF_DAY,hour);
+	    calendar.set(Calendar.MINUTE,minute);
+	    calendar.set(Calendar.SECOND,second);
+	    if(args.length==1){
+	        calendar.set(Calendar.MILLISECOND,args[0]);
+	    }
+	    return calendar.getTime();
+	}
+
+    public static void main(String[] args) throws Exception{
+    	  
+    	    System.out.println(getzero());
+    	
+    }
+}

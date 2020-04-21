@@ -1,0 +1,277 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
+
+
+
+
+
+
+
+
+import com.google.gson.Gson;
+import com.yqbing.servicebing.constants.store.ParamConstant;
+import com.yqbing.servicebing.service.IBaiMeiService;
+import com.yqbing.servicebing.service.IBaiMeiYunService;
+import com.yqbing.servicebing.utils.enums.ErrorCode;
+import com.yqbing.servicebing.utils.json.JSONObject;
+import com.yqbing.servicebing.utils.json.JSONUtil;
+import com.yqbing.servicebing.utils.web.CommonResult;
+
+
+@RestController
+@RequestMapping(value="/app/user/baimeiyun")
+@Api(tags = "百媒云签署合同")
+@CrossOrigin
+public class BaiMeiYunController {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(BaiMeiYunController.class);
+	@Resource
+	IBaiMeiYunService baiMeiYunService;
+	@Resource
+	IBaiMeiService baiMeiService;
+	
+	
+     //通过手机号查看是否签署百媒
+	@RequestMapping(value="/ifattestation",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	@ApiOperation(value = "实名认证")
+    public CommonResult ifattestation(HttpServletRequest request, String data) throws IOException {
+		LOGGER.info("---------------------------------实名认证"+data);
+		CommonResult result = null;
+		String t = null;
+		if(StringUtils.isNotEmpty(data)) {
+			 data = URLDecoder.decode(data, "UTF-8");
+			JSONObject dataJo = JSONObject.fromObject(data);
+			String token = JSONUtil.getString(dataJo, ParamConstant.TOKEN);
+			if(StringUtils.isBlank(token)){
+				return new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+			}
+			String decode = URLDecoder.decode(token, "UTF-8");
+			t = decode.replace(' ','+');
+			Integer appId = JSONUtil.getInt(dataJo, ParamConstant.APP_ID);
+			result = baiMeiService.ifattestation(t,appId);
+		}else {
+			result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+		}
+		LOGGER.info("---------------------------------实名认证"+new Gson().toJson(result));
+		return result;
+    }
+	
+	 //用户增加
+		@RequestMapping(value="/userAdd",
+	        	method = {RequestMethod.GET,RequestMethod.POST})
+		@ApiOperation(value = "用户增加")
+	    public CommonResult userAdd(String phone, String name,String idCard,String token,String appChannel) throws IOException {
+			LOGGER.info("---------------------------------用户增加"+phone+"name:"+name+"@idCard:"+idCard+"@token:"+token+"appChannel:"+appChannel);
+			CommonResult result = null;
+			String t = null;
+			if(StringUtils.isNotEmpty(phone)) {
+				
+				 String decode = URLDecoder.decode(token, "UTF-8");
+				 t = decode.replace(' ','+');
+				 result = baiMeiYunService.userAdd(phone,name,idCard,t,appChannel);
+			}else {	
+				result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+			}
+			LOGGER.info("---------------------------------用户增加"+new Gson().toJson(result));
+			return result;
+	    }
+		 //用户修改
+		@RequestMapping(value="/userEdit",
+	        	method = {RequestMethod.GET,RequestMethod.POST})
+		@ApiOperation(value = "用户修改")
+	    public CommonResult userEdit(String moble, String name,String idCard) throws IOException {
+			LOGGER.info("---------------------------------用户修改"+moble+"name:"+name+"idCard:"+idCard);
+			CommonResult result = null;
+			
+			if(StringUtils.isNotEmpty(moble)) {
+				
+				result = baiMeiYunService.userEdit(moble,name,idCard);
+			}else {
+				result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+			}
+			LOGGER.info("---------------------------------用户修改"+result);
+			return result;
+	    }
+
+	//实名认证token换手机号
+	
+	//实名认证同步回调
+	@RequestMapping(value="/synAttestation")
+	@ApiOperation(value = "同步实名认证")
+    public ModelAndView synAttestation(String status,String mobile,Integer appChannel,String token) throws IOException {
+		LOGGER.info("---------------------------------同步实名认证"+status+","+mobile+","+token+"appChannel:"+appChannel);
+		String result = null;
+		String t = null;
+	    try {
+	    	  
+	    	String decode = URLDecoder.decode(token, "UTF-8");
+	    	t = decode.replace(' ','+');
+	    	if(StringUtils.isNotEmpty(status) && StringUtils.isNotEmpty(mobile)) {
+	    		if(status .equals("1")){//
+	    			status ="1";
+	    		}else if(status .equals("2")){//等待审核
+	    			status ="3";
+	    		}else{
+	    			status ="2";
+	    		}
+	    		result = baiMeiYunService.synAttestation(status,mobile);
+	    	}
+			} catch (Exception e) {
+				
+				e.printStackTrace();
+			}
+		
+		LOGGER.info("---------------------------------同步实名认返回地址"+result);
+	
+		return new ModelAndView("redirect:"+result+"/page/mobilePage/html/protocol/index.html?type=1&status="+status+"&appChannel="+appChannel+"&token="+t);
+    }
+
+	
+	//实名认证异步回调
+	@RequestMapping(value="/asyAttestation",
+        	method =RequestMethod.POST,produces="application/json")
+	@ApiOperation(value = "异步实名认证")
+    public void asyAttestation(@RequestBody Map<String, Object> params) throws IOException {
+		
+		LOGGER.info("---------------------------------异步实名认证"+params.get("mobile")+","+params.get("status"));
+		CommonResult result = null;
+	    try {
+	    	String mobile = (String) params.get("mobile");
+	    	String status = (String) params.get("status");
+	    	if(StringUtils.isNotEmpty(status) && StringUtils.isNotEmpty(mobile)) {
+	    		result = baiMeiYunService.asyAttestation(status,mobile);
+	    	}else {
+	    		result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+	    	}
+			} catch (Exception e) {
+				
+				e.printStackTrace();
+				
+			}
+		LOGGER.info("---------------------------------异步实名认证"+result);
+    }
+	
+	
+	
+	
+	//合同签署
+		@RequestMapping(value="/contract",
+	        	method = {RequestMethod.GET,RequestMethod.POST})
+		@ApiOperation(value = "合同签署")
+	    public CommonResult contract(HttpServletRequest request, String data) throws IOException {
+			LOGGER.info("---------------------------------合同签署"+data);
+			CommonResult result = null;
+			String t = null;
+			if(StringUtils.isNotEmpty(data)) {
+				JSONObject dataJo = JSONObject.fromObject(data);
+				String token = JSONUtil.getString(dataJo, ParamConstant.TOKEN);
+				
+				if(StringUtils.isBlank(token)){
+					return new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+				}
+			
+				String decode = URLDecoder.decode(token, "UTF-8");
+				t = decode.replace(' ','+');
+				Integer appId = JSONUtil.getInt(dataJo, ParamConstant.APP_ID);
+				result = baiMeiService.contract(t,appId);
+			}else {
+				result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+			}
+			LOGGER.info("---------------------------------合同签署"+result);
+			return result;
+	    }
+	//合同还有几个中间状态，status=0未签署，status=1签署中，status=2用户签署完成，status=4合同已经归档
+	//合同签署同步回调
+		@RequestMapping(value="/synContract")
+		@ApiOperation(value = "同步合同签署")
+	    public ModelAndView synContract(String status,String mobile,String contractNo,String appChannel,String token) throws IOException {
+			LOGGER.info("---------------------------------同步合同签署署:"+status+","+mobile+","+contractNo+","+token);
+			String result = null;
+			String t = null;
+		
+		    try {
+		    	  
+		    	if(StringUtils.isNotEmpty(status) && StringUtils.isNotEmpty(mobile) && StringUtils.isNotEmpty(contractNo)) {
+		    		result = baiMeiYunService.synContract(status,mobile,contractNo);
+		    	}
+		    	if(!status .equals("0") ){//
+		    		status ="1";
+		    	}else{
+		    		status ="2";
+		    	}
+		    	String decode = URLDecoder.decode(token, "UTF-8");
+		    	t = decode.replace(' ','+');
+				} catch (Exception e) {
+					
+					e.printStackTrace();
+					
+				}
+			
+			LOGGER.info("---------------------------------同步合同签署署:"+result);
+			return new ModelAndView("redirect:"+result+"/page/mobilePage/html/protocol/index.html?type=2&status="+status+"&appChannel="+appChannel+"&token="+t);
+	    }
+	    //合同签署异步回调
+		@RequestMapping(value="/asyContract",method = RequestMethod.POST,produces="application/json")
+		@ApiOperation(value = "异步合同签署")
+	    public void asyContract(@RequestBody Map<String, Object> params) throws IOException {
+			LOGGER.info("---------------------------------异步合同签署署:"+params.get("mobile")+","+params.get("status"));
+			CommonResult result = null;
+			
+		    try {
+		    	  
+		    	String mobile = (String) params.get("mobile");
+		    	String status = (String) params.get("status");
+		    	String contractNo = (String) params.get("contractNo");
+		    	if(StringUtils.isNotEmpty(status) && StringUtils.isNotEmpty(mobile) && StringUtils.isNotEmpty(contractNo)) {
+		    		result = baiMeiYunService.asyContract(status,mobile,contractNo);
+		    	}else {
+		    		result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+		    	}
+				} catch (Exception e) {
+					
+					e.printStackTrace();
+					
+				}
+			
+			
+			LOGGER.info("---------------------------------异步合同签署署:"+result);
+	    }
+	
+	    //合同查看
+		@RequestMapping(value="/userInfo",method = RequestMethod.POST,produces="application/json")
+		@ApiOperation(value = "实名认证用户信息")
+	    public CommonResult userInfo(String phone) throws IOException {
+			LOGGER.info("---------------------------------实名认证用户信息:"+phone);
+			CommonResult result = null;
+			if(StringUtils.isNotEmpty(phone)) {
+				result = baiMeiYunService.userInfo(phone);
+			}else {
+				result = new CommonResult(ErrorCode.CODE_PARAM_ERROR, "参数错误");
+			}
+			LOGGER.info("---------------------------------异步合同签署署:"+result);
+			return result;
+	    }
+	
+	//合同下载
+	
+}

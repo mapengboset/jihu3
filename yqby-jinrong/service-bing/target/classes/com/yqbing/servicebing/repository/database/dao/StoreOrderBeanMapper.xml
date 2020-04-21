@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yqbing.servicebing.repository.database.dao.StoreOrderBeanMapper" >
+  <resultMap id="BaseResultMap" type="com.yqbing.servicebing.repository.database.bean.StoreOrderBean" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="store_id" property="storeId" jdbcType="INTEGER" />
+    <result column="stroe_address" property="stroeAddress" jdbcType="VARCHAR" />
+    <result column="store_name" property="storeName" jdbcType="VARCHAR" />
+    <result column="legal_cert_no" property="legalCertNo" jdbcType="VARCHAR" />
+    <result column="legal_name" property="legalName" jdbcType="VARCHAR" />
+    <result column="merchant_type" property="merchantType" jdbcType="VARCHAR" />
+    <result column="seller_no" property="sellerNo" jdbcType="VARCHAR" />
+    <result column="cert_no" property="certNo" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="app_auth_token" property="appAuthToken" jdbcType="VARCHAR" />
+    <result column="out_trade_no" property="outTradeNo" jdbcType="VARCHAR" />
+    <result column="order_no" property="orderNo" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="merchant_id" property="merchantId" jdbcType="VARCHAR" />
+    <result column="storePic" property="storepic" jdbcType="VARCHAR" />
+    <result column="store_License" property="storeLicense" jdbcType="VARCHAR" />
+      <result column="validOnlyOpenHuabeiCount" property="validonlyopenhuabeicount" jdbcType="INTEGER" />
+    <result column="onlyOpenHuabeiCount" property="onlyopenhuabeicount" jdbcType="INTEGER" />
+    <result column="reason" property="reason" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, store_id, stroe_address, store_name, legal_cert_no, legal_name, merchant_type, 
+    seller_no, cert_no, name, phone, app_auth_token, out_trade_no, order_no, status, 
+    merchant_id, storePic,,validOnlyOpenHuabeiCount, onlyOpenHuabeiCount,  store_License, reason, create_time, update_time
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yqbing.servicebing.repository.database.dao.StoreOrderBeanExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from tb_zanclick_store_order
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+   <select id="selectBycertno" resultMap="BaseResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_zanclick_store_order
+    where cert_no = #{certno,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_zanclick_store_order
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tb_zanclick_store_order
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yqbing.servicebing.repository.database.bean.StoreOrderBean" >
+   insert into tb_zanclick_store_order (id, store_id, stroe_address, 
+      store_name, legal_cert_no, legal_name, 
+      merchant_type, seller_no, cert_no, 
+      name, phone, app_auth_token, 
+      out_trade_no, order_no, status, 
+      merchant_id, storePic, validOnlyOpenHuabeiCount, 
+      onlyOpenHuabeiCount, store_License, reason, 
+      create_time, update_time)
+    values (#{id,jdbcType=INTEGER}, #{storeId,jdbcType=INTEGER}, #{stroeAddress,jdbcType=VARCHAR}, 
+      #{storeName,jdbcType=VARCHAR}, #{legalCertNo,jdbcType=VARCHAR}, #{legalName,jdbcType=VARCHAR}, 
+      #{merchantType,jdbcType=VARCHAR}, #{sellerNo,jdbcType=VARCHAR}, #{certNo,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{appAuthToken,jdbcType=VARCHAR}, 
+      #{outTradeNo,jdbcType=VARCHAR}, #{orderNo,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
+      #{merchantId,jdbcType=VARCHAR}, #{storepic,jdbcType=VARCHAR}, #{validonlyopenhuabeicount,jdbcType=INTEGER}, 
+      #{onlyopenhuabeicount,jdbcType=INTEGER}, #{storeLicense,jdbcType=VARCHAR}, #{reason,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yqbing.servicebing.repository.database.bean.StoreOrderBean" >
+     insert into tb_zanclick_store_order
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="storeId != null" >
+        store_id,
+      </if>
+      <if test="stroeAddress != null" >
+        stroe_address,
+      </if>
+      <if test="storeName != null" >
+        store_name,
+      </if>
+      <if test="legalCertNo != null" >
+        legal_cert_no,
+      </if>
+      <if test="legalName != null" >
+        legal_name,
+      </if>
+      <if test="merchantType != null" >
+        merchant_type,
+      </if>
+      <if test="sellerNo != null" >
+        seller_no,
+      </if>
+      <if test="certNo != null" >
+        cert_no,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="appAuthToken != null" >
+        app_auth_token,
+      </if>
+      <if test="outTradeNo != null" >
+        out_trade_no,
+      </if>
+      <if test="orderNo != null" >
+        order_no,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="merchantId != null" >
+        merchant_id,
+      </if>
+      <if test="storepic != null" >
+        storePic,
+      </if>
+      <if test="validonlyopenhuabeicount != null" >
+        validOnlyOpenHuabeiCount,
+      </if>
+      <if test="onlyopenhuabeicount != null" >
+        onlyOpenHuabeiCount,
+      </if>
+      <if test="storeLicense != null" >
+        store_License,
+      </if>
+      <if test="reason != null" >
+        reason,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="storeId != null" >
+        #{storeId,jdbcType=INTEGER},
+      </if>
+      <if test="stroeAddress != null" >
+        #{stroeAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="storeName != null" >
+        #{storeName,jdbcType=VARCHAR},
+      </if>
+      <if test="legalCertNo != null" >
+        #{legalCertNo,jdbcType=VARCHAR},
+      </if>
+      <if test="legalName != null" >
+        #{legalName,jdbcType=VARCHAR},
+      </if>
+      <if test="merchantType != null" >
+        #{merchantType,jdbcType=VARCHAR},
+      </if>
+      <if test="sellerNo != null" >
+        #{sellerNo,jdbcType=VARCHAR},
+      </if>
+      <if test="certNo != null" >
+        #{certNo,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="appAuthToken != null" >
+        #{appAuthToken,jdbcType=VARCHAR},
+      </if>
+      <if test="outTradeNo != null" >
+        #{outTradeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNo != null" >
+        #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="merchantId != null" >
+        #{merchantId,jdbcType=VARCHAR},
+      </if>
+      <if test="storepic != null" >
+        #{storepic,jdbcType=VARCHAR},
+      </if>
+      <if test="validonlyopenhuabeicount != null" >
+        #{validonlyopenhuabeicount,jdbcType=INTEGER},
+      </if>
+      <if test="onlyopenhuabeicount != null" >
+        #{onlyopenhuabeicount,jdbcType=INTEGER},
+      </if>
+      <if test="storeLicense != null" >
+        #{storeLicense,jdbcType=VARCHAR},
+      </if>
+      <if test="reason != null" >
+        #{reason,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yqbing.servicebing.repository.database.dao.StoreOrderBeanExample" resultType="java.lang.Integer" >
+    select count(*) from tb_zanclick_store_order
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yqbing.servicebing.repository.database.bean.StoreOrderBean" >
+     update tb_zanclick_store_order
+    <set >
+      <if test="storeId != null" >
+        store_id = #{storeId,jdbcType=INTEGER},
+      </if>
+      <if test="stroeAddress != null" >
+        stroe_address = #{stroeAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="storeName != null" >
+        store_name = #{storeName,jdbcType=VARCHAR},
+      </if>
+      <if test="legalCertNo != null" >
+        legal_cert_no = #{legalCertNo,jdbcType=VARCHAR},
+      </if>
+      <if test="legalName != null" >
+        legal_name = #{legalName,jdbcType=VARCHAR},
+      </if>
+      <if test="merchantType != null" >
+        merchant_type = #{merchantType,jdbcType=VARCHAR},
+      </if>
+      <if test="sellerNo != null" >
+        seller_no = #{sellerNo,jdbcType=VARCHAR},
+      </if>
+      <if test="certNo != null" >
+        cert_no = #{certNo,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="appAuthToken != null" >
+        app_auth_token = #{appAuthToken,jdbcType=VARCHAR},
+      </if>
+      <if test="outTradeNo != null" >
+        out_trade_no = #{outTradeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNo != null" >
+        order_no = #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="merchantId != null" >
+        merchant_id = #{merchantId,jdbcType=VARCHAR},
+      </if>
+      <if test="storepic != null" >
+        storePic = #{storepic,jdbcType=VARCHAR},
+      </if>
+      <if test="validonlyopenhuabeicount != null" >
+        validOnlyOpenHuabeiCount = #{validonlyopenhuabeicount,jdbcType=INTEGER},
+      </if>
+      <if test="onlyopenhuabeicount != null" >
+        onlyOpenHuabeiCount = #{onlyopenhuabeicount,jdbcType=INTEGER},
+      </if>
+      <if test="storeLicense != null" >
+        store_License = #{storeLicense,jdbcType=VARCHAR},
+      </if>
+      <if test="reason != null" >
+        reason = #{reason,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yqbing.servicebing.repository.database.bean.StoreOrderBean" >
+      update tb_zanclick_store_order
+    set store_id = #{storeId,jdbcType=INTEGER},
+      stroe_address = #{stroeAddress,jdbcType=VARCHAR},
+      store_name = #{storeName,jdbcType=VARCHAR},
+      legal_cert_no = #{legalCertNo,jdbcType=VARCHAR},
+      legal_name = #{legalName,jdbcType=VARCHAR},
+      merchant_type = #{merchantType,jdbcType=VARCHAR},
+      seller_no = #{sellerNo,jdbcType=VARCHAR},
+      cert_no = #{certNo,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      app_auth_token = #{appAuthToken,jdbcType=VARCHAR},
+      out_trade_no = #{outTradeNo,jdbcType=VARCHAR},
+      order_no = #{orderNo,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      merchant_id = #{merchantId,jdbcType=VARCHAR},
+      storePic = #{storepic,jdbcType=VARCHAR},
+      validOnlyOpenHuabeiCount = #{validonlyopenhuabeicount,jdbcType=INTEGER},
+      onlyOpenHuabeiCount = #{onlyopenhuabeicount,jdbcType=INTEGER},
+      store_License = #{storeLicense,jdbcType=VARCHAR},
+      reason = #{reason,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

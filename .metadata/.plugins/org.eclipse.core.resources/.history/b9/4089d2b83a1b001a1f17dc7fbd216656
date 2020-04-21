@@ -1,0 +1,80 @@
+package com.hiko.gym.common.service.thirdLogin;
+
+import java.io.*;
+import java.net.*;
+
+import org.json.*;
+import org.slf4j.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.stereotype.*;
+
+import com.hiko.gym.common.exception.*;
+
+/**
+ * 微信登陆验证服务接口实现
+ * 
+ * @author yinjy
+ *
+ */
+@Service("weixinUserCheckService")
+public class WeixinUserCheckServiceImpl implements WeixinUserCheckService {
+	/** 属性相关 */
+	/** 服务地址 */
+	@Value("${thirdLogin.tencent.weixin}")
+	private String url = null;
+
+	/** 日志相关 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(WeixinUserCheckServiceImpl.class);
+
+	/**
+	 * 微信登陆验证
+	 * 
+	 * @param uid 微信号
+	 * @param accessToken 访问授权凭证
+	 * @return 是否有效
+	 * @throws GymException 健身馆异常
+	 */
+	@Override
+	public Boolean checkUserValid(String uid, String accessToken) throws GymException {
+		try {
+			// 初始化
+			StringBuilder sb = new StringBuilder();
+
+			// 组装请求
+			// 组装请求: 服务地址
+			sb.append(url);
+			// 组装请求: 用户名称
+			sb.append("?access_token=" + URLEncoder.encode(accessToken, "UTF-8"));
+			// 组装请求: 用户密码
+			sb.append("&openid=" + URLEncoder.encode(uid, "UTF-8"));
+			// 执行请求
+			URL url = new URL(sb.toString());
+
+			// 读取应答
+			String line;
+			sb.setLength(0);
+			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+			while ((line = in.readLine()) != null) {
+				sb.append(line.trim());
+			}
+			in.close();
+
+			// 解析应答结果
+			JSONObject jsonObject = new JSONObject(sb.toString());
+			Long ret = jsonObject.getLong("errcode");
+			if (ret != null && ret.equals(0L)) {
+				return true;
+			}
+			else {
+				// 打印日志
+				LOGGER.error("微信用户验证异常"+ret+":", sb.toString());
+				return false;
+			}
+		}
+		catch (Exception e) {
+			// 打印日志
+			LOGGER.error("微信用户验证异常", e);
+		}
+		return false;
+	}
+}

@@ -1,0 +1,79 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 消息类型类
+ * 
+ * @author cychen
+ *
+ */
+public class MessageType {
+
+	/** 系统公告 */
+	public static final short SYSTEM_NOTICE = 1;
+	/** 系统通知 */
+	public static final short SYSTEM_NOTIFICATION = 2;
+	/** 关注通知 */
+	public static final short ATTENTED_NOTIFICATION = 3;
+	/** 评论通知 */
+	public static final short COMMENTED_NOTIFICATION = 4;
+	/** 称赞通知 */
+	public static final short PRAISED_NOTIFICATION = 5;
+	/** 回复通知 */
+	public static final short REPLIED_NOTIFICATION = 6;
+
+	/**
+	 * 获取客户消息类型描述
+	 * 
+	 * @param customerMessageType 客户消息类型值
+	 * @return 客户消息类型描述
+	 */
+	public static String getDescription(short messageType) {
+		if (messageType == SYSTEM_NOTICE) {
+			return "系统公告";
+		}
+		if (messageType == SYSTEM_NOTIFICATION) {
+			return "系统通知";
+		}
+		if (messageType == ATTENTED_NOTIFICATION) {
+			return "关注通知";
+		}
+		if (messageType == COMMENTED_NOTIFICATION) {
+			return "评论通知";
+		}
+		if (messageType == PRAISED_NOTIFICATION) {
+			return "称赞通知";
+		}
+		if (messageType == REPLIED_NOTIFICATION) {
+			return "回复通知";
+		}
+		return "";
+	}
+
+	/**
+	 * 获取客户消息标题
+	 * 
+	 * @param MessageType 客户消息类型值
+	 * @return 客户消息标题
+	 */
+	public static String getTitle(short messageType) {
+		if (messageType == SYSTEM_NOTICE) {
+			return "系统公告";
+		}
+		if (messageType == SYSTEM_NOTIFICATION) {
+			return "系统通知";
+		}
+		if (messageType == ATTENTED_NOTIFICATION) {
+			return "关注了你";
+		}
+		if (messageType == COMMENTED_NOTIFICATION) {
+			return "评论了你";
+		}
+		if (messageType == PRAISED_NOTIFICATION) {
+			return "赞了你";
+		}
+		if (messageType == REPLIED_NOTIFICATION) {
+			return "回复了你";
+		}
+		return "";
+	}
+}

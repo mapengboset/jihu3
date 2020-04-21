@@ -1,0 +1,37 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 教练状态类
+ * 
+ * @author cychen
+ *
+ */
+public class CoachStatus {
+
+	/** 删除 */
+	public static final short DELETED = 0;
+	/** 正常 */
+	public static final short NORMAL = 1;
+	/** 冻结 */
+	public static final short FROZEN = 2;
+
+	/**
+	 * 获取教练状态描述
+	 * 
+	 * @param coachStatus 教练状态值
+	 * @return 教练状态描述
+	 */
+	public static String getDescription(short coachStatus) {
+		if (coachStatus == DELETED) {
+			return "删除";
+		}
+		if (coachStatus == NORMAL) {
+			return "正常";
+		}
+		if (coachStatus == FROZEN) {
+			return "冻结";
+		}
+		return "";
+	}
+
+}

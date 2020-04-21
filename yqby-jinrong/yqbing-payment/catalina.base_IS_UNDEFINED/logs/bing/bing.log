@@ -1,0 +1,14 @@
+2020-01-10 09:59:32.719 INFO  [CloudUtil.java:67] - 上传返回内容：{"hash":"Fs7saegbuGakL5b5SKw2NH4bxwSl","key":"teccent_222"}
+2020-01-10 10:04:06.632 INFO  [CloudUtil.java:67] - 上传返回内容：{"hash":"FtKt1WO6FsxHQVnz0gd9nts64wBW","key":"teccent_222"}
+2020-01-10 10:04:27.929 INFO  [CloudUtil.java:67] - 上传返回内容：{"hash":"FtKt1WO6FsxHQVnz0gd9nts64wBW","key":"teccent_2dd22"}
+2020-01-17 15:11:36.856 INFO  [RedisMsgPubSubListener.java:53] - onSubscribe: channel[news.share], subscribedChannels[1]
+2020-01-17 15:11:36.863 INFO  [RedisMsgPubSubListener.java:53] - onSubscribe: channel[news.blog], subscribedChannels[2]
+2020-01-17 15:12:17.153 INFO  [RedisMsgPubSubListener.java:53] - onSubscribe: channel[news.share], subscribedChannels[1]
+2020-01-17 15:12:17.158 INFO  [RedisMsgPubSubListener.java:53] - onSubscribe: channel[news.blog], subscribedChannels[2]
+2020-01-17 15:23:05.033 INFO  [RedisMsgPubSubListener.java:53] - onSubscribe: channel[wxOrder], subscribedChannels[1]
+2020-01-17 15:24:37.823 INFO  [RedisMsgPubSubListener.java:53] - onSubscribe: channel[wxOrder], subscribedChannels[1]
+2020-01-17 15:25:17.555 INFO  [RedisMsgPubSubListener.java:53] - onSubscribe: channel[wxOrder], subscribedChannels[1]
+2020-01-17 15:27:10.587 INFO  [RedisMsgPubSubListener.java:53] - onSubscribe: channel[wxOrder], subscribedChannels[1]
+2020-01-17 15:27:18.741 INFO  [RedisMsgPubSubListener.java:43] - onMessage: channel[wxOrder], message[新闻分享]
+2020-01-17 15:27:18.741 INFO  [RedisMsgPubSubListener.java:43] - onMessage: channel[wxOrder], message[新闻分享]
+2020-01-17 15:27:18.741 INFO  [RedisMsgPubSubListener.java:43] - onMessage: channel[wxOrder], message[新闻分享]

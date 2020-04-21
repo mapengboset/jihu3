@@ -1,0 +1,29 @@
+package com.yqbing.servicebing.webapp.request;
+
+public class Discount {
+
+	public int id;
+	public int number;
+	public int ral;
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public int getNumber() {
+		return number;
+	}
+	public void setNumber(int number) {
+		this.number = number;
+	}
+	public int getRal() {
+		return ral;
+	}
+	public void setRal(int ral) {
+		this.ral = ral;
+	}
+	
+	
+	
+}

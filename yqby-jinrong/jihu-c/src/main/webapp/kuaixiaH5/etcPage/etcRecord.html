@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>提交记录</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="charset" content="utf-8">
+  <meta content="telephone=no,email=no,address=no" name="format-detection"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="frontend-mobile" content="yes"/>
+  <link rel="stylesheet" href="css/taobao.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0
+    }
+
+    li {
+      list-style: none;
+    }
+
+    body {
+      font-size: 16px;
+    }
+
+    .fl {
+      float: left;
+    }
+
+    .fr {
+      float: right;
+    }
+
+    em, i {
+      font-style: normal;
+    }
+
+    .tijiaoList ul {
+      background: #fff;
+    }
+
+    .tijiaoList li {
+      width: 94%;
+      padding: 6px 3%;
+      border-bottom: 10px #f8f8f8 solid;
+    }
+
+    .tijiaoList li:first-child {
+      border-top: .5px #eee solid;
+    }
+
+    .tijiaoList li:last-child {
+      border: none;
+    }
+
+    .tijiaoList li p {
+      margin: 10px 0;
+      font-size: .8em;
+    }
+
+    .tijiaoList li p span {
+      display: inline-block;
+    }
+  </style>
+</head>
+<body class="bgGry">
+<div class="tijiaoList">
+  <ul>
+    <!--<li>
+        <p class="afterClear">
+            <span class="fl" style="color: #444;">张三</span>
+            <span class="fr" style="color: #999;">2019.04.01</span>
+        </p>
+        <p style="color:#18179B;">
+            京A.123123
+        </p>
+    </li>
+    <li>
+        <p class="afterClear">
+            <span class="fl" style="color: #444;">张三</span>
+            <span class="fr" style="color: #999;">2019.04.01</span>
+        </p>
+        <p style="color:#18179B;">
+            京A.123123
+        </p>
+    </li>
+    <li>
+        <p class="afterClear">
+            <span class="fl" style="color: #444;">张三</span>
+            <span class="fr" style="color: #999;">2019.04.01</span>
+        </p>
+        <p style="color:#18179B;">
+            京A.123123
+        </p>
+    </li>
+    <li>
+        <p class="afterClear">
+            <span class="fl" style="color: #444;">张三</span>
+            <span class="fr" style="color: #999;">2019.04.01</span>
+        </p>
+        <p style="color:#18179B;">
+            京A.123123
+        </p>
+    </li>-->
+  </ul>
+</div>
+</body>
+<script src="js/jquery-3.2.1.min.js"></script>
+<script src="js/environment.js"></script>
+<script src="js/common.js"></script>
+
+
+<script>
+  var version = urlParameter('version');
+  var appChannel = urlParameter('appChannel');
+  var token = urlParameter('token');
+  token = replaceStr(token);
+  getRecord(0, 1000);
+
+  function getRecord(page, size) {
+    var url=location.href;
+    var myUrl
+    if(url.indexOf('https://jinrongt')>-1){
+      myUrl='https://jinrongt.jihustore.com'
+    }else{
+      myUrl='https://jinrong.jihustore.com'
+    }
+    $.ajax({
+      url: myUrl+'/jihu-c/lachine/ETCQueryList?token=' + token + '&page=' + page + '&size=' + size,
+      type: 'post',
+      dataType: 'JSON',
+      success: function (data) {
+        console.log(data);
+        if (data.code == 0) {
+          var list = data.body;
+          var html = '';
+          if (list.length > 0) {
+            for (var i = 0; i < list.length; i++) {
+              html = '<li>\n' +
+                '            <p class="afterClear">\n' +
+                '                <span class="fl" style="color: #444;">' + list[i].name + '</span>\n' +
+                '                <span class="fr" style="color: #999;">' + list[i].createTime + '</span>\n' +
+                '            </p>\n' +
+                '            <p style="color:#18179B;">\n' +
+                '                ' + list[i].plateNumber + '' +
+                '            </p>\n' +
+                '        </li>';
+              $('.tijiaoList ul').append(html)
+            }
+          }else{
+            $('.tijiaoList').html('<div class="noDataImg"><img src="http://p2a60yqmm.bkt.clouddn.com/noDataImg.png"></div>');
+          }
+        } else {
+          $('.tijiaoList').html('<div class="noDataImg"><img src="http://p2a60yqmm.bkt.clouddn.com/noDataImg.png"></div>');
+
+        }
+      }
+    })
+  }
+
+
+  function goBackiOS() {
+    window.callByJs.clickOnAndroid();
+    history.go(-1);
+  }
+</script>
+</html>

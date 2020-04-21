@@ -1,0 +1,87 @@
+package com.hiko.gym.common.repository.redis;
+
+import java.text.*;
+
+import javax.annotation.*;
+
+import org.springframework.data.redis.core.*;
+import org.springframework.stereotype.*;
+
+/**
+ * 客户标识累加总步数接口实现
+ * 
+ * @author yinjy
+ *
+ */
+@Repository("rCustomerIdStepValue")
+public class RCustomerIdStepValueImpl implements RCustomerIdStepValue {
+	/** Redis模板 */
+	@Resource(name = "redisTemplate")
+	private RedisTemplate<String, String> redisTemplate = null;
+
+	/** 键值格式 */
+	private static final MessageFormat KEY_FORMAT = new MessageFormat("Value:CustomerIdStep:{0}");
+
+	/**
+	 * 设置客户标识总步数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param shareCount 总步数值
+	 */
+	@Override
+	public void set(Long customerId, Long steps) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		redisTemplate.opsForValue().set(key, steps.toString());
+	}
+
+	/**
+	 * 获取总步数值
+	 * 
+	 * @param customerId 客户标识
+	 * @return 总步数值
+	 */
+	@Override
+	public Long get(Long customerId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		String value = redisTemplate.opsForValue().get(key);
+		if (value != null) {
+			return Long.valueOf(value);
+		}
+		return null;
+	}
+
+	/**
+	 * 删除客户标识总步数值
+	 * 
+	 * @param customerId 客户标识
+	 */
+	@Override
+	public void remove(Long customerId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		redisTemplate.delete(key);
+	}
+
+	/**
+	 * 存在客户标识总步数值
+	 * 
+	 * @param customerId 客户标识
+	 * @return 是否存在
+	 */
+	@Override
+	public boolean exist(Long customerId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		return redisTemplate.hasKey(key);
+	}
+}

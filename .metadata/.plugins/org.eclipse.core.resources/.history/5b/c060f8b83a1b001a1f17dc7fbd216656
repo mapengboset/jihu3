@@ -1,0 +1,380 @@
+package com.hiko.gym.common.repository.redis;
+
+import java.text.*;
+import java.util.*;
+
+import javax.annotation.*;
+
+import org.springframework.data.redis.core.*;
+import org.springframework.stereotype.*;
+
+/**
+ * 客户对象实现类
+ * 
+ * @author cychen
+ *
+ */
+@Repository("rCustomerObject")
+public class RCustomerObjectImpl implements RCustomerObject {
+
+	/** Redis模板 */
+	@Resource(name = "redisTemplate")
+	private RedisTemplate<String, String> redisTemplate = null;
+
+	/** 键值格式 */
+	private static final MessageFormat KEY_FORMAT = new MessageFormat("Object:Customer:{0}");
+
+	/**
+	 * 设置客户对象
+	 * 
+	 * @param customerId 客户标识
+	 * @param customer 客户对象
+	 */
+	@Override
+	public void set(Long customerId, RCustomer customer) {
+		// 初始化
+		Map<String, String> map = new HashMap<String, String>();
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 赋值参数
+		if (customer.getId() != null) {
+			map.put(RCustomer.ID, customer.getId().toString());
+		}
+		if (customer.getCityId() != null) {
+			map.put(RCustomer.CITYID, customer.getCityId().toString());
+		}
+		if (customer.getStatus() != null) {
+			map.put(RCustomer.STATUS, customer.getStatus().toString());
+		}
+		if (customer.getType() != null) {
+			map.put(RCustomer.TYPE, customer.getType().toString());
+		}
+		if (customer.getName() != null) {
+			map.put(RCustomer.NAME, customer.getName());
+		}
+		if (customer.getPhone() != null) {
+			map.put(RCustomer.PHONE, customer.getPhone());
+		}
+		if (customer.getPassword() != null) {
+			map.put(RCustomer.PASSWORD, customer.getPassword());
+		}
+		if (customer.getAvatar() != null) {
+			map.put(RCustomer.AVATAR, customer.getAvatar());
+		}
+		if (customer.getHeight() != null) {
+			map.put(RCustomer.HEIGHT, customer.getHeight().toString());
+		}
+		if (customer.getFirstWeight() != null) {
+			map.put(RCustomer.FIRSTWEIGHT, customer.getFirstWeight().toString());
+		}
+		if (customer.getLastWeight() != null) {
+			map.put(RCustomer.LASTWEIGHT, customer.getLastWeight().toString());
+		}
+		if (customer.getAge() != null) {
+			map.put(RCustomer.AGE, customer.getAge().toString());
+		}
+		if (customer.getGender() != null) {
+			map.put(RCustomer.GENDER, customer.getGender().toString());
+		}
+		if (customer.getSignature() != null) {
+			map.put(RCustomer.SIGNATURE, customer.getSignature());
+		}
+		if (customer.getHideWeight() != null) {
+			map.put(RCustomer.HIDEWEIGHT, customer.getHideWeight().toString());
+		}
+		if (customer.getRegisterTime() != null) {
+			map.put(RCustomer.REGISTERTIME, customer.getRegisterTime());
+		}
+		if (customer.getRegisterIp() != null) {
+			map.put(RCustomer.REGISTERIP, customer.getRegisterIp());
+		}
+		if (customer.getLoginTime() != null) {
+			map.put(RCustomer.LOGINTIME, customer.getLoginTime());
+		}
+		if (customer.getLoginIp() != null) {
+			map.put(RCustomer.LOGINIP, customer.getLoginIp());
+		}
+		if (customer.getLoginToken() != null) {
+			map.put(RCustomer.LOGINTOKEN, customer.getLoginToken());
+		}
+		if (customer.getOsType() != null) {
+			map.put(RCustomer.OSTYPE, customer.getOsType().toString());
+		}
+		if (customer.getOsVersion() != null) {
+			map.put(RCustomer.OSVERSION, customer.getOsVersion());
+		}
+		if (customer.getDeviceId() != null) {
+			map.put(RCustomer.DEVICEID, customer.getDeviceId());
+		}
+		if (customer.getDeviceModel() != null) {
+			map.put(RCustomer.DEVICEMODEL, customer.getDeviceModel());
+		}
+		if (customer.getAppVersion() != null) {
+			map.put(RCustomer.APPVERSION, customer.getAppVersion());
+		}
+		if (customer.getBfrozenTime() != null) {
+			map.put(RCustomer.BFROZENTIME, customer.getBfrozenTime());
+		}
+		if (customer.getEfrozenTime() != null) {
+			map.put(RCustomer.EFROZENTIME, customer.getEfrozenTime());
+		}
+		if (customer.getHotScore() != null) {
+			map.put(RCustomer.HOTSCORE, customer.getHotScore().toString());
+		}
+		if (customer.getDescription() != null) {
+			map.put(RCustomer.DESCRIPTION, customer.getDescription());
+		}
+		if (customer.getMarketChannel() != null) {
+			map.put(RCustomer.MARKETCHANNEL, customer.getMarketChannel()==null?"":customer.getMarketChannel().toString());
+		}
+
+		// 调用接口
+		redisTemplate.opsForHash().putAll(key, map);
+	}
+
+	/**
+	 * 获取客户对象
+	 * 
+	 * @param customerId 客户标识
+	 * @return 客户对象
+	 */
+	@Override
+	public RCustomer get(Long customerId) {
+		// 初始化
+		RCustomer customer = null;
+		List<String> keyList = new ArrayList<String>();
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 赋值参数
+		keyList.add(RCustomer.ID);
+		keyList.add(RCustomer.CITYID);
+		keyList.add(RCustomer.STATUS);
+		keyList.add(RCustomer.TYPE);
+		keyList.add(RCustomer.NAME);
+		keyList.add(RCustomer.PHONE);
+		keyList.add(RCustomer.PASSWORD);
+		keyList.add(RCustomer.AVATAR);
+		keyList.add(RCustomer.HEIGHT);
+		keyList.add(RCustomer.FIRSTWEIGHT);
+		keyList.add(RCustomer.LASTWEIGHT);
+		keyList.add(RCustomer.AGE);
+		keyList.add(RCustomer.GENDER);
+		keyList.add(RCustomer.SIGNATURE);
+		keyList.add(RCustomer.HIDEWEIGHT);
+		keyList.add(RCustomer.REGISTERTIME);
+		keyList.add(RCustomer.REGISTERIP);
+		keyList.add(RCustomer.LOGINTIME);
+		keyList.add(RCustomer.LOGINIP);
+		keyList.add(RCustomer.LOGINTOKEN);
+		keyList.add(RCustomer.OSTYPE);
+		keyList.add(RCustomer.OSVERSION);
+		keyList.add(RCustomer.DEVICEID);
+		keyList.add(RCustomer.DEVICEMODEL);
+		keyList.add(RCustomer.APPVERSION);
+		keyList.add(RCustomer.BFROZENTIME);
+		keyList.add(RCustomer.EFROZENTIME);
+		keyList.add(RCustomer.HOTSCORE);
+		keyList.add(RCustomer.DESCRIPTION);
+		keyList.add(RCustomer.MARKETCHANNEL);
+
+		// 调用接口
+		HashOperations<String, String, String> objectOperations = redisTemplate.opsForHash();
+		List<String> valueList = objectOperations.multiGet(key, keyList);
+		
+		// 转化数据
+		if (valueList != null && !valueList.isEmpty()) {
+			customer = new RCustomer();
+			String[] valueArray = valueList.toArray(new String[0]);
+			int length = valueArray.length;
+			if (length > 0 && valueArray[0] != null) {
+				customer.setId(Long.parseLong(valueArray[0]));
+			}
+			if (length > 1 && valueArray[1] != null) {
+				customer.setCityId(Long.parseLong(valueArray[1]));
+			}
+			if (length > 2 && valueArray[2] != null) {
+				customer.setStatus(Short.parseShort(valueArray[2]));
+			}
+			if (length > 3 && valueArray[3] != null) {
+				customer.setType(Short.parseShort(valueArray[3]));
+			}
+			if (length > 4 && valueArray[4] != null) {
+				customer.setName(valueArray[4]);
+			}
+			if (length > 5 && valueArray[5] != null) {
+				customer.setPhone(valueArray[5]);
+			}
+			if (length > 6 && valueArray[6] != null) {
+				customer.setPassword(valueArray[6]);
+			}
+			if (length > 7 && valueArray[7] != null) {
+				customer.setAvatar(valueArray[7]);
+			}
+			if (length > 8 && valueArray[8] != null) {
+				customer.setHeight(Double.parseDouble(valueArray[8]));
+			}
+			if (length > 9 && valueArray[9] != null) {
+				customer.setFirstWeight(Double.parseDouble(valueArray[9]));
+			}
+			if (length > 10 && valueArray[10] != null) {
+				customer.setLastWeight(Double.parseDouble(valueArray[10]));
+			}
+			if (length > 11 && valueArray[11] != null) {
+				customer.setAge(Short.parseShort(valueArray[11]));
+			}
+			if (length > 12 && valueArray[12] != null) {
+				customer.setGender(Short.parseShort(valueArray[12]));
+			}
+			if (length > 13 && valueArray[13] != null) {
+				customer.setSignature(valueArray[13]);
+			}
+			if (length > 14 && valueArray[14] != null) {
+				customer.setHideWeight(Boolean.parseBoolean(valueArray[14]));
+			}
+			if (length > 15 && valueArray[15] != null) {
+				customer.setRegisterTime(valueArray[15]);
+			}
+			if (length > 16 && valueArray[16] != null) {
+				customer.setRegisterIp(valueArray[16]);
+			}
+			if (length > 17 && valueArray[17] != null) {
+				customer.setLoginTime(valueArray[17]);
+			}
+			if (length > 18 && valueArray[18] != null) {
+				customer.setLoginIp(valueArray[18]);
+			}
+			if (length > 19 && valueArray[19] != null) {
+				customer.setLoginToken(valueArray[19]);
+			}
+			if (length > 20 && valueArray[20] != null) {
+				customer.setOsType(Short.parseShort(valueArray[20]));
+			}
+			if (length > 21 && valueArray[21] != null) {
+				customer.setOsVersion(valueArray[21]);
+			}
+			if (length > 22 && valueArray[22] != null) {
+				customer.setDeviceId(valueArray[22]);
+			}
+			if (length > 23 && valueArray[23] != null) {
+				customer.setDeviceModel(valueArray[23]);
+			}
+			if (length > 24 && valueArray[24] != null) {
+				customer.setAppVersion(valueArray[24]);
+			}
+			if (length > 25 && valueArray[25] != null) {
+				customer.setBfrozenTime(valueArray[25]);
+			}
+			if (length > 26 && valueArray[26] != null) {
+				customer.setEfrozenTime(valueArray[26]);
+			}
+			if (length > 27 && valueArray[27] != null) {
+				customer.setHotScore(Integer.parseInt(valueArray[27]));
+			}
+			if (length > 28 && valueArray[28] != null) {
+				customer.setDescription(valueArray[28]);
+			}
+			if (length > 29 && valueArray[29] != null) {
+				customer.setMarketChannel(Integer.parseInt(valueArray[29]));
+			}
+		}
+
+		// 返回数据
+		return customer;
+	}
+
+	/**
+	 * 删除客户对象
+	 * 
+	 * @param customerId 客户标识
+	 */
+	@Override
+	public void remove(Long customerId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		redisTemplate.delete(key);
+	}
+
+	/**
+	 * 存在客户对象
+	 * 
+	 * @param customerId 客户标识
+	 * @return 是否存在
+	 */
+	@Override
+	public boolean exist(Long customerId) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		return redisTemplate.hasKey(key);
+	}
+
+	/**
+	 * 设置参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 * @param value 参数值
+	 */
+	@Override
+	public void set(Long customerId, String name, String value) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		redisTemplate.opsForHash().put(key, name, value);
+	}
+
+	/**
+	 * 获取参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 * @return 参数值
+	 */
+	@Override
+	public String get(Long customerId, String name) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		HashOperations<String, String, String> objectOperations = redisTemplate.opsForHash();
+		return objectOperations.get(key, name);
+	}
+
+	/**
+	 * 删除参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 */
+	@Override
+	public void remove(Long customerId, String name) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		HashOperations<String, String, String> objectOperations = redisTemplate.opsForHash();
+		objectOperations.delete(key, name);
+	}
+
+	/**
+	 * 存在参数值
+	 * 
+	 * @param customerId 客户标识
+	 * @param name 参数名称
+	 * @return 持久化异常
+	 */
+	@Override
+	public boolean exist(Long customerId, String name) {
+		// 初始化
+		String key = KEY_FORMAT.format(new Long[] { customerId });
+
+		// 调用接口
+		HashOperations<String, String, String> objectOperations = redisTemplate.opsForHash();
+		return objectOperations.hasKey(key, name);
+	}
+
+}

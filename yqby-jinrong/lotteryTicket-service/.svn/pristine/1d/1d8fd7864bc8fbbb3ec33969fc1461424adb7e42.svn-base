@@ -1,0 +1,84 @@
+package com.yqbing.servicebing.repository.database.bean;
+
+import java.math.BigDecimal;
+
+
+public class GoodsOrderRes {
+
+	    private Integer id;
+
+	    private Integer googsNum;
+
+	    private String goodsImg;
+
+	    private String goodsName;
+
+	    private Integer goodsId;
+
+	    private BigDecimal amount;//商品金额
+	    
+	    private BigDecimal totalamount;//总金额
+
+		public Integer getId() {
+			return id;
+		}
+
+		public void setId(Integer id) {
+			this.id = id;
+		}
+
+		
+
+		public Integer getGoogsNum() {
+			return googsNum;
+		}
+
+		public void setGoogsNum(Integer googsNum) {
+			this.googsNum = googsNum;
+		}
+
+		public String getGoodsImg() {
+			return goodsImg;
+		}
+
+		public void setGoodsImg(String goodsImg) {
+			this.goodsImg = goodsImg;
+		}
+
+		public String getGoodsName() {
+			return goodsName;
+		}
+
+		public void setGoodsName(String goodsName) {
+			this.goodsName = goodsName;
+		}
+
+		public Integer getGoodsId() {
+			return goodsId;
+		}
+
+		public void setGoodsId(Integer goodsId) {
+			this.goodsId = goodsId;
+		}
+
+		public BigDecimal getAmount() {
+			return amount;
+		}
+
+		public void setAmount(BigDecimal amount) {
+			this.amount = amount;
+		}
+
+		public BigDecimal getTotalamount() {
+			return totalamount;
+		}
+
+		public void setTotalamount(BigDecimal totalamount) {
+			this.totalamount = totalamount;
+		}
+
+        
+
+
+	
+}

@@ -1,0 +1,103 @@
+package com.yqbing.servicebing.repository.database.bean;
+
+import java.math.BigDecimal;
+
+
+public class GoodsOrderRes {
+
+	    private Integer id;
+
+	    private Integer goodsNum;
+
+	    private String goodsImg;
+
+	    private String goodsName;
+
+	    private Integer goodsId;
+
+	    private BigDecimal express;//快递
+	    private BigDecimal amount;//商品金额
+	    
+	    private BigDecimal totalamount;//总金额
+
+	    private String standard;//
+	    
+		public Integer getId() {
+			return id;
+		}
+
+		public void setId(Integer id) {
+			this.id = id;
+		}
+
+		
+
+		public BigDecimal getExpress() {
+			return express;
+		}
+
+		public void setExpress(BigDecimal express) {
+			this.express = express;
+		}
+
+		public Integer getGoodsNum() {
+			return goodsNum;
+		}
+
+		public void setGoogsNum(Integer goodsNum) {
+			this.goodsNum = goodsNum;
+		}
+
+		public String getGoodsImg() {
+			return goodsImg;
+		}
+
+		public void setGoodsImg(String goodsImg) {
+			this.goodsImg = goodsImg;
+		}
+
+		public String getGoodsName() {
+			return goodsName;
+		}
+
+		public void setGoodsName(String goodsName) {
+			this.goodsName = goodsName;
+		}
+
+		public Integer getGoodsId() {
+			return goodsId;
+		}
+
+		public void setGoodsId(Integer goodsId) {
+			this.goodsId = goodsId;
+		}
+
+		public BigDecimal getAmount() {
+			return amount;
+		}
+
+		public void setAmount(BigDecimal amount) {
+			this.amount = amount;
+		}
+
+		public BigDecimal getTotalamount() {
+			return totalamount;
+		}
+
+		public void setTotalamount(BigDecimal totalamount) {
+			this.totalamount = totalamount;
+		}
+
+		public String getStandard() {
+			return standard;
+		}
+
+		public void setStandard(String standard) {
+			this.standard = standard;
+		}
+
+        
+
+
+	
+}

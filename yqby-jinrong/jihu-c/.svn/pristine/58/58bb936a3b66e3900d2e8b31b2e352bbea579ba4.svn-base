@@ -1,0 +1,33 @@
+package com.yqbing.servicebing.webapp.response;
+
+import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
+
+import org.docx4j.model.datastorage.XPathEnhancerParser.main_return;
+
+import com.yqbing.servicebing.utils.DateUtil;
+
+public class ChargPass {
+	
+	
+	private String endTime;
+	private List<ChargCode> activeCode;
+	public String getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
+	}
+	public List<ChargCode> getActiveCode() {
+		return activeCode;
+	}
+	public void setActiveCode(List<ChargCode> activeCode) {
+		this.activeCode = activeCode;
+	}
+	
+	public static void main(String[] args) {
+		
+		
+	}
+}

@@ -1,0 +1,36 @@
+package com.yqbing.servicebing.repository.database.bean;
+
+import java.util.List;
+
+public class TicketGoodsWithBLOBs extends TicketGoods {
+    private String content;
+
+    private String pictures;
+    
+    private  List<TicketGoodsStandard> standards;
+    
+    
+    public List<TicketGoodsStandard> getStandards() {
+		return standards;
+	}
+
+	public void setStandards(List<TicketGoodsStandard> standards) {
+		this.standards = standards;
+	}
+
+	public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content == null ? null : content.trim();
+    }
+
+    public String getPictures() {
+        return pictures;
+    }
+
+    public void setPictures(String pictures) {
+        this.pictures = pictures == null ? null : pictures.trim();
+    }
+}

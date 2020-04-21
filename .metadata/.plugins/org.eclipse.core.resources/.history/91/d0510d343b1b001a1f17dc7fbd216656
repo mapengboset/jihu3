@@ -1,0 +1,31 @@
+package com.yqbing.commons.utils.es.index.field;
+
+import java.util.Map;
+
+import com.yqbing.commons.utils.es.index.Field;
+
+/**
+ * @version 创建时间:2017年10月17日
+ * 
+ */
+public class NestedField extends Field {
+
+	protected Map<String, Field> properties;
+
+	public Map<String, Field> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(Map<String, Field> properties) {
+		this.properties = properties;
+	}
+
+	@Override
+	public String toString() {
+		return "NestedField [properties=" + properties + ", type=" + type + ", index=" + index + ", analyzer=" + analyzer + "]";
+	}
+	
+	
+	
+	
+}

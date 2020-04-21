@@ -1,0 +1,42 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 短信类型类
+ * 
+ * @author cychen
+ *
+ */
+public class ShortMessageType {
+
+	/** 注册用户 */
+	public static final short REGISTER = 1;
+	/** 找回密码 */
+	public static final short RETRIEVE = 2;
+	/** 绑定手机 */
+	public static final short BIND_PHONE = 3;
+	/** 解绑手机 */
+	public static final short UNBIND_PHONE = 4;
+
+	/**
+	 * 获取短信类型描述
+	 * 
+	 * @param shortMessageType 短信类型值
+	 * @return 短信类型描述
+	 */
+	public static String getDescription(short shortMessageType) {
+		if (shortMessageType == REGISTER) {
+			return "注册用户";
+		}
+		if (shortMessageType == RETRIEVE) {
+			return "找回密码";
+		}
+		if (shortMessageType == BIND_PHONE) {
+			return "绑定手机";
+		}
+		if (shortMessageType == UNBIND_PHONE) {
+			return "解绑手机";
+		}
+		return "";
+	}
+
+}

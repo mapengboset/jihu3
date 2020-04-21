@@ -1,0 +1,42 @@
+package com.hiko.gym.common.constant;
+
+/**
+ * 推送消息状态类
+ * 
+ * @author cychen
+ *
+ */
+public class PushMessageStatus {
+
+	/** 发送中 */
+	public static final short SENDING = 1;
+	/** 发送成功 */
+	public static final short SUCCESS = 2;
+	/** 发送失败 */
+	public static final short FAILURE = 3;
+	/** 确认收到 */
+	public static final short RECEIVED = 4;
+
+	/**
+	 * 获取推送消息状态描述
+	 * 
+	 * @param pushMessageStatus 推送消息状态值
+	 * @return 推送消息状态描述
+	 */
+	public static String getDescription(short pushMessageStatus) {
+		if (pushMessageStatus == SENDING) {
+			return "发送中";
+		}
+		if (pushMessageStatus == SUCCESS) {
+			return "发送成功";
+		}
+		if (pushMessageStatus == FAILURE) {
+			return "发送失败";
+		}
+		if (pushMessageStatus == RECEIVED) {
+			return "确认收到";
+		}
+		return "";
+	}
+
+}

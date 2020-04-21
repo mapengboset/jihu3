@@ -1,0 +1,83 @@
+package com.yqbing.servicebing.webapp.request;
+
+public class StoreInfoReq{
+	private Long storeId;
+	public String token;
+	public String address;
+	public String storeName;
+	public String certName;
+	public String phone;
+	public String storeLicense;
+	public String cardFace;
+	public String level;//级别
+	public String cardBack;
+	public String citys;//地址(省,市,区,省编码,市编码,区编码,详细地址)全部用逗号分隔
+	public String getToken() {
+		return token;
+	}
+	public void setToken(String token) {
+		this.token = token;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public String getStoreName() {
+		return storeName;
+	}
+	public void setStoreName(String storeName) {
+		this.storeName = storeName;
+	}
+	public String getCertName() {
+		return certName;
+	}
+	public void setCertName(String certName) {
+		this.certName = certName;
+	}
+	public String getPhone() {
+		return phone;
+	}
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+	public String getStoreLicense() {
+		return storeLicense;
+	}
+	public void setStoreLicense(String storeLicense) {
+		this.storeLicense = storeLicense;
+	}
+	public String getCardFace() {
+		return cardFace;
+	}
+	public void setCardFace(String cardFace) {
+		this.cardFace = cardFace;
+	}
+	public String getCardBack() {
+		return cardBack;
+	}
+	public void setCardBack(String cardBack) {
+		this.cardBack = cardBack;
+	}
+	public String getCitys() {
+		return citys;
+	}
+	public void setCitys(String citys) {
+		this.citys = citys;
+	}
+	public Long getStoreId() {
+		return storeId;
+	}
+	public void setStoreId(Long storeId) {
+		this.storeId = storeId;
+	}
+	public String getLevel() {
+		return level;
+	}
+	public void setLevel(String level) {
+		this.level = level;
+	}
+	
+	
+}

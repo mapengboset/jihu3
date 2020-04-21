@@ -1,0 +1,166 @@
+package com.yqbing.servicebing.repository.database.bean;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+public class LocalFineFood {
+    private Long id;
+
+    private String name;
+
+    private Short score;
+
+    private Short perPrice;
+
+    private String businessHours;
+
+    private String adress;
+
+    private String phone;
+
+    private String specialDishes;
+
+    private BigDecimal longitude;
+
+    private BigDecimal latitude;
+
+    private Date createTime;
+
+    private String headimg;
+
+    private String foodType;
+
+    private String cookStyle;
+
+    private Integer status;
+
+    private String pictures;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name == null ? null : name.trim();
+    }
+
+    public Short getScore() {
+        return score;
+    }
+
+    public void setScore(Short score) {
+        this.score = score;
+    }
+
+    public Short getPerPrice() {
+        return perPrice;
+    }
+
+    public void setPerPrice(Short perPrice) {
+        this.perPrice = perPrice;
+    }
+
+    public String getBusinessHours() {
+        return businessHours;
+    }
+
+    public void setBusinessHours(String businessHours) {
+        this.businessHours = businessHours == null ? null : businessHours.trim();
+    }
+
+    public String getAdress() {
+        return adress;
+    }
+
+    public void setAdress(String adress) {
+        this.adress = adress == null ? null : adress.trim();
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone == null ? null : phone.trim();
+    }
+
+    public String getSpecialDishes() {
+        return specialDishes;
+    }
+
+    public void setSpecialDishes(String specialDishes) {
+        this.specialDishes = specialDishes == null ? null : specialDishes.trim();
+    }
+
+    public BigDecimal getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(BigDecimal longitude) {
+        this.longitude = longitude;
+    }
+
+    public BigDecimal getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(BigDecimal latitude) {
+        this.latitude = latitude;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public String getHeadimg() {
+        return headimg;
+    }
+
+    public void setHeadimg(String headimg) {
+        this.headimg = headimg == null ? null : headimg.trim();
+    }
+
+    public String getFoodType() {
+        return foodType;
+    }
+
+    public void setFoodType(String foodType) {
+        this.foodType = foodType == null ? null : foodType.trim();
+    }
+
+    public String getCookStyle() {
+        return cookStyle;
+    }
+
+    public void setCookStyle(String cookStyle) {
+        this.cookStyle = cookStyle == null ? null : cookStyle.trim();
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public String getPictures() {
+        return pictures;
+    }
+
+    public void setPictures(String pictures) {
+        this.pictures = pictures == null ? null : pictures.trim();
+    }
+}

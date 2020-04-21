@@ -1,0 +1,40 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 客户标识今天运动时间接口
+ * 
+ * @author yinjy
+ *
+ */
+public interface RCustomerIdTodaySportTimeValue {
+	/**
+	 * 设置客户标识今天运动时间
+	 * 
+	 * @param customerId 客户标识
+	 * @param time 今天运动时间
+	 */
+	public void set(Long customerId, Long time);
+
+	/**
+	 * 获取今天运动时间
+	 * 
+	 * @param customerId 客户标识
+	 * @return 今天运动时间
+	 */
+	public Long get(Long customerId);
+
+	/**
+	 * 删除客户标识今天运动时间
+	 * 
+	 * @param customerId 客户标识
+	 */
+	public void remove(Long customerId);
+
+	/**
+	 * 存在客户标识今天运动时间
+	 * 
+	 * @param customerId 客户标识
+	 * @return 是否存在
+	 */
+	public boolean exist(Long customerId);
+}

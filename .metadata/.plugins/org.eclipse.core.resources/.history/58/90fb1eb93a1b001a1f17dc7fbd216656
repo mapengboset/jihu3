@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 推送消息信息映射 -->
+<mapper namespace="com.hiko.gym.common.repository.database.base.DPushMessageDAO">
+
+	<!-- 所有字段 -->
+	<sql id="allColumns">
+		id,
+		customer_id,
+		os_type,
+		token,
+		status,
+		type,
+		title,
+		content,
+		cause,
+		created_time,
+		modified_time
+	</sql>
+
+	<!-- 获取语句 -->
+	<select id="get" resultType="com.hiko.gym.common.repository.database.base.DPushMessage">
+		select
+		<include refid="allColumns" />
+		from t_push_message
+		where id = #{id}
+	</select>
+
+	<!-- 统计语句 -->
+	<select id="count" resultType="java.lang.Integer">
+		select
+		count(id)
+		from t_push_message
+		<where>
+			<if test="query.id != null">
+				and id = #{query.id}
+			</if>
+			<if test="query.customerId != null">
+				and customer_id = #{query.customerId}
+			</if>
+			<if test="query.osType != null">
+				and os_type = #{query.osType}
+			</if>
+			<if test="query.beginOsType != null">
+				<![CDATA[and os_type >= #{query.beginOsType}]]>
+			</if>
+			<if test="query.endOsType != null">
+				<![CDATA[and os_type <= #{query.endOsType}]]>
+			</if>
+			<if test="query.token != null">
+				<choose>
+					<when test="query.token != ''">
+						and token like concat('%', #{query.token}, '%')
+					</when>
+					<otherwise>
+						and token is null
+					</otherwise>
+				</choose>
+			</if>
+			<if test="query.status != null">
+				and status = #{query.status}
+			</if>
+			<if test="query.beginStatus != null">
+				<![CDATA[and status >= #{query.beginStatus}]]>
+			</if>
+			<if test="query.endStatus != null">
+				<![CDATA[and status <= #{query.endStatus}]]>
+			</if>
+			<if test="query.type != null">
+				and type = #{query.type}
+			</if>
+			<if test="query.beginType != null">
+				<![CDATA[and type >= #{query.beginType}]]>
+			</if>
+			<if test="query.endType != null">
+				<![CDATA[and type <= #{query.endType}]]>
+			</if>
+			<if test="query.title != null">
+				<choose>
+					<when test="query.title != ''">
+						and title like concat('%', #{query.title}, '%')
+					</when>
+					<otherwise>
+						and title is null
+					</otherwise>
+				</choose>
+			</if>
+			<if test="query.content != null">
+				<choose>
+					<when test="query.content != ''">
+						and content like concat('%', #{query.content}, '%')
+					</when>
+					<otherwise>
+						and content is null
+					</otherwise>
+				</choose>
+			</if>
+			<if test="query.cause != null">
+				<choose>
+					<when test="query.cause != ''">
+						and cause like concat('%', #{query.cause}, '%')
+					</when>
+					<otherwise>
+						and cause is null
+					</otherwise>
+				</choose>
+			</if>
+			<if test="query.createdTime != null">
+				and created_time = #{query.createdTime}
+			</if>
+			<if test="query.beginCreatedTime != null">
+				<![CDATA[and created_time >= #{query.beginCreatedTime}]]>
+			</if>
+			<if test="query.endCreatedTime != null">
+				<![CDATA[and created_time <= #{query.endCreatedTime}]]>
+			</if>
+			<if test="query.modifiedTime != null">
+				and modified_time = #{query.modifiedTime}
+			</if>
+			<if test="query.beginModifiedTime != null">
+				<![CDATA[and modified_time >= #{query.beginModifiedTime}]]>
+			</if>
+			<if test="query.endModifiedTime != null">
+				<![CDATA[and modified_time <= #{query.endModifiedTime}]]>
+			</if>
+		</where>
+	</select>
+
+	<!-- 查询语句 -->
+	<select id="query" resultType="com.hiko.gym.common.repository.database.base.DPushMessage">
+		select
+		<include refid="allColumns" />
+		from t_push_message
+		<where>
+			<if test="query.id != null">
+				and id = #{query.id}
+			</if>
+			<if test="query.customerId != null">
+				and customer_id = #{query.customerId}
+			</if>
+			<if test="query.osType != null">
+				and os_type = #{query.osType}
+			</if>
+			<if test="query.beginOsType != null">
+				<![CDATA[and os_type >= #{query.beginOsType}]]>
+			</if>
+			<if test="query.endOsType != null">
+				<![CDATA[and os_type <= #{query.endOsType}]]>
+			</if>
+			<if test="query.token != null">
+				<choose>
+					<when test="query.token != ''">
+						and token like concat('%', #{query.token}, '%')
+					</when>
+					<otherwise>
+						and token is null
+					</otherwise>
+				</choose>
+			</if>
+			<if test="query.status != null">
+				and status = #{query.status}
+			</if>
+			<if test="query.beginStatus != null">
+				<![CDATA[and status >= #{query.beginStatus}]]>
+			</if>
+			<if test="query.endStatus != null">
+				<![CDATA[and status <= #{query.endStatus}]]>
+			</if>
+			<if test="query.type != null">
+				and type = #{query.type}
+			</if>
+			<if test="query.beginType != null">
+				<![CDATA[and type >= #{query.beginType}]]>
+			</if>
+			<if test="query.endType != null">
+				<![CDATA[and type <= #{query.endType}]]>
+			</if>
+			<if test="query.title != null">
+				<choose>
+					<when test="query.title != ''">
+						and title like concat('%', #{query.title}, '%')
+					</when>
+					<otherwise>
+						and title is null
+					</otherwise>
+				</choose>
+			</if>
+			<if test="query.content != null">
+				<choose>
+					<when test="query.content != ''">
+						and content like concat('%', #{query.content}, '%')
+					</when>
+					<otherwise>
+						and content is null
+					</otherwise>
+				</choose>
+			</if>
+			<if test="query.cause != null">
+				<choose>
+					<when test="query.cause != ''">
+						and cause like concat('%', #{query.cause}, '%')
+					</when>
+					<otherwise>
+						and cause is null
+					</otherwise>
+				</choose>
+			</if>
+			<if test="query.createdTime != null">
+				and created_time = #{query.createdTime}
+			</if>
+			<if test="query.beginCreatedTime != null">
+				<![CDATA[and created_time >= #{query.beginCreatedTime}]]>
+			</if>
+			<if test="query.endCreatedTime != null">
+				<![CDATA[and created_time <= #{query.endCreatedTime}]]>
+			</if>
+			<if test="query.modifiedTime != null">
+				and modified_time = #{query.modifiedTime}
+			</if>
+			<if test="query.beginModifiedTime != null">
+				<![CDATA[and modified_time >= #{query.beginModifiedTime}]]>
+			</if>
+			<if test="query.endModifiedTime != null">
+				<![CDATA[and modified_time <= #{query.endModifiedTime}]]>
+			</if>
+		</where>
+		<if test="orderBy != null and orderBy != ''">
+			order by ${orderBy}
+		</if>
+		<choose>
+			<when test="startIndex != null">
+				limit #{startIndex}
+			</when>
+			<otherwise>
+				limit 0
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="pageSize != null">
+				, #{pageSize}
+			</when>
+			<otherwise>
+				, 10000
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 创建语句 -->
+	<insert id="create">
+		insert into t_push_message(
+		id
+		, customer_id
+		, os_type
+		, token
+		, status
+		, type
+		, title
+		, content
+		<if test="create.cause != null">
+			, cause
+		</if>
+		, created_time
+		) values(
+		#{id}
+		, #{create.customerId}
+		, #{create.osType}
+		, #{create.token}
+		, #{create.status}
+		, #{create.type}
+		, #{create.title}
+		, #{create.content}
+		<if test="create.cause != null">
+			, #{create.cause}
+		</if>
+		, current_timestamp
+		)
+	</insert>
+
+	<!-- 修改语句 -->
+	<update id="modify">
+		update t_push_message
+		set modified_time=current_timestamp
+		<if test="modify.customerId != null">
+			, customer_id = #{modify.customerId}
+		</if>
+		<if test="modify.osType != null">
+			, os_type = #{modify.osType}
+		</if>
+		<if test="modify.token != null">
+			, token = #{modify.token}
+		</if>
+		<if test="modify.status != null">
+			, status = #{modify.status}
+		</if>
+		<if test="modify.type != null">
+			, type = #{modify.type}
+		</if>
+		<if test="modify.title != null">
+			, title = #{modify.title}
+		</if>
+		<if test="modify.content != null">
+			, content = #{modify.content}
+		</if>
+		<if test="modify.cause != null">
+			, cause = #{modify.cause}
+		</if>
+		where id = #{modify.id}
+	</update>
+
+</mapper>

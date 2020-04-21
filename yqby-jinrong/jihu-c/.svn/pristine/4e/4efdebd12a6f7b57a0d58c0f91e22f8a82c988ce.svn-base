@@ -1,0 +1,463 @@
+package com.yqbing.servicebing.webapp.controller;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.models.auth.In;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.service.AccountService;
+import com.yqbing.servicebing.service.StoreInfoService;
+import com.yqbing.servicebing.service.UserLogingService;
+import com.yqbing.servicebing.utils.CloudUtil;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.utils.SendSms;
+import com.yqbing.servicebing.webapp.request.CpdReportReq;
+
+/**
+ * 
+
+ * @ClassName: AccountController
+
+ * @Description: 本机用户管理信息
+
+ * @author: mpb
+
+ * @date: 2019年4月10日 下午1:30:17
+ */
+
+@RestController
+@CrossOrigin
+@Api(tags = "账户管理接口")
+@SuppressWarnings("all")
+public class AccountController extends BaseController{
+
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AccountController.class);
+	//账户信息/退出登录/解除绑定
+	//应用管理/可更新应用
+	//下载管理
+	//碎屏险
+	@Resource
+	private RUserLogBean rUserLogBean = null;
+	@Resource
+	private UserLogingService userLogingService = null;
+	@Resource
+	private StoreInfoService storeInfoService = null;
+	@Resource
+	private AccountService accountService = null;
+	
+	 //通过邀请码返回店铺数据
+	@ApiOperation(value = "邀请码返回店铺/用户信息")
+    @RequestMapping(value = "/account/queryInvite",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String queryInvite(@ApiParam(name = "invite",value="邀请码") @RequestParam(value = "invite", required = true) String invite){
+    	 LOGGER.info("--------------------------------------------account/queryInvite:"+invite);
+	      String result = StringUtils.EMPTY;
+	      
+	      if(!StringUtils.isNotBlank(invite)){
+	        	
+	       	   result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"店铺邀请码必须填写");
+	   			
+	   			return result;
+	       }
+	      try {
+	    	  result = storeInfoService.queryInvite(invite);
+	    	  
+			} catch (Exception e) {
+				
+				e.printStackTrace();
+				
+			}
+    	
+    	return result;
+    }
+    //绑定/解除
+	@ApiOperation(value = "绑定解除店铺")
+    @RequestMapping(value = "/account/bindingInvite",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String bindingInvite(@ApiParam(name = "invite",value = "邀请码") @RequestParam(value = "invite", required = true) String invite,
+			@ApiParam(name = "token",value = "用户token") @RequestParam(value = "token", required = true) String token,
+			@ApiParam(name = "storeId",value = "店铺ID") @RequestParam(value = "storeId", required = true) String storeId,
+			@ApiParam(name = "storeName",value = "店铺名称") @RequestParam(value = "storeName", required = true) String storeName){
+    	 LOGGER.info("--------------------------------------------account/bindingInvite:"+invite);
+	      String result = StringUtils.EMPTY;
+	      try {
+	    	   if(!StringUtils.isNotBlank(invite)){
+		        	
+	           	   result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"店铺邀请码必须填写");
+	       			
+	       			return result;
+	           }
+	    	      if(!StringUtils.isNotBlank(storeId)){
+	    	    	  
+	    	    	  result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"店铺id必须填写");
+	    	    	  
+	    	    	  return result;
+	    	      }
+	    	      if(!StringUtils.isNotBlank(storeName)){
+	    	    	  
+	    	    	  result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"店铺必须填写");
+	    	    	  
+	    	    	  return result;
+	    	      }
+	           if(!StringUtils.isNotBlank(token)){
+	           	
+	           	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"用户信息必须填写");
+	           	
+	           	return result;
+	           }
+	           
+	        	      //通过token 返回用户id
+	    	    	  result = accountService.bindingInvite(token,invite,storeId,storeName);
+	    	    	  
+	    	 
+	    	  
+			} catch (Exception e) {
+				e.printStackTrace();
+				result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+			}
+	   
+       
+    	return result;
+    }
+	
+	
+		 @RequestMapping(value = "/account/suggest",
+		        	method = {RequestMethod.GET,RequestMethod.POST})
+			@ApiOperation(value = "意见反馈")
+			public String suggest(@ApiParam(name = "token",value="用户token") @RequestParam(value = "token", required = true) String token,
+					@ApiParam(name = "content",value="建议内容") @RequestParam(value = "content", required = true) String content){
+				
+			 LOGGER.info("--------------------------------------------account/suggest:"+content);
+			 String result = StringUtils.EMPTY;
+				 try {
+			
+				   if(!StringUtils.isNotBlank(token)){
+			        	
+		       	   result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"token 信息必须填写");
+		   			
+		   			return result;
+		          }
+				   accountService.suggest(token,content);
+				  
+			 } catch (Exception e) {
+				 e.printStackTrace();
+				 result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+		 
+		        
+		     }
+				return result;
+			}
+	
+	
+	//通过手机号返回绑定店铺信息
+	@ApiOperation(value = "返回店铺邀请码")
+    @RequestMapping(value = "/account/getInvite",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String getInvite(@ApiParam(name = "token",value = "用户token") @RequestParam(value = "token", required = true) String token,
+			@ApiParam(name = "phone",value = "phone") @RequestParam(value = "phone", required = false) String phone){
+		 LOGGER.info("--------------------------------------------account/getInvite:"+phone);
+	      String result = StringUtils.EMPTY;
+	      try {
+	    	  
+	           if(!StringUtils.isNotBlank(token)){
+	           	
+	           	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"用户信息必须填写");
+	           	
+	           	return result;
+	           }
+	           
+	        	      //通过token 返回用户绑定店铺
+	    	    	  result = accountService.getInvite(token,phone);
+	    	    	  
+	    	 
+	    	  
+			} catch (Exception e) {
+				e.printStackTrace();
+				result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+			}
+	   
+      
+   	     return result;
+		
+		
+	}
+	
+   /* //退出登录
+	@ApiOperation(value = "退出登录")
+    @RequestMapping(value = "/account/quitUser",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String quitUser(@ApiParam(name = "token",value = "用户token") @RequestParam(value = "token", required = true) String token){
+    	 LOGGER.info("--------------------------------------------user/queryInvite:"+token);
+	      String result = StringUtils.EMPTY;
+	      try {
+	    	  
+	    	  if(!StringUtils.isNotBlank(token)){
+	    	       	
+	    	       	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"用户信息必须填写");
+	    	       	
+	    	       	return result;
+	    	       }
+	    	       
+	    	    	   //通过token 返回用户id
+	    		    	  result = accountService.quitUser(token);
+	    	  
+			} catch (Exception e) {
+				e.printStackTrace();
+				result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+			}
+	     
+       
+       
+    	return result;
+    }*/
+    
+    //上传头像 
+	@ApiOperation(value = "上传用户信息")
+    @RequestMapping(value = "/account/uploadLogImg",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String uploadLogImg(@ApiParam(name = "token",value = "用户token") @RequestParam(value = "token", required = true) String token,
+			@ApiParam(name = "imgUrl",value = "用户头像") @RequestParam(value = "imgUrl", required = false) String imgUrl,
+			@ApiParam(name = "userName",value = "用户昵称") @RequestParam(value = "userName", required = false) String userName,
+			@ApiParam(name = "sex",value = "性别 1男 2女") @RequestParam(value = "sex", required = false) Integer sex,
+			@ApiParam(name = "brith",value = "生日") @RequestParam(value = "brith", required = false) String brith,
+			@ApiParam(name = "address",value = "地址(省,市,区,省编码,市编码,区编码,详细地址)全部用逗号分隔") @RequestParam(value = "address", required = false) String address){
+    	 LOGGER.info("--------------------------------------------account/uploadLogImg:"+token+"address:"+address);
+	      String result = StringUtils.EMPTY;
+	      try {
+	    	  if(!StringUtils.isNotBlank(token)){
+	    	       	
+	    	       	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"用户token必须填写");
+	    	       	
+	    	       	return result;
+	    	       }
+	    	        //通过token 上传用户头像
+	    		    result = accountService.uploadLogImg(token,imgUrl,userName,sex,brith,address);
+	    	  
+			} catch (Exception e) {
+				e.printStackTrace();
+				result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+			}
+	
+     
+       
+    	return result;
+    }
+    
+    //获取用户本地App手机app
+    @RequestMapping(value = "/account/localApp",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+    @ApiOperation(value = "获取用户本地App,每登陆获取一次")
+	public String localApp(@ApiParam(name="device",value = "设备mac") @RequestParam(value = "device", required = true) String device,
+			@ApiParam(name="apps",value = "app包名用逗号分隔  ( 包名:版本信息)") @RequestParam(value = "apps", required = true) String apps,
+			@ApiParam(name="token",value = "用户token") @RequestParam(value = "token", required = true) String token){
+    	  LOGGER.info("--------------------------------------------account/localApp:"+apps);
+	      String result = StringUtils.EMPTY;
+	      Map<String,Object> map = new HashMap<String,Object>();
+	      if(!StringUtils.isNotBlank(token)){
+	         	
+	         	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"用户token必须填写");
+	         	
+	         	return result;
+	         }
+	      try {
+    	      map.put("device", device);
+    	      map.put("apps", apps);
+    	      map.put("token", token);
+    	      //获取app列表
+	    	  result = accountService.localApp(map);
+			} catch (Exception e) {
+				e.printStackTrace();
+				result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+			}
+    	return result;
+    }
+    
+
+    @RequestMapping(value = "/account/delLocalApp",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+    @ApiOperation(value = "删除本地App,删除一次获取一次")
+	public String delLocalApp(@ApiParam(name="device",value = "设备mac") @RequestParam(value = "device", required = true) String device,
+			@ApiParam(name="apps",value = "app包名") @RequestParam(value = "apps", required = true) String apps,
+			@ApiParam(name="token",value = "用户token") @RequestParam(value = "token", required = true) String token){
+    	  LOGGER.info("--------------------------------------------account/localApp:"+apps);
+	      String result = StringUtils.EMPTY;
+	      Map<String,Object> map = new HashMap<String,Object>();
+	      if(!StringUtils.isNotBlank(token)){
+	         	
+	         	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"用户token必须填写");
+	         	
+	         	return result;
+	         }
+	      try {
+    	      map.put("device", device);
+    	      map.put("apps", apps);
+    	      map.put("token", token);
+    	      //获取app列表
+	    	  result = accountService.delLocalApp(map);
+			} catch (Exception e) {
+				e.printStackTrace();
+				result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+			}
+    	return result;
+    }
+    
+    
+    
+    
+    //用户下载,app上传到用户个人下载列表
+    @ApiOperation(value = "用户下载")
+    @RequestMapping(value = "/account/userDownApp",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String userDownApp(@ApiParam(name="device",value = "设备地址") @RequestParam(value = "device", required = true) String device,
+			@ApiParam(name="appPack",value = "app包名") @RequestParam(value = "appPack", required = true) String appPack,
+			@ApiParam(name="token",value = "用户token") @RequestParam(value = "token", required = true) String token,
+			@ApiParam(name="type",value = "0.普通1.任务 ,4.cpd") @RequestParam(value = "type", required = true) Integer type,
+			@ApiParam(name="3001",value="传入3001 上报参数",required=false)CpdReportReq req){
+    	   LOGGER.info("--------------------------------------------account/userDownApp:"+appPack);
+	      String result = StringUtils.EMPTY;
+	      Map<String,Object> map = new HashMap<String,Object>();
+	      if(!StringUtils.isNotBlank(token)){
+	       
+	         	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"用户token必须填写");
+	         	
+	         	return result;
+	         }
+	         if(!StringUtils.isNotBlank(appPack)){
+	      	   
+	      	   result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"app包名必须填写");
+	      	   
+	      	   return result;
+	         }
+	         
+	      try {
+	    	   
+	    	      map.put("device", device);
+	    	      map.put("appPack", appPack);
+	    	      map.put("token", token);
+	    	      map.put("type", type);
+	    	      map.put("cpd", req);
+	    	      //获取app列表
+	    	      if(type != 0){
+	    	    	  result = accountService.userDownApp(map);
+	    	      }
+		    	  
+	    	  
+			} catch (Exception e) {
+				e.printStackTrace();
+				result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+			}
+       
+    	return result;
+    }
+    
+    
+    //用户更新列表
+    @ApiOperation(value = "更新列表")
+    @RequestMapping(value = "/account/replaceUserApp",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String replaceUserApp(@ApiParam(name="token",value = "用户token") @RequestParam(value = "token", required = true) String token){
+    	 LOGGER.info("--------------------------------------------account/replaceUserApp:"+token);
+	      String result = StringUtils.EMPTY;
+	      Map<String,Object> map = new HashMap<String,Object>();
+	      if(!StringUtils.isNotBlank(token)){
+	         	
+	         	result = NotifyUtil.error(ErrorCodeEnum.NULLPARAM,"用户token必须填写");
+	         	
+	         	return result;
+	         }
+	      try {
+	    	   //获取app列表
+	    	  result = accountService.replaceUserApp(token);
+	    	  
+			} catch (Exception e) {
+				e.printStackTrace();
+				result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+			}
+       
+    	return result;
+    }
+    //返回省市区
+    @ApiOperation(value = "人工存贮")
+    @RequestMapping(value = "/account/regions",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String regions(@ApiParam(name="token",value = "token") @RequestParam(value = "token", required = false) String token){
+    //	 LOGGER.info("--------------------------------------------user/queryInvite:"+token);
+	      String result = StringUtils.EMPTY;
+	      Map<String,Object> map = new HashMap<String,Object>();
+	     
+	      try {
+	    	   //获取app列表
+	    	  result = accountService.regions();
+	    	  
+			} catch (Exception e) {
+				e.printStackTrace();
+				result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+			}
+       
+    	return result;
+    }
+    
+   
+    @ApiOperation(value = "返回所有市区")
+    @RequestMapping(value = "/account/aPPRegions",
+        	method = {RequestMethod.GET,RequestMethod.POST})
+	public String aPPRegions(@ApiParam(name="token",value = "token") @RequestParam(value = "token", required = false) String token){
+    //	 LOGGER.info("--------------------------------------------user/queryInvite:"+token);
+	      String result = StringUtils.EMPTY;
+	      Map<String,Object> map = new HashMap<String,Object>();
+	     
+	      try {
+	    	   //获取app列表
+	    	  result = accountService.aPPRegions();
+	    	  
+			} catch (Exception e) {
+				e.printStackTrace();
+				result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+			}
+       
+    	return result;
+    }
+ 
+    @ApiOperation(value = "图片上传token")
+    @RequestMapping(value = "/account/uploadToken",
+    method = {RequestMethod.GET,RequestMethod.POST})
+    public String uploadToken(@ApiParam(name="token",value = "token") @RequestParam(value = "token", required = false) String token){
+        
+    	LOGGER.info("--------------------------------------------account/uploadToken:"+token);
+    	String result = StringUtils.EMPTY;
+    	Map<String,Object> map = new HashMap<String,Object>();
+    	String uploadToken =null;
+    	try {
+    		//获取app列表
+    		 uploadToken = CloudUtil.getUploadToken();
+    		
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    		result = NotifyUtil.error(ErrorCodeEnum.OPERATERROE,e.getLocalizedMessage());
+    	}
+    	map.put("UploadToken", uploadToken);
+    	return NotifyUtil.success(map);
+    }
+    
+}

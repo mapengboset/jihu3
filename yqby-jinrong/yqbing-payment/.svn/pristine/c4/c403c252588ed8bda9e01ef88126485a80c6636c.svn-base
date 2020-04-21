@@ -1,0 +1,37 @@
+package com.yqbing.servicebing.webapp.controller.jed;
+
+import io.swagger.annotations.Api;
+
+import org.junit.Test;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import redis.clients.jedis.Jedis;
+
+
+@RestController
+@Api(tags = "项目发布")
+public class RedisSub {
+    
+	@RequestMapping(value="/app/jedis")
+	public void subjava(String amount) {
+	    System.out.println("发布者 ");
+	    
+        Jedis jr = null;
+        try {
+        	 jr = new Jedis("47.94.211.93", 6379, 0);// redis服务地址和端口号
+             jr.auth("yqbing2018");
+             
+             jr.publish("wxOrder", amount);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (jr != null) {
+                jr.disconnect();
+                jr.close();
+            }
+        }
+		
+    }
+	
+}

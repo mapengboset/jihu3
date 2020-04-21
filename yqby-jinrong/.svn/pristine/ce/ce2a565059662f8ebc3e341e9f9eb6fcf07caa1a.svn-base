@@ -1,0 +1,67 @@
+package com.yqbing.servicebing.utils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.google.gson.Gson;
+import com.qiniu.common.QiniuException;
+import com.qiniu.common.Zone;
+import com.qiniu.http.Response;
+import com.qiniu.storage.BucketManager;
+import com.qiniu.storage.Configuration;
+import com.qiniu.storage.UploadManager;
+import com.qiniu.storage.model.DefaultPutRet;
+import com.qiniu.util.Auth;
+
+public class CloudUtil {
+	
+
+	private static final Logger log = LoggerFactory
+			.getLogger(CloudUtil.class);
+	private static String ACCESS_KEY = "FpfKXdU8KoWjdl2wBeYsV8z762jOFrzapr8eiCeM";
+	private static String SECRET_KEY = "fBLA2PwubAMXzMper9R-4VxG1fYuo-ruhSvmelb3";
+	private static String BUCKET = "yqbing";
+	private static String KEY = "jihubaojia";
+	private static String URL = "http://p2a60yqmm.bkt.clouddn.com";
+	public static  String upload( MultipartFile file) throws IOException{
+		
+		Configuration cfg = new Configuration(Zone.zone0());
+		//...其他参数参考类注释
+		UploadManager uploadManager = new UploadManager(cfg);
+		//...生成上传凭证，然后准备上传
+		String accessKey = ACCESS_KEY;
+		String secretKey = SECRET_KEY;
+		String bucket = BUCKET;
+		//默认不指定key的情况下，以文件内容的hash值作为文件名
+		String key = null;
+		  String url = null;
+		
+		    byte[] uploadBytes = file.getBytes();
+		    Auth auth = Auth.create(accessKey, secretKey);
+		    String upToken = auth.uploadToken(bucket);
+		    try {
+		        Response response = uploadManager.put(uploadBytes, key, upToken);
+		        //解析上传成功的结果
+		        DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
+		        
+		        url =  URL+"/"+putRet.hash;
+		   //     System.out.println(putRet.hash);
+		    } catch (QiniuException ex) {
+		        Response r = ex.response;
+		        ex.getStackTrace();
+		    }
+		
+		return url;
+	}
+	
+}

@@ -1,0 +1,166 @@
+package com.yqbing.servicebing.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.yqbing.servicebing.common.ErrorCodeEnum;
+import com.yqbing.servicebing.repository.database.bean.AppBanner;
+import com.yqbing.servicebing.repository.database.bean.AppRecommend;
+import com.yqbing.servicebing.repository.database.bean.StoreHouse;
+import com.yqbing.servicebing.repository.database.bean.SysDict;
+import com.yqbing.servicebing.repository.database.bean.UserAppTask;
+import com.yqbing.servicebing.repository.database.bean.UserInfoBean;
+import com.yqbing.servicebing.repository.database.dao.AppBannerExample;
+import com.yqbing.servicebing.repository.database.dao.AppBannerMapper;
+import com.yqbing.servicebing.repository.database.dao.AppRecommendMapper;
+import com.yqbing.servicebing.repository.database.dao.StoreHouseMapper;
+import com.yqbing.servicebing.repository.database.dao.SysDictExample;
+import com.yqbing.servicebing.repository.database.dao.SysDictMapper;
+import com.yqbing.servicebing.repository.database.dao.UserAppTaskMapper;
+import com.yqbing.servicebing.repository.database.dao.UserInfoBeanMapper;
+import com.yqbing.servicebing.repository.database.dao.AppBannerExample.Criteria;
+import com.yqbing.servicebing.repository.redis.RStoreHouseData;
+import com.yqbing.servicebing.repository.redis.RUserAppTaskData;
+import com.yqbing.servicebing.repository.redis.RUserLogBean;
+import com.yqbing.servicebing.service.GameService;
+import com.yqbing.servicebing.utils.NotifyUtil;
+import com.yqbing.servicebing.webapp.response.GameAppRes;
+import com.yqbing.servicebing.webapp.response.GameTypeRes;
+import com.yqbing.servicebing.webapp.response.HomeAppRes;
+import com.yqbing.servicebing.webapp.response.homePageRes;
+
+
+@Service("gameService")
+@SuppressWarnings("all")
+public class GameServiceImpl implements GameService{
+    
+	
+	 @Resource
+	 private AppBannerMapper appBannerMapper= null;
+     @Resource
+     private SysDictMapper sysDictMapper= null;
+     @Resource
+	 private StoreHouseMapper storeHouseMapper= null;
+     @Resource
+	 private AppRecommendMapper appRecommendMapper= null;
+     @Resource
+	 private RStoreHouseData rStoreHouseData = null;
+     @Resource
+	 private RUserAppTaskData rUserAppTaskData = null;
+     @Resource
+	 private UserAppTaskMapper userAppTaskMapper = null;
+     @Resource
+	 private UserInfoBeanMapper userInfoBeanMapper = null;
+     @Resource
+	 private RUserLogBean rUserLogBean = null;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(GameServiceImpl.class);
+	@Override
+	public String gamePage(String token) {
+
+		// TODO Auto-generated method stub
+		ArrayList<GameTypeRes> gtys = new ArrayList<GameTypeRes>();
+		Byte s = 0;
+		String typeapp = "game_type";
+		
+		UserInfoBean infoBean = rUserLogBean.getRaw(token);
+		
+		if(infoBean == null){
+			
+			infoBean = userInfoBeanMapper.queryToken(token);
+		}
+		if(infoBean == null){
+			return NotifyUtil.error(ErrorCodeEnum.NOLOGIN, "用户不存在");
+			
+		}
+		ArrayList<GameAppRes> arrayList = new ArrayList<GameAppRes>();
+		
+		SysDictExample example2 = new SysDictExample();
+		example2.createCriteria().andParentKeyEqualTo("game_type");
+		List<SysDict> list = sysDictMapper.selectByExample(example2);
+		for (SysDict sysDict : list) {
+			
+			GameTypeRes GameTypeRes = new GameTypeRes();
+			GameTypeRes.setFidkey(sysDict.getFldkey());
+			GameTypeRes.setName(sysDict.getName());
+			if(sysDict.getName().equals("热门")){
+				AppBannerExample example = new AppBannerExample();
+				Criteria criteria = example.createCriteria();
+				criteria.andAppCategoryIdEqualTo("hot_banner").andStatusEqualTo(s);
+				List<AppBanner> pic = appBannerMapper.selectByExample(example);
+				GameTypeRes.setPic(pic);
+			}
+			//返回所有
+			String fldkey = sysDict.getFldkey();//返回onemachine_tag 
+			SysDictExample example3 = new SysDictExample();
+			example3.createCriteria().andParentKeyEqualTo(fldkey);
+			List<SysDict> list2 = sysDictMapper.selectByExample(example3);
+			
+			for(SysDict sd : list2){
+				
+				
+				
+				List<AppRecommend> ares =  appRecommendMapper.queryTagId(sd.getFldkey());
+				for (AppRecommend a : ares) {
+					GameAppRes appRes = new GameAppRes();
+					StoreHouse sh = rStoreHouseData.getAppPack(a.getAppId());
+					if(sh ==  null){
+						sh = storeHouseMapper.getByAppPack(a.getAppId());
+					}else{
+						return NotifyUtil.error(ErrorCodeEnum.NULLOBJECT, "app信息不存在");
+					}
+					//在我的下载列表 存在不在展示
+					UserAppTask userAppTask = rUserAppTaskData.getUserAppTask(infoBean.getId()+"", a.getAppId());
+					if(userAppTask != null){
+						continue;
+					}
+					appRes.setSort(a.getSort());
+					appRes.setAppName(sh.getAppName());
+					appRes.setAppPake(sh.getAppPack());
+					appRes.setImg(sh.getAppUrlImg());
+					appRes.setUrl(sh.getAppUrl());
+					appRes.setId(sh.getId());
+					appRes.setTAGID(a.getTagId());
+					//appRes.setTagIdDatail(a.);
+					arrayList.add(appRes);
+				}
+			}
+			GameTypeRes.setApps(arrayList);
+			gtys.add(GameTypeRes);
+		}
+		Map<String,Object> map = new HashMap<String,Object>();
+		map.put("token",token);
+		 
+		return NotifyUtil.success(map);
+	}
+	
+	
+	
+	@Override
+	public String moreGamePage(String token, String page, String size,
+			String fidkey) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	@Override
+	public String gamePeck(String token, String page, String size) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	
+	
+
+}

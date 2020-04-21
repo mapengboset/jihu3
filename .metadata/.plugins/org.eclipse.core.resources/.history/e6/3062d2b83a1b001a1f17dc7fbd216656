@@ -1,0 +1,64 @@
+package com.hiko.gym.common.service.thirdLogin;
+
+import org.springframework.stereotype.Service;
+
+import com.hiko.gym.common.exception.GymException;
+import com.qq.connect.QQConnectException;
+import com.qq.connect.javabeans.qzone.UserInfoBean;
+import com.qq.connect.utils.QQConnectConfig;
+import com.qq.connect.utils.http.HttpClient;
+import com.qq.connect.utils.http.PostParameter;
+
+/**
+ * QQ用户登陆验证服务接口
+ * @author zhouwf
+ *
+ */
+@Service("qQUserCheckService")
+public class QQUserCheckServiceImpl implements QQUserCheckService {
+	
+	
+
+	/**
+	 * @param marketChannel 渠道标识 1.钛酷  2.浩沙
+	 * @param uid 登录用户标识
+	 * @param accessToken 访问授权凭证
+	 * @return 是否有效
+	 * @throws GymException 健身馆异常
+	 */
+	@Override
+	public boolean checkUserValid(Integer marketChannel, String uid,
+			String accessToken) throws GymException {
+		// TODO Auto-generated method stub
+		
+		try {
+			HttpClient client = new HttpClient();
+			//根据渠道变更QQ登录的app_ID
+			String app_ID = null;
+			String app_KEY = null;
+			//钛酷APP
+			if(marketChannel==1){
+				app_ID = QQConnectConfig.getValue("app_ID");
+				app_KEY = QQConnectConfig.getValue("app_KEY");
+			}else//浩沙APP
+				if(marketChannel==2){
+					app_ID = QQConnectConfig.getValue("hosa_app_ID");
+					app_KEY = QQConnectConfig.getValue("hosa_app_KEY");
+				}
+			System.out.println("channel:"+marketChannel+"   app_ID:"+app_ID+"  app_KEY:"+app_KEY+"  uid:"+uid+"  accessToken:"+accessToken);
+			UserInfoBean userInfoBean = new UserInfoBean(client.get(QQConnectConfig.getValue("getUserInfoURL"),
+					new PostParameter[] {
+				new PostParameter("openid", uid),
+				new PostParameter("oauth_consumer_key", app_ID),
+				new PostParameter("access_token", accessToken),
+				new PostParameter("format", "json") }).asJSONObject());
+			if (userInfoBean.getRet() != 0) {
+				throw new GymException("腾讯QQ未登录"+userInfoBean.getRet());
+			}
+		}catch (QQConnectException e) {
+			throw new GymException("腾讯QQ验证异常", e);
+		}
+		return true;
+	}
+
+}

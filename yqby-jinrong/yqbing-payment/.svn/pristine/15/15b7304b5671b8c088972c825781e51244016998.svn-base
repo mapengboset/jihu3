@@ -1,0 +1,676 @@
+package com.yqbing.servicebing.webapp.wxpay.vo;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * 
+ * 微信预付款订单表
+ * 
+ **/
+@SuppressWarnings("serial")
+public class TWxApayOrderBean implements Serializable {
+
+	/** 商户订单 **/
+	private Long outTradeNo;
+
+	/** 总金额（单位为分） **/
+	private Integer totalFee;
+
+	/** 公众账号Id **/
+	private String appId;
+
+	/** 商户号 **/
+	private String mchId;
+
+	/** 设备号 **/
+	private String deviceInfo;
+
+	/** 用户标识 **/
+	private String openId;
+
+	/** 随机字符串 **/
+	private String nonceStr;
+
+	/** 签名 **/
+	private String sign;
+
+	/** 签名类型 **/
+	private String signType;
+
+	/** 商品描述 **/
+	private String body;
+
+	/** 商品详情 **/
+	private String detail;
+
+	/** 附加数据 **/
+	private String attach;
+
+	/** 货币类型 **/
+	private String feeType;
+
+	/** 终端IP **/
+	private String spbillCreateIp;
+
+	/** 通知地址 **/
+	private String notifyUrl;
+
+	/** 交易类型 **/
+	private String tradeType;
+
+	/** 商品 **/
+	private String productId;
+
+	/** 指定支付方式 **/
+	private String limitType;
+
+	/** 返回通信状态码 **/
+	private String returnCode;
+
+	/** 返回通信信息 **/
+	private String returnMsg;
+
+	/** 返回的公众账号Id **/
+	private String bappId;
+
+	/** 返回的商户号 **/
+	private String bmchId;
+
+	/** 返回的设备号 **/
+	private String bdeviceInfo;
+
+	/** 返回的随机字符串 **/
+	private String bnonceStr;
+
+	/** 返回的签名 **/
+	private String bsign;
+
+	/** 返回的业务结果 **/
+	private String resultCode;
+
+	/** 返回的错误代码 **/
+	private String errCode;
+
+	/** 返回的错误代码描述 **/
+	private String errCodeDesc;
+
+	/** 返回的交易类型 **/
+	private String btradeType;
+
+	/** 返回的预支付交易会话标识 **/
+	private String prepayId;
+
+	/** 返回的二维码链接 **/
+	private String codeUrl;
+
+	/** 是否有效（1：有效；2：无效） **/
+	private Integer isEnabled;
+
+	/** 创建时间 **/
+	private Date createTime;
+
+
+
+	/**
+	 * 
+	 * 设置商户订单
+	 * @param outTradeNo 商户订单
+	 **/
+	public void setOutTradeNo(Long outTradeNo) {
+		this.outTradeNo = outTradeNo;
+	}
+
+	/**
+	 * 获取商户订单
+	 * @return outTradeNo 商户订单
+	 **/
+	public Long getOutTradeNo() {
+		return this.outTradeNo;
+	}
+
+	/**
+	 * 
+	 * 设置总金额（单位为分）
+	 * @param totalFee 总金额（单位为分）
+	 **/
+	public void setTotalFee(Integer totalFee) {
+		this.totalFee = totalFee;
+	}
+
+	/**
+	 * 获取总金额（单位为分）
+	 * @return totalFee 总金额（单位为分）
+	 **/
+	public Integer getTotalFee() {
+		return this.totalFee;
+	}
+
+	/**
+	 * 
+	 * 设置公众账号Id
+	 * @param appId 公众账号Id
+	 **/
+	public void setAppId(String appId) {
+		this.appId = appId;
+	}
+
+	/**
+	 * 获取公众账号Id
+	 * @return appId 公众账号Id
+	 **/
+	public String getAppId() {
+		return this.appId;
+	}
+
+	/**
+	 * 
+	 * 设置商户号
+	 * @param mchId 商户号
+	 **/
+	public void setMchId(String mchId) {
+		this.mchId = mchId;
+	}
+
+	/**
+	 * 获取商户号
+	 * @return mchId 商户号
+	 **/
+	public String getMchId() {
+		return this.mchId;
+	}
+
+	/**
+	 * 
+	 * 设置设备号
+	 * @param deviceInfo 设备号
+	 **/
+	public void setDeviceInfo(String deviceInfo) {
+		this.deviceInfo = deviceInfo;
+	}
+
+	/**
+	 * 获取设备号
+	 * @return deviceInfo 设备号
+	 **/
+	public String getDeviceInfo() {
+		return this.deviceInfo;
+	}
+
+	/**
+	 * 
+	 * 设置用户标识
+	 * @param openId 用户标识
+	 **/
+	public void setOpenId(String openId) {
+		this.openId = openId;
+	}
+
+	/**
+	 * 获取用户标识
+	 * @return openId 用户标识
+	 **/
+	public String getOpenId() {
+		return this.openId;
+	}
+
+	/**
+	 * 
+	 * 设置随机字符串
+	 * @param nonceStr 随机字符串
+	 **/
+	public void setNonceStr(String nonceStr) {
+		this.nonceStr = nonceStr;
+	}
+
+	/**
+	 * 获取随机字符串
+	 * @return nonceStr 随机字符串
+	 **/
+	public String getNonceStr() {
+		return this.nonceStr;
+	}
+
+	/**
+	 * 
+	 * 设置签名
+	 * @param sign 签名
+	 **/
+	public void setSign(String sign) {
+		this.sign = sign;
+	}
+
+	/**
+	 * 获取签名
+	 * @return sign 签名
+	 **/
+	public String getSign() {
+		return this.sign;
+	}
+
+	/**
+	 * 
+	 * 设置签名类型
+	 * @param signType 签名类型
+	 **/
+	public void setSignType(String signType) {
+		this.signType = signType;
+	}
+
+	/**
+	 * 获取签名类型
+	 * @return signType 签名类型
+	 **/
+	public String getSignType() {
+		return this.signType;
+	}
+
+	/**
+	 * 
+	 * 设置商品描述
+	 * @param body 商品描述
+	 **/
+	public void setBody(String body) {
+		this.body = body;
+	}
+
+	/**
+	 * 获取商品描述
+	 * @return body 商品描述
+	 **/
+	public String getBody() {
+		return this.body;
+	}
+
+	/**
+	 * 
+	 * 设置商品详情
+	 * @param detail 商品详情
+	 **/
+	public void setDetail(String detail) {
+		this.detail = detail;
+	}
+
+	/**
+	 * 获取商品详情
+	 * @return detail 商品详情
+	 **/
+	public String getDetail() {
+		return this.detail;
+	}
+
+	/**
+	 * 
+	 * 设置附加数据
+	 * @param attach 附加数据
+	 **/
+	public void setAttach(String attach) {
+		this.attach = attach;
+	}
+
+	/**
+	 * 获取附加数据
+	 * @return attach 附加数据
+	 **/
+	public String getAttach() {
+		return this.attach;
+	}
+
+	/**
+	 * 
+	 * 设置货币类型
+	 * @param feeType 货币类型
+	 **/
+	public void setFeeType(String feeType) {
+		this.feeType = feeType;
+	}
+
+	/**
+	 * 获取货币类型
+	 * @return feeType 货币类型
+	 **/
+	public String getFeeType() {
+		return this.feeType;
+	}
+
+	/**
+	 * 
+	 * 设置终端IP
+	 * @param spbillCreateIp 终端IP
+	 **/
+	public void setSpbillCreateIp(String spbillCreateIp) {
+		this.spbillCreateIp = spbillCreateIp;
+	}
+
+	/**
+	 * 获取终端IP
+	 * @return spbillCreateIp 终端IP
+	 **/
+	public String getSpbillCreateIp() {
+		return this.spbillCreateIp;
+	}
+
+	/**
+	 * 
+	 * 设置通知地址
+	 * @param notifyUrl 通知地址
+	 **/
+	public void setNotifyUrl(String notifyUrl) {
+		this.notifyUrl = notifyUrl;
+	}
+
+	/**
+	 * 获取通知地址
+	 * @return notifyUrl 通知地址
+	 **/
+	public String getNotifyUrl() {
+		return this.notifyUrl;
+	}
+
+	/**
+	 * 
+	 * 设置交易类型
+	 * @param tradeType 交易类型
+	 **/
+	public void setTradeType(String tradeType) {
+		this.tradeType = tradeType;
+	}
+
+	/**
+	 * 获取交易类型
+	 * @return tradeType 交易类型
+	 **/
+	public String getTradeType() {
+		return this.tradeType;
+	}
+
+	/**
+	 * 
+	 * 设置商品
+	 * @param productId 商品
+	 **/
+	public void setProductId(String productId) {
+		this.productId = productId;
+	}
+
+	/**
+	 * 获取商品
+	 * @return productId 商品
+	 **/
+	public String getProductId() {
+		return this.productId;
+	}
+
+	/**
+	 * 
+	 * 设置指定支付方式
+	 * @param limitType 指定支付方式
+	 **/
+	public void setLimitType(String limitType) {
+		this.limitType = limitType;
+	}
+
+	/**
+	 * 获取指定支付方式
+	 * @return limitType 指定支付方式
+	 **/
+	public String getLimitType() {
+		return this.limitType;
+	}
+
+	/**
+	 * 
+	 * 设置返回通信状态码
+	 * @param returnCode 返回通信状态码
+	 **/
+	public void setReturnCode(String returnCode) {
+		this.returnCode = returnCode;
+	}
+
+	/**
+	 * 获取返回通信状态码
+	 * @return returnCode 返回通信状态码
+	 **/
+	public String getReturnCode() {
+		return this.returnCode;
+	}
+
+	/**
+	 * 
+	 * 设置返回通信信息
+	 * @param returnMsg 返回通信信息
+	 **/
+	public void setReturnMsg(String returnMsg) {
+		this.returnMsg = returnMsg;
+	}
+
+	/**
+	 * 获取返回通信信息
+	 * @return returnMsg 返回通信信息
+	 **/
+	public String getReturnMsg() {
+		return this.returnMsg;
+	}
+
+	/**
+	 * 
+	 * 设置返回的公众账号Id
+	 * @param bappId 返回的公众账号Id
+	 **/
+	public void setBappId(String bappId) {
+		this.bappId = bappId;
+	}
+
+	/**
+	 * 获取返回的公众账号Id
+	 * @return bappId 返回的公众账号Id
+	 **/
+	public String getBappId() {
+		return this.bappId;
+	}
+
+	/**
+	 * 
+	 * 设置返回的商户号
+	 * @param bmchId 返回的商户号
+	 **/
+	public void setBmchId(String bmchId) {
+		this.bmchId = bmchId;
+	}
+
+	/**
+	 * 获取返回的商户号
+	 * @return bmchId 返回的商户号
+	 **/
+	public String getBmchId() {
+		return this.bmchId;
+	}
+
+	/**
+	 * 
+	 * 设置返回的设备号
+	 * @param bdeviceInfo 返回的设备号
+	 **/
+	public void setBdeviceInfo(String bdeviceInfo) {
+		this.bdeviceInfo = bdeviceInfo;
+	}
+
+	/**
+	 * 获取返回的设备号
+	 * @return bdeviceInfo 返回的设备号
+	 **/
+	public String getBdeviceInfo() {
+		return this.bdeviceInfo;
+	}
+
+	/**
+	 * 
+	 * 设置返回的随机字符串
+	 * @param bnonceStr 返回的随机字符串
+	 **/
+	public void setBnonceStr(String bnonceStr) {
+		this.bnonceStr = bnonceStr;
+	}
+
+	/**
+	 * 获取返回的随机字符串
+	 * @return bnonceStr 返回的随机字符串
+	 **/
+	public String getBnonceStr() {
+		return this.bnonceStr;
+	}
+
+	/**
+	 * 
+	 * 设置返回的签名
+	 * @param bsign 返回的签名
+	 **/
+	public void setBsign(String bsign) {
+		this.bsign = bsign;
+	}
+
+	/**
+	 * 获取返回的签名
+	 * @return bsign 返回的签名
+	 **/
+	public String getBsign() {
+		return this.bsign;
+	}
+
+	/**
+	 * 
+	 * 设置返回的业务结果
+	 * @param resultCode 返回的业务结果
+	 **/
+	public void setResultCode(String resultCode) {
+		this.resultCode = resultCode;
+	}
+
+	/**
+	 * 获取返回的业务结果
+	 * @return resultCode 返回的业务结果
+	 **/
+	public String getResultCode() {
+		return this.resultCode;
+	}
+
+	/**
+	 * 
+	 * 设置返回的错误代码
+	 * @param errCode 返回的错误代码
+	 **/
+	public void setErrCode(String errCode) {
+		this.errCode = errCode;
+	}
+
+	/**
+	 * 获取返回的错误代码
+	 * @return errCode 返回的错误代码
+	 **/
+	public String getErrCode() {
+		return this.errCode;
+	}
+
+	/**
+	 * 
+	 * 设置返回的错误代码描述
+	 * @param errCodeDesc 返回的错误代码描述
+	 **/
+	public void setErrCodeDesc(String errCodeDesc) {
+		this.errCodeDesc = errCodeDesc;
+	}
+
+	/**
+	 * 获取返回的错误代码描述
+	 * @return errCodeDesc 返回的错误代码描述
+	 **/
+	public String getErrCodeDesc() {
+		return this.errCodeDesc;
+	}
+
+	/**
+	 * 
+	 * 设置返回的交易类型
+	 * @param btradeType 返回的交易类型
+	 **/
+	public void setBtradeType(String btradeType) {
+		this.btradeType = btradeType;
+	}
+
+	/**
+	 * 获取返回的交易类型
+	 * @return btradeType 返回的交易类型
+	 **/
+	public String getBtradeType() {
+		return this.btradeType;
+	}
+
+	/**
+	 * 
+	 * 设置返回的预支付交易会话标识
+	 * @param prepayId 返回的预支付交易会话标识
+	 **/
+	public void setPrepayId(String prepayId) {
+		this.prepayId = prepayId;
+	}
+
+	/**
+	 * 获取返回的预支付交易会话标识
+	 * @return prepayId 返回的预支付交易会话标识
+	 **/
+	public String getPrepayId() {
+		return this.prepayId;
+	}
+
+	/**
+	 * 
+	 * 设置返回的二维码链接
+	 * @param codeUrl 返回的二维码链接
+	 **/
+	public void setCodeUrl(String codeUrl) {
+		this.codeUrl = codeUrl;
+	}
+
+	/**
+	 * 获取返回的二维码链接
+	 * @return codeUrl 返回的二维码链接
+	 **/
+	public String getCodeUrl() {
+		return this.codeUrl;
+	}
+
+	/**
+	 * 
+	 * 设置是否有效（1：有效；2：无效）
+	 * @param isEnabled 是否有效（1：有效；2：无效）
+	 **/
+	public void setIsEnabled(Integer isEnabled) {
+		this.isEnabled = isEnabled;
+	}
+
+	/**
+	 * 获取是否有效（1：有效；2：无效）
+	 * @return isEnabled 是否有效（1：有效；2：无效）
+	 **/
+	public Integer getIsEnabled() {
+		return this.isEnabled;
+	}
+
+	/**
+	 * 
+	 * 设置创建时间
+	 * @param createTime 创建时间
+	 **/
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	/**
+	 * 获取创建时间
+	 * @return createTime 创建时间
+	 **/
+	public Date getCreateTime() {
+		return this.createTime;
+	}
+
+}

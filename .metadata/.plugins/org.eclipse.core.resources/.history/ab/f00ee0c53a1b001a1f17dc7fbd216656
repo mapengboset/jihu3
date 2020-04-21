@@ -1,0 +1,176 @@
+package com.hiko.gym.common.repository.redis;
+
+import static org.junit.Assert.*;
+
+import java.util.*;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.test.context.*;
+import org.springframework.test.context.junit4.*;
+
+import com.alibaba.fastjson.*;
+
+/**
+ * 客户场馆列表测试类
+ * 
+ * @author cychen
+ *
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:spring-config-test.xml" })
+public class RCustomerVenueListTest {
+
+	/** 客户场馆列表 */
+	@Autowired
+	private RCustomerVenueList rCustomerVenueList = null;
+
+	/**
+	 * 测试添加场馆标识
+	 */
+	@Test
+	public void testAdd() {
+		// 初始化
+		Long customerId = null;
+		Integer venueId = null;
+
+		// 调用接口
+		rCustomerVenueList.add(customerId, venueId);
+		Integer last = rCustomerVenueList.last(customerId);
+
+		// 打印日志
+		System.out.println("testAdd:");
+		System.out.println(last);
+
+		// 检查结果
+		assertEquals(last, venueId);
+	}
+
+	/**
+	 * 测试删除场馆标识
+	 */
+	@Test
+	public void testRemove() {
+		// 初始化
+		Long customerId = null;
+		Integer venueId = null;
+
+		// 调用接口
+		rCustomerVenueList.add(customerId, venueId);
+		Long size = rCustomerVenueList.size(customerId) - 1;
+		rCustomerVenueList.remove(customerId, venueId);
+
+		// 打印日志
+		System.out.println("testRemove:");
+		System.out.println(rCustomerVenueList.size(customerId));
+
+		// 检查结果
+		assertEquals(rCustomerVenueList.size(customerId), size);
+	}
+
+	/**
+	 * 测试存在场馆标识
+	 */
+	@Test
+	public void testExist() {
+		// 初始化
+		Long customerId = null;
+		Integer venueId = null;
+
+		// 调用接口
+		rCustomerVenueList.add(customerId, venueId);
+		Boolean exist = rCustomerVenueList.exist(customerId, venueId);
+
+		// 打印日志
+		System.out.println("testExist:");
+		System.out.println(exist);
+
+		// 检查结果
+		assertTrue(exist);
+	}
+
+	/**
+	 * 测试递获取列表大小
+	 */
+	@Test
+	public void testSize() {
+		// 初始化
+		Long customerId = null;
+		Integer venueId = null;
+
+		// 调用接口
+		rCustomerVenueList.add(customerId, venueId);
+		Long size = rCustomerVenueList.size(customerId);
+
+		// 打印日志
+		System.out.println("testSize:");
+		System.out.println(size);
+
+		// 检查结果
+		assertTrue(size > 0);
+	}
+
+	/**
+	 * 测试最后场馆标识
+	 */
+	@Test
+	public void testLast() {
+		// 初始化
+		Long customerId = null;
+		Integer venueId = null;
+
+		// 调用接口
+		rCustomerVenueList.add(customerId, venueId);
+		Integer last = rCustomerVenueList.last(customerId);
+
+		// 打印日志
+		System.out.println("testLast:");
+		System.out.println(last);
+
+		// 检查结果
+		assertEquals(last, venueId);
+	}
+
+	/**
+	 * 测试清除列表内容
+	 */
+	@Test
+	public void testClear() {
+		// 初始化
+		Long customerId = null;
+
+		// 调用接口
+		rCustomerVenueList.clear(customerId);
+		Long size = rCustomerVenueList.size(customerId);
+
+		// 打印日志
+		System.out.println("testClear:");
+		System.out.println(size);
+
+		// 检查结果
+		assertTrue(size == 0l);
+	}
+
+	/**
+	 * 测试获取场馆标识
+	 */
+	@Test
+	public void testRange() {
+		// 初始化
+		Long customerId = null;
+		Integer venueId = null;
+
+		// 调用接口
+		rCustomerVenueList.add(customerId, venueId);
+		List<Integer> valueList = rCustomerVenueList.range(customerId, 0l, -1l);
+
+		// 打印日志
+		System.out.println("testClear:");
+		System.out.println(JSON.toJSONString(valueList));
+
+		// 检查结果
+		assertTrue(valueList.size() > 0);
+	}
+
+}

@@ -1,0 +1,72 @@
+package com.hiko.gym.common.repository.redis;
+
+import static org.junit.Assert.*;
+
+import javax.annotation.*;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.springframework.test.context.*;
+import org.springframework.test.context.junit4.*;
+
+/**
+ * 磁卡标识客户标识值测试类
+ * 
+ * @author cychen
+ *
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:spring-config-test.xml" })
+public class RCardIdCustomerIdValueTest {
+
+	/** 磁卡标识客户标识值 */
+	@Resource(name = "rCardIdCustomerIdValue")
+	private RCardIdCustomerIdValue rCardIdCustomerIdValue = null;
+
+	/**
+	 * 测试设置磁卡标识客户标识函数
+	 */
+	@Test
+	public void testSet() {
+		String cardId = null; // TODO:
+		Long customerId = null; // TODO:
+		rCardIdCustomerIdValue.set(cardId, customerId);
+		assertEquals(rCardIdCustomerIdValue.get(cardId), customerId);
+	}
+
+	/**
+	 * 测试获取客户标识函数
+	 */
+	@Test
+	public void testGet() {
+		String cardId = null; // TODO:
+		Long customerId = null; // TODO:
+		rCardIdCustomerIdValue.set(cardId, customerId);
+		assertEquals(rCardIdCustomerIdValue.get(cardId), customerId);
+	}
+
+	/**
+	 * 测试删除磁卡标识客户标识函数
+	 */
+	@Test
+	public void testRemove() {
+		String cardId = null; // TODO:
+		Long customerId = null; // TODO:
+		rCardIdCustomerIdValue.set(cardId, customerId);
+		assertTrue(rCardIdCustomerIdValue.exist(cardId));
+		rCardIdCustomerIdValue.remove(cardId);
+		assertFalse(rCardIdCustomerIdValue.exist(cardId));
+	}
+
+	/**
+	 * 测试存在磁卡标识客户标识函数
+	 */
+	@Test
+	public void testExist() {
+		String cardId = null; // TODO:
+		Long customerId = null; // TODO:
+		rCardIdCustomerIdValue.set(cardId, customerId);
+		assertEquals(rCardIdCustomerIdValue.get(cardId), customerId);
+	}
+
+}

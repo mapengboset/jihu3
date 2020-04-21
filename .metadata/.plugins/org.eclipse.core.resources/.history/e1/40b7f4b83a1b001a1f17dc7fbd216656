@@ -1,0 +1,78 @@
+package com.hiko.gym.common.repository.redis;
+
+/**
+ * 磁卡标识客户标识值接口
+ * 
+ * @author cychen
+ *
+ */
+public interface RCardIdCustomerIdValue {
+
+	/**
+	 * 设置磁卡标识客户标识
+	 * 
+	 * @param cardId 磁卡标识
+	 * @param customerId 客户标识
+	 */
+	public void set(String cardId, Long customerId);
+	
+	/**
+	 * 设置手机号标识客户标识
+	 * 
+	 * @param phone 手机号
+	 * @param customerId 客户标识
+	 */
+	public void setPhone(String phone, Long customerId);
+	
+	/**
+	 * 设置磁卡标识客户标识
+	 * 
+	 * @param cardId 磁卡标识
+	 * @param customerId 客户标识
+	 * @param time 有效时间 小时
+	 */
+	public void set(String cardId, Long customerId, Long time);
+
+	/**
+	 * 获取客户标识
+	 * 
+	 * @param cardId 磁卡标识
+	 * @return 客户标识
+	 */
+	public Long get(String cardId);
+	/**
+	 * 获取客户标识
+	 * 
+	 * @param phone 手机号
+	 * @return 客户标识
+	 */
+	public Long getPhone(String phone);
+
+	/**
+	 * 删除磁卡标识客户标识
+	 * 
+	 * @param cardId 磁卡标识
+	 */
+	public void remove(String cardId);
+	/**
+	 * 删除手机号标识客户标识
+	 * 
+	 * @param phone 磁卡标识
+	 */
+	public void removePhone(String phone);
+	/**
+	 * 存在磁卡标识客户标识
+	 * 
+	 * @param cardId 磁卡标识
+	 * @return 是否存在
+	 */
+	public boolean exist(String cardId);
+	/**
+	 * 存在手机标识客户标识
+	 * 
+	 * @param phone 磁卡标识
+	 * @return 是否存在
+	 */
+	public boolean existPhone(String phone);
+
+}
